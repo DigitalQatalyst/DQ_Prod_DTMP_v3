@@ -29,7 +29,7 @@ export function ExecutionStreams() {
 
         {/* Footer Note */}
         <p className="text-center text-sm text-muted-foreground italic">
-          All streams governed by the Transformation Office through the platform
+          All streams are governed by the Transformation Office through this platform
         </p>
       </div>
     </section>

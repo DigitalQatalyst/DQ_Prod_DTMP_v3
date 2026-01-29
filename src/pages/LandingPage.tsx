@@ -15,12 +15,24 @@ const LandingPage = () => {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <DBPOverview />
-        <GovernanceModel />
-        <ExecutionStreams />
-        <ResourceMarketplaces />
-        <TOValue />
-        <Contributors />
+        <section id="dbp-overview">
+          <DBPOverview />
+        </section>
+        <section id="governance-model">
+          <GovernanceModel />
+        </section>
+        <section id="execution-streams">
+          <ExecutionStreams />
+        </section>
+        <section id="marketplaces">
+          <ResourceMarketplaces />
+        </section>
+        <section id="to-value">
+          <TOValue />
+        </section>
+        <section id="contributors">
+          <Contributors />
+        </section>
         <FinalCTA />
       </main>
       <Footer />

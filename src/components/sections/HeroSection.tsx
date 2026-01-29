@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Target, Layers, LayoutGrid, Building2 } from "lucide-react";
+import { Target, Layers, LayoutGrid, Building2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
@@ -38,58 +38,42 @@ export function HeroSection() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-12">
           <Link to="/marketplaces">
-            <Button className="bg-accent hover:bg-orange-hover text-accent-foreground px-8 py-4 h-auto text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all">
-              Access Platform +
-            </Button>
-          </Link>
-          <Link to="/visualization">
-            <Button
-              variant="outline"
-              className="border-2 border-primary-foreground text-primary-foreground bg-transparent hover:bg-primary-foreground/10 px-8 py-4 h-auto text-base font-semibold rounded-lg"
-            >
-              View Visualization Dashboard
+            <Button className="bg-accent hover:bg-orange-hover text-accent-foreground px-8 py-4 h-auto text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2">
+              Access Platform
+              <ArrowRight size={18} />
             </Button>
           </Link>
         </div>
 
         {/* Quick Links */}
         <div className="flex flex-wrap gap-6 items-center justify-center">
-          <Link
-            to="/dbp"
-            className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
-          >
-            <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
-              <Layers size={24} />
-            </div>
-            <span className="text-sm font-medium">DBP</span>
-          </Link>
-          <Link
-            to="/4d-model"
+          <button
+            onClick={() => document.getElementById('governance-model')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
           >
             <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
               <LayoutGrid size={24} />
             </div>
             <span className="text-sm font-medium">4D Model</span>
-          </Link>
-          <Link
-            to="/transformation-office"
+          </button>
+          <button
+            onClick={() => document.getElementById('to-value')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
           >
             <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
               <Building2 size={24} />
             </div>
             <span className="text-sm font-medium">TO</span>
-          </Link>
-          <Link
-            to="/assets"
+          </button>
+          <button
+            onClick={() => document.getElementById('marketplaces')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
           >
             <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
-              <LayoutGrid size={24} />
+              <Layers size={24} />
             </div>
             <span className="text-sm font-medium">Assets</span>
-          </Link>
+          </button>
         </div>
       </div>
     </section>

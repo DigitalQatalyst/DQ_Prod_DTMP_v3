@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function FinalCTA() {
@@ -15,16 +16,9 @@ export function FinalCTA() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/marketplaces">
-            <Button className="bg-accent hover:bg-orange-hover text-accent-foreground px-12 py-5 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
-              Access Platform +
-            </Button>
-          </Link>
-          <Link to="/visualization">
-            <Button
-              variant="outline"
-              className="border-2 border-accent text-accent hover:bg-accent/10 px-12 py-5 h-auto text-lg font-semibold rounded-lg w-full sm:w-auto"
-            >
-              View Visualization Dashboard
+            <Button className="bg-accent hover:bg-orange-hover text-accent-foreground px-12 py-5 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all w-full sm:w-auto inline-flex items-center gap-2">
+              Access Platform
+              <ArrowRight size={20} />
             </Button>
           </Link>
         </div>

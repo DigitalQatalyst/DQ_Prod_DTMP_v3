@@ -1,6 +1,15 @@
 import { Link } from "react-router-dom";
 import { Grid3x3, ArrowRight } from "lucide-react";
 import { Marketplace, phaseColors } from "@/data/marketplaces";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface MarketplaceCardProps {
   marketplace: Marketplace;
@@ -14,11 +23,15 @@ export function MarketplaceCard({
   const { icon: Icon, name, description, features, serviceCount, route, phase } =
     marketplace;
   const colors = phaseColors[phase];
+  const [isOpen, setIsOpen] = useState(false);
 
   if (variant === "simple") {
     return (
-      <Link to={route} className="block">
-        <div className="card-marketplace group">
+      <>
+        <div 
+          onClick={() => setIsOpen(true)}
+          className="card-marketplace group cursor-pointer"
+        >
           <div className="icon-gradient w-16 h-16 rounded-lg flex items-center justify-center mb-4">
             <Icon size={32} className="text-purple" />
           </div>
@@ -34,13 +47,77 @@ export function MarketplaceCard({
             {phase}
           </span>
         </div>
-      </Link>
+
+        {/* Popup Dialog */}
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <div className="icon-gradient w-16 h-16 rounded-lg flex items-center justify-center mb-4">
+                <Icon size={32} className="text-purple" />
+              </div>
+              <DialogTitle className="text-xl font-bold">{name}</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                {description}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Phase
+                </p>
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase ${colors.badge}`}
+                >
+                  {phase}
+                </span>
+              </div>
+              
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Features
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {features.map((feature) => (
+                    <span
+                      key={feature}
+                      className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Services Available
+                </p>
+                <span className="text-sm text-foreground flex items-center gap-1">
+                  <Grid3x3 size={16} />
+                  {serviceCount} services
+                </span>
+              </div>
+            </div>
+
+            <Link to={route} className="block">
+              <Button className="w-full bg-accent hover:bg-orange-hover text-accent-foreground font-semibold inline-flex items-center justify-center gap-2">
+                View Marketplace
+                <ArrowRight size={16} />
+              </Button>
+            </Link>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   }
 
   return (
-    <Link to={route} className="block">
-      <div className="card-marketplace group">
+    <>
+      <div 
+        onClick={() => setIsOpen(true)}
+        className="card-marketplace group cursor-pointer"
+      >
         <div className="flex justify-between items-start mb-4">
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase ${colors.badge}`}
@@ -86,6 +163,67 @@ export function MarketplaceCard({
           </span>
         </div>
       </div>
-    </Link>
+
+      {/* Popup Dialog */}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="icon-gradient w-16 h-16 rounded-lg flex items-center justify-center mb-4">
+              <Icon size={32} className="text-purple" />
+            </div>
+            <DialogTitle className="text-xl font-bold">{name}</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {description}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                Phase
+              </p>
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase ${colors.badge}`}
+              >
+                {phase}
+              </span>
+            </div>
+            
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                Features
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {features.map((feature) => (
+                  <span
+                    key={feature}
+                    className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                Services Available
+              </p>
+              <span className="text-sm text-foreground flex items-center gap-1">
+                <Grid3x3 size={16} />
+                {serviceCount} services
+              </span>
+            </div>
+          </div>
+
+          <Link to={route} className="block">
+            <Button className="w-full bg-accent hover:bg-orange-hover text-accent-foreground font-semibold inline-flex items-center justify-center gap-2">
+              View Marketplace
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

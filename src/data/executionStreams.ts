@@ -23,7 +23,7 @@ export const executionStreams: ExecutionStream[] = [
       "Unified customer journeys",
       "Experience management and personalization",
     ],
-    outcomes: ["Secure Foundations", "Contribute to DBP"],
+    outcomes: ["Secure Foundations", "Customer Engagement", "Omnichannel Delivery"],
   },
   {
     id: "dws",
@@ -36,7 +36,7 @@ export const executionStreams: ExecutionStream[] = [
       "Employee experience and collaboration",
       "Knowledge management systems",
     ],
-    outcomes: ["Productivity Gains", "Contribute to DBP"],
+    outcomes: ["Productivity Gains", "Employee Satisfaction", "Collaboration Efficiency"],
   },
   {
     id: "dia",
@@ -46,7 +46,7 @@ export const executionStreams: ExecutionStream[] = [
     color: "text-pink",
     description: "Data pipelines, ML models, and analytics services",
     features: ["AI-driven insights and automation", "Unified data governance"],
-    outcomes: ["AI/ML Capabilities", "Data Maturity"],
+    outcomes: ["AI/ML Capabilities", "Data Maturity", "Predictive Insights"],
   },
   {
     id: "sdo",
@@ -59,6 +59,6 @@ export const executionStreams: ExecutionStream[] = [
       "Security controls and compliance",
       "Infrastructure patterns and automation",
     ],
-    outcomes: ["CI/CD Maturity", "Security Posture"],
+    outcomes: ["CI/CD Maturity", "Security Posture", "Deployment Velocity"],
   },
 ];
