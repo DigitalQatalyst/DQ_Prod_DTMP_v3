@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
+import LearningCenterPage from "./pages/LearningCenterPage";
+import LearningCenterDetailPage from "./pages/LearningCenterDetailPage";
+import TransactAppPage from "./pages/TransactAppPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +23,13 @@ const App = () => (
           <Route path="/" element={<LandingPage />} />
           <Route path="/marketplaces" element={<MarketplacesPage />} />
           
+          {/* Learning Center marketplace */}
+          <Route path="/marketplaces/learning-center" element={<LearningCenterPage />} />
+          <Route path="/marketplaces/learning-center/:tab/:cardId" element={<LearningCenterDetailPage />} />
+          
+          {/* Stage 2 - Transact App */}
+          <Route path="/transact-app" element={<TransactAppPage />} />
+          
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
           <Route path="/4d-model" element={<ComingSoonPage pageName="4D Model" />} />
@@ -30,7 +40,6 @@ const App = () => (
           <Route path="/visualization" element={<ComingSoonPage pageName="Visualization Dashboard" />} />
           
           {/* Marketplace routes */}
-          <Route path="/marketplaces/learning-center" element={<ComingSoonPage pageName="Learning Center" />} />
           <Route path="/marketplaces/knowledge-center" element={<ComingSoonPage pageName="Knowledge Center" />} />
           <Route path="/marketplaces/templates" element={<ComingSoonPage pageName="Templates" />} />
           <Route path="/marketplaces/blueprints" element={<ComingSoonPage pageName="Blueprints" />} />
