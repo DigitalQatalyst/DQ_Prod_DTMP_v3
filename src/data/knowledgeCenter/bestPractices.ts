@@ -1,0 +1,330 @@
+import { LucideIcon, Lightbulb, Target, Shield, Database, Users, Layers, Lock, Network } from "lucide-react";
+
+export interface BestPractice {
+  id: string;
+  title: string;
+  summary: string;
+  domain: string;
+  category: string;
+  maturityLevel: string;
+  complexity: "Low" | "Medium" | "High";
+  impactAreas: string[];
+  featured: boolean;
+  industryApplicability: string;
+  contentType: string;
+  dateAdded: string;
+  icon: LucideIcon;
+}
+
+export const bestPractices: BestPractice[] = [
+  {
+    id: "api-first-architecture",
+    title: "API-First Architecture Pattern",
+    summary: "Design and build your digital platform with APIs as the foundation for integration and extensibility",
+    domain: "Architecture",
+    category: "Architecture",
+    maturityLevel: "Advanced",
+    complexity: "Medium",
+    impactAreas: ["Integration", "Scalability", "Flexibility"],
+    featured: true,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-15",
+    icon: Network
+  },
+  {
+    id: "capability-based-planning",
+    title: "Capability-Based Planning Approach",
+    summary: "Plan transformations based on business capabilities rather than technology projects",
+    domain: "Governance",
+    category: "Strategy",
+    maturityLevel: "Foundation",
+    complexity: "Low",
+    impactAreas: ["Alignment", "Planning", "Investment"],
+    featured: true,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-20",
+    icon: Target
+  },
+  {
+    id: "microservices-governance",
+    title: "Microservices Governance Framework",
+    summary: "Establish governance for microservices architecture without stifling innovation",
+    domain: "Platform Operations",
+    category: "Governance",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Governance", "Agility", "Quality"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Framework",
+    dateAdded: "2024-02-01",
+    icon: Layers
+  },
+  {
+    id: "data-mesh-implementation",
+    title: "Data Mesh Implementation Strategy",
+    summary: "Decentralize data ownership while maintaining enterprise coherence",
+    domain: "Data & Analytics",
+    category: "Architecture",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Data Quality", "Scalability", "Autonomy"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2023-12-10",
+    icon: Database
+  },
+  {
+    id: "employee-experience-design",
+    title: "Employee Experience-First Design",
+    summary: "Design digital workplace solutions with employee experience as the primary driver",
+    domain: "Digital Workplace",
+    category: "Strategy",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Adoption", "Productivity", "Satisfaction"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-05",
+    icon: Users
+  },
+  {
+    id: "zero-trust-security",
+    title: "Zero Trust Security Model",
+    summary: "Implement zero trust principles across your digital platform",
+    domain: "Security",
+    category: "Architecture",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Security", "Compliance", "Risk"],
+    featured: true,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-02-15",
+    icon: Shield
+  },
+  {
+    id: "platform-team-topology",
+    title: "Platform Team Topology Pattern",
+    summary: "Organize teams around platform capabilities rather than projects",
+    domain: "Governance",
+    category: "Delivery",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Efficiency", "Quality", "Autonomy"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2023-11-20",
+    icon: Users
+  },
+  {
+    id: "composable-architecture",
+    title: "Composable Architecture Principles",
+    summary: "Build modular, interchangeable components for maximum flexibility",
+    domain: "Architecture",
+    category: "Architecture",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Flexibility", "Reusability", "Speed"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-30",
+    icon: Layers
+  },
+  {
+    id: "customer-journey-mapping",
+    title: "End-to-End Customer Journey Mapping",
+    summary: "Map and optimize customer journeys across all digital touchpoints",
+    domain: "Customer Experience",
+    category: "Strategy",
+    maturityLevel: "Foundation",
+    complexity: "Low",
+    impactAreas: ["CX", "Insight", "Alignment"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2023-12-15",
+    icon: Target
+  },
+  {
+    id: "automated-testing-pyramid",
+    title: "Test Automation Pyramid",
+    summary: "Balance unit, integration, and E2E tests for optimal quality and speed",
+    domain: "Platform Operations",
+    category: "Delivery",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Quality", "Speed", "Confidence"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-10",
+    icon: Layers
+  },
+  {
+    id: "data-governance-framework",
+    title: "Enterprise Data Governance Framework",
+    summary: "Establish data governance without bureaucracy",
+    domain: "Data & Analytics",
+    category: "Governance",
+    maturityLevel: "Foundation",
+    complexity: "Medium",
+    impactAreas: ["Compliance", "Quality", "Trust"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Framework",
+    dateAdded: "2023-11-25",
+    icon: Database
+  },
+  {
+    id: "change-network-model",
+    title: "Change Network Activation Model",
+    summary: "Build and activate a network of change champions across the organization",
+    domain: "Governance",
+    category: "Change Management",
+    maturityLevel: "Foundation",
+    complexity: "Low",
+    impactAreas: ["Adoption", "Culture", "Engagement"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-02-05",
+    icon: Users
+  },
+  {
+    id: "event-driven-architecture",
+    title: "Event-Driven Architecture Pattern",
+    summary: "Design loosely coupled systems using event-driven principles",
+    domain: "Architecture",
+    category: "Architecture",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Scalability", "Decoupling", "Resilience"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2023-12-20",
+    icon: Network
+  },
+  {
+    id: "product-operating-model",
+    title: "Product Operating Model",
+    summary: "Shift from project to product mindset for sustained value delivery",
+    domain: "Governance",
+    category: "Strategy",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Value", "Sustainability", "Focus"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-25",
+    icon: Lightbulb
+  },
+  {
+    id: "observability-practices",
+    title: "Platform Observability Practices",
+    summary: "Implement comprehensive observability across your digital platform",
+    domain: "Platform Operations",
+    category: "Operations",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Reliability", "Performance", "Insight"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2023-11-30",
+    icon: Target
+  },
+  {
+    id: "ai-ethics-framework",
+    title: "AI Ethics and Governance Framework",
+    summary: "Establish ethical guidelines and governance for AI implementations",
+    domain: "Governance",
+    category: "Governance",
+    maturityLevel: "Foundation",
+    complexity: "Medium",
+    impactAreas: ["Ethics", "Compliance", "Trust"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Framework",
+    dateAdded: "2024-02-10",
+    icon: Shield
+  },
+  {
+    id: "self-service-analytics",
+    title: "Self-Service Analytics Platform",
+    summary: "Empower users with self-service analytics while maintaining governance",
+    domain: "Data & Analytics",
+    category: "Architecture",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Insight", "Autonomy", "Speed"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-01-15",
+    icon: Database
+  },
+  {
+    id: "platform-as-product",
+    title: "Platform-as-a-Product Mindset",
+    summary: "Treat internal platforms as products with users and value propositions",
+    domain: "Platform Operations",
+    category: "Strategy",
+    maturityLevel: "Developing",
+    complexity: "Low",
+    impactAreas: ["Adoption", "Value", "Quality"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2023-12-05",
+    icon: Lightbulb
+  },
+  {
+    id: "continuous-compliance",
+    title: "Continuous Compliance Automation",
+    summary: "Automate compliance checking and enforcement in delivery pipelines",
+    domain: "Security",
+    category: "Operations",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Compliance", "Speed", "Risk"],
+    featured: false,
+    industryApplicability: "Financial Services",
+    contentType: "Pattern",
+    dateAdded: "2024-02-20",
+    icon: Lock
+  },
+  {
+    id: "omnichannel-consistency",
+    title: "Omnichannel Experience Consistency",
+    summary: "Deliver consistent experiences across all customer channels",
+    domain: "Customer Experience",
+    category: "Strategy",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["CX", "Consistency", "Brand"],
+    featured: false,
+    industryApplicability: "Retail",
+    contentType: "Pattern",
+    dateAdded: "2023-11-15",
+    icon: Target
+  }
+];
+
+export const bestPracticesFilters = {
+  domain: ["Customer Experience", "Digital Workplace", "Data & Analytics", "Platform Operations", "Architecture", "Governance", "Security", "Integration"],
+  category: ["Strategy", "Architecture", "Delivery", "Operations", "Change Management"],
+  maturityLevel: ["Foundation", "Developing", "Advanced", "Optimizing"],
+  implementationComplexity: ["Low", "Medium", "High"],
+  industryApplicability: ["Universal", "Financial Services", "Healthcare", "Retail", "Manufacturing", "Public Sector"],
+  contentType: ["Pattern", "Anti-Pattern", "Decision Framework", "Guideline"],
+  dateAdded: ["Last week", "Last month", "Last 3 months", "Last 6 months", "All time"]
+};

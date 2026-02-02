@@ -8,6 +8,8 @@ import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 import LearningCenterPage from "./pages/LearningCenterPage";
 import LearningCenterDetailPage from "./pages/LearningCenterDetailPage";
+import KnowledgeCenterPage from "./pages/KnowledgeCenterPage";
+import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
 import NotFound from "./pages/NotFound";
 
@@ -39,8 +41,11 @@ const App = () => (
           <Route path="/user-groups" element={<ComingSoonPage pageName="User Groups" />} />
           <Route path="/visualization" element={<ComingSoonPage pageName="Visualization Dashboard" />} />
           
+          {/* Knowledge Center marketplace */}
+          <Route path="/marketplaces/knowledge-center" element={<KnowledgeCenterPage />} />
+          <Route path="/marketplaces/knowledge-center/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
+
           {/* Marketplace routes */}
-          <Route path="/marketplaces/knowledge-center" element={<ComingSoonPage pageName="Knowledge Center" />} />
           <Route path="/marketplaces/templates" element={<ComingSoonPage pageName="Templates" />} />
           <Route path="/marketplaces/blueprints" element={<ComingSoonPage pageName="Blueprints" />} />
           <Route path="/marketplaces/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
