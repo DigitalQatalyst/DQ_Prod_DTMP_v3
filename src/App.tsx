@@ -11,6 +11,8 @@ import LearningCenterDetailPage from "./pages/LearningCenterDetailPage";
 import KnowledgeCenterPage from "./pages/KnowledgeCenterPage";
 import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
+import TemplatesPage from "./pages/TemplatesPage";
+import TemplatesDetailPage from "./pages/TemplatesDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,8 +47,11 @@ const App = () => (
           <Route path="/marketplaces/knowledge-center" element={<KnowledgeCenterPage />} />
           <Route path="/marketplaces/knowledge-center/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
 
+          {/* Templates marketplace */}
+          <Route path="/marketplaces/templates" element={<TemplatesPage />} />
+          <Route path="/marketplaces/templates/:tab/:cardId" element={<TemplatesDetailPage />} />
+
           {/* Marketplace routes */}
-          <Route path="/marketplaces/templates" element={<ComingSoonPage pageName="Templates" />} />
           <Route path="/marketplaces/blueprints" element={<ComingSoonPage pageName="Blueprints" />} />
           <Route path="/marketplaces/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
           <Route path="/marketplaces/portfolio-management" element={<ComingSoonPage pageName="Portfolio Management" />} />
