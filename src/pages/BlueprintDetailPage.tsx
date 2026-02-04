@@ -221,7 +221,7 @@ export default function BlueprintDetailPage() {
                     <dt className="text-sm font-semibold text-gray-500 uppercase mb-2">
                       Technical Complexity
                     </dt>
-                    <dd className="text-base text-gray-900">{spec.technicalComplexity}</dd>
+                    <dd className="text-base text-gray-900">{spec.complexity}</dd>
                   </div>
                 </>
               )}
