@@ -1,4 +1,4 @@
-import { Star, icons, LucideIcon } from "lucide-react";
+import { Star, icons, LucideIcon, Layers, TrendingUp, FileImage, Boxes, Code, ArrowRight } from "lucide-react";
 import { SolutionSpec } from "@/data/blueprints/solutionSpecs";
 import { SolutionBuild } from "@/data/blueprints/solutionBuilds";
 import { Badge } from "@/components/ui/badge";
@@ -87,57 +87,59 @@ export const BlueprintCard = memo(function BlueprintCard({ blueprint, onClick }:
       </p>
 
       {/* Features Section */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2 mb-4" role="list" aria-label="Blueprint features">
-        <div className="text-xs text-gray-700" role="listitem">
-          <span className="font-semibold">Scope:</span> {blueprint.scope}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2 mb-4" role="list" aria-label="Blueprint features">
+        <div className="flex items-center gap-2 text-sm text-gray-700" role="listitem">
+          <Layers size={14} className="text-gray-500" />
+          {blueprint.scope}
         </div>
         {isSolutionSpec && (
-          <div className="text-xs text-gray-700" role="listitem">
-            <span className="font-semibold">Maturity:</span>{" "}
+          <div className="flex items-center gap-2 text-sm text-gray-700" role="listitem">
+            <TrendingUp size={14} className="text-gray-500" />
             {(blueprint as SolutionSpec).maturityLevel}
           </div>
         )}
         {!isSolutionSpec && (
-          <div className="text-xs text-gray-700" role="listitem">
-            <span className="font-semibold">Build:</span>{" "}
+          <div className="flex items-center gap-2 text-sm text-gray-700" role="listitem">
+            <TrendingUp size={14} className="text-gray-500" />
             {(blueprint as SolutionBuild).buildComplexity}
           </div>
         )}
         {isSolutionSpec && (blueprint as SolutionSpec).includesDiagrams && (
-          <div className="text-xs text-gray-700" role="listitem">
-            ✓ Architecture Diagrams
+          <div className="flex items-center gap-2 text-sm text-gray-700" role="listitem">
+            <FileImage size={14} className="text-gray-500" />
+            Architecture Diagrams
           </div>
         )}
         {isSolutionSpec && (blueprint as SolutionSpec).includesComponents && (
-          <div className="text-xs text-gray-700" role="listitem">
-            ✓ {blueprint.componentCount} Components
+          <div className="flex items-center gap-2 text-sm text-gray-700" role="listitem">
+            <Boxes size={14} className="text-gray-500" />
+            {blueprint.componentCount} Components
           </div>
         )}
         {!isSolutionSpec && (blueprint as SolutionBuild).includesCodeSamples && (
-          <div className="text-xs text-gray-700" role="listitem">
-            ✓ Code Samples Included
+          <div className="flex items-center gap-2 text-sm text-gray-700" role="listitem">
+            <Code size={14} className="text-gray-500" />
+            Code Samples Included
           </div>
         )}
       </div>
 
       {/* Key Technologies */}
-      <div className="mb-4">
-        <div className="flex flex-wrap gap-2" role="list" aria-label="Key technologies">
-          {displayTechnologies.map((tech, index) => (
-            <span
-              key={index}
-              role="listitem"
-              className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs"
-            >
-              {tech}
-            </span>
-          ))}
-          {remainingCount > 0 && (
-            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-semibold" aria-label={`${remainingCount} more technologies`}>
-              +{remainingCount}
-            </span>
-          )}
-        </div>
+      <div className="flex flex-wrap gap-2 mb-4" role="list" aria-label="Key technologies">
+        {displayTechnologies.map((tech, index) => (
+          <span
+            key={index}
+            role="listitem"
+            className="bg-blue-50 border border-blue-200 text-blue-700 px-2 py-1 rounded text-xs font-medium"
+          >
+            {tech}
+          </span>
+        ))}
+        {remainingCount > 0 && (
+          <span className="text-xs text-gray-500" aria-label={`${remainingCount} more technologies`}>
+            +{remainingCount}
+          </span>
+        )}
       </div>
 
       {/* Footer with Complexity Badge and Button */}
@@ -156,6 +158,7 @@ export const BlueprintCard = memo(function BlueprintCard({ blueprint, onClick }:
           aria-label={`View ${blueprint.title} blueprint details`}
           tabIndex={-1}
         >
+          <ArrowRight size={16} />
           View Blueprint
         </button>
       </div>
