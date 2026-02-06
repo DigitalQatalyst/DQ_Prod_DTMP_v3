@@ -32,7 +32,8 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
         state: context,
       });
     } else {
-      navigate("/transact-app", {
+      // Navigate to Stage 2 with context
+      navigate("/stage2", {
         state: context,
       });
     }

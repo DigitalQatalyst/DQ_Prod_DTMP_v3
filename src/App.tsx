@@ -11,6 +11,7 @@ import LearningCenterDetailPage from "./pages/LearningCenterDetailPage";
 import KnowledgeCenterPage from "./pages/KnowledgeCenterPage";
 import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
+import Stage2AppPage from "./pages/Stage2AppPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import TemplatesDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
@@ -19,10 +20,12 @@ import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
 import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
+import PortfolioManagementPage from "./pages/PortfolioManagementPage";
+import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
 import LearningCenterStage2Page from "./pages/LearningCenterStage2Page";
- import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
- import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
+import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
+import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,7 @@ const App = () => (
 
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
+          <Route path="/stage2" element={<Stage2AppPage />} />
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
@@ -79,13 +83,16 @@ const App = () => (
           <Route path="/marketplaces/support-services" element={<SupportServicesPage />} />
           <Route path="/marketplaces/support-services/:tab/:cardId" element={<SupportServicesDetailPage />} />
           
-           {/* Digital Intelligence marketplace */}
-           <Route path="/marketplaces/digital-intelligence" element={<DigitalIntelligencePage />} />
-           <Route path="/marketplaces/digital-intelligence/:tab/:cardId" element={<DigitalIntelligenceDetailPage />} />
- 
-           {/* Other marketplace routes */}
+          {/* Digital Intelligence marketplace */}
+          <Route path="/marketplaces/digital-intelligence" element={<DigitalIntelligencePage />} />
+          <Route path="/marketplaces/digital-intelligence/:tab/:cardId" element={<DigitalIntelligenceDetailPage />} />
+          
+          {/* Portfolio Management marketplace */}
+          <Route path="/marketplaces/portfolio-management" element={<PortfolioManagementPage />} />
+          <Route path="/marketplaces/portfolio-management/:tab/:cardId" element={<PortfolioDetailPage />} />
+          
+          {/* Other marketplace routes */}
           <Route path="/marketplaces/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
-          <Route path="/marketplaces/portfolio-management" element={<ComingSoonPage pageName="Portfolio Management" />} />
           
           {/* Resource routes */}
           <Route path="/best-practices" element={<ComingSoonPage pageName="Best Practices" />} />
