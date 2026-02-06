@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
@@ -13,11 +13,14 @@ import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import TemplatesDetailPage from "./pages/TemplatesDetailPage";
-import BlueprintsPage from "./pages/BlueprintsPage";
-import BlueprintDetailPage from "./pages/BlueprintDetailPage";
+import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
+import { SolutionSpecDetailPage } from "./pages/SolutionSpecDetailPage";
+import { SolutionBuildPage } from "./pages/SolutionBuildPage";
+import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
 import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
 import NotFound from "./pages/NotFound";
+import LearningCenterStage2Page from "./pages/LearningCenterStage2Page";
  import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
  import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
 
@@ -36,7 +39,10 @@ const App = () => (
           {/* Learning Center marketplace */}
           <Route path="/marketplaces/learning-center" element={<LearningCenterPage />} />
           <Route path="/marketplaces/learning-center/:tab/:cardId" element={<LearningCenterDetailPage />} />
-          
+
+          {/* Stage 2 - Learning Center Course Views (User & Admin) */}
+          <Route path="/stage2/learning-center/course/:courseId/:view" element={<LearningCenterStage2Page />} />
+
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
           
@@ -57,9 +63,17 @@ const App = () => (
           <Route path="/marketplaces/templates" element={<TemplatesPage />} />
           <Route path="/marketplaces/templates/:tab/:cardId" element={<TemplatesDetailPage />} />
 
-          {/* Blueprints marketplace */}
-          <Route path="/marketplaces/blueprints" element={<BlueprintsPage />} />
-          <Route path="/marketplaces/blueprints/:tab/:blueprintId" element={<BlueprintDetailPage />} />
+          {/* Blueprints marketplace - Legacy route with redirect */}
+          <Route path="/marketplaces/blueprints" element={<Navigate to="/marketplaces/solution-specs" replace />} />
+          <Route path="/marketplaces/blueprints/:tab/:blueprintId" element={<Navigate to="/marketplaces/solution-specs" replace />} />
+          
+          {/* Solution Specs marketplace */}
+          <Route path="/marketplaces/solution-specs" element={<SolutionSpecsPage />} />
+          <Route path="/marketplaces/solution-specs/:id" element={<SolutionSpecDetailPage />} />
+          
+          {/* Solution Build marketplace */}
+          <Route path="/marketplaces/solution-build" element={<SolutionBuildPage />} />
+          <Route path="/marketplaces/solution-build/:id" element={<SolutionBuildDetailPage />} />
           
           {/* Support Services marketplace */}
           <Route path="/marketplaces/support-services" element={<SupportServicesPage />} />

@@ -69,28 +69,28 @@ export const marketplaces: Marketplace[] = [
     route: "/marketplaces/templates",
   },
   {
-    id: "blueprints",
+    id: "solution-specs",
     phase: "Design",
     icon: Layout,
-    name: "DTMP Blueprints",
+    name: "DTMP Solution Specs",
     description:
-      "Comprehensive specifications for DBP, DXP, DWS, DIA, and SecDevOps solutions",
-    features: ["Blueprint-led Solution Specs", "Solutions Blueprints Build"],
+      "Blueprint-led solution specifications for DBP, DXP, DWS, DIA, and SecDevOps solutions",
+    features: ["Solution Specifications", "Architecture Diagrams", "Component Details"],
     serviceCount: 30,
-    route: "/marketplaces/blueprints",
+    route: "/marketplaces/solution-specs",
   },
 
   // DEPLOY
   {
-    id: "blueprints-deploy",
+    id: "solution-build",
     phase: "Deploy",
     icon: Hammer,
     name: "DTMP Solution Build",
     description:
       "Ready-to-deploy implementation guides with application integration patterns",
-    features: ["Solutions Blueprints Build"],
+    features: ["Implementation Guides", "Code Samples", "Integration Patterns"],
     serviceCount: 14,
-    route: "/marketplaces/blueprints",
+    route: "/marketplaces/solution-build",
   },
 
   // DRIVE

@@ -2,14 +2,13 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
   ChevronRight, Clock, User, Download, 
-  CheckCircle, BookOpen,
+  CheckCircle, BookOpen, ExternalLink,
   Tag, TrendingUp, Calendar, BadgeCheck
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { LoginModal } from "@/components/learningCenter/LoginModal";
 import { bestPractices } from "@/data/knowledgeCenter/bestPractices";
 import { testimonials } from "@/data/knowledgeCenter/testimonials";
 import { playbooks } from "@/data/knowledgeCenter/playbooks";
@@ -18,7 +17,6 @@ import { libraryItems } from "@/data/knowledgeCenter/library";
 export default function KnowledgeCenterDetailPage() {
   const { tab, cardId } = useParams();
   const navigate = useNavigate();
-  const [showLogin, setShowLogin] = useState(false);
   const [contentTab, setContentTab] = useState("about");
 
   // Find the item based on tab type
@@ -69,12 +67,11 @@ export default function KnowledgeCenterDetailPage() {
     }
   };
 
-  const loginContext = {
-    marketplace: "knowledge-center",
-    tab: tab || "",
-    cardId: cardId || "",
-    serviceName: getTitle(),
-    action: "access",
+  const handleViewResource = () => {
+    // In a real app, this would open the resource viewer or download
+    console.log("Viewing resource:", getTitle());
+    // For now, just show an alert
+    alert(`Opening ${getTitle()}...`);
   };
 
   const renderBestPracticeDetail = () => {
@@ -205,10 +202,11 @@ export default function KnowledgeCenterDetailPage() {
                 </div>
 
                 <Button 
-                  onClick={() => setShowLogin(true)}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold"
+                  onClick={handleViewResource}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold flex items-center justify-center gap-2"
                 >
-                  Access Resource
+                  <ExternalLink className="w-5 h-5" />
+                  View Resource
                 </Button>
               </div>
             </div>
@@ -290,9 +288,10 @@ export default function KnowledgeCenterDetailPage() {
                 </table>
 
                 <Button 
-                  onClick={() => setShowLogin(true)}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold"
+                  onClick={handleViewResource}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold flex items-center justify-center gap-2"
                 >
+                  <ExternalLink className="w-5 h-5" />
                   View Full Case Study
                 </Button>
               </div>
@@ -374,10 +373,11 @@ export default function KnowledgeCenterDetailPage() {
                 </table>
 
                 <Button 
-                  onClick={() => setShowLogin(true)}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold"
+                  onClick={handleViewResource}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold flex items-center justify-center gap-2"
                 >
-                  Access Playbook
+                  <BookOpen className="w-5 h-5" />
+                  View Playbook
                 </Button>
               </div>
             </div>
@@ -471,7 +471,7 @@ export default function KnowledgeCenterDetailPage() {
                 </table>
 
                 <Button 
-                  onClick={() => setShowLogin(true)}
+                  onClick={handleViewResource}
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold flex items-center justify-center gap-2"
                 >
                   <Download className="w-5 h-5" />
@@ -520,13 +520,6 @@ export default function KnowledgeCenterDetailPage() {
       {tab === "testimonials" && renderTestimonialDetail()}
       {tab === "playbooks" && renderPlaybookDetail()}
       {tab === "library" && renderLibraryItemDetail()}
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={showLogin}
-        onClose={() => setShowLogin(false)}
-        context={loginContext}
-      />
 
       <Footer />
     </div>

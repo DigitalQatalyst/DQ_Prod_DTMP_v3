@@ -26,10 +26,16 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to Stage 2 with context
-    navigate("/transact-app", {
-      state: context,
-    });
+    // Navigate to Stage 2 - route to course-specific view for learning center
+    if (context.marketplace === "learning-center" && context.tab === "courses") {
+      navigate(`/stage2/learning-center/course/${context.cardId}/user`, {
+        state: context,
+      });
+    } else {
+      navigate("/transact-app", {
+        state: context,
+      });
+    }
     onClose();
   };
 
