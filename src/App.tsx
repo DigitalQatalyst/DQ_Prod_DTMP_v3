@@ -23,7 +23,6 @@ import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
-import LearningCenterStage2Page from "./pages/LearningCenterStage2Page";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
 
@@ -42,9 +41,6 @@ const App = () => (
           {/* Learning Center marketplace */}
           <Route path="/marketplaces/learning-center" element={<LearningCenterPage />} />
           <Route path="/marketplaces/learning-center/:tab/:cardId" element={<LearningCenterDetailPage />} />
-
-          {/* Stage 2 - Learning Center Course Views (User & Admin) */}
-          <Route path="/stage2/learning-center/course/:courseId/:view" element={<LearningCenterStage2Page />} />
 
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />

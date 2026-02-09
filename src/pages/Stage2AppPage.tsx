@@ -23,11 +23,16 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  BookOpen,
+  CheckCircle,
+  Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
+import { enrolledCourses } from "@/data/learning";
+import { CourseDetailView } from "@/components/learning";
 
 interface LocationState {
   marketplace?: string;
@@ -58,20 +63,20 @@ export default function Stage2AppPage() {
     switch (marketplace) {
       case "portfolio-management":
         return "Portfolio Management";
+      case "learning-center":
+        return "Learning Center";
       case "blueprints":
         return "Design Blueprints";
       case "templates":
         return "AI DocWriter";
-      case "learning-center":
-        return "Service Delivery";
       default:
         return "Overview";
     }
   });
   
   const [activeSubService, setActiveSubService] = useState<string | null>(() => {
-    // Auto-select the specific service if coming from a portfolio card
-    if (marketplace === "portfolio-management" && cardId) {
+    // Auto-select the specific service if coming from a portfolio or learning center card
+    if ((marketplace === "portfolio-management" || marketplace === "learning-center") && cardId) {
       return cardId;
     }
     return null;
@@ -92,9 +97,20 @@ export default function Stage2AppPage() {
     complexity: service.complexity
   }));
 
+  // Learning Center sub-services - Use actual enrolled courses
+  const learningSubServices = enrolledCourses.map(course => ({
+    id: course.id,
+    name: course.courseName,
+    description: `${course.instructor} • ${course.duration} • ${course.progress}% complete`,
+    icon: BookOpen,
+    category: course.difficulty,
+    status: course.status,
+    progress: course.progress
+  }));
+
   // Icon mapping function
-  function getIconComponent(iconName: string) {
-    const iconMap: Record<string, any> = {
+  function getIconComponent(iconName: string): React.ComponentType<{ className?: string }> {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
       Activity,
       DollarSign,
       Shield,
@@ -184,6 +200,15 @@ export default function Stage2AppPage() {
             </button>
             
             <button 
+              onClick={() => handleServiceClick("Learning Center")}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Learning Center")}`}
+              title="Learning Center"
+            >
+              <Headphones className="w-4 h-4 flex-shrink-0" />
+              {!leftSidebarCollapsed && "Learning Center"}
+            </button>
+            
+            <button 
               onClick={() => handleServiceClick("Design Blueprints")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Design Blueprints")}`}
               title="Design Blueprints"
@@ -226,15 +251,6 @@ export default function Stage2AppPage() {
             >
               <Brain className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Digital Intelligence"}
-            </button>
-            
-            <button 
-              onClick={() => handleServiceClick("Service Delivery")}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Service Delivery")}`}
-              title="Service Delivery"
-            >
-              <Headphones className="w-4 h-4 flex-shrink-0" />
-              {!leftSidebarCollapsed && "Service Delivery"}
             </button>
             
             {/* Analytics Section */}
@@ -345,6 +361,46 @@ export default function Stage2AppPage() {
                     </div>
                   </div>
                 </div>
+              ) : activeService === "Learning Center" ? (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">My Courses</h3>
+                    <div className="space-y-2">
+                      {learningSubServices.map((course) => {
+                        const Icon = course.icon;
+                        const statusColor = course.status === 'completed' ? 'text-green-600' : 
+                                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
+                        return (
+                          <button
+                            key={course.id}
+                            onClick={() => handleSubServiceClick(course.id)}
+                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                              activeSubService === course.id 
+                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                            }`}
+                          >
+                            <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
+                            <div className="text-left flex-1">
+                              <div className="font-medium">{course.name}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">{course.description}</div>
+                              {course.progress > 0 && (
+                                <div className="mt-2">
+                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                    <div 
+                                      className="bg-orange-600 h-1.5 rounded-full" 
+                                      style={{ width: `${course.progress}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               ) : activeService === "Overview" ? (
                 <div className="space-y-4">
                   <div>
@@ -402,14 +458,22 @@ export default function Stage2AppPage() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
                   {activeSubService ? 
-                    portfolioSubServices.find(s => s.id === activeSubService)?.name || activeService :
-                    activeService
+                    (activeService === "Portfolio Management" 
+                      ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
+                      : activeService === "Learning Center"
+                      ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      : activeService)
+                    : activeService
                   }
                 </h2>
                 <p className="text-sm text-gray-500">
                   {activeSubService ? 
-                    portfolioSubServices.find(s => s.id === activeSubService)?.description :
-                    `${activeService} • Service Hub`
+                    (activeService === "Portfolio Management"
+                      ? portfolioSubServices.find(s => s.id === activeSubService)?.description
+                      : activeService === "Learning Center"
+                      ? learningSubServices.find(s => s.id === activeSubService)?.description
+                      : `${activeService} • Service Hub`)
+                    : `${activeService} • Service Hub`
                   }
                 </p>
               </div>
@@ -522,6 +586,16 @@ export default function Stage2AppPage() {
                 </div>
               )}
             </div>
+          ) : activeService === "Learning Center" && activeSubService ? (
+            <div className="h-full">
+              {/* Learning Center Course Content */}
+              {(() => {
+                const course = enrolledCourses.find(c => c.id === activeSubService);
+                if (!course) return null;
+                
+                return <CourseDetailView course={course} />;
+              })()}
+            </div>
           ) : (
             <div className="p-6">
               <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
@@ -535,12 +609,19 @@ export default function Stage2AppPage() {
                   <p className="text-gray-500 mb-4">
                     {activeService === "Overview" ? 
                       "Welcome to the DTMP Service Hub" :
+                      activeService === "Learning Center" ?
+                      "Select a course from the sidebar to view details and continue learning" :
                       `${activeService} tools and interfaces would be displayed here`
                     }
                   </p>
                   {activeService === "Portfolio Management" && (
                     <p className="text-sm text-gray-400">
                       Select a portfolio service from the sidebar to get started
+                    </p>
+                  )}
+                  {activeService === "Learning Center" && (
+                    <p className="text-sm text-gray-400">
+                      Select a course from the sidebar to get started
                     </p>
                   )}
                 </div>
