@@ -20,6 +20,13 @@ import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
 import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
+import SupportServicesOverview from "./pages/stage2/support/SupportServicesOverview";
+import MyTicketsPage from "./pages/stage2/support/MyTicketsPage";
+import TicketDetailPage from "./pages/stage2/support/TicketDetailPage";
+import ServiceRequestsPage from "./pages/stage2/support/ServiceRequestsPage";
+import RequestDetailPage from "./pages/stage2/support/RequestDetailPage";
+import KnowledgeBasePage from "./pages/stage2/support/KnowledgeBasePage";
+import ArticleDetailPage from "./pages/stage2/support/ArticleDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
@@ -45,6 +52,13 @@ const App = () => (
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
+          <Route path="/stage2/support/overview" element={<SupportServicesOverview />} />
+          <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />
+          <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
+          <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
+          <Route path="/stage2/support/requests/:requestId" element={<RequestDetailPage />} />
+          <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
+          <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />

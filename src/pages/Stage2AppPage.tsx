@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  LayoutGrid, 
+import {
+  ArrowLeft,
+  LayoutGrid,
   Settings,
   Home,
   BarChart3,
@@ -26,13 +26,21 @@ import {
   ChevronRight,
   BookOpen,
   CheckCircle,
-  Award
+  Award,
+  Ticket,
+  ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { CourseDetailView } from "@/components/learning";
+import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest } from "@/data/supportData";
+import { technicalSupport, expertConsultancy } from "@/data/supportServices";
+import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
+import { PriorityBadge, SLATimer } from "@/components/stage2";
+import { Badge } from "@/components/ui/badge";
+import { Tag, Calendar, Clock as ClockIcon, Eye } from "lucide-react";
 
 interface LocationState {
   marketplace?: string;
@@ -65,6 +73,8 @@ export default function Stage2AppPage() {
         return "Portfolio Management";
       case "learning-center":
         return "Learning Center";
+      case "support-services":
+        return "Support Services";
       case "blueprints":
         return "Design Blueprints";
       case "templates":
@@ -79,7 +89,43 @@ export default function Stage2AppPage() {
     if ((marketplace === "portfolio-management" || marketplace === "learning-center") && cardId) {
       return cardId;
     }
+    if (marketplace === "support-services") {
+      return cardId ? "support-detail" : "support-overview";
+    }
     return null;
+  });
+  const [supportSelectedService, setSupportSelectedService] = useState(() => {
+    if (marketplace === "support-services" && cardId) {
+      return technicalSupport.find((s) => s.id === cardId) || expertConsultancy.find((s) => s.id === cardId) || null;
+    }
+    return null;
+  });
+  const [supportAttachments, setSupportAttachments] = useState<File[]>([]);
+  const [supportSelectedArticleId, setSupportSelectedArticleId] = useState<string | null>(null);
+  const [supportTicketsState, setSupportTicketsState] = useState(supportTickets);
+  const [supportSubmitMessage, setSupportSubmitMessage] = useState<string | null>(null);
+  const [supportRequestsState, setSupportRequestsState] = useState<ServiceRequest[]>(() => {
+    const seeded = technicalSupport.slice(0, 8).map((svc, idx) => ({
+      id: `REQ-SVC-${String(idx + 1).padStart(3, "0")}`,
+      type: "change",
+      title: svc.title,
+      description: svc.description,
+      justification: `Requesting engagement for ${svc.title}`,
+      status: idx % 3 === 0 ? "pending-approval" : idx % 3 === 1 ? "in-progress" : "completed",
+      requester: {
+        id: "user-seeded",
+        name: "Support User",
+        email: "support.user@example.com",
+        department: "IT Operations",
+        manager: "Duty Manager",
+      },
+      approvalWorkflow: [],
+      requestedItems: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      activityLog: [],
+    }));
+    return [...seeded, ...serviceRequests];
   });
 
   // Collapsible sidebar states
@@ -108,6 +154,13 @@ export default function Stage2AppPage() {
     progress: course.progress
   }));
 
+  const supportSubServices = [
+    { id: "support-overview", name: "Overview", description: "Dashboards & SLAs", icon: Headphones },
+    { id: "support-tickets", name: "My Tickets", description: "Track incidents", icon: Ticket },
+    { id: "support-requests", name: "Service Requests", description: "Access & changes", icon: ClipboardList },
+    { id: "support-knowledge", name: "Knowledge Base", description: "Articles and guides", icon: BookOpen }
+  ];
+
   // Icon mapping function
   function getIconComponent(iconName: string): React.ComponentType<{ className?: string }> {
     const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -134,14 +187,411 @@ export default function Stage2AppPage() {
   const handleServiceClick = (service: string) => {
     setActiveService(service);
     setActiveSubService(null); // Reset sub-service when switching main service
+    if (service !== "Support Services") {
+      setSupportSelectedService(null);
+      setSupportSelectedArticleId(null);
+    }
   };
 
   const handleSubServiceClick = (subServiceId: string) => {
     setActiveSubService(subServiceId);
+    if (subServiceId !== "support-detail") {
+      // leaving detail view but keep selection for navigation purposes
+    }
+    if (subServiceId !== "support-knowledge-detail") {
+      setSupportSelectedArticleId(null);
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex overflow-hidden h-screen">
+  const createTicketFromService = () => {
+    if (!supportSelectedService) return;
+    const now = new Date();
+    const id = `TICKET-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
+    const resolutionDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+    const minutesRemaining = Math.max(Math.floor((new Date(resolutionDeadline).getTime() - now.getTime()) / 60000), 0);
+    const priority =
+      supportSelectedService.slaLevel?.toLowerCase().includes("critical")
+        ? "critical"
+        : supportSelectedService.slaLevel?.toLowerCase().includes("high")
+          ? "high"
+          : "medium";
+    const newTicket = {
+      id,
+      subject: supportSelectedService.title,
+      description: supportSelectedService.description,
+      priority,
+      status: "new" as const,
+      category: supportSelectedService.type || "Support",
+      subcategory: supportSelectedService.title,
+      requester: {
+        id: "user-current",
+        name: "You",
+        email: "you@example.com",
+        department: "N/A",
+      },
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      sla: {
+        responseTimeHours: 4,
+        resolutionTimeHours: 24,
+        responseDeadline: new Date(now.getTime() + 4 * 60 * 60 * 1000).toISOString(),
+        resolutionDeadline,
+        responseBreached: false,
+        resolutionBreached: false,
+        timeRemainingMinutes: minutesRemaining,
+      },
+      conversation: [],
+      attachments: supportAttachments.map((file) => ({
+        id: `att-${file.name}`,
+        filename: file.name,
+        fileSize: `${Math.max(file.size / 1024, 1).toFixed(0)} KB`,
+        fileType: file.type || "file",
+        uploadedBy: "You",
+        uploadedAt: now.toISOString(),
+        downloadUrl: "#",
+      })),
+      relatedKBArticles: [],
+    };
+    setSupportTicketsState((prev) => [newTicket, ...prev]);
+    const newRequest: ServiceRequest = {
+      id: `REQ-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`,
+      type: "change",
+      title: supportSelectedService.title,
+      description: supportSelectedService.description,
+      justification: `Submitted from ${supportSelectedService.title} service`,
+      status: "pending-approval",
+      requester: {
+        id: "user-current",
+        name: "You",
+        email: "you@example.com",
+        department: "N/A",
+        manager: "N/A",
+      },
+      approvalWorkflow: [],
+      requestedItems: [],
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      activityLog: [],
+    };
+    setSupportRequestsState((prev) => [newRequest, ...prev]);
+    setSupportSubmitMessage("Request submitted and added to My Tickets.");
+    setSupportAttachments([]);
+    setActiveSubService("support-tickets");
+  };
+
+  const renderSupportWorkspace = () => {
+    if (!activeSubService || activeService !== "Support Services") return null;
+
+    // If user arrived from Stage 1 card, show that detail first
+    if (activeSubService === "support-detail" && supportSelectedService) {
+      const handleAttachmentAdd = (fileList: FileList | null) => {
+        if (!fileList || fileList.length === 0) return;
+        const newFiles = Array.from(fileList);
+        setSupportAttachments((prev) => {
+          const names = new Set(prev.map((f) => f.name));
+          const deduped = newFiles.filter((f) => !names.has(f.name));
+          return [...prev, ...deduped];
+        });
+      };
+
+      const handleAttachmentRemove = (name: string) => {
+        setSupportAttachments((prev) => prev.filter((f) => f.name !== name));
+      };
+
+      const detail = getSupportServiceDetail(supportSelectedService.id);
+      return (
+        <div className="p-6 space-y-4">
+          <div className="bg-white border border-gray-200 rounded-lg p-5">
+            {supportSubmitMessage && (
+              <div className="mb-3 px-3 py-2 rounded-md bg-green-50 text-green-700 border border-green-200 text-sm">
+                {supportSubmitMessage}
+              </div>
+            )}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase text-gray-500 mb-1">{supportSelectedService.type}</p>
+                <h2 className="text-2xl font-bold text-gray-900">{supportSelectedService.title}</h2>
+                <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-gray-700">
+                  {supportSelectedService.responseTime && <Badge variant="secondary">{supportSelectedService.responseTime}</Badge>}
+                  {supportSelectedService.deliveryModel && <Badge variant="secondary">{supportSelectedService.deliveryModel}</Badge>}
+                  {supportSelectedService.coverage && <Badge variant="secondary">{supportSelectedService.coverage}</Badge>}
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <PriorityBadge priority={(supportSelectedService.slaLevel?.toLowerCase().includes("critical") ? "critical" : supportSelectedService.slaLevel?.toLowerCase().includes("high") ? "high" : "medium") as any} />
+                <button className="btn-primary" onClick={createTicketFromService}>
+                  Submit Request
+                </button>
+                <p className="text-xs text-gray-600">Provided by Support Operations (24x7)</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-700 mt-3">{supportSelectedService.description}</p>
+
+            {detail && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-gray-900">What's Included</h3>
+                  <ul className="text-sm text-gray-700 list-disc ml-4 space-y-1">
+                    {detail.whatsIncluded?.slice(0, 6).map((i, idx) => <li key={idx}>{i}</li>)}
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-gray-900">Ideal For</h3>
+                  <ul className="text-sm text-gray-700 list-disc ml-4 space-y-1">
+                    {detail.idealFor?.slice(0, 6).map((i, idx) => <li key={idx}>{i}</li>)}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 text-sm text-gray-800">
+              <div className="border border-gray-200 rounded-lg p-3">
+                <p className="text-xs text-gray-500">Office / Team</p>
+                <p className="font-semibold">Support Operations Center</p>
+                <p className="text-xs text-gray-600">Hours: 24x7 • TZ: UTC</p>
+              </div>
+              <div className="border border-gray-200 rounded-lg p-3">
+                <p className="text-xs text-gray-500">Contact Channels</p>
+                <p className="font-semibold">Ticket, Chat, Bridge</p>
+                <p className="text-xs text-gray-600">Escalation: Duty Manager</p>
+              </div>
+              <div className="border border-gray-200 rounded-lg p-3 space-y-2">
+                <p className="text-xs text-gray-500">Artifacts to attach</p>
+                <p className="text-xs text-gray-700">Logs, screenshots, environment, business impact</p>
+                <div className="space-y-2">
+                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-orange-700 cursor-pointer">
+                    <input
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleAttachmentAdd(e.target.files)}
+                    />
+                    <span className="px-3 py-1 rounded border border-orange-200 bg-orange-50">Attach files</span>
+                  </label>
+                  {supportAttachments.length > 0 && (
+                    <ul className="space-y-1 text-xs text-gray-700">
+                      {supportAttachments.map((file) => (
+                        <li key={file.name} className="flex items-center justify-between gap-2">
+                          <span className="truncate">{file.name}</span>
+                          <button
+                            className="text-orange-700 hover:underline"
+                            onClick={() => handleAttachmentRemove(file.name)}
+                          >
+                            remove
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-overview") {
+      const metrics = [
+        { label: "Open Tickets", value: supportTicketsState.filter(t => !["resolved", "closed"].includes(t.status)).length },
+        { label: "High / Critical", value: supportTicketsState.filter(t => ["critical", "high"].includes(t.priority as string)).length },
+        { label: "Pending User", value: supportTicketsState.filter(t => t.status === "pending-user").length },
+        { label: "Requests In Progress", value: supportRequestsState.filter(r => r.status === "in-progress").length },
+      ];
+      const topTickets = supportTicketsState.filter(t => !["resolved", "closed"].includes(t.status)).slice(0, 3);
+      const topRequests = supportRequestsState.slice(0, 3);
+
+      return (
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {metrics.map(m => (
+              <div key={m.label} className="bg-white border border-gray-200 rounded-lg p-4">
+                <p className="text-sm text-gray-600">{m.label}</p>
+                <p className="text-2xl font-semibold text-gray-900">{m.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">Priority Tickets</h3>
+              </div>
+              <div className="space-y-3">
+                {topTickets.map(t => (
+                  <div key={t.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{t.subject}</p>
+                        <p className="text-xs text-gray-600">{t.category} • {t.subcategory}</p>
+                      </div>
+                      <PriorityBadge priority={t.priority} size="small" />
+                    </div>
+                    <div className="mt-2">
+                      <SLATimer
+                        deadline={t.sla.resolutionDeadline}
+                        timeRemainingMinutes={t.sla.timeRemainingMinutes}
+                        breached={t.sla.resolutionBreached}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">Service Requests</h3>
+              </div>
+              <div className="space-y-3">
+                {topRequests.map(r => (
+                  <div key={r.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{r.title}</p>
+                        <p className="text-xs text-gray-600 capitalize">{r.type}</p>
+                      </div>
+                      <Badge variant="secondary" className="capitalize">{r.status.replace("-", " ")}</Badge>
+                    </div>
+                    <p className="text-sm text-gray-700 mt-1 line-clamp-2">{r.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-tickets") {
+      const list = supportTicketsState;
+      return (
+        <div className="p-6 space-y-3">
+          <div className="hidden md:grid grid-cols-[1fr_1.6fr_1fr_1fr_2fr] px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg">
+            <div>Ticket ID</div>
+            <div>Subject</div>
+            <div>Priority</div>
+            <div>Status</div>
+            <div className="text-center">SLA</div>
+          </div>
+          <div className="divide-y divide-gray-200 border border-gray-200 rounded-lg bg-white">
+            {list.map(t => (
+              <div
+                key={t.id}
+                className="flex flex-col md:grid md:grid-cols-[1fr_1.6fr_1fr_1fr_2fr] px-4 py-3 gap-3 items-start md:items-center"
+              >
+                <div className="text-sm font-semibold text-gray-900">{t.id}</div>
+                <div className="text-sm text-gray-800 md:pr-4">{t.subject}</div>
+                <div className="md:justify-self-start"><PriorityBadge priority={t.priority} size="small" /></div>
+                <div className="text-sm capitalize text-gray-700">{t.status.replace("-", " ")}</div>
+                <div className="w-full md:w-auto md:justify-self-stretch">
+                  <SLATimer
+                    deadline={t.sla.resolutionDeadline}
+                    timeRemainingMinutes={t.sla.timeRemainingMinutes}
+                    breached={t.sla.resolutionBreached}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-requests") {
+      return (
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {supportRequestsState.map(req => (
+            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{req.title}</p>
+                  <p className="text-xs text-gray-600 capitalize">{req.type}</p>
+                </div>
+                <Badge variant="secondary" className="capitalize">{req.status.replace("-", " ")}</Badge>
+              </div>
+              <p className="text-sm text-gray-700 mt-2 line-clamp-2">{req.description}</p>
+              <p className="text-xs text-gray-500 mt-1">Requester: {req.requester.name}</p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-knowledge") {
+      return (
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {knowledgeArticles.slice(0, 12).map(article => (
+            <button
+              key={article.id}
+              onClick={() => {
+                setSupportSelectedArticleId(article.id);
+                setActiveSubService("support-knowledge-detail");
+              }}
+              className="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-orange-200 hover:bg-orange-50/40 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <Badge variant="secondary">{article.category}</Badge>
+                <span>{article.difficulty}</span>
+                <span>•</span>
+                <span>{article.estimatedReadTime}</span>
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900 mt-2">{article.title}</h3>
+              <p className="text-sm text-gray-700 mt-1 line-clamp-3">{article.summary}</p>
+              <p className="text-xs text-gray-500 mt-2">{article.views.toLocaleString()} views</p>
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-knowledge-detail" && supportSelectedArticleId) {
+      const article = knowledgeArticles.find(a => a.id === supportSelectedArticleId);
+      if (!article) return null;
+      return (
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <button
+              className="text-sm text-orange-700 font-semibold hover:underline"
+              onClick={() => {
+                setActiveSubService("support-knowledge");
+                setSupportSelectedArticleId(null);
+              }}
+            >
+              ← Back to Knowledge Base
+            </button>
+            <Badge variant="secondary">{article.category}</Badge>
+            <span className="text-xs text-gray-600 capitalize">{article.difficulty}</span>
+            <span className="text-xs text-gray-600">{article.estimatedReadTime}</span>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">{article.title}</h2>
+            <p className="text-sm text-gray-700">{article.summary}</p>
+            <div className="flex gap-4 text-xs text-gray-600">
+              <span className="inline-flex items-center gap-1"><Calendar size={14} /> Updated {new Date(article.updatedAt).toLocaleDateString()}</span>
+              <span className="inline-flex items-center gap-1"><ClockIcon size={14} /> {article.estimatedReadTime}</span>
+              <span className="inline-flex items-center gap-1"><Eye size={14} /> {article.views.toLocaleString()} views</span>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {article.tags.map(tag => (
+                <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
+                  <Tag size={12} /> {tag}
+                </span>
+              ))}
+            </div>
+            <div className="prose prose-sm max-w-none mt-3" dangerouslySetInnerHTML={{ __html: article.content }} />
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+    return (
+      <div className="min-h-screen bg-gray-50 flex overflow-hidden h-screen">
       {/* Left Sidebar - Navigation */}
       <div className={`${leftSidebarCollapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 flex-shrink-0 h-full`}>
         {/* Header */}
@@ -251,6 +701,18 @@ export default function Stage2AppPage() {
             >
               <Brain className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Digital Intelligence"}
+            </button>
+
+            <button 
+              onClick={() => {
+                handleServiceClick("Support Services");
+                setActiveSubService("support-overview");
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Support Services")}`}
+              title="Support Services"
+            >
+              <Headphones className="w-4 h-4 flex-shrink-0" />
+              {!leftSidebarCollapsed && "Support Services"}
             </button>
             
             {/* Analytics Section */}
@@ -401,6 +863,34 @@ export default function Stage2AppPage() {
                     </div>
                   </div>
                 </div>
+              ) : activeService === "Support Services" ? (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Support Services</h3>
+                    <div className="space-y-2">
+                      {supportSubServices.map((svc) => {
+                        const Icon = svc.icon;
+                        return (
+                          <button
+                            key={svc.id}
+                            onClick={() => handleSubServiceClick(svc.id)}
+                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                              activeSubService === svc.id
+                                ? "bg-orange-50 text-orange-700 border border-orange-200"
+                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <div className="text-left">
+                              <div className="font-medium">{svc.name}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">{svc.description}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               ) : activeService === "Overview" ? (
                 <div className="space-y-4">
                   <div>
@@ -462,6 +952,8 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      : activeService === "Support Services"
+                      ? supportSubServices.find(s => s.id === activeSubService)?.name
                       : activeService)
                     : activeService
                   }
@@ -472,6 +964,8 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.description
+                      : activeService === "Support Services"
+                      ? supportSubServices.find(s => s.id === activeSubService)?.description
                       : `${activeService} • Service Hub`)
                     : `${activeService} • Service Hub`
                   }
@@ -595,6 +1089,10 @@ export default function Stage2AppPage() {
                 
                 return <CourseDetailView course={course} />;
               })()}
+            </div>
+          ) : activeService === "Support Services" && activeSubService ? (
+            <div className="h-full">
+              {renderSupportWorkspace()}
             </div>
           ) : (
             <div className="p-6">

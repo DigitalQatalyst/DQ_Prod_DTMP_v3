@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronRight, ArrowLeft, Send, icons, LucideIcon, Clock, MapPin, Shield } from "lucide-react";
+import { ChevronRight, ArrowLeft, ArrowRight, icons, LucideIcon, Clock, MapPin, Shield } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { platform24x7SupportDetail, architectureAdvisoryDetail, getSupportServic
 import { SLATiersDisplay } from "@/components/supportServices/SLATiersDisplay";
 import { ExpertProfileCard } from "@/components/supportServices/ExpertProfileCard";
 import { EngagementModelsComparison } from "@/components/supportServices/EngagementModelsComparison";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
 
 type TabValue = "technical-support" | "expert-consultancy";
 
@@ -17,6 +18,7 @@ export default function SupportServicesDetailPage() {
   const { tab, cardId } = useParams<{ tab: TabValue; cardId: string }>();
   const navigate = useNavigate();
   const [activeContentTab, setActiveContentTab] = useState("about");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Handle invalid tab parameter
   const validTab: TabValue = tab === "expert-consultancy" ? "expert-consultancy" : "technical-support";
@@ -400,17 +402,22 @@ export default function SupportServicesDetailPage() {
                     Request this service to access expert support and guidance.
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:justify-end">
                   <button
+                    type="button"
                     onClick={handleBackClick}
-                    className="flex items-center justify-center gap-2 border-2 border-[hsl(var(--orange))] text-[hsl(var(--orange))] hover:bg-[hsl(var(--orange)/0.05)] px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg min-h-[44px]"
+                    className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--orange))] focus-visible:ring-offset-2"
                   >
                     <ArrowLeft size={18} />
                     Back to Services
                   </button>
-                  <button className="flex items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:shadow-lg min-h-[44px]">
-                    <Send size={18} />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginModal(true)}
+                    className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--orange))] focus-visible:ring-offset-2"
+                  >
                     Request Service
+                    <ArrowRight size={18} />
                   </button>
                 </div>
               </div>
@@ -420,6 +427,18 @@ export default function SupportServicesDetailPage() {
       </main>
 
       <Footer />
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "support-services",
+          tab: validTab,
+          cardId: cardId || "",
+          serviceName: service.title,
+          action: "request-service",
+        }}
+      />
     </div>
   );
 }
