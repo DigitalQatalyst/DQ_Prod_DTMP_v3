@@ -26,20 +26,12 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     // Navigate to Stage 2 with context for all marketplaces
-    if (context.marketplace === "templates") {
-      // For templates, go directly to new request page with template pre-selected
-      navigate("/stage2/templates/new-request", {
-        state: {
-          templateId: context.cardId,
-          ...context
-        },
-      });
-    } else {
-      navigate("/stage2", {
-        state: context,
-      });
-    }
+    navigate("/stage2", {
+      state: context,
+    });
+    
     onClose();
   };
 
