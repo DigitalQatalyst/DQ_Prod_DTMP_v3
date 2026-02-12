@@ -33,6 +33,11 @@ import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { CourseDetailView } from "@/components/learning";
+import LifecycleOverview from "./lifecycle/LifecycleOverview";
+import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
+import ApprovalsPage from "./lifecycle/ApprovalsPage";
+import ProjectsPage from "./lifecycle/ProjectsPage";
+import ApplicationsPage from "./lifecycle/ApplicationsPage";
 
 interface LocationState {
   marketplace?: string;
@@ -69,14 +74,16 @@ export default function Stage2AppPage() {
         return "Design Blueprints";
       case "templates":
         return "AI DocWriter";
+      case "lifecycle-management":
+        return "Lifecycle Management";
       default:
         return "Overview";
     }
   });
   
   const [activeSubService, setActiveSubService] = useState<string | null>(() => {
-    // Auto-select the specific service if coming from a portfolio or learning center card
-    if ((marketplace === "portfolio-management" || marketplace === "learning-center") && cardId) {
+    // Auto-select the specific service if coming from a portfolio, learning center, or lifecycle card
+    if ((marketplace === "portfolio-management" || marketplace === "learning-center" || marketplace === "lifecycle-management") && cardId) {
       return cardId;
     }
     return null;
@@ -361,6 +368,79 @@ export default function Stage2AppPage() {
                     </div>
                   </div>
                 </div>
+              ) : activeService === "Lifecycle Management" ? (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Lifecycle Services</h3>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => handleSubServiceClick('overview')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'overview' 
+                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Overview Dashboard</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Active lifecycles and approvals</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleSubServiceClick('projects')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'projects' 
+                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Projects</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Project lifecycle management</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleSubServiceClick('applications')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'applications' 
+                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Applications</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Application governance</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleSubServiceClick('templates')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'templates' 
+                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Templates Library</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Lifecycle frameworks</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleSubServiceClick('approvals')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'approvals' 
+                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Pending Approvals</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Gate approvals</div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ) : activeService === "Learning Center" ? (
                 <div className="space-y-4">
                   <div>
@@ -462,6 +542,8 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      : activeService === "Lifecycle Management"
+                      ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
                       : activeService)
                     : activeService
                   }
@@ -487,7 +569,15 @@ export default function Stage2AppPage() {
 
         {/* Main Content */}
         <div className="flex-1 bg-gray-50 overflow-y-auto">
-          {activeService === "Portfolio Management" && activeSubService ? (
+          {activeService === "Lifecycle Management" && activeSubService ? (
+            <div className="h-full">
+              {activeSubService === 'overview' && <LifecycleOverview />}
+              {activeSubService === 'projects' && <ProjectsPage />}
+              {activeSubService === 'applications' && <ApplicationsPage />}
+              {activeSubService === 'templates' && <TemplatesLibrary />}
+              {activeSubService === 'approvals' && <ApprovalsPage />}
+            </div>
+          ) : activeService === "Portfolio Management" && activeSubService ? (
             <div className="h-full">
               {activeSubService === "portfolio-health-dashboard" && (
                 <PortfolioHealthDashboard className="h-full" />
@@ -611,6 +701,8 @@ export default function Stage2AppPage() {
                       "Welcome to the DTMP Service Hub" :
                       activeService === "Learning Center" ?
                       "Select a course from the sidebar to view details and continue learning" :
+                      activeService === "Lifecycle Management" ?
+                      "Select a lifecycle service from the sidebar to get started" :
                       `${activeService} tools and interfaces would be displayed here`
                     }
                   </p>
@@ -622,6 +714,11 @@ export default function Stage2AppPage() {
                   {activeService === "Learning Center" && (
                     <p className="text-sm text-gray-400">
                       Select a course from the sidebar to get started
+                    </p>
+                  )}
+                  {activeService === "Lifecycle Management" && (
+                    <p className="text-sm text-gray-400">
+                      Select a lifecycle service from the sidebar to get started
                     </p>
                   )}
                 </div>

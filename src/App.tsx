@@ -22,6 +22,8 @@ import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
+import LifecycleManagementPage from "./pages/LifecycleManagementPage";
+import LifecycleDetailPage from "./pages/LifecycleDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
@@ -87,8 +89,9 @@ const App = () => (
           <Route path="/marketplaces/portfolio-management" element={<PortfolioManagementPage />} />
           <Route path="/marketplaces/portfolio-management/:tab/:cardId" element={<PortfolioDetailPage />} />
           
-          {/* Other marketplace routes */}
-          <Route path="/marketplaces/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
+          {/* Lifecycle Management marketplace */}
+          <Route path="/marketplaces/lifecycle-management" element={<LifecycleManagementPage />} />
+          <Route path="/marketplaces/lifecycle-management/:tab/:cardId" element={<LifecycleDetailPage />} />
           
           {/* Resource routes */}
           <Route path="/best-practices" element={<ComingSoonPage pageName="Best Practices" />} />
