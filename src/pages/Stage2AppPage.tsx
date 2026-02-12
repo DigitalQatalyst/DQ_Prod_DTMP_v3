@@ -43,6 +43,8 @@ import ProjectsPage from "./lifecycle/ProjectsPage";
 import ApplicationsPage from "./lifecycle/ApplicationsPage";
 import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
 import type { SolutionType } from "@/data/blueprints/solutionSpecs";
+import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
+import { ServiceDashboardPage } from "@/pages/stage2/intelligence";
 
 interface LocationState {
   marketplace?: string;
@@ -83,14 +85,16 @@ export default function Stage2AppPage() {
         return "Lifecycle Management";
       case "solution-build":
         return "Solution Build";
+      case "digital-intelligence":
+        return "Digital Intelligence";
       default:
         return "Overview";
     }
   });
   
   const [activeSubService, setActiveSubService] = useState<string | null>(() => {
-    // Auto-select the specific service if coming from a portfolio, learning center, lifecycle, or solution build card
-    if ((marketplace === "portfolio-management" || marketplace === "learning-center" || marketplace === "lifecycle-management" || marketplace === "solution-build") && cardId) {
+    // Auto-select the specific service if coming from a marketplace card
+    if ((marketplace === "portfolio-management" || marketplace === "learning-center" || marketplace === "lifecycle-management" || marketplace === "solution-build" || marketplace === "digital-intelligence") && cardId) {
       return cardId;
     }
     return null;
@@ -143,6 +147,16 @@ export default function Stage2AppPage() {
     SDO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
   };
 
+  // Digital Intelligence sub-services - Use actual intelligence services
+  const intelligenceSubServices = intelligenceServices.map(service => ({
+    id: service.id,
+    name: service.title,
+    description: service.description,
+    icon: Brain,
+    category: service.category,
+    accuracy: service.accuracy,
+    updateFrequency: service.updateFrequency
+  }));
   // Icon mapping function
   function getIconComponent(iconName: string): React.ComponentType<{ className?: string }> {
     const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -320,14 +334,16 @@ export default function Stage2AppPage() {
               {!leftSidebarCollapsed && "Portfolio Management"}
             </button>
             
-            <button 
-              onClick={() => handleServiceClick("Digital Intelligence")}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Digital Intelligence")}`}
-              title="Digital Intelligence"
-            >
-              <Brain className="w-4 h-4 flex-shrink-0" />
-              {!leftSidebarCollapsed && "Digital Intelligence"}
-            </button>
+            <div>
+              <button 
+                onClick={() => handleServiceClick("Digital Intelligence")}
+                className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Digital Intelligence")}`}
+                title="Digital Intelligence"
+              >
+                <Brain className="w-4 h-4 flex-shrink-0" />
+                {!leftSidebarCollapsed && "Digital Intelligence"}
+              </button>
+            </div>
             
             {/* Analytics Section */}
             {!leftSidebarCollapsed && (
@@ -576,6 +592,39 @@ export default function Stage2AppPage() {
                                 </Badge>
                               </div>
                               <div className="text-xs text-gray-500 line-clamp-2">{build.description}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : activeService === "Digital Intelligence" ? (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Intelligence Services</h3>
+                    <div className="space-y-2">
+                      {intelligenceSubServices.map((service) => {
+                        const Icon = service.icon;
+                        return (
+                          <button
+                            key={service.id}
+                            onClick={() => handleSubServiceClick(service.id)}
+                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                              activeSubService === service.id 
+                                ? "bg-purple-50 text-purple-700 border border-purple-200" 
+                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600" />
+                            <div className="text-left flex-1">
+                              <div className="font-medium">{service.name}</div>
+                              <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{service.description}</div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-purple-600">{service.accuracy}</span>
+                                <span className="text-xs text-gray-400">•</span>
+                                <span className="text-xs text-gray-500 capitalize">{service.updateFrequency}</span>
+                              </div>
                             </div>
                           </button>
                         );
@@ -2097,6 +2146,11 @@ export default function Stage2AppPage() {
                 );
               })()}
             </div>
+          ) : activeService === "Digital Intelligence" && activeSubService ? (
+            <div className="h-full">
+              {/* Digital Intelligence Dashboard Content */}
+              <ServiceDashboardPage serviceId={activeSubService} />
+            </div>
           ) : (
             <div className="p-6">
               <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
@@ -2114,6 +2168,10 @@ export default function Stage2AppPage() {
                       "Select a course from the sidebar to view details and continue learning" :
                       activeService === "Lifecycle Management" ?
                       "Select a lifecycle service from the sidebar to get started" :
+                      activeService === "Solution Build" ?
+                      "Select a solution build from the sidebar to view details and deployment guides" :
+                      activeService === "Digital Intelligence" ?
+                      "Select an intelligence service from the sidebar to view AI-powered dashboards" :
                       `${activeService} tools and interfaces would be displayed here`
                     }
                   </p>
@@ -2135,6 +2193,11 @@ export default function Stage2AppPage() {
                   {activeService === "Solution Build" && (
                     <p className="text-sm text-gray-400">
                       Select a solution build from the sidebar to get started
+                    </p>
+                  )}
+                  {activeService === "Digital Intelligence" && (
+                    <p className="text-sm text-gray-400">
+                      Select an intelligence service from the sidebar to get started
                     </p>
                   )}
                 </div>

@@ -26,10 +26,12 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to Stage 2 with context
+    
+    // Navigate to Stage 2 with context for all marketplaces
     navigate("/stage2", {
       state: context,
     });
+    
     onClose();
   };
 
@@ -78,7 +80,9 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
         {/* Description */}
         <p className="text-base text-muted-foreground text-center mb-8">
-          Please log in to continue with your enrollment
+          {context.marketplace === "digital-intelligence" 
+            ? `Please log in to access the ${context.serviceName} dashboard`
+            : "Please log in to continue with your enrollment"}
         </p>
 
         {/* Form */}
