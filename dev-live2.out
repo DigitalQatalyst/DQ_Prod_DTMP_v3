@@ -1,0 +1,26 @@
+
+> vite_react_shadcn_ts@0.0.0 dev
+> vite
+
+Re-optimizing dependencies because lockfile has changed
+Port 8080 is in use, trying another one...
+Port 8081 is in use, trying another one...
+Port 8082 is in use, trying another one...
+
+  [32m[1mVITE[22m v5.4.19[39m  [2mready in [0m[1m765[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8083[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.88.189:[1m8083[22m/[39m
+[2m10:27:31 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesDetailPage.tsx, /src/index.css[22m
+[2m10:28:21 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesDetailPage.tsx, /src/index.css[22m
+[2m10:34:47 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesDetailPage.tsx, /src/index.css[22m
+[2m10:44:48 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesDetailPage.tsx, /src/index.css[22m
+[2m10:46:27 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesDetailPage.tsx, /src/index.css[22m
+[2m10:48:23 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesDetailPage.tsx, /src/index.css[22m
+[2m11:33:32 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m11:33:41 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m11:33:56 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m11:34:05 AM[22m [36m[1m[vite][22m[39m [32m✨ new dependencies optimized: [33mdate-fns[32m[39m
+[2m11:34:05 AM[22m [36m[1m[vite][22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m11:34:15 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesPage.tsx, /src/index.css[22m
+[2m11:34:30 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesPage.tsx, /src/index.css[22m
