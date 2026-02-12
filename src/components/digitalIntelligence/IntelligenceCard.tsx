@@ -165,7 +165,7 @@
              onClick?.();
            }}
          >
-           View Analytics
+           Request Dashboard
            <ArrowRight className="w-4 h-4" />
          </button>
        </div>
