@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Download, ArrowRight } from "lucide-react";
 import { solutionSpecs, SolutionType } from "@/data/blueprints/solutionSpecs";
 import { solutionSpecsFilters } from "@/data/blueprints/filters";
 import { Header } from "@/components/layout/Header";
@@ -10,6 +10,7 @@ import { TypeTabs } from "@/components/shared/TypeTabs";
 import { FilterPanel } from "@/components/shared/FilterPanel";
 import { SolutionSpecCard } from "@/components/cards/SolutionSpecCard";
 import { FileX } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type FilterValue = string | string[] | number | boolean | undefined;
 
@@ -106,7 +107,7 @@ export function SolutionSpecsPage() {
     setActiveFilters({});
   }, []);
 
-  // Handle card click
+  // Handle card click - navigate to detail page
   const handleCardClick = useCallback(
     (id: string) => {
       navigate(`/marketplaces/solution-specs/${id}`);
@@ -199,6 +200,37 @@ export function SolutionSpecsPage() {
           </div>
         </div>
       </main>
+
+      {/* Call to Action Section */}
+      <section className="bg-gradient-to-b from-gray-50 to-white py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 lg:p-12">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Download className="w-8 h-8 text-orange-600" />
+              </div>
+              
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Can't Find What You're Looking For?
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Request a custom solution spec, architecture blueprint, or design. Our team will create it tailored to your needs.
+              </p>
+              
+              <div className="flex justify-center">
+                <Button
+                  onClick={() => navigate('/stage2/specs/overview')}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-12 py-6 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+                >
+                  Make Request
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

@@ -12,6 +12,7 @@ import {
   Building2,
   Award,
   FileX,
+  ArrowRight,
 } from "lucide-react";
 import { solutionSpecs, SolutionType } from "@/data/blueprints/solutionSpecs";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +44,7 @@ const MATURITY_LABELS: Record<string, string> = {
 export function SolutionSpecDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showLogin, setShowLogin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Find the solution spec
   const spec = solutionSpecs.find((s) => s.id === id);
@@ -90,16 +91,9 @@ export function SolutionSpecDetailPage() {
     navigate("/marketplaces/solution-specs");
   };
 
-  const handleRequestResource = () => {
-    setShowLogin(true);
-  };
-
-  const loginContext = {
-    marketplace: "solution-specs",
-    tab: "specs",
-    cardId: spec?.id || "",
-    serviceName: spec?.title || "",
-    action: "request",
+  const handleMakeRequest = () => {
+    // Show login modal before navigating to Stage 2
+    setShowLoginModal(true);
   };
 
   return (
@@ -248,23 +242,11 @@ export function SolutionSpecDetailPage() {
             </div>
           )}
 
-          {/* Request Resource Button */}
-          {spec.downloadUrl && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <Button
-                onClick={handleRequestResource}
-                className="inline-flex items-center gap-2 bg-[hsl(var(--orange))] hover:bg-[hsl(var(--orange))]/90 text-white"
-              >
-                <Download size={18} />
-                Request Resource
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Related Specifications Section */}
         {relatedSpecs.length > 0 && (
-          <section className="bg-white border border-gray-200 rounded-xl p-8">
+          <section className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Related Specifications
             </h2>
@@ -314,13 +296,48 @@ export function SolutionSpecDetailPage() {
             </div>
           </section>
         )}
+
+        {/* Call to Action Section */}
+        <section className="bg-gradient-to-b from-gray-50 to-white py-12 lg:py-16">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 lg:p-12">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Download className="w-8 h-8 text-orange-600" />
+              </div>
+              
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Need This Solution Spec or Blueprint?
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Make a request to access this solution specification, architecture blueprint, or design. Our team will help you get started.
+              </p>
+              
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleMakeRequest}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-12 py-6 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+                >
+                  Make Request
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Login Modal */}
       <LoginModal
-        isOpen={showLogin}
-        onClose={() => setShowLogin(false)}
-        context={loginContext}
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "solution-specs",
+          tab: "specs",
+          cardId: spec?.id || "",
+          serviceName: spec?.title || "Solution Spec",
+          action: "Make Request",
+        }}
       />
 
       <Footer />

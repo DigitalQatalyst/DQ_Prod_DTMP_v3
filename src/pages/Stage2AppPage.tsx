@@ -69,6 +69,8 @@ export default function Stage2AppPage() {
         return "Design Blueprints";
       case "templates":
         return "AI DocWriter";
+      case "solution-specs":
+        return "Solutions Specs";
       default:
         return "Overview";
     }
@@ -124,6 +126,10 @@ export default function Stage2AppPage() {
   }
 
   const isActiveService = (service: string) => {
+    // Check if current path matches Solutions Specs routes
+    if (service === "Solutions Specs" && location.pathname.startsWith('/stage2/specs')) {
+      return "bg-orange-50 text-orange-700 font-medium";
+    }
     return activeService === service ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50";
   };
 
@@ -197,6 +203,48 @@ export default function Stage2AppPage() {
             >
               <PenTool className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "AI DocWriter"}
+            </button>
+            
+            {/* Solutions Specs with sub-items */}
+            {!leftSidebarCollapsed && activeService === "Solutions Specs" && (
+              <div className="ml-4 space-y-1 mb-2">
+                <button
+                  onClick={() => navigate('/stage2/specs/overview')}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                >
+                  Architecture Library
+                </button>
+                <button
+                  onClick={() => navigate('/stage2/specs/templates')}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                >
+                  Design Templates
+                </button>
+                <button
+                  onClick={() => navigate('/stage2/specs/patterns')}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                >
+                  Design Patterns
+                </button>
+                <button
+                  onClick={() => navigate('/stage2/specs/my-designs')}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                >
+                  My Designs
+                </button>
+              </div>
+            )}
+            
+            <button 
+              onClick={() => {
+                setActiveService("Solutions Specs");
+                navigate('/stage2/specs/overview');
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Solutions Specs")}`}
+              title="Solutions Specs"
+            >
+              <PenTool className="w-4 h-4 flex-shrink-0" />
+              {!leftSidebarCollapsed && "Solutions Specs"}
             </button>
             
             <button 
