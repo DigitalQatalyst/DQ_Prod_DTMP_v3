@@ -24,7 +24,7 @@ import SupportServicesOverview from "./pages/stage2/support/SupportServicesOverv
 import MyTicketsPage from "./pages/stage2/support/MyTicketsPage";
 import TicketDetailPage from "./pages/stage2/support/TicketDetailPage";
 import ServiceRequestsPage from "./pages/stage2/support/ServiceRequestsPage";
-import RequestDetailPage from "./pages/stage2/support/RequestDetailPage";
+import { default as SupportRequestDetailPage } from "./pages/stage2/support/RequestDetailPage";
 import KnowledgeBasePage from "./pages/stage2/support/KnowledgeBasePage";
 import ArticleDetailPage from "./pages/stage2/support/ArticleDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
@@ -39,11 +39,17 @@ import SolutionSpecsOverview from "./pages/stage2/specs/SolutionSpecsOverview";
 import ArchitectureLibraryPage from "./pages/stage2/specs/ArchitectureLibraryPage";
 import BlueprintDetailPage from "./pages/stage2/specs/BlueprintDetailPage";
 import DesignTemplatesPage from "./pages/stage2/specs/DesignTemplatesPage";
-import TemplateDetailPage from "./pages/stage2/specs/TemplateDetailPage";
+import { default as SpecTemplateDetailPage } from "./pages/stage2/specs/TemplateDetailPage";
 import DesignPatternsPage from "./pages/stage2/specs/DesignPatternsPage";
 import PatternDetailPage from "./pages/stage2/specs/PatternDetailPage";
 import MyDesignsPage from "./pages/stage2/specs/MyDesignsPage";
 import DesignDetailPage from "./pages/stage2/specs/DesignDetailPage";
+import TemplatesOverview from "./pages/stage2/templates/TemplatesOverview";
+import TemplateLibraryPage from "./pages/stage2/templates/TemplateLibraryPage";
+import { default as MarketplaceTemplateDetailPage } from "./pages/stage2/templates/TemplateDetailPage";
+import NewRequestPage from "./pages/stage2/templates/NewRequestPage";
+import MyRequestsPage from "./pages/stage2/templates/MyRequestsPage";
+import { default as TemplatesRequestDetailPage } from "./pages/stage2/templates/RequestDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -68,7 +74,7 @@ const App = () => (
           <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />
           <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
           <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
-          <Route path="/stage2/support/requests/:requestId" element={<RequestDetailPage />} />
+          <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
           <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
           <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
           
@@ -78,11 +84,21 @@ const App = () => (
             <Route path="blueprints" element={<ArchitectureLibraryPage />} />
             <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
             <Route path="templates" element={<DesignTemplatesPage />} />
-            <Route path="templates/:templateId" element={<TemplateDetailPage />} />
+            <Route path="templates/:templateId" element={<SpecTemplateDetailPage />} />
             <Route path="patterns" element={<DesignPatternsPage />} />
             <Route path="patterns/:patternId" element={<PatternDetailPage />} />
             <Route path="my-designs" element={<MyDesignsPage />} />
             <Route path="my-designs/:designId" element={<DesignDetailPage />} />
+          </Route>
+          
+          {/* Stage 2 - Templates Marketplace Routes */}
+          <Route path="/stage2/templates" element={<Stage2Layout />}>
+            <Route path="overview" element={<TemplatesOverview />} />
+            <Route path="library" element={<TemplateLibraryPage />} />
+            <Route path="library/:templateId" element={<MarketplaceTemplateDetailPage />} />
+            <Route path="new-request" element={<NewRequestPage />} />
+            <Route path="my-requests" element={<MyRequestsPage />} />
+            <Route path="my-requests/:requestId" element={<TemplatesRequestDetailPage />} />
           </Route>
           
           {/* Main platform routes */}
