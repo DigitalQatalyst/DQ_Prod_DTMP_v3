@@ -38,6 +38,14 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
           state: { fromStage1: true, specId: context.cardId },
         });
       }
+    } else if (context.marketplace === "templates") {
+      // For templates, go directly to new request page with template pre-selected
+      navigate("/stage2/templates/new-request", {
+        state: {
+          templateId: context.cardId,
+          ...context
+        },
+      });
     } else {
       navigate("/stage2", {
         state: context,
