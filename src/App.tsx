@@ -34,6 +34,16 @@ import LifecycleDetailPage from "./pages/LifecycleDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
+import Stage2Layout from "./layouts/Stage2Layout";
+import SolutionSpecsOverview from "./pages/stage2/specs/SolutionSpecsOverview";
+import ArchitectureLibraryPage from "./pages/stage2/specs/ArchitectureLibraryPage";
+import BlueprintDetailPage from "./pages/stage2/specs/BlueprintDetailPage";
+import DesignTemplatesPage from "./pages/stage2/specs/DesignTemplatesPage";
+import TemplateDetailPage from "./pages/stage2/specs/TemplateDetailPage";
+import DesignPatternsPage from "./pages/stage2/specs/DesignPatternsPage";
+import PatternDetailPage from "./pages/stage2/specs/PatternDetailPage";
+import MyDesignsPage from "./pages/stage2/specs/MyDesignsPage";
+import DesignDetailPage from "./pages/stage2/specs/DesignDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +71,19 @@ const App = () => (
           <Route path="/stage2/support/requests/:requestId" element={<RequestDetailPage />} />
           <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
           <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
+          
+          {/* Stage 2 - Solutions Specs Routes */}
+          <Route path="/stage2/specs" element={<Stage2Layout />}>
+            <Route path="overview" element={<SolutionSpecsOverview />} />
+            <Route path="blueprints" element={<ArchitectureLibraryPage />} />
+            <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
+            <Route path="templates" element={<DesignTemplatesPage />} />
+            <Route path="templates/:templateId" element={<TemplateDetailPage />} />
+            <Route path="patterns" element={<DesignPatternsPage />} />
+            <Route path="patterns/:patternId" element={<PatternDetailPage />} />
+            <Route path="my-designs" element={<MyDesignsPage />} />
+            <Route path="my-designs/:designId" element={<DesignDetailPage />} />
+          </Route>
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
