@@ -52,6 +52,11 @@ const App = () => (
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
+          <Route path="/stage2/support" element={<Navigate to="/stage2?marketplace=support-services&tab=support-overview" replace />} />
+          <Route path="/stage2/support/new-request" element={<Navigate to="/stage2?marketplace=support-services&tab=support-new-request" replace />} />
+          <Route path="/stage2/support/history" element={<Navigate to="/stage2?marketplace=support-services&tab=support-history" replace />} />
+          <Route path="/stage2/support/team" element={<Navigate to="/stage2?marketplace=support-services&tab=support-team" replace />} />
+          <Route path="/stage2/support/analytics" element={<Navigate to="/stage2?marketplace=support-services&tab=support-analytics" replace />} />
           <Route path="/stage2/support/overview" element={<SupportServicesOverview />} />
           <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />
           <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />

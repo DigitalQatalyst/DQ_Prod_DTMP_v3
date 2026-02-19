@@ -28,14 +28,18 @@ import {
   CheckCircle,
   Award,
   Ticket,
-  ClipboardList
+  ClipboardList,
+  ShieldCheck,
+  MessageCircle,
+  Phone,
+  Paperclip
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { CourseDetailView } from "@/components/learning";
-import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest } from "@/data/supportData";
+import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest, KnowledgeArticle } from "@/data/supportData";
 import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
@@ -50,15 +54,113 @@ interface LocationState {
   action?: string;
 }
 
+interface KnowledgeDetailContent {
+  stepByStepActions: string[];
+  keyTakeaways: string[];
+  fullGuidance: string;
+  whyThisMatters: string;
+  signalsToWatch: string;
+  ifIssuesPersist: string;
+}
+
+interface NewSupportRequestForm {
+  requestType: "incident" | "service-request" | "question" | "problem" | "change-request";
+  category: string;
+  priority: "critical" | "high" | "medium" | "low";
+  subject: string;
+  description: string;
+  urgency: "blocking" | "important" | "not-urgent";
+}
+
+const supportSubServiceTabMap: Record<string, string> = {
+  overview: "support-overview",
+  tickets: "support-tickets",
+  requests: "support-requests",
+  knowledge: "support-knowledge",
+  "new-request": "support-new-request",
+  history: "support-history",
+  team: "support-team",
+  analytics: "support-analytics",
+};
+
+const normalizeSupportSubService = (value?: string | null): string | null => {
+  if (!value) return null;
+  if (value.startsWith("support-")) return value;
+  return supportSubServiceTabMap[value] || null;
+};
+
+const supportCategoryOptions = [
+  "Portfolio Management",
+  "Learning Center",
+  "Knowledge Center",
+  "Digital Intelligence",
+  "Solutions Specifications",
+  "Solutions Build",
+  "Lifecycle Management",
+  "Platform/Account",
+  "Other",
+];
+
+const stripHtml = (value: string) => value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const withPeriod = (value: string) => (/[.!?]$/.test(value) ? value : `${value}.`);
+
+const knowledgeDetailOverrides: Record<string, Partial<KnowledgeDetailContent>> = {
+  "KB-00120": {
+    stepByStepActions: ["SPF, DKIM, DMARC checks and queue monitoring steps."],
+    keyTakeaways: ["Checklist to troubleshoot outbound email delays and failures."],
+    fullGuidance: "SPF, DKIM, DMARC checks and queue monitoring steps.",
+    whyThisMatters: "Checklist to troubleshoot outbound email delays and failures.",
+    signalsToWatch:
+      "Look for recurring themes like email, delivery, queue in user reports or monitoring alerts; they often indicate the same root causes described here.",
+    ifIssuesPersist:
+      "Capture logs/screenshots and submit a Support Services request from this page so the team can triage with the context above.",
+  },
+};
+
+const buildKnowledgeDetailContent = (article: KnowledgeArticle): KnowledgeDetailContent => {
+  const plainContent = stripHtml(article.content);
+  const summary = withPeriod(article.summary.trim());
+  const guidance = withPeriod((plainContent || article.summary).trim());
+  const area = (article.subcategory || article.category).toLowerCase();
+  const tagsLabel = article.tags.join(", ");
+
+  const defaults: KnowledgeDetailContent = {
+    stepByStepActions: [guidance],
+    keyTakeaways: [summary],
+    fullGuidance: guidance,
+    whyThisMatters: `Resolving ${area} issues quickly reduces repeat incidents and business disruption.`,
+    signalsToWatch: tagsLabel
+      ? `Look for recurring themes like ${tagsLabel} in user reports or monitoring alerts; they often indicate the same root causes described here.`
+      : "Look for recurring user reports and monitoring alerts that indicate repeat failure patterns.",
+    ifIssuesPersist:
+      "Capture logs/screenshots and submit a Support Services request from this page so the team can triage with the same context above.",
+  };
+
+  const override = knowledgeDetailOverrides[article.id];
+  if (!override) {
+    return defaults;
+  }
+
+  return {
+    ...defaults,
+    ...override,
+    stepByStepActions: override.stepByStepActions ?? defaults.stepByStepActions,
+    keyTakeaways: override.keyTakeaways ?? defaults.keyTakeaways,
+  };
+};
+
 export default function Stage2AppPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  // Allow both location.state (when coming from Stage 1) and URL query params fallback
   const state = (location.state as LocationState) || {};
+  const search = new URLSearchParams(location.search);
+  const requestedSupportSubService = normalizeSupportSubService(state.tab || search.get("tab"));
   
   const {
-    marketplace = "portfolio-management",
-    cardId = "portfolio-dashboard",
-    serviceName = "Portfolio Service",
+    marketplace = search.get("marketplace") || "support-services",
+    cardId = search.get("cardId") || (marketplace === "support-services" ? "" : "portfolio-dashboard"),
+    serviceName = search.get("serviceName") || "Support Service",
   } = state;
 
   const marketplaceLabel = marketplace
@@ -80,7 +182,7 @@ export default function Stage2AppPage() {
       case "templates":
         return "AI DocWriter";
       default:
-        return "Overview";
+        return "Support Services";
     }
   });
   
@@ -90,9 +192,11 @@ export default function Stage2AppPage() {
       return cardId;
     }
     if (marketplace === "support-services") {
+      if (requestedSupportSubService) return requestedSupportSubService;
       return cardId ? "support-detail" : "support-overview";
     }
-    return null;
+    // Default to support overview so /stage2 without state still renders
+    return "support-overview";
   });
   const [supportSelectedService, setSupportSelectedService] = useState(() => {
     if (marketplace === "support-services" && cardId) {
@@ -127,6 +231,17 @@ export default function Stage2AppPage() {
     }));
     return [...seeded, ...serviceRequests];
   });
+  const [newRequestForm, setNewRequestForm] = useState<NewSupportRequestForm>({
+    requestType: "incident",
+    category: "Platform/Account",
+    priority: "high",
+    subject: "",
+    description: "",
+    urgency: "important",
+  });
+  const [newRequestAttachments, setNewRequestAttachments] = useState<File[]>([]);
+  const [newRequestError, setNewRequestError] = useState<string | null>(null);
+  const [newRequestSuccess, setNewRequestSuccess] = useState<string | null>(null);
 
   // Collapsible sidebar states
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -158,7 +273,11 @@ export default function Stage2AppPage() {
     { id: "support-overview", name: "Overview", description: "Dashboards & SLAs", icon: Headphones },
     { id: "support-tickets", name: "My Tickets", description: "Track incidents", icon: Ticket },
     { id: "support-requests", name: "Service Requests", description: "Access & changes", icon: ClipboardList },
-    { id: "support-knowledge", name: "Knowledge Base", description: "Articles and guides", icon: BookOpen }
+    { id: "support-knowledge", name: "Knowledge Base", description: "Articles and guides", icon: BookOpen },
+    { id: "support-new-request", name: "Submit New Request", description: "Create support ticket", icon: FileText },
+    { id: "support-history", name: "Request History", description: "Past and closed requests", icon: Activity },
+    { id: "support-team", name: "Team Dashboard", description: "Manager operations view", icon: Users },
+    { id: "support-analytics", name: "Support Analytics", description: "TO metrics and trends", icon: BarChart3 },
   ];
 
   // Icon mapping function
@@ -279,6 +398,143 @@ export default function Stage2AppPage() {
     setActiveSubService("support-tickets");
   };
 
+  const addNewRequestAttachments = (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    const incoming = Array.from(fileList);
+    setNewRequestAttachments((prev) => {
+      const seen = new Set(prev.map((f) => f.name));
+      const deduped = incoming.filter((f) => !seen.has(f.name));
+      return [...prev, ...deduped];
+    });
+  };
+
+  const removeNewRequestAttachment = (name: string) => {
+    setNewRequestAttachments((prev) => prev.filter((f) => f.name !== name));
+  };
+
+  const submitNewSupportRequest = () => {
+    const subject = newRequestForm.subject.trim();
+    const description = newRequestForm.description.trim();
+
+    if (subject.length < 10) {
+      setNewRequestError("Subject must be at least 10 characters.");
+      return;
+    }
+    if (description.length < 50) {
+      setNewRequestError("Description must be at least 50 characters.");
+      return;
+    }
+
+    setNewRequestError(null);
+    const now = new Date();
+    const ticketId = `TICKET-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
+    const slaByPriority: Record<NewSupportRequestForm["priority"], { responseHours: number; resolutionHours: number }> = {
+      critical: { responseHours: 4, resolutionHours: 24 },
+      high: { responseHours: 24, resolutionHours: 72 },
+      medium: { responseHours: 48, resolutionHours: 120 },
+      low: { responseHours: 72, resolutionHours: 240 },
+    };
+    const slaTarget = slaByPriority[newRequestForm.priority];
+    const responseDeadline = new Date(now.getTime() + slaTarget.responseHours * 60 * 60 * 1000).toISOString();
+    const resolutionDeadline = new Date(now.getTime() + slaTarget.resolutionHours * 60 * 60 * 1000).toISOString();
+    const timeRemainingMinutes = Math.max(Math.floor((new Date(resolutionDeadline).getTime() - now.getTime()) / 60000), 0);
+
+    const newTicket = {
+      id: ticketId,
+      subject,
+      description,
+      priority: newRequestForm.priority,
+      status: "new" as const,
+      category: newRequestForm.category,
+      subcategory: newRequestForm.requestType,
+      requester: {
+        id: "user-current",
+        name: "You",
+        email: "you@example.com",
+        department: "N/A",
+      },
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      sla: {
+        responseTimeHours: slaTarget.responseHours,
+        resolutionTimeHours: slaTarget.resolutionHours,
+        responseDeadline,
+        resolutionDeadline,
+        responseBreached: false,
+        resolutionBreached: false,
+        timeRemainingMinutes,
+      },
+      conversation: [
+        {
+          id: `c-${ticketId}-1`,
+          author: { id: "user-current", name: "You", role: "user" as const, avatar: "YO" },
+          content: description,
+          timestamp: now.toISOString(),
+          type: "comment" as const,
+        },
+      ],
+      attachments: newRequestAttachments.map((file) => ({
+        id: `att-${ticketId}-${file.name}`,
+        filename: file.name,
+        fileSize: `${Math.max(file.size / 1024, 1).toFixed(0)} KB`,
+        fileType: file.type || "file",
+        uploadedBy: "You",
+        uploadedAt: now.toISOString(),
+        downloadUrl: "#",
+      })),
+      relatedKBArticles: [],
+    };
+    setSupportTicketsState((prev) => [newTicket, ...prev]);
+
+    const requestTypeMap: Record<NewSupportRequestForm["requestType"], ServiceRequest["type"]> = {
+      incident: "other",
+      "service-request": "change",
+      question: "other",
+      problem: "other",
+      "change-request": "change",
+    };
+
+    const newRequest: ServiceRequest = {
+      id: `REQ-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`,
+      type: requestTypeMap[newRequestForm.requestType],
+      title: subject,
+      description,
+      justification: `Submitted as ${newRequestForm.requestType}; urgency: ${newRequestForm.urgency}`,
+      status: "pending-approval",
+      requester: {
+        id: "user-current",
+        name: "You",
+        email: "you@example.com",
+        department: "N/A",
+        manager: "N/A",
+      },
+      approvalWorkflow: [],
+      requestedItems: [],
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      activityLog: [
+        {
+          id: `log-${ticketId}-1`,
+          timestamp: now.toISOString(),
+          actor: "You",
+          action: "Request Submitted",
+        },
+      ],
+    };
+    setSupportRequestsState((prev) => [newRequest, ...prev]);
+
+    setNewRequestSuccess(`Request ${ticketId} was submitted and added to My Tickets.`);
+    setNewRequestForm({
+      requestType: "incident",
+      category: "Platform/Account",
+      priority: "high",
+      subject: "",
+      description: "",
+      urgency: "important",
+    });
+    setNewRequestAttachments([]);
+  };
+
   const renderSupportWorkspace = () => {
     if (!activeSubService || activeService !== "Support Services") return null;
 
@@ -346,45 +602,75 @@ export default function Stage2AppPage() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 text-sm text-gray-800">
-              <div className="border border-gray-200 rounded-lg p-3">
-                <p className="text-xs text-gray-500">Office / Team</p>
-                <p className="font-semibold">Support Operations Center</p>
-                <p className="text-xs text-gray-600">Hours: 24x7 • TZ: UTC</p>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-3">
-                <p className="text-xs text-gray-500">Contact Channels</p>
-                <p className="font-semibold">Ticket, Chat, Bridge</p>
-                <p className="text-xs text-gray-600">Escalation: Duty Manager</p>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-3 space-y-2">
-                <p className="text-xs text-gray-500">Artifacts to attach</p>
-                <p className="text-xs text-gray-700">Logs, screenshots, environment, business impact</p>
-                <div className="space-y-2">
-                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-orange-700 cursor-pointer">
-                    <input
-                      type="file"
-                      multiple
-                      className="hidden"
-                      onChange={(e) => handleAttachmentAdd(e.target.files)}
-                    />
-                    <span className="px-3 py-1 rounded border border-orange-200 bg-orange-50">Attach files</span>
-                  </label>
-                  {supportAttachments.length > 0 && (
-                    <ul className="space-y-1 text-xs text-gray-700">
-                      {supportAttachments.map((file) => (
-                        <li key={file.name} className="flex items-center justify-between gap-2">
-                          <span className="truncate">{file.name}</span>
-                          <button
-                            className="text-orange-700 hover:underline"
-                            onClick={() => handleAttachmentRemove(file.name)}
-                          >
-                            remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+              <div className="group relative rounded-lg p-4 bg-gradient-to-br from-orange-50 via-white to-white border border-orange-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-9 h-9 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-700">
+                    <ShieldCheck size={16} />
+                  </span>
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-orange-700 font-semibold">Office / Team</div>
+                    <p className="font-semibold text-gray-900 leading-tight">Support Operations Center</p>
+                  </div>
                 </div>
+                <div className="flex flex-wrap gap-2 text-xs text-gray-700">
+                  <span className="px-2 py-1 rounded-full bg-white border border-orange-100">Hours: 24x7</span>
+                  <span className="px-2 py-1 rounded-full bg-white border border-orange-100">TZ: UTC</span>
+                </div>
+                <p className="text-xs text-gray-600">Primary pod for incident coordination and advisory.</p>
+              </div>
+
+              <div className="group relative rounded-lg p-4 bg-gradient-to-br from-blue-50 via-white to-white border border-blue-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700">
+                    <MessageCircle size={16} />
+                  </span>
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-blue-700 font-semibold">Contact Channels</div>
+                    <p className="font-semibold text-gray-900 leading-tight">Ticket, Chat, Bridge</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-700">
+                  <Phone size={12} />
+                  <span>Escalation: Duty Manager</span>
+                </div>
+                <p className="text-xs text-gray-600">Use chat for rapid triage; bridge opens a war room instantly.</p>
+              </div>
+
+              <div className="group relative rounded-lg p-4 bg-gradient-to-br from-amber-50 via-white to-white border border-amber-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-9 h-9 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700">
+                    <Paperclip size={16} />
+                  </span>
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-amber-700 font-semibold">Artifacts to attach</div>
+                    <p className="text-xs text-gray-700">Logs, screenshots, environment details, and business impact.</p>
+                  </div>
+                </div>
+                <label className="flex items-center justify-center gap-2 text-sm font-semibold text-orange-700 cursor-pointer px-3 py-2 rounded-md border-2 border-dashed border-orange-200 bg-orange-50 hover:bg-orange-100 transition">
+                  <Paperclip size={16} />
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleAttachmentAdd(e.target.files)}
+                  />
+                  Attach files
+                </label>
+                {supportAttachments.length > 0 && (
+                  <ul className="space-y-1 text-xs text-gray-700">
+                    {supportAttachments.map((file) => (
+                      <li key={file.name} className="flex items-center justify-between gap-2 bg-orange-50 border border-orange-100 rounded px-2 py-1">
+                        <span className="truncate">{file.name}</span>
+                        <button
+                          className="text-orange-700 hover:underline"
+                          onClick={() => handleAttachmentRemove(file.name)}
+                        >
+                          remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>
@@ -519,6 +805,295 @@ export default function Stage2AppPage() {
       );
     }
 
+    if (activeSubService === "support-new-request") {
+      return (
+        <div className="p-6 space-y-4">
+          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Submit New Support Request</h3>
+              <p className="text-sm text-gray-600 mt-1">Create a support request for incidents, access, questions, and platform help.</p>
+            </div>
+
+            {newRequestError && (
+              <div className="px-3 py-2 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">
+                {newRequestError}
+              </div>
+            )}
+            {newRequestSuccess && (
+              <div className="px-3 py-2 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm flex items-center justify-between gap-3">
+                <span>{newRequestSuccess}</span>
+                <button
+                  className="text-green-800 font-semibold hover:underline"
+                  onClick={() => setActiveSubService("support-tickets")}
+                >
+                  Go to My Tickets
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="text-sm text-gray-700 space-y-1">
+                <span className="font-semibold">Request Type</span>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                  value={newRequestForm.requestType}
+                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, requestType: e.target.value as NewSupportRequestForm["requestType"] }))}
+                >
+                  <option value="incident">Incident</option>
+                  <option value="service-request">Service Request</option>
+                  <option value="question">Question</option>
+                  <option value="problem">Problem</option>
+                  <option value="change-request">Change Request</option>
+                </select>
+              </label>
+
+              <label className="text-sm text-gray-700 space-y-1">
+                <span className="font-semibold">Category</span>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                  value={newRequestForm.category}
+                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, category: e.target.value }))}
+                >
+                  {supportCategoryOptions.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm text-gray-700 space-y-1">
+                <span className="font-semibold">Priority</span>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                  value={newRequestForm.priority}
+                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, priority: e.target.value as NewSupportRequestForm["priority"] }))}
+                >
+                  <option value="critical">P1 - Critical</option>
+                  <option value="high">P2 - High</option>
+                  <option value="medium">P3 - Medium</option>
+                  <option value="low">P4 - Low</option>
+                </select>
+              </label>
+
+              <label className="text-sm text-gray-700 space-y-1">
+                <span className="font-semibold">Urgency</span>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                  value={newRequestForm.urgency}
+                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, urgency: e.target.value as NewSupportRequestForm["urgency"] }))}
+                >
+                  <option value="blocking">Blocking my work</option>
+                  <option value="important">Important but I can wait</option>
+                  <option value="not-urgent">Not urgent</option>
+                </select>
+              </label>
+            </div>
+
+            <label className="block text-sm text-gray-700 space-y-1">
+              <span className="font-semibold">Subject</span>
+              <input
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                placeholder="Describe the request in one line"
+                value={newRequestForm.subject}
+                onChange={(e) => setNewRequestForm((prev) => ({ ...prev, subject: e.target.value }))}
+              />
+            </label>
+
+            <label className="block text-sm text-gray-700 space-y-1">
+              <span className="font-semibold">Description</span>
+              <textarea
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-36 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                placeholder="Provide detailed context, observed behavior, and impact."
+                value={newRequestForm.description}
+                onChange={(e) => setNewRequestForm((prev) => ({ ...prev, description: e.target.value }))}
+              />
+            </label>
+
+            <div className="space-y-2">
+              <label className="inline-flex items-center gap-2 text-sm font-semibold text-orange-700 cursor-pointer">
+                <Paperclip size={16} />
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => addNewRequestAttachments(e.target.files)}
+                />
+                Attach files
+              </label>
+              {newRequestAttachments.length > 0 && (
+                <ul className="space-y-1 text-xs text-gray-700">
+                  {newRequestAttachments.map((file) => (
+                    <li key={file.name} className="flex items-center justify-between gap-2 border border-gray-200 rounded-md px-2 py-1">
+                      <span className="truncate">{file.name}</span>
+                      <button className="text-orange-700 hover:underline" onClick={() => removeNewRequestAttachment(file.name)}>
+                        remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button className="btn-primary" onClick={submitNewSupportRequest}>
+                Submit Request
+              </button>
+              <button
+                className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => {
+                  setNewRequestForm({
+                    requestType: "incident",
+                    category: "Platform/Account",
+                    priority: "high",
+                    subject: "",
+                    description: "",
+                    urgency: "important",
+                  });
+                  setNewRequestAttachments([]);
+                  setNewRequestError(null);
+                }}
+              >
+                Clear Form
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-history") {
+      const orderedTickets = [...supportTicketsState].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      const total = orderedTickets.length;
+      const open = orderedTickets.filter((ticket) => !["resolved", "closed"].includes(ticket.status)).length;
+      const resolved = orderedTickets.filter((ticket) => ticket.status === "resolved").length;
+      const closed = orderedTickets.filter((ticket) => ticket.status === "closed").length;
+
+      return (
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Total Tickets</p><p className="text-2xl font-semibold text-gray-900">{total}</p></div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Open</p><p className="text-2xl font-semibold text-gray-900">{open}</p></div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Resolved</p><p className="text-2xl font-semibold text-gray-900">{resolved}</p></div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Closed</p><p className="text-2xl font-semibold text-gray-900">{closed}</p></div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-[1.1fr_2fr_1fr_1fr] px-4 py-3 text-xs font-semibold text-gray-600 bg-gray-50">
+              <div>Ticket</div>
+              <div>Subject</div>
+              <div>Status</div>
+              <div>Updated</div>
+            </div>
+            <div className="divide-y divide-gray-200">
+              {orderedTickets.map((ticket) => (
+                <div key={ticket.id} className="grid grid-cols-[1.1fr_2fr_1fr_1fr] px-4 py-3 text-sm">
+                  <div className="font-semibold text-gray-900">{ticket.id}</div>
+                  <div className="text-gray-700 truncate">{ticket.subject}</div>
+                  <div className="capitalize text-gray-700">{ticket.status.replace("-", " ")}</div>
+                  <div className="text-gray-600">{new Date(ticket.updatedAt).toLocaleDateString()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-team") {
+      const activeTickets = supportTicketsState.filter((ticket) => !["resolved", "closed"].includes(ticket.status));
+      const assignedTickets = activeTickets.filter((ticket) => !!ticket.assignee);
+      const teamLoad = assignedTickets.reduce<Record<string, number>>((acc, ticket) => {
+        const key = ticket.assignee?.name || "Unassigned";
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+      const teamRows = Object.entries(teamLoad).sort((a, b) => b[1] - a[1]);
+
+      return (
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Active Tickets</p>
+              <p className="text-2xl font-semibold text-gray-900">{activeTickets.length}</p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Assigned Tickets</p>
+              <p className="text-2xl font-semibold text-gray-900">{assignedTickets.length}</p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Unassigned Tickets</p>
+              <p className="text-2xl font-semibold text-gray-900">{activeTickets.length - assignedTickets.length}</p>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Tickets by Team Member</h3>
+            <div className="space-y-2">
+              {teamRows.length === 0 && <p className="text-sm text-gray-600">No active assignments available.</p>}
+              {teamRows.map(([name, count]) => (
+                <div key={name} className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2">
+                  <span className="text-sm text-gray-800">{name}</span>
+                  <span className="text-sm font-semibold text-gray-900">{count} active</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubService === "support-analytics") {
+      const total = supportTicketsState.length;
+      const openCount = supportTicketsState.filter((ticket) => ["new", "assigned", "in-progress"].includes(ticket.status)).length;
+      const statusCounts = supportTicketsState.reduce<Record<string, number>>((acc, ticket) => {
+        acc[ticket.status] = (acc[ticket.status] || 0) + 1;
+        return acc;
+      }, {});
+      const priorityCounts = supportTicketsState.reduce<Record<string, number>>((acc, ticket) => {
+        acc[ticket.priority] = (acc[ticket.priority] || 0) + 1;
+        return acc;
+      }, {});
+      const responseMet = supportTicketsState.filter((ticket) => !ticket.sla.responseBreached).length;
+      const resolutionMet = supportTicketsState.filter((ticket) => !ticket.sla.resolutionBreached).length;
+      const responsePercent = total ? Math.round((responseMet / total) * 100) : 0;
+      const resolutionPercent = total ? Math.round((resolutionMet / total) * 100) : 0;
+
+      return (
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Total Tickets</p><p className="text-2xl font-semibold text-gray-900">{total}</p></div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Open Tickets</p><p className="text-2xl font-semibold text-gray-900">{openCount}</p></div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Response SLA Met</p><p className="text-2xl font-semibold text-gray-900">{responsePercent}%</p></div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Resolution SLA Met</p><p className="text-2xl font-semibold text-gray-900">{resolutionPercent}%</p></div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Tickets by Status</h3>
+              <div className="space-y-2">
+                {Object.entries(statusCounts).map(([status, count]) => (
+                  <div key={status} className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2">
+                    <span className="text-sm capitalize text-gray-700">{status.replace("-", " ")}</span>
+                    <span className="text-sm font-semibold text-gray-900">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Tickets by Priority</h3>
+              <div className="space-y-2">
+                {Object.entries(priorityCounts).map(([priority, count]) => (
+                  <div key={priority} className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2">
+                    <span className="text-sm capitalize text-gray-700">{priority}</span>
+                    <span className="text-sm font-semibold text-gray-900">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (activeSubService === "support-knowledge") {
       return (
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -549,6 +1124,7 @@ export default function Stage2AppPage() {
     if (activeSubService === "support-knowledge-detail" && supportSelectedArticleId) {
       const article = knowledgeArticles.find(a => a.id === supportSelectedArticleId);
       if (!article) return null;
+      const detailContent = buildKnowledgeDetailContent(article);
       return (
         <div className="p-6 space-y-4">
           <div className="flex items-center gap-3">
@@ -567,12 +1143,13 @@ export default function Stage2AppPage() {
           </div>
 
           <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-2">
-            <h2 className="text-2xl font-bold text-gray-900">{article.title}</h2>
-            <p className="text-sm text-gray-700">{article.summary}</p>
+            <h2 className="text-xl font-bold text-gray-900">{article.title}</h2>
+            <p className="text-[13px] text-gray-700">{article.summary}</p>
             <div className="flex gap-4 text-xs text-gray-600">
               <span className="inline-flex items-center gap-1"><Calendar size={14} /> Updated {new Date(article.updatedAt).toLocaleDateString()}</span>
               <span className="inline-flex items-center gap-1"><ClockIcon size={14} /> {article.estimatedReadTime}</span>
               <span className="inline-flex items-center gap-1"><Eye size={14} /> {article.views.toLocaleString()} views</span>
+              <span className="inline-flex items-center gap-1"><CheckCircle size={14} /> {article.helpfulPercentage}% found this helpful</span>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               {article.tags.map(tag => (
@@ -581,7 +1158,46 @@ export default function Stage2AppPage() {
                 </span>
               ))}
             </div>
-            <div className="prose prose-sm max-w-none mt-3" dangerouslySetInnerHTML={{ __html: article.content }} />
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Step-by-step actions</h3>
+              <ul className="list-disc ml-5 mt-2 text-[13px] text-gray-700 space-y-1">
+                {detailContent.stepByStepActions.map((step, idx) => (
+                  <li key={`${article.id}-step-${idx}`}>{step}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Key takeaways</h3>
+              <ul className="list-disc ml-5 mt-2 text-[13px] text-gray-700 space-y-1">
+                {detailContent.keyTakeaways.map((point, idx) => (
+                  <li key={`${article.id}-takeaway-${idx}`}>{point}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Full guidance</h3>
+              <p className="text-[13px] text-gray-700 mt-2">{detailContent.fullGuidance}</p>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900">Why this matters</h3>
+              <p className="text-[13px] text-gray-700 mt-1">{detailContent.whyThisMatters}</p>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900">Signals to watch</h3>
+              <p className="text-[13px] text-gray-700 mt-1">{detailContent.signalsToWatch}</p>
+            </div>
+
+            <div>
+              <h3 className="text-base font-semibold text-gray-900">If issues persist</h3>
+              <p className="text-[13px] text-gray-700 mt-1">{detailContent.ifIssuesPersist}</p>
+            </div>
           </div>
         </div>
       );
