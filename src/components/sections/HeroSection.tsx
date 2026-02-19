@@ -25,21 +25,19 @@ export function HeroSection() {
 
         {/* Heading */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6 max-w-4xl mx-auto leading-tight">
-          Orchestrating Our Digital Business Platform
+          Orchestrating Your Digital Transformation
         </h1>
 
         {/* Subheading */}
         <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/80 mb-10 max-w-3xl mx-auto leading-relaxed">
-          The unified architecture layer—designed, deployed, and evolved to grow
-          our Digital Business Platform through incrementally structured
-          enterprise-wide transformation.
+          Discover how we can help you build a unified platform that drives innovation and supports enterprise-wide transformation, enabling your business to thrive in the digital age.
         </p>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-12">
           <Link to="/marketplaces">
             <Button className="bg-accent hover:bg-orange-hover text-accent-foreground px-8 py-4 h-auto text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2">
-              Access Platform
+              Start Your Journey Today
               <ArrowRight size={18} />
             </Button>
           </Link>

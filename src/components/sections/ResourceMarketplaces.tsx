@@ -13,11 +13,10 @@ export function ResourceMarketplaces() {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
-            Integrated Resource Marketplaces
+            Explore Our Resource Marketplace
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Access resources, blueprints, and tools through integrated
-            marketplaces—organized around the 4D governance model
+            Discover valuable tools, insights, and resources that support every stage of your digital transformation journey.
           </p>
         </div>
 
@@ -36,7 +35,7 @@ export function ResourceMarketplaces() {
         <div className="text-center">
           <Link to="/marketplaces">
             <Button className="bg-green hover:bg-green/90 text-accent-foreground px-10 py-4 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all">
-              Explore All Marketplaces
+              Explore Marketplaces
             </Button>
           </Link>
         </div>

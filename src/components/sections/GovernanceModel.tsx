@@ -11,11 +11,10 @@ export function GovernanceModel() {
             Structured, Repeatable Transformation
           </p>
           <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
-            4D Governance Model
+            Our Governance Framework
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            The governance structure through which we orchestrate enterprise-wide
-            change—managed by the Transformation Office via DTMP.
+            A structured approach that ensures effective management of change and transformation, led by our dedicated Transformation Office.
           </p>
         </div>
 

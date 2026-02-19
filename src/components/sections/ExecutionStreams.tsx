@@ -11,12 +11,10 @@ export function ExecutionStreams() {
             4 Core Streams
           </p>
           <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
-            Execution Streams Feeding DBP
+            Four Key Execution Streams for Digital Success
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Four primary execution streams contribute measurable assets and
-            capabilities tracked through DBP. Each stream ensures consistent,
-            measurable outcomes that advance our digital maturity.
+            Each of these execution streams plays a vital role in achieving your digital goals by providing consistent, measurable success at every stage.
           </p>
         </div>
 
@@ -29,7 +27,7 @@ export function ExecutionStreams() {
 
         {/* Footer Note */}
         <p className="text-center text-sm text-muted-foreground italic">
-          All streams are governed by the Transformation Office through this platform
+          All streams are managed by the Transformation Office to ensure alignment and success
         </p>
       </div>
     </section>

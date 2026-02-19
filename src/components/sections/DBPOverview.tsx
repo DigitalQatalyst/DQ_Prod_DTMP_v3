@@ -5,19 +5,19 @@ const capabilities = [
     icon: Database,
     title: "Integrations and Data Flows",
     description:
-      "Unified data architecture connecting all enterprise systems",
+      "Simplifying data connections to ensure seamless integration across all platforms",
   },
   {
     icon: Layers,
     title: "Platform Capabilities",
     description:
-      "Core capabilities supporting business and technology needs",
+      "Building the right tools and systems to support your business operations",
   },
   {
     icon: BookOpen,
     title: "Learning & Knowledge",
     description:
-      "Continuous improvement through shared insights and practices",
+      "Equipping your team with the knowledge and tools they need for digital success",
   },
 ];
 
@@ -29,11 +29,10 @@ export function DBPOverview() {
         <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-12">
           <div className="flex-1">
             <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
-              Building Our Digital Business Platform
+              Building Your Digital Business Platform
             </h2>
             <p className="text-lg text-muted-foreground mb-2">
-              The DBP represents our target operating model—a unified set of
-              capabilities, platforms, and governance structures.
+              We help you design and implement a tailored Digital Business Platform (DBP) with integrated capabilities and clear governance to ensure smooth and effective digital transformation.
             </p>
             <p className="text-sm text-muted-foreground">
               Platform Manages the Journey | DBP is the Outcome

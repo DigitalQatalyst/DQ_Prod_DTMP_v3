@@ -8,12 +8,10 @@ export function Contributors() {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
-            Contributors to Our DBP
+            Our Key Contributors
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Enterprise-wide stakeholders—defined as governors, designers,
-            executors, or contributors—working toward our shared Digital
-            Business Platform
+            We work with a diverse group of experts, partners, and leaders to ensure your digital transformation is seamless and effective, with full alignment across all stakeholders.
           </p>
         </div>
 

@@ -15,7 +15,7 @@ export const valueProps: ValueProp[] = [
     icon: Zap,
     color: "text-orange",
     description:
-      "80% of requirements ready with pre-built templates, blueprints, and governance frameworks",
+      "Drive faster and more efficient change within your organization",
   },
   {
     id: "control",
@@ -23,7 +23,7 @@ export const valueProps: ValueProp[] = [
     icon: DollarSign,
     color: "text-green",
     description:
-      "Reduce non-value applications and uncontrolled delivery through enterprise-wide portfolio oversight",
+      "Ensure your investments are optimized and aligned with your business goals",
   },
   {
     id: "quality",
@@ -31,7 +31,7 @@ export const valueProps: ValueProp[] = [
     icon: CheckCircle,
     color: "text-blue-accent",
     description:
-      "Consolidated patterns and structured contributions ensure consistency and compliance",
+      "Deliver measurable results that positively impact your business",
   },
   {
     id: "visibility",
@@ -39,7 +39,7 @@ export const valueProps: ValueProp[] = [
     icon: Eye,
     color: "text-purple",
     description:
-      "Track every initiative, project, and team across DBP evolution in real-time",
+      "Achieve clear visibility across all transformation initiatives",
   },
 ];
 

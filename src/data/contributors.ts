@@ -18,7 +18,7 @@ export const contributors: Contributor[] = [
     color: "text-orange",
     role: "Enterprise TO Director",
     description:
-      "Drive strategic alignment and ensure DBP governance across all initiatives",
+      "Central leadership that drives strategy and execution across the transformation journey",
     contributions: [
       "Enterprise Alignment",
       "DBP Tracking & Oversight",
@@ -32,7 +32,7 @@ export const contributors: Contributor[] = [
     color: "text-purple",
     role: "CEO & Executive Leadership",
     description:
-      "Drive enterprise transformation strategy and portfolio decisions",
+      "Guiding long-term vision and ensuring strategic alignment with business goals",
     contributions: [
       "Strategic Visibility",
       "Portfolio Oversight",
@@ -46,7 +46,7 @@ export const contributors: Contributor[] = [
     color: "text-blue-accent",
     role: "Enterprise & Solution Architects",
     description:
-      "Design and govern platform blueprints and architecture standards",
+      "Designing the right architecture to support your business needs",
     contributions: [
       "Architecture Governance",
       "Blueprint Design",
@@ -59,7 +59,7 @@ export const contributors: Contributor[] = [
     icon: Users,
     color: "text-green",
     role: "Program Managers, Product Owners",
-    description: "Deliver measurable assets and capabilities into DBP",
+    description: "Bringing agile project management and product development to life",
     contributions: ["Project Execution", "Asset Delivery", "Milestone Tracking"],
   },
   {
@@ -69,7 +69,7 @@ export const contributors: Contributor[] = [
     color: "text-pink",
     role: "Operations, Insights, ADM",
     description:
-      "Contribute continuous improvements and operational feedback",
+      "Ensuring that your systems are built to last and continually evolve",
     contributions: [
       "Operational Feedback",
       "Continuous Improvement",
@@ -83,7 +83,7 @@ export const contributors: Contributor[] = [
     color: "text-indigo-600",
     role: "SecDevOps, Support Teams",
     description:
-      "Ensure security, delivery automation, and user enablement",
+      "Ensuring robust, secure development processes at every stage",
     contributions: ["Security Policies", "Delivery Automation", "User Enablement"],
   },
 ];

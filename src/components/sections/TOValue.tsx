@@ -9,12 +9,10 @@ export function TOValue() {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-primary mb-4">
-            Transformation Office Value
+            The Value of Transformation Office
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Improving transformation outcomes enterprise-wide—reducing
-            fragmentation, ensuring alignment, and platforming the journey to
-            our Digital Business Platform.
+            Our Transformation Office ensures that your digital transformation is aligned, sustainable, and outcomes-driven, focusing on performance and value at every step.
           </p>
         </div>
 

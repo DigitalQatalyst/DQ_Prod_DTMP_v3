@@ -18,7 +18,7 @@ export const executionStreams: ExecutionStream[] = [
     acronym: "DXP",
     icon: Monitor,
     color: "text-blue-accent",
-    description: "Orchestrate delivery across all digital touchpoints",
+    description: "Designing user-centered experiences that drive engagement and performance",
     features: [
       "Unified customer journeys",
       "Experience management and personalization",
@@ -31,7 +31,7 @@ export const executionStreams: ExecutionStream[] = [
     acronym: "DWS",
     icon: Laptop,
     color: "text-purple",
-    description: "Measurable productivity across the organization",
+    description: "Empowering teams with the right tools to collaborate and innovate",
     features: [
       "Employee experience and collaboration",
       "Knowledge management systems",
@@ -44,7 +44,7 @@ export const executionStreams: ExecutionStream[] = [
     acronym: "DIA",
     icon: Brain,
     color: "text-pink",
-    description: "Data pipelines, ML models, and analytics services",
+    description: "Transforming data into actionable insights for smarter decisions",
     features: ["AI-driven insights and automation", "Unified data governance"],
     outcomes: ["AI/ML Capabilities", "Data Maturity", "Predictive Insights"],
   },
@@ -54,7 +54,7 @@ export const executionStreams: ExecutionStream[] = [
     acronym: "SDO",
     icon: Shield,
     color: "text-green",
-    description: "Safe, fast delivery through the enterprise",
+    description: "Ensuring secure and agile software delivery at scale",
     features: [
       "Security controls and compliance",
       "Infrastructure patterns and automation",
