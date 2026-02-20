@@ -172,9 +172,5 @@ export const reviews: Review[] = [
 ];
 
 export const reviewsFilters = {
-  contentType: ["Courses", "Learning Tracks", "Instructors"],
-  rating: ["5 stars", "4+ stars", "3+ stars", "All"],
-  verifiedLearner: ["Yes", "All"],
-  completionStatus: ["Completed", "In Progress", "All"],
-  date: ["Last week", "Last month", "Last 3 months", "All time"]
+  contentType: ["Courses", "Learning Tracks"]
 };

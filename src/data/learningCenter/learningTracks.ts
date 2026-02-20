@@ -1,31 +1,41 @@
-export interface LearningTrack {
-  id: string;
-  title: string;
-  description: string;
-  courses: number;
-  duration: string;
-  role: string;
-  focusArea: string;
-  certification: boolean;
-  prerequisites: string;
-  introduction?: string;
-  highlights?: string[];
-  learningOutcomes?: string[];
-  courseList?: {
-    id: string;
-    title: string;
-    duration: string;
-    completed?: boolean;
-  }[];
-  targetAudience?: string;
-  recommendedRoles?: string[];
-  requirements?: string[];
-  timeline?: string;
-  assessmentInfo?: string;
-  inclusions?: string[];
-}
+import type { LearningTrack, LearningTrackCourseItem, TrackCourseRequirement } from "./types";
+export type { LearningTrack };
 
-export const learningTracks: LearningTrack[] = [
+type LearningTrackBase = Omit<LearningTrack, "trackRuntime">;
+
+const runtimeFromCourseList = (
+  courseList: LearningTrackCourseItem[] = [],
+  options?: {
+    completionRule?: "all-required" | "required-plus-electives";
+    electiveCourseIds?: string[];
+    minimumElectives?: number;
+    capstoneRequired?: boolean;
+  }
+) => {
+  const electiveIds = new Set(options?.electiveCourseIds ?? []);
+  const completionRule = options?.completionRule ?? "all-required";
+
+  return {
+    completionRule,
+    minimumElectives: options?.minimumElectives ?? 0,
+    capstoneRequired: options?.capstoneRequired ?? false,
+    courses: courseList.map((course, index) => {
+      const requirement: TrackCourseRequirement = electiveIds.has(course.id)
+        ? "elective"
+        : "required";
+      return {
+        courseId: course.id,
+        title: course.title,
+        duration: course.duration,
+        order: index + 1,
+        requirement,
+        weight: requirement === "required" ? 1 : 0.5,
+      };
+    }),
+  };
+};
+
+const learningTracksBase: LearningTrackBase[] = [
   {
     id: "transformation-leader",
     title: "Transformation Leader Pathway",
@@ -295,6 +305,29 @@ export const learningTracks: LearningTrack[] = [
     inclusions: ["12 courses", "Multiple certifications", "Capstone project", "Executive mentoring", "Lifetime alumni access"]
   }
 ];
+
+export const learningTracks: LearningTrack[] = learningTracksBase.map((track) => {
+  if (track.id === "fullstack-professional") {
+    return {
+      ...track,
+      trackRuntime: runtimeFromCourseList(track.courseList, {
+        completionRule: "required-plus-electives",
+        electiveCourseIds: ["change-leadership", "transformation-leadership"],
+        minimumElectives: 1,
+        capstoneRequired: true,
+      }),
+    };
+  }
+
+  return {
+    ...track,
+    trackRuntime: runtimeFromCourseList(track.courseList, {
+      completionRule: "all-required",
+      minimumElectives: 0,
+      capstoneRequired: false,
+    }),
+  };
+});
 
 export const tracksFilters = {
   role: ["Transformation Leader", "Enterprise Architect", "Portfolio Manager", "Project Manager", "Change Manager", "Technology Lead", "Executive"],

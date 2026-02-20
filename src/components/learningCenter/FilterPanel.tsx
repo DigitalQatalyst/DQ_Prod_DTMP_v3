@@ -1,4 +1,5 @@
-import { X, SlidersHorizontal } from "lucide-react";
+import { useState } from "react";
+import { X, SlidersHorizontal, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -9,6 +10,7 @@ interface FilterPanelProps {
   onClearAll: () => void;
   isOpen: boolean;
   onClose: () => void;
+  onDesktopToggle?: () => void;
 }
 
 const filterLabels: Record<string, string> = {
@@ -64,9 +66,18 @@ export function FilterPanel({
   onClearAll,
   isOpen,
   onClose,
+  onDesktopToggle,
 }: FilterPanelProps) {
   const hasActiveFilters = Object.values(selectedFilters).some(arr => arr.length > 0);
   const activeFilterCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+  const toggleGroup = (group: string) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [group]: !prev[group],
+    }));
+  };
 
   return (
     <>
@@ -85,15 +96,23 @@ export function FilterPanel({
         aria-label={`Filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
         className={`
           fixed lg:relative inset-y-0 left-0 z-50 lg:z-0
-          w-72 bg-white border-r border-gray-200 p-6 overflow-y-auto
+          w-72 bg-white border-r border-gray-200 p-4 overflow-y-auto
           transform transition-transform duration-300 lg:transform-none
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-5 h-5 text-gray-700" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={onDesktopToggle}
+              className="hidden lg:inline-flex p-1 rounded hover:bg-gray-100 text-gray-700"
+              aria-label="Toggle filters panel"
+            >
+              <SlidersHorizontal className="w-5 h-5" aria-hidden="true" />
+            </button>
+            <SlidersHorizontal className="w-5 h-5 text-gray-700 lg:hidden" aria-hidden="true" />
             <h2 className="text-lg font-bold text-gray-900">Filters</h2>
             {activeFilterCount > 0 && (
               <span className="sr-only">{activeFilterCount} filters active</span>
@@ -122,41 +141,56 @@ export function FilterPanel({
         {/* Filter Groups */}
         {Object.entries(filters).map(([group, options]) => {
           const selectedCount = selectedFilters[group]?.length || 0;
+          const isExpanded = expandedGroups[group] ?? false;
           return (
-            <fieldset key={group} className="mb-6 pb-6 border-b border-gray-100 last:border-0">
-              <legend className="text-sm font-semibold text-gray-900 mb-3">
-                {filterLabels[group] || group}
-                {selectedCount > 0 && (
-                  <span className="ml-2 text-xs font-normal text-gray-500">
-                    ({selectedCount} selected)
-                  </span>
+            <div key={group} className="mb-3 border border-gray-100 rounded-lg">
+              <button
+                type="button"
+                onClick={() => toggleGroup(group)}
+                className="w-full flex items-center justify-between px-3 py-2 text-left"
+              >
+                <span className="text-sm font-semibold text-gray-900">
+                  {filterLabels[group] || group}
+                  {selectedCount > 0 && (
+                    <span className="ml-2 text-xs font-normal text-gray-500">
+                      ({selectedCount})
+                    </span>
+                  )}
+                </span>
+                {isExpanded ? (
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-gray-500" />
                 )}
-              </legend>
-              <div className="space-y-2">
-                {options.map((option) => {
-                  const isChecked = selectedFilters[group]?.includes(option) || false;
-                  const checkboxId = `filter-${group}-${option.replace(/\s+/g, '-').toLowerCase()}`;
-                  return (
-                    <div key={option} className="flex items-center gap-2 py-2 min-h-[44px]">
-                      <Checkbox
-                        id={checkboxId}
-                        checked={isChecked}
-                        onCheckedChange={() => onFilterChange(group, option)}
-                        className="border-gray-300 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600 w-5 h-5"
-                        aria-describedby={`${checkboxId}-label`}
-                      />
-                      <label
-                        id={`${checkboxId}-label`}
-                        htmlFor={checkboxId}
-                        className="text-sm text-gray-700 cursor-pointer hover:text-gray-900 flex-1"
-                      >
-                        {option}
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            </fieldset>
+              </button>
+
+              {isExpanded && (
+                <div className="px-3 pb-2 space-y-1">
+                  {options.map((option) => {
+                    const isChecked = selectedFilters[group]?.includes(option) || false;
+                    const checkboxId = `filter-${group}-${option.replace(/\s+/g, '-').toLowerCase()}`;
+                    return (
+                      <div key={option} className="flex items-center gap-2 py-1.5 min-h-[36px]">
+                        <Checkbox
+                          id={checkboxId}
+                          checked={isChecked}
+                          onCheckedChange={() => onFilterChange(group, option)}
+                          className="border-gray-300 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600 w-4 h-4"
+                          aria-describedby={`${checkboxId}-label`}
+                        />
+                        <label
+                          id={`${checkboxId}-label`}
+                          htmlFor={checkboxId}
+                          className="text-sm text-gray-700 cursor-pointer hover:text-gray-900 flex-1"
+                        >
+                          {option}
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </aside>

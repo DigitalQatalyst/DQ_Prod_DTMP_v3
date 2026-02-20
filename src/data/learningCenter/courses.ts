@@ -1,4 +1,6 @@
-export interface Course {
+import type { LearningCourseContract } from "./learningModel";
+
+export interface Course extends LearningCourseContract {
   id: string;
   title: string;
   description: string;
@@ -549,6 +551,5 @@ export const coursesFilters = {
   level: ["Beginner", "Intermediate", "Advanced", "Executive"],
   duration: ["< 5 hours", "5-10 hours", "10-20 hours", "20-40 hours", "40+ hours"],
   format: ["Self-paced", "Instructor-led", "Blended", "Workshop", "Cohort-based"],
-  certification: ["Available", "Not Available"],
   rating: ["5 stars", "4+ stars", "3+ stars", "All"]
 };
