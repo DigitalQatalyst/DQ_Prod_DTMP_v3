@@ -15,6 +15,7 @@ interface FilterPanelProps {
 
 const filterLabels: Record<string, string> = {
   department: "Department",
+  departmentApplicability: "Department Applicability",
   category: "Category",
   provider: "Provider",
   level: "Level",
@@ -58,6 +59,15 @@ const filterLabels: Record<string, string> = {
   engagementDuration: "Engagement Duration",
   industrySpecialization: "Industry Specialization",
 };
+
+const toTitleCase = (raw: string) =>
+  raw
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 
 export function FilterPanel({
   filters,
@@ -150,7 +160,7 @@ export function FilterPanel({
                 className="w-full flex items-center justify-between px-3 py-2 text-left"
               >
                 <span className="text-sm font-semibold text-gray-900">
-                  {filterLabels[group] || group}
+                  {filterLabels[group] || toTitleCase(group)}
                   {selectedCount > 0 && (
                     <span className="ml-2 text-xs font-normal text-gray-500">
                       ({selectedCount})

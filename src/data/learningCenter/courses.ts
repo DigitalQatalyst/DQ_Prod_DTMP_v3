@@ -1,4 +1,5 @@
 import type { LearningCourseContract } from "./learningModel";
+import { dtmpDepartments } from "../departments";
 
 export interface Course extends LearningCourseContract {
   id: string;
@@ -545,7 +546,7 @@ export const courses: Course[] = [
 ];
 
 export const coursesFilters = {
-  department: ["Engineering", "Marketing", "Sales", "Operations", "HR", "Finance", "Executive", "Architecture", "Leadership", "Strategy"],
+  department: [...dtmpDepartments],
   category: ["Technical", "Business", "Leadership", "Change Management", "Architecture"],
   provider: ["Internal", "Coursera", "LinkedIn Learning", "Udemy", "Custom"],
   level: ["Beginner", "Intermediate", "Advanced", "Executive"],

@@ -1,4 +1,4 @@
-import { ArrowRight, Tag, TrendingUp } from "lucide-react";
+import { Tag, TrendingUp } from "lucide-react";
 import { BestPractice } from "@/data/knowledgeCenter/bestPractices";
 import { cn } from "@/lib/utils";
 
@@ -59,18 +59,15 @@ export function BestPracticeCard({ practice, onClick }: BestPracticeCardProps) {
         </span>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex flex-wrap gap-2">
-          {practice.impactAreas.slice(0, 3).map((area) => (
-            <span
-              key={area}
-              className="bg-purple-50 text-purple-700 px-2 py-1 rounded text-xs"
-            >
-              {area}
-            </span>
-          ))}
-        </div>
-        <ArrowRight className="w-5 h-5 text-orange-600 flex-shrink-0" />
+      <div className="flex flex-wrap gap-2">
+        {practice.impactAreas.slice(0, 3).map((area) => (
+          <span
+            key={area}
+            className="bg-purple-50 text-purple-700 px-2 py-1 rounded text-xs"
+          >
+            {area}
+          </span>
+        ))}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { enrolledCourses } from "@/data/learning";
+import { setUserAuthenticated } from "@/data/sessionAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setUserAuthenticated(true);
 
     if (context.marketplace === "learning-center") {
       const fallbackCourseId = enrolledCourses[0]?.id ?? "digital-transformation-fundamentals";
@@ -61,6 +63,11 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
           ...context,
           learningRole,
         },
+      });
+    } else if (context.marketplace === "knowledge-center") {
+      const targetTab = context.action === "save-to-workspace" ? "saved" : "overview";
+      navigate(`/stage2/knowledge/${targetTab}`, {
+        state: context,
       });
     } else {
       // Keep existing handoff flow for non-learning marketplaces

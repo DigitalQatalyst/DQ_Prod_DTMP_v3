@@ -45,6 +45,8 @@ const App = () => (
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
           <Route path="/stage2/learning-center/course/:courseId/:view" element={<Stage2AppPage />} />
+          <Route path="/stage2/knowledge" element={<Navigate to="/stage2/knowledge/overview" replace />} />
+          <Route path="/stage2/knowledge/:tab" element={<Stage2AppPage />} />
           <Route path="/stage2/knowledge/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
           <Route path="/stage2/portfolio-management" element={<PortfolioManagementPage />} />
           <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />

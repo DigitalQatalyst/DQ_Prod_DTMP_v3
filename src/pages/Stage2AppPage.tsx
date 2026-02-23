@@ -26,9 +26,14 @@ import {
   ChevronRight,
   BookOpen,
   CheckCircle,
-  Award
+  Award,
+  Clock,
+  Bookmark,
+  Search,
+  Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
@@ -59,6 +64,26 @@ import AdminEnrollmentsTab from "@/components/learningCenter/stage2/admin/AdminE
 import AdminPerformanceTab from "@/components/learningCenter/stage2/admin/AdminPerformanceTab";
 import AdminContentTab from "@/components/learningCenter/stage2/admin/AdminContentTab";
 import AdminSettingsTab from "@/components/learningCenter/stage2/admin/AdminSettingsTab";
+import { knowledgeItems } from "@/data/knowledgeCenter/knowledgeItems";
+import {
+  getContinueReading,
+  getKnowledgeHistory,
+  getSavedKnowledgeIds,
+  toggleSavedKnowledgeItem,
+  type KnowledgeHistoryEntry,
+} from "@/data/knowledgeCenter/userKnowledgeState";
+import {
+  getMentionNotifications,
+  markMentionNotificationRead,
+  type MentionNotification,
+} from "@/data/knowledgeCenter/collaborationState";
+import {
+  getTORequests,
+  updateTORequestStatus,
+  type TORequest,
+  type TORequestStatus,
+} from "@/data/knowledgeCenter/requestState";
+import { getKnowledgeUsageMetrics } from "@/data/knowledgeCenter/analyticsState";
 
 interface LocationState {
   marketplace?: string;
@@ -73,9 +98,39 @@ const EMPTY_LOCATION_STATE: LocationState = {};
 type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
+type KnowledgeWorkspaceTab = "overview" | "saved" | "history";
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
+const knowledgeTabConfig: Array<{
+  id: KnowledgeWorkspaceTab;
+  label: string;
+  icon: React.ElementType;
+  description: string;
+}> = [
+  {
+    id: "overview",
+    label: "Overview",
+    icon: LayoutGrid,
+    description: "High-level activity and quick entry points for Knowledge Center collaboration.",
+  },
+  {
+    id: "saved",
+    label: "Saved",
+    icon: Bookmark,
+    description: "Curated resources you bookmarked for later action and team follow-up.",
+  },
+  {
+    id: "history",
+    label: "History",
+    icon: Clock,
+    description: "Recent resources opened in your knowledge workspace.",
+  },
+];
+
+const isKnowledgeWorkspaceTab = (value: string | undefined): value is KnowledgeWorkspaceTab =>
+  value === "overview" || value === "saved" || value === "history";
 
 const buildAdminDataForCourse = (course: EnrolledCourse | undefined) => {
   if (!course) return adminCourseData;
@@ -266,14 +321,16 @@ const buildUserDataForCourse = (course: EnrolledCourse | undefined) => {
 export default function Stage2AppPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { courseId: routeCourseId, view: routeView } = useParams<{
+  const { courseId: routeCourseId, view: routeView, tab: routeKnowledgeTab } = useParams<{
     courseId?: string;
     view?: string;
+    tab?: string;
   }>();
   const state = (location.state as LocationState) ?? EMPTY_LOCATION_STATE;
 
   const isLearningCenterRoute =
     !!routeCourseId && (routeView === "user" || routeView === "admin");
+  const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
   const canAccessAdminView = learningRole === "admin";
 
@@ -292,7 +349,9 @@ export default function Stage2AppPage() {
 
   const marketplace = isLearningCenterRoute
     ? "learning-center"
-    : stateMarketplace;
+    : isKnowledgeCenterRoute
+      ? "knowledge-center"
+      : stateMarketplace;
   const cardId = isLearningCenterRoute ? resolvedLearningCourseId : stateCardId;
   const serviceName = isLearningCenterRoute
     ? (matchedLearningCourse?.courseName ?? "Learning Course")
@@ -304,6 +363,8 @@ export default function Stage2AppPage() {
         return "Portfolio Management";
       case "learning-center":
         return "Learning Center";
+      case "knowledge-center":
+        return "Knowledge Center";
       case "blueprints":
         return "Design Blueprints";
       case "templates":
@@ -330,6 +391,23 @@ export default function Stage2AppPage() {
   const [activeLearningAdminTab, setActiveLearningAdminTab] =
     useState<LearningAdminTab>("overview");
   const [userCourseRuntime, setUserCourseRuntime] = useState<Record<string, typeof userCourseData>>({});
+  const [activeKnowledgeTab, setActiveKnowledgeTab] = useState<KnowledgeWorkspaceTab>(
+    isKnowledgeWorkspaceTab(routeKnowledgeTab)
+      ? routeKnowledgeTab
+      : isKnowledgeWorkspaceTab(state.tab)
+        ? state.tab
+        : "overview"
+  );
+  const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
+  const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
+  const [knowledgeHistory, setKnowledgeHistory] = useState<KnowledgeHistoryEntry[]>([]);
+  const [knowledgeMentionNotifications, setKnowledgeMentionNotifications] =
+    useState<MentionNotification[]>([]);
+  const [knowledgeRequests, setKnowledgeRequests] = useState<TORequest[]>([]);
+  const [knowledgeUsageSignals, setKnowledgeUsageSignals] = useState<
+    Array<(typeof knowledgeItems)[number] & { views: number; staleFlags: number; helpfulVotes: number }>
+  >([]);
+  const knowledgeCurrentUserName = "John Doe";
 
   useEffect(() => {
     setActiveService(getDefaultActiveService(marketplace));
@@ -380,6 +458,43 @@ export default function Stage2AppPage() {
     state,
     learningRole,
   ]);
+
+  const refreshKnowledgeState = () => {
+    setSavedKnowledgeIds(getSavedKnowledgeIds());
+    setKnowledgeHistory(getKnowledgeHistory());
+    setKnowledgeMentionNotifications(getMentionNotifications(knowledgeCurrentUserName));
+    setKnowledgeRequests(getTORequests(knowledgeCurrentUserName));
+    const usageById = new Map(
+      getKnowledgeUsageMetrics().map((metric) => [metric.itemId, metric])
+    );
+    const ranked = knowledgeItems
+      .map((item) => {
+        const metric = usageById.get(item.id);
+        return {
+          ...item,
+          views: metric?.views ?? 0,
+          staleFlags: metric?.staleFlags ?? 0,
+          helpfulVotes: metric?.helpfulVotes ?? 0,
+        };
+      })
+      .filter((item) => item.views > 0 || item.staleFlags > 0 || item.helpfulVotes > 0)
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5);
+    setKnowledgeUsageSignals(ranked);
+  };
+
+  useEffect(() => {
+    if (!isKnowledgeCenterRoute) return;
+    const nextTab: KnowledgeWorkspaceTab = isKnowledgeWorkspaceTab(routeKnowledgeTab)
+      ? routeKnowledgeTab
+      : "overview";
+    setActiveKnowledgeTab(nextTab);
+  }, [isKnowledgeCenterRoute, routeKnowledgeTab]);
+
+  useEffect(() => {
+    if (activeService !== "Knowledge Center") return;
+    refreshKnowledgeState();
+  }, [activeService, activeKnowledgeTab]);
 
   useEffect(() => {
     setActiveLearningUserTab("overview");
@@ -570,6 +685,109 @@ export default function Stage2AppPage() {
     () => buildAdminDataForCourse(selectedLearningCourse),
     [selectedLearningCourse]
   );
+  const savedKnowledgeItems = useMemo(
+    () => knowledgeItems.filter((item) => savedKnowledgeIds.includes(item.id)),
+    [savedKnowledgeIds]
+  );
+  const knowledgeHistoryItems = useMemo(
+    () =>
+      knowledgeHistory
+        .map((entry) => ({
+          entry,
+          item: knowledgeItems.find((item) => item.id === entry.id),
+        }))
+        .filter(
+          (
+            candidate
+          ): candidate is { entry: KnowledgeHistoryEntry; item: (typeof knowledgeItems)[number] } =>
+            Boolean(candidate.item)
+        ),
+    [knowledgeHistory]
+  );
+  const knowledgeContinueReadingItems = useMemo(() => {
+    const entries = getContinueReading(6);
+    return entries
+      .map((entry) => ({
+        entry,
+        item: knowledgeItems.find((item) => item.id === entry.id),
+      }))
+      .filter(
+        (
+          candidate
+        ): candidate is { entry: KnowledgeHistoryEntry; item: (typeof knowledgeItems)[number] } =>
+          Boolean(candidate.item)
+      );
+  }, [knowledgeHistory]);
+  const normalizedKnowledgeQuery = knowledgeSearchQuery.trim().toLowerCase();
+  const filteredSavedKnowledgeItems = savedKnowledgeItems.filter(
+    (item) =>
+      item.title.toLowerCase().includes(normalizedKnowledgeQuery) ||
+      item.tags.join(" ").toLowerCase().includes(normalizedKnowledgeQuery)
+  );
+  const filteredKnowledgeHistoryItems = knowledgeHistoryItems.filter(
+    ({ item }) =>
+      item.title.toLowerCase().includes(normalizedKnowledgeQuery) ||
+      item.tags.join(" ").toLowerCase().includes(normalizedKnowledgeQuery)
+  );
+  const filteredKnowledgeContinueItems = knowledgeContinueReadingItems.filter(
+    ({ item }) =>
+      item.title.toLowerCase().includes(normalizedKnowledgeQuery) ||
+      item.tags.join(" ").toLowerCase().includes(normalizedKnowledgeQuery)
+  );
+  const formatKnowledgeViewedAt = (value: string) =>
+    new Date(value).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  const getNextKnowledgeRequestStatus = (status: TORequestStatus): TORequestStatus => {
+    if (status === "Open") return "In Review";
+    if (status === "In Review") return "Resolved";
+    return "Resolved";
+  };
+  const handleKnowledgeTabClick = (tabId: KnowledgeWorkspaceTab) => {
+    setActiveKnowledgeTab(tabId);
+    navigate(`/stage2/knowledge/${tabId}`, {
+      replace: true,
+      state: {
+        ...state,
+        marketplace: "knowledge-center",
+      },
+    });
+  };
+  const handleKnowledgeToggleSave = (itemId: string) => {
+    const [sourceTab, sourceId] = itemId.split(":");
+    if (
+      !sourceTab ||
+      !sourceId ||
+      (sourceTab !== "best-practices" &&
+        sourceTab !== "testimonials" &&
+        sourceTab !== "playbooks" &&
+        sourceTab !== "library")
+    ) {
+      return;
+    }
+    toggleSavedKnowledgeItem(sourceTab, sourceId);
+    refreshKnowledgeState();
+  };
+  const handleKnowledgeNotificationClick = (notification: MentionNotification) => {
+    markMentionNotificationRead(notification.id);
+    const [sourceTab, sourceId] = notification.itemId.split(":");
+    if (!sourceTab || !sourceId) {
+      refreshKnowledgeState();
+      return;
+    }
+    navigate(`/stage2/knowledge/${sourceTab}/${sourceId}`);
+    refreshKnowledgeState();
+  };
+  const handleKnowledgeAdvanceRequestStatus = (
+    requestId: string,
+    currentStatus: TORequestStatus
+  ) => {
+    updateTORequestStatus(requestId, getNextKnowledgeRequestStatus(currentStatus));
+    refreshKnowledgeState();
+  };
   const handleLessonComplete = (moduleId: string, lessonId: string) => {
     if (!selectedLearningCourse) return;
     setUserCourseRuntime((prev) => {
@@ -636,6 +854,15 @@ export default function Stage2AppPage() {
   const handleServiceClick = (service: string) => {
     setActiveService(service);
     setActiveSubService(null); // Reset sub-service when switching main service
+    if (service === "Knowledge Center") {
+      navigate(`/stage2/knowledge/${activeKnowledgeTab}`, {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "knowledge-center",
+        },
+      });
+    }
   };
 
   const handleSubServiceClick = (subServiceId: string) => {
@@ -774,6 +1001,15 @@ export default function Stage2AppPage() {
             >
               <Headphones className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Learning Center"}
+            </button>
+
+            <button 
+              onClick={() => handleServiceClick("Knowledge Center")}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Knowledge Center")}`}
+              title="Knowledge Center"
+            >
+              <BookOpen className="w-4 h-4 flex-shrink-0" />
+              {!leftSidebarCollapsed && "Knowledge Center"}
             </button>
             
             <button 
@@ -994,6 +1230,48 @@ export default function Stage2AppPage() {
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : activeService === "Knowledge Center" ? (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">
+                      Knowledge Workspace
+                    </h3>
+                    <div className="relative mb-3">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <Input
+                        value={knowledgeSearchQuery}
+                        onChange={(event) => setKnowledgeSearchQuery(event.target.value)}
+                        placeholder="Search saved/history..."
+                        className="pl-9"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      {knowledgeTabConfig.map((workspaceTab) => {
+                        const Icon = workspaceTab.icon;
+                        return (
+                          <button
+                            key={workspaceTab.id}
+                            type="button"
+                            onClick={() => handleKnowledgeTabClick(workspaceTab.id)}
+                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                              activeKnowledgeTab === workspaceTab.id
+                                ? "bg-orange-50 text-orange-700 border border-orange-200"
+                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <div className="text-left">
+                              <div className="font-medium">{workspaceTab.label}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {workspaceTab.description}
+                              </div>
                             </div>
                           </button>
                         );
@@ -1408,6 +1686,229 @@ export default function Stage2AppPage() {
                         />
                       )}
                     </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : activeService === "Knowledge Center" ? (
+            <div className="h-full">
+              <div className="p-6 space-y-6">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-primary-navy mb-1">
+                    {knowledgeTabConfig.find((workspaceTab) => workspaceTab.id === activeKnowledgeTab)
+                      ?.label}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-5">
+                    {knowledgeTabConfig.find((workspaceTab) => workspaceTab.id === activeKnowledgeTab)
+                      ?.description}
+                  </p>
+
+                  {activeKnowledgeTab === "overview" && (
+                    <div className="space-y-4">
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Bell className="w-4 h-4 text-orange-600" />
+                          <h4 className="text-sm font-semibold text-foreground">Mention Notifications</h4>
+                        </div>
+                        {knowledgeMentionNotifications.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">
+                            No mention notifications yet.
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {knowledgeMentionNotifications.slice(0, 4).map((notification) => (
+                              <button
+                                key={notification.id}
+                                type="button"
+                                onClick={() => handleKnowledgeNotificationClick(notification)}
+                                className={`w-full text-left text-xs rounded-md border p-2 ${
+                                  notification.read
+                                    ? "border-gray-200 text-muted-foreground"
+                                    : "border-orange-300 bg-orange-50 text-foreground"
+                                }`}
+                              >
+                                {notification.message}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <h4 className="text-sm font-semibold text-foreground">
+                            Clarification/Update Requests
+                          </h4>
+                          <span className="text-xs text-muted-foreground">
+                            {knowledgeRequests.filter((request) => request.status !== "Resolved").length} open
+                          </span>
+                        </div>
+                        {knowledgeRequests.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">
+                            No requests submitted yet.
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {knowledgeRequests.slice(0, 4).map((request) => (
+                              <div key={request.id} className="border border-gray-200 rounded-md p-2">
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <p className="text-xs font-semibold text-foreground">
+                                    {request.type === "clarification" ? "Clarification" : "Outdated Section"}
+                                  </p>
+                                  <span
+                                    className={`text-[11px] px-2 py-0.5 rounded-full ${
+                                      request.status === "Open"
+                                        ? "bg-orange-100 text-orange-700"
+                                        : request.status === "In Review"
+                                          ? "bg-blue-100 text-blue-700"
+                                          : "bg-green-100 text-green-700"
+                                    }`}
+                                  >
+                                    {request.status}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-2">{request.message}</p>
+                                {request.status !== "Resolved" && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleKnowledgeAdvanceRequestStatus(request.id, request.status)
+                                    }
+                                    className="h-7 text-xs"
+                                  >
+                                    Demo: Advance to {getNextKnowledgeRequestStatus(request.status)}
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <h4 className="text-sm font-semibold text-foreground mb-3">
+                          TO Governance Signals (Read-side)
+                        </h4>
+                        {knowledgeUsageSignals.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">No usage signals captured yet.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {knowledgeUsageSignals.map((signal) => (
+                              <button
+                                key={signal.id}
+                                type="button"
+                                onClick={() =>
+                                  navigate(`/stage2/knowledge/${signal.sourceTab}/${signal.sourceId}`)
+                                }
+                                className="w-full text-left border border-gray-200 rounded-md p-2 hover:border-orange-300"
+                              >
+                                <p className="text-xs font-semibold text-foreground">{signal.title}</p>
+                                <p className="text-[11px] text-muted-foreground">
+                                  Owner: {signal.author} | Freshness: {signal.updatedAt}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                  Views: {signal.views} | Helpful: {signal.helpfulVotes} | Stale Flags: {signal.staleFlags}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {filteredKnowledgeContinueItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          No reading activity yet. Open any Knowledge Center resource to build your continue-reading list.
+                        </p>
+                      ) : (
+                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                          {filteredKnowledgeContinueItems.map(({ item, entry }) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() =>
+                                navigate(`/stage2/knowledge/${item.sourceTab}/${item.sourceId}`)
+                              }
+                              className="text-left border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50/30 transition-colors"
+                            >
+                              <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {item.type} | {item.department}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Continue reading - Last viewed {formatKnowledgeViewedAt(entry.lastViewedAt)}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {activeKnowledgeTab === "saved" && (
+                    <div className="space-y-3">
+                      {filteredSavedKnowledgeItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          No saved resources yet. Use "Save to Workspace" from any resource detail page.
+                        </p>
+                      ) : (
+                        filteredSavedKnowledgeItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="border border-gray-200 rounded-lg p-4 flex items-start justify-between gap-4"
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                navigate(`/stage2/knowledge/${item.sourceTab}/${item.sourceId}`)
+                              }
+                              className="text-left flex-1"
+                            >
+                              <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {item.type} | {item.department}
+                              </p>
+                            </button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleKnowledgeToggleSave(item.id)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {activeKnowledgeTab === "history" && (
+                    <div className="space-y-3">
+                      {filteredKnowledgeHistoryItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          No history yet. Open a resource from Stage 1 or Stage 2 to populate this list.
+                        </p>
+                      ) : (
+                        filteredKnowledgeHistoryItems.map(({ item, entry }) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() =>
+                              navigate(`/stage2/knowledge/${item.sourceTab}/${item.sourceId}`)
+                            }
+                            className="w-full text-left border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50/30 transition-colors"
+                          >
+                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {item.type} | {item.department}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Last viewed {formatKnowledgeViewedAt(entry.lastViewedAt)} - {entry.views} view(s)
+                            </p>
+                          </button>
+                        ))
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
