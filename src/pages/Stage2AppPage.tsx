@@ -96,12 +96,34 @@ import ApplicationsPage from "./lifecycle/ApplicationsPage";
 import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
 import type { SolutionType } from "@/data/blueprints/solutionSpecs";
 import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
-import { ServiceDashboardPage } from "@/pages/stage2/intelligence";
+import {
+  IntelligenceOverviewPage,
+  IntelligenceServicesPage,
+  MyDashboardsPage,
+  MyRequestsPage as IntelligenceMyRequestsPage,
+  RequestDetailPage as IntelligenceRequestDetailPage,
+  ServiceDashboardPage,
+} from "@/pages/stage2/intelligence";
 import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest } from "@/data/supportData";
 import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
 import { Tag, Calendar, Clock as ClockIcon, Eye } from "lucide-react";
+import TemplatesOverview from "@/pages/stage2/templates/TemplatesOverview";
+import TemplateLibraryPage from "@/pages/stage2/templates/TemplateLibraryPage";
+import TemplateDetailPage from "@/pages/stage2/templates/TemplateDetailPage";
+import NewRequestPage from "@/pages/stage2/templates/NewRequestPage";
+import MyRequestsPage from "@/pages/stage2/templates/MyRequestsPage";
+import TemplatesRequestDetailPage from "@/pages/stage2/templates/RequestDetailPage";
+import SolutionSpecsOverview from "@/pages/stage2/specs/SolutionSpecsOverview";
+import ArchitectureLibraryPage from "@/pages/stage2/specs/ArchitectureLibraryPage";
+import BlueprintDetailPage from "@/pages/stage2/specs/BlueprintDetailPage";
+import DesignTemplatesPage from "@/pages/stage2/specs/DesignTemplatesPage";
+import SpecTemplateDetailPage from "@/pages/stage2/specs/TemplateDetailPage";
+import DesignPatternsPage from "@/pages/stage2/specs/DesignPatternsPage";
+import PatternDetailPage from "@/pages/stage2/specs/PatternDetailPage";
+import MyDesignsPage from "@/pages/stage2/specs/MyDesignsPage";
+import DesignDetailPage from "@/pages/stage2/specs/DesignDetailPage";
 
 interface LocationState {
   marketplace?: string;
@@ -116,6 +138,9 @@ const EMPTY_LOCATION_STATE: LocationState = {};
 type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
+type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
+type SpecsWorkspaceTab = "overview" | "blueprints" | "templates" | "patterns" | "my-designs";
+type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
@@ -309,10 +334,30 @@ const buildUserDataForCourse = (course: EnrolledCourse | undefined) => {
 export default function Stage2AppPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { courseId: routeCourseId, view: routeView, tab: routeKnowledgeTab } = useParams<{
+  const {
+    courseId: routeCourseId,
+    view: routeView,
+    tab: routeKnowledgeTab,
+    templateId: routeTemplateId,
+    requestId: routeRequestId,
+    blueprintId: routeBlueprintId,
+    specTemplateId: routeSpecTemplateId,
+    patternId: routePatternId,
+    designId: routeDesignId,
+    intelligenceTab: routeIntelligenceTab,
+    intelligenceItemId: routeIntelligenceItemId,
+  } = useParams<{
     courseId?: string;
     view?: string;
     tab?: string;
+    templateId?: string;
+    requestId?: string;
+    blueprintId?: string;
+    specTemplateId?: string;
+    patternId?: string;
+    designId?: string;
+    intelligenceTab?: string;
+    intelligenceItemId?: string;
   }>();
   const state = (location.state as LocationState) ?? EMPTY_LOCATION_STATE;
 
@@ -320,6 +365,9 @@ export default function Stage2AppPage() {
     !!routeCourseId && (routeView === "user" || routeView === "admin");
   const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
   const isPortfolioCenterRoute = location.pathname.startsWith("/stage2/portfolio-management");
+  const isTemplatesRoute = location.pathname.startsWith("/stage2/templates");
+  const isSolutionSpecsRoute = location.pathname.startsWith("/stage2/specs");
+  const isIntelligenceRoute = location.pathname.startsWith("/stage2/intelligence");
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
   const canAccessAdminView = learningRole === "admin";
 
@@ -340,6 +388,12 @@ export default function Stage2AppPage() {
     ? "learning-center"
     : isKnowledgeCenterRoute
       ? "knowledge-center"
+      : isTemplatesRoute
+        ? "templates"
+      : isSolutionSpecsRoute
+        ? "solution-specs"
+      : isIntelligenceRoute
+        ? "digital-intelligence"
       : isPortfolioCenterRoute
         ? "portfolio-management"
       : stateMarketplace;
@@ -354,10 +408,12 @@ export default function Stage2AppPage() {
         return "Portfolio Management";
       case "learning-center":
         return "Learning Center";
+      case "knowledge-center":
+        return "Knowledge Center";
       case "support-services":
         return "Support Services";
       case "blueprints":
-        return "Design Blueprints";
+        return "Solutions Specs";
       case "templates":
         return "AI DocWriter";
       case "lifecycle-management":
@@ -380,7 +436,22 @@ export default function Stage2AppPage() {
 
   // State for navigation
   const [activeService, setActiveService] = useState<string>("Overview");
-  const [activeSubService, setActiveSubService] = useState<string | null>(null);
+  const [activeSubService, setActiveSubService] = useState<string | null>(() => {
+    if (
+      (marketplace === "portfolio-management" ||
+        marketplace === "learning-center" ||
+        marketplace === "lifecycle-management" ||
+        marketplace === "solution-build" ||
+        marketplace === "digital-intelligence") &&
+      cardId
+    ) {
+      return cardId;
+    }
+    if (marketplace === "support-services") {
+      return cardId ? "support-detail" : "support-overview";
+    }
+    return null;
+  });
   const [viewMode, setViewMode] = useState<"user" | "admin">(
     routeView === "admin" && canAccessAdminView ? "admin" : "user"
   );
@@ -396,6 +467,34 @@ export default function Stage2AppPage() {
       : isKnowledgeWorkspaceTab(state.tab)
         ? state.tab
         : "overview"
+  );
+  const getTemplatesTabFromPath = (): TemplatesWorkspaceTab => {
+    if (location.pathname.startsWith("/stage2/templates/library")) return "library";
+    if (location.pathname.startsWith("/stage2/templates/new-request")) return "new-request";
+    if (location.pathname.startsWith("/stage2/templates/my-requests")) return "my-requests";
+    return "overview";
+  };
+  const [activeTemplatesTab, setActiveTemplatesTab] = useState<TemplatesWorkspaceTab>(
+    getTemplatesTabFromPath()
+  );
+  const getSpecsTabFromPath = (): SpecsWorkspaceTab => {
+    if (location.pathname.startsWith("/stage2/specs/blueprints")) return "blueprints";
+    if (location.pathname.startsWith("/stage2/specs/templates")) return "templates";
+    if (location.pathname.startsWith("/stage2/specs/patterns")) return "patterns";
+    if (location.pathname.startsWith("/stage2/specs/my-designs")) return "my-designs";
+    return "overview";
+  };
+  const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
+    getSpecsTabFromPath()
+  );
+  const getIntelligenceTabFromPath = (): IntelligenceWorkspaceTab => {
+    if (location.pathname.startsWith("/stage2/intelligence/services")) return "services";
+    if (location.pathname.startsWith("/stage2/intelligence/my-dashboards")) return "my-dashboards";
+    if (location.pathname.startsWith("/stage2/intelligence/requests")) return "requests";
+    return "overview";
+  };
+  const [activeIntelligenceTab, setActiveIntelligenceTab] = useState<IntelligenceWorkspaceTab>(
+    getIntelligenceTabFromPath()
   );
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
@@ -491,6 +590,40 @@ export default function Stage2AppPage() {
   }, [isKnowledgeCenterRoute, routeKnowledgeTab]);
 
   useEffect(() => {
+    if (!isTemplatesRoute) return;
+    setActiveTemplatesTab(getTemplatesTabFromPath());
+  }, [isTemplatesRoute, location.pathname]);
+
+  useEffect(() => {
+    if (!isSolutionSpecsRoute) return;
+    setActiveSpecsTab(getSpecsTabFromPath());
+  }, [isSolutionSpecsRoute, location.pathname]);
+
+  useEffect(() => {
+    if (!isIntelligenceRoute) return;
+    setActiveIntelligenceTab(getIntelligenceTabFromPath());
+  }, [isIntelligenceRoute, location.pathname]);
+
+  useEffect(() => {
+    if (!isIntelligenceRoute) return;
+    if (routeIntelligenceTab === "services" && routeIntelligenceItemId) {
+      setActiveSubService(routeIntelligenceItemId);
+      return;
+    }
+    if (routeIntelligenceTab === "services" && !routeIntelligenceItemId) {
+      setActiveSubService(null);
+      return;
+    }
+    if (
+      routeIntelligenceTab === "overview" ||
+      routeIntelligenceTab === "my-dashboards" ||
+      routeIntelligenceTab === "requests"
+    ) {
+      setActiveSubService(null);
+    }
+  }, [isIntelligenceRoute, routeIntelligenceTab, routeIntelligenceItemId]);
+
+  useEffect(() => {
     if (activeService !== "Knowledge Center") return;
     refreshKnowledgeState();
   }, [activeService, activeKnowledgeTab]);
@@ -499,18 +632,7 @@ export default function Stage2AppPage() {
     setActiveLearningUserTab("overview");
     setActiveLearningAdminTab("overview");
   }, [activeSubService, viewMode]);
-  });
   
-  const [activeSubService, setActiveSubService] = useState<string | null>(() => {
-    // Auto-select the specific service if coming from a marketplace card
-    if ((marketplace === "portfolio-management" || marketplace === "learning-center" || marketplace === "lifecycle-management" || marketplace === "solution-build" || marketplace === "digital-intelligence") && cardId) {
-      return cardId;
-    }
-    if (marketplace === "support-services") {
-      return cardId ? "support-detail" : "support-overview";
-    }
-    return null;
-  });
   const [supportSelectedService, setSupportSelectedService] = useState(() => {
     if (marketplace === "support-services" && cardId) {
       return technicalSupport.find((s) => s.id === cardId) || expertConsultancy.find((s) => s.id === cardId) || null;
@@ -816,6 +938,55 @@ export default function Stage2AppPage() {
     toggleSavedKnowledgeItem(sourceTab, sourceId);
     refreshKnowledgeState();
   };
+  const handleTemplatesTabClick = (tabId: TemplatesWorkspaceTab) => {
+    setActiveTemplatesTab(tabId);
+    const pathByTab: Record<TemplatesWorkspaceTab, string> = {
+      overview: "/stage2/templates/overview",
+      library: "/stage2/templates/library",
+      "new-request": "/stage2/templates/new-request",
+      "my-requests": "/stage2/templates/my-requests",
+    };
+    navigate(pathByTab[tabId], {
+      replace: true,
+      state: {
+        ...state,
+        marketplace: "templates",
+      },
+    });
+  };
+  const handleSpecsTabClick = (tabId: SpecsWorkspaceTab) => {
+    setActiveSpecsTab(tabId);
+    const pathByTab: Record<SpecsWorkspaceTab, string> = {
+      overview: "/stage2/specs/overview",
+      blueprints: "/stage2/specs/blueprints",
+      templates: "/stage2/specs/templates",
+      patterns: "/stage2/specs/patterns",
+      "my-designs": "/stage2/specs/my-designs",
+    };
+    navigate(pathByTab[tabId], {
+      replace: true,
+      state: {
+        ...state,
+        marketplace: "solution-specs",
+      },
+    });
+  };
+  const handleIntelligenceTabClick = (tabId: IntelligenceWorkspaceTab) => {
+    setActiveIntelligenceTab(tabId);
+    const pathByTab: Record<IntelligenceWorkspaceTab, string> = {
+      overview: "/stage2/intelligence/overview",
+      services: "/stage2/intelligence/services",
+      "my-dashboards": "/stage2/intelligence/my-dashboards",
+      requests: "/stage2/intelligence/requests",
+    };
+    navigate(pathByTab[tabId], {
+      replace: true,
+      state: {
+        ...state,
+        marketplace: "digital-intelligence",
+      },
+    });
+  };
   const handleKnowledgeNotificationClick = (notification: MentionNotification) => {
     markMentionNotificationRead(notification.id);
     const [sourceTab, sourceId] = notification.itemId.split(":");
@@ -949,6 +1120,34 @@ export default function Stage2AppPage() {
           marketplace: "knowledge-center",
         },
       });
+    }
+    if (service === "AI DocWriter") {
+      navigate("/stage2/templates/overview", {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "templates",
+        },
+      });
+    }
+    if (service === "Solutions Specs") {
+      navigate("/stage2/specs/overview", {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "solution-specs",
+        },
+      });
+    }
+    if (service === "Digital Intelligence") {
+      navigate("/stage2/intelligence/overview", {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "digital-intelligence",
+        },
+      });
+    }
     if (service !== "Support Services") {
       setSupportSelectedService(null);
       setSupportSelectedArticleId(null);
@@ -964,6 +1163,15 @@ export default function Stage2AppPage() {
         state: {
           ...state,
           learningRole,
+        },
+      });
+    }
+    if (activeService === "Digital Intelligence") {
+      navigate(`/stage2/intelligence/services/${subServiceId}`, {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "digital-intelligence",
         },
       });
     }
@@ -1518,36 +1726,6 @@ export default function Stage2AppPage() {
               {!leftSidebarCollapsed && "AI DocWriter"}
             </button>
             
-            {/* Solutions Specs with sub-items */}
-            {!leftSidebarCollapsed && activeService === "Solutions Specs" && (
-              <div className="ml-4 space-y-1 mb-2">
-                <button
-                  onClick={() => navigate('/stage2/specs/overview')}
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                >
-                  Architecture Library
-                </button>
-                <button
-                  onClick={() => navigate('/stage2/specs/templates')}
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                >
-                  Design Templates
-                </button>
-                <button
-                  onClick={() => navigate('/stage2/specs/patterns')}
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                >
-                  Design Patterns
-                </button>
-                <button
-                  onClick={() => navigate('/stage2/specs/my-designs')}
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                >
-                  My Designs
-                </button>
-              </div>
-            )}
-            
             <button 
               onClick={() => {
                 setActiveService("Solutions Specs");
@@ -1559,7 +1737,7 @@ export default function Stage2AppPage() {
               <PenTool className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Solutions Specs"}
             </button>
-            
+
             <button 
               onClick={() => handleServiceClick("Learning Center")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Learning Center")}`}
@@ -1576,15 +1754,6 @@ export default function Stage2AppPage() {
             >
               <BookOpen className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Knowledge Center"}
-            </button>
-            
-            <button 
-              onClick={() => handleServiceClick("Design Blueprints")}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Design Blueprints")}`}
-              title="Design Blueprints"
-            >
-              <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-              {!leftSidebarCollapsed && "Design Blueprints"}
             </button>
             
             <button 
@@ -1612,6 +1781,15 @@ export default function Stage2AppPage() {
             >
               <Briefcase className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Portfolio Management"}
+            </button>
+
+            <button
+              onClick={() => handleServiceClick("Digital Intelligence")}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Digital Intelligence")}`}
+              title="Digital Intelligence"
+            >
+              <Brain className="w-4 h-4 flex-shrink-0" />
+              {!leftSidebarCollapsed && "Digital Intelligence"}
             </button>
             
             <button 
@@ -1756,32 +1934,128 @@ export default function Stage2AppPage() {
                   onSearchChange={setKnowledgeSearchQuery}
                   onTabChange={handleKnowledgeTabClick}
                 />
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Portfolio Tools</h3>
-                    <div className="space-y-2">
-                      {portfolioSubServices.map((subService) => {
-                        const Icon = subService.icon;
-                        return (
-                          <button
-                            key={subService.id}
-                            onClick={() => handleSubServiceClick(subService.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === subService.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <div className="text-left">
-                              <div className="font-medium">{subService.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{subService.description}</div>
-                            </div>
-                          </button>
-                        );
-                      })}
+              ) : activeService === "AI DocWriter" ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleTemplatesTabClick("overview")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeTemplatesTab === "overview"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Overview</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Template workspace summary</div>
                     </div>
-                  </div>
+                  </button>
+                  <button
+                    onClick={() => handleTemplatesTabClick("library")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeTemplatesTab === "library"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Template Library</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Browse and open templates</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleTemplatesTabClick("new-request")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeTemplatesTab === "new-request"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">New Request</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Generate a new document</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleTemplatesTabClick("my-requests")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeTemplatesTab === "my-requests"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">My Requests</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Track request status</div>
+                    </div>
+                  </button>
+                </div>
+              ) : activeService === "Solutions Specs" ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleSpecsTabClick("overview")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeSpecsTab === "overview"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Overview</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Solutions specs workspace summary</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleSpecsTabClick("blueprints")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeSpecsTab === "blueprints"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Architecture Library</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Browse architecture blueprints</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleSpecsTabClick("templates")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeSpecsTab === "templates"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Design Templates</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Reusable design templates</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleSpecsTabClick("patterns")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeSpecsTab === "patterns"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Design Patterns</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Pattern library and standards</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleSpecsTabClick("my-designs")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeSpecsTab === "my-designs"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">My Designs</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Saved and in-progress designs</div>
+                    </div>
+                  </button>
                 </div>
               ) : activeService === "Lifecycle Management" ? (
                 <div className="space-y-4">
@@ -2132,7 +2406,30 @@ export default function Stage2AppPage() {
               }
               onToggleSave={handleKnowledgeToggleSave}
             />
-          {activeService === "Lifecycle Management" && activeSubService ? (
+          ) : activeService === "AI DocWriter" ? (
+            <div className="h-full">
+              {activeTemplatesTab === "overview" && <TemplatesOverview />}
+              {activeTemplatesTab === "library" && !routeTemplateId && <TemplateLibraryPage />}
+              {activeTemplatesTab === "library" && !!routeTemplateId && <TemplateDetailPage />}
+              {activeTemplatesTab === "new-request" && <NewRequestPage />}
+              {activeTemplatesTab === "my-requests" && !routeRequestId && <MyRequestsPage />}
+              {activeTemplatesTab === "my-requests" && !!routeRequestId && (
+                <TemplatesRequestDetailPage />
+              )}
+            </div>
+          ) : activeService === "Solutions Specs" ? (
+            <div className="h-full">
+              {activeSpecsTab === "overview" && <SolutionSpecsOverview />}
+              {activeSpecsTab === "blueprints" && !routeBlueprintId && <ArchitectureLibraryPage />}
+              {activeSpecsTab === "blueprints" && !!routeBlueprintId && <BlueprintDetailPage />}
+              {activeSpecsTab === "templates" && !routeSpecTemplateId && <DesignTemplatesPage />}
+              {activeSpecsTab === "templates" && !!routeSpecTemplateId && <SpecTemplateDetailPage />}
+              {activeSpecsTab === "patterns" && !routePatternId && <DesignPatternsPage />}
+              {activeSpecsTab === "patterns" && !!routePatternId && <PatternDetailPage />}
+              {activeSpecsTab === "my-designs" && !routeDesignId && <MyDesignsPage />}
+              {activeSpecsTab === "my-designs" && !!routeDesignId && <DesignDetailPage />}
+            </div>
+          ) : activeService === "Lifecycle Management" && activeSubService ? (
             <div className="h-full">
               {activeSubService === 'overview' && <LifecycleOverview />}
               {activeSubService === 'projects' && <ProjectsPage />}
@@ -3554,10 +3851,22 @@ export default function Stage2AppPage() {
                 );
               })()}
             </div>
-          ) : activeService === "Digital Intelligence" && activeSubService ? (
+          ) : activeService === "Digital Intelligence" ? (
             <div className="h-full">
-              {/* Digital Intelligence Dashboard Content */}
-              <ServiceDashboardPage serviceId={activeSubService} />
+              {activeIntelligenceTab === "overview" && <IntelligenceOverviewPage />}
+              {activeIntelligenceTab === "services" && !routeIntelligenceItemId && (
+                <IntelligenceServicesPage />
+              )}
+              {activeIntelligenceTab === "services" && !!routeIntelligenceItemId && (
+                <ServiceDashboardPage serviceId={routeIntelligenceItemId} />
+              )}
+              {activeIntelligenceTab === "my-dashboards" && <MyDashboardsPage />}
+              {activeIntelligenceTab === "requests" && !routeIntelligenceItemId && (
+                <IntelligenceMyRequestsPage />
+              )}
+              {activeIntelligenceTab === "requests" && !!routeIntelligenceItemId && (
+                <IntelligenceRequestDetailPage />
+              )}
             </div>
           ) : activeService === "Support Services" && activeSubService ? (
             <div className="h-full">
@@ -3580,7 +3889,6 @@ export default function Stage2AppPage() {
                       (viewMode === "admin"
                         ? "Select a course from the sidebar to monitor course analytics and progress"
                         : "Select a course from the sidebar to view details and continue learning") :
-                      "Select a course from the sidebar to view details and continue learning" :
                       activeService === "Lifecycle Management" ?
                       "Select a lifecycle service from the sidebar to get started" :
                       activeService === "Solution Build" ?

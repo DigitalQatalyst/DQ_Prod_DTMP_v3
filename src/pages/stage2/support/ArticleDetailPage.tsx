@@ -18,7 +18,7 @@ export default function ArticleDetailPage() {
 
   return (
     <SupportLayout title={article.title} description={article.summary}>
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-orange-700 font-semibold mb-4">
+      <button onClick={() => navigate("/stage2/support/knowledge")} className="flex items-center gap-2 text-sm text-orange-700 font-semibold mb-4">
         <ArrowLeft size={16} /> Back
       </button>
 

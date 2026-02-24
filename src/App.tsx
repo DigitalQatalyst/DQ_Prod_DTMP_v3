@@ -34,22 +34,6 @@ import LifecycleDetailPage from "./pages/LifecycleDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
-import Stage2Layout from "./layouts/Stage2Layout";
-import SolutionSpecsOverview from "./pages/stage2/specs/SolutionSpecsOverview";
-import ArchitectureLibraryPage from "./pages/stage2/specs/ArchitectureLibraryPage";
-import BlueprintDetailPage from "./pages/stage2/specs/BlueprintDetailPage";
-import DesignTemplatesPage from "./pages/stage2/specs/DesignTemplatesPage";
-import { default as SpecTemplateDetailPage } from "./pages/stage2/specs/TemplateDetailPage";
-import DesignPatternsPage from "./pages/stage2/specs/DesignPatternsPage";
-import PatternDetailPage from "./pages/stage2/specs/PatternDetailPage";
-import MyDesignsPage from "./pages/stage2/specs/MyDesignsPage";
-import DesignDetailPage from "./pages/stage2/specs/DesignDetailPage";
-import TemplatesOverview from "./pages/stage2/templates/TemplatesOverview";
-import TemplateLibraryPage from "./pages/stage2/templates/TemplateLibraryPage";
-import { default as MarketplaceTemplateDetailPage } from "./pages/stage2/templates/TemplateDetailPage";
-import NewRequestPage from "./pages/stage2/templates/NewRequestPage";
-import MyRequestsPage from "./pages/stage2/templates/MyRequestsPage";
-import { default as TemplatesRequestDetailPage } from "./pages/stage2/templates/RequestDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -81,57 +65,28 @@ const App = () => (
           <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
           <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
           <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
-          <Route path="/stage2/specs" element={<Stage2Layout />}>
-            <Route path="overview" element={<SolutionSpecsOverview />} />
-            <Route path="blueprints" element={<ArchitectureLibraryPage />} />
-            <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
-            <Route path="templates" element={<DesignTemplatesPage />} />
-            <Route path="templates/:templateId" element={<SpecTemplateDetailPage />} />
-            <Route path="patterns" element={<DesignPatternsPage />} />
-            <Route path="patterns/:patternId" element={<PatternDetailPage />} />
-            <Route path="my-designs" element={<MyDesignsPage />} />
-            <Route path="my-designs/:designId" element={<DesignDetailPage />} />
-          </Route>
-          <Route path="/stage2/templates" element={<Stage2Layout />}>
-            <Route path="overview" element={<TemplatesOverview />} />
-            <Route path="library" element={<TemplateLibraryPage />} />
-            <Route path="library/:templateId" element={<MarketplaceTemplateDetailPage />} />
-            <Route path="new-request" element={<NewRequestPage />} />
-            <Route path="my-requests" element={<MyRequestsPage />} />
-            <Route path="my-requests/:requestId" element={<TemplatesRequestDetailPage />} />
-          </Route>
+          <Route path="/stage2/specs" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/overview" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/blueprints" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/blueprints/:blueprintId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/templates" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/templates/:specTemplateId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/patterns" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/patterns/:patternId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/my-designs" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/my-designs/:designId" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates" element={<Navigate to="/stage2/templates/overview" replace />} />
+          <Route path="/stage2/templates/overview" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/library" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/library/:templateId" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/new-request" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/my-requests" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/my-requests/:requestId" element={<Stage2AppPage />} />
+          <Route path="/stage2/intelligence" element={<Navigate to="/stage2/intelligence/overview" replace />} />
+          <Route path="/stage2/intelligence/:intelligenceTab" element={<Stage2AppPage />} />
+          <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
           <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
-          <Route path="/stage2/support/overview" element={<SupportServicesOverview />} />
-          <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />
-          <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
-          <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
-          <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
-          <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
-          <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
-          
-          {/* Stage 2 - Solutions Specs Routes */}
-          <Route path="/stage2/specs" element={<Stage2Layout />}>
-            <Route path="overview" element={<SolutionSpecsOverview />} />
-            <Route path="blueprints" element={<ArchitectureLibraryPage />} />
-            <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
-            <Route path="templates" element={<DesignTemplatesPage />} />
-            <Route path="templates/:templateId" element={<SpecTemplateDetailPage />} />
-            <Route path="patterns" element={<DesignPatternsPage />} />
-            <Route path="patterns/:patternId" element={<PatternDetailPage />} />
-            <Route path="my-designs" element={<MyDesignsPage />} />
-            <Route path="my-designs/:designId" element={<DesignDetailPage />} />
-          </Route>
-          
-          {/* Stage 2 - Templates Marketplace Routes */}
-          <Route path="/stage2/templates" element={<Stage2Layout />}>
-            <Route path="overview" element={<TemplatesOverview />} />
-            <Route path="library" element={<TemplateLibraryPage />} />
-            <Route path="library/:templateId" element={<MarketplaceTemplateDetailPage />} />
-            <Route path="new-request" element={<NewRequestPage />} />
-            <Route path="my-requests" element={<MyRequestsPage />} />
-            <Route path="my-requests/:requestId" element={<TemplatesRequestDetailPage />} />
-          </Route>
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />

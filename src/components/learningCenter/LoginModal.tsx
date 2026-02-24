@@ -71,33 +71,35 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
       });
     } else {
       // Keep existing handoff flow for non-learning marketplaces
-    
-    // Handle solution-specs marketplace - navigate to specific stage 2 routes
-    if (context.marketplace === "solution-specs") {
-      if (context.cardId.includes('architecture') || context.cardId.includes('blueprint') || context.cardId.includes('reference')) {
-        navigate(`/stage2/specs/blueprints`, {
-          state: { fromStage1: true, specId: context.cardId },
+      if (context.marketplace === "solution-specs") {
+        if (
+          context.cardId.includes("architecture") ||
+          context.cardId.includes("blueprint") ||
+          context.cardId.includes("reference")
+        ) {
+          navigate(`/stage2/specs/blueprints`, {
+            state: { fromStage1: true, specId: context.cardId },
+          });
+        } else {
+          navigate(`/stage2/specs/overview`, {
+            state: { fromStage1: true, specId: context.cardId },
+          });
+        }
+      } else if (context.marketplace === "templates") {
+        // For templates, go directly to new request page with template pre-selected
+        navigate("/stage2/templates/new-request", {
+          state: {
+            templateId: context.cardId,
+            ...context,
+          },
         });
       } else {
-        navigate(`/stage2/specs/overview`, {
-          state: { fromStage1: true, specId: context.cardId },
+        navigate("/stage2", {
+          state: context,
         });
       }
-    } else if (context.marketplace === "templates") {
-      // For templates, go directly to new request page with template pre-selected
-      navigate("/stage2/templates/new-request", {
-        state: {
-          templateId: context.cardId,
-          ...context
-        },
-      });
-    } else {
-      navigate("/stage2", {
-        state: context,
-      });
     }
-
-    
+ 
     onClose();
   };
 

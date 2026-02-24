@@ -32,8 +32,8 @@ export default function Stage2Layout() {
   // Determine active service based on current path
   const getActiveService = () => {
     if (location.pathname.startsWith('/stage2/specs')) return 'Solutions Specs';
-    if (location.pathname.startsWith('/stage2/portfolio')) return 'Portfolio Management';
-    if (location.pathname.startsWith('/stage2/learning')) return 'Learning Center';
+    if (location.pathname.startsWith('/stage2/portfolio-management')) return 'Portfolio Management';
+    if (location.pathname.startsWith('/stage2/learning-center')) return 'Learning Center';
     return 'Overview';
   };
   
@@ -59,9 +59,23 @@ export default function Stage2Layout() {
   };
   
   const isOverviewActive = () => {
-    return location.pathname === '/stage2' || location.pathname === '/stage2/overview' 
+    return location.pathname === '/stage2'
       ? 'bg-orange-50 text-orange-700 font-medium' 
       : 'text-gray-700 hover:bg-gray-50';
+  };
+
+  const navigateToOrchestrator = (
+    marketplace: string,
+    serviceName: string,
+    cardId = ""
+  ) => {
+    navigate('/stage2', {
+      state: {
+        marketplace,
+        serviceName,
+        cardId,
+      },
+    });
   };
   
   return (
@@ -97,7 +111,7 @@ export default function Stage2Layout() {
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-1">
             <button 
-              onClick={() => navigate('/stage2/overview')}
+              onClick={() => navigate('/stage2')}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isOverviewActive()}`}
               title="Overview"
             >
@@ -114,7 +128,7 @@ export default function Stage2Layout() {
             )}
             
             <button 
-              onClick={() => navigate('/stage2/docwriter')}
+              onClick={() => navigate('/stage2/templates/overview')}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService('AI DocWriter')}`}
               title="AI DocWriter"
             >
@@ -133,7 +147,13 @@ export default function Stage2Layout() {
             </button>
             
             <button 
-              onClick={() => navigate('/stage2/learning')}
+              onClick={() =>
+                navigateToOrchestrator(
+                  'learning-center',
+                  'Learning Center',
+                  'digital-transformation-fundamentals'
+                )
+              }
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService('Learning Center')}`}
               title="Learning Center"
             >
@@ -142,7 +162,7 @@ export default function Stage2Layout() {
             </button>
             
             <button 
-              onClick={() => navigate('/stage2/portfolio')}
+              onClick={() => navigate('/stage2/portfolio-management')}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService('Portfolio Management')}`}
               title="Portfolio Management"
             >
@@ -151,7 +171,12 @@ export default function Stage2Layout() {
             </button>
             
             <button 
-              onClick={() => navigate('/stage2/intelligence')}
+              onClick={() =>
+                navigateToOrchestrator(
+                  'digital-intelligence',
+                  'Digital Intelligence'
+                )
+              }
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService('Digital Intelligence')}`}
               title="Digital Intelligence"
             >
