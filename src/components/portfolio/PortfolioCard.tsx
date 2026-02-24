@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Clock, Zap, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -50,11 +50,15 @@ interface PortfolioCardProps {
 
 export function PortfolioCard({ service }: PortfolioCardProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const gradientIndex = service.id.length % gradientColors.length;
   const iconEmoji = iconMap[service.iconName as keyof typeof iconMap] || "📊";
 
   const handleCardClick = () => {
-    navigate(`/marketplaces/portfolio-management/${service.tab}/${service.id}`);
+    // Determine marketplace from current path
+    const pathParts = location.pathname.split('/');
+    const marketplace = pathParts[2] || 'portfolio-management';
+    navigate(`/marketplaces/${marketplace}/${service.tab}/${service.id}`);
   };
 
   return (

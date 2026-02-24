@@ -1,0 +1,2028 @@
+markdown# TASK: Build Lifecycle Management Marketplace (Stage 1) + Stage 2 Service Hub
+
+## OVERVIEW
+
+Build a complete Lifecycle Management service from scratch, including both Stage 1 marketplace page and Stage 2 service hub pages. Lifecycle Management provides governance frameworks, stage-gate processes, project/product lifecycle templates, and compliance workflows for managing digital assets from inception through retirement. This service has a close integration relationship with Portfolio Management, where Portfolio identifies what needs to be done and Lifecycle provides the processes to execute.
+
+---
+
+## PART 1: ANALYZE EXISTING CODEBASE
+
+### Step 1: Locate Key Files
+
+Please scan the codebase and identify:
+
+1. **Existing Stage 1 Marketplaces** (Reference Implementation)
+   - Portfolio Management marketplace (most similar - close relationship)
+   - Learning Center, Support Services, Digital Intelligence, Solutions Specs, Solutions Build
+   - Use these as templates for Lifecycle Management marketplace structure
+
+2. **Portfolio Management Integration Points**
+   - Portfolio Management data structures (applications, projects)
+   - Portfolio status fields that link to lifecycle stages
+   - Shared metadata and enums
+
+3. **Stage 2 Layout Component** 
+   - Main layout file with left sidebar navigation
+
+4. **Existing Stage 2 Services** (Reference for patterns)
+   - Portfolio Management pages (most important - mirror integration patterns)
+   - Other Stage 2 services for component patterns
+
+5. **Sidebar Navigation Component**
+   - We'll add Lifecycle Management with sub-items
+
+6. **Routing Configuration**
+   - Add Lifecycle Management routes
+
+7. **Shared Components**
+   - Reuse existing components for consistency
+
+8. **Data Files**
+   - We'll create `lifecycleData.ts` 
+   - **Important:** Should reference Portfolio data for integration
+
+---
+
+## PART 2: BUILD STAGE 1 - LIFECYCLE MANAGEMENT MARKETPLACE
+
+### Task: Create Lifecycle Management Marketplace Page
+
+**Location:** `src/pages/marketplaces/LifecycleManagementMarketplace.tsx`
+
+**Purpose:** Landing page showcasing governance frameworks and lifecycle processes
+
+**Structure (Vertical Scroll):**
+```tsx
+
+  {/* Hero Section */}
+  
+    
+      
+        
+        Lifecycle Management
+      
+      
+        Govern Your Digital Assets Through Every Stage
+      
+      
+        Comprehensive lifecycle management frameworks, stage-gate processes, and governance 
+        workflows to manage projects, products, and applications from concept through retirement.
+      
+      
+        <button 
+          className="btn-primary-large"
+          onClick={() => navigate('/stage2/lifecycle/overview')}
+        >
+          
+          View Lifecycle Dashboard
+        
+        <button 
+          className="btn-secondary-large"
+          onClick={() => navigate('/stage2/lifecycle/templates')}
+        >
+          
+          Browse Templates
+        
+      
+      
+      {/* Integration Callout */}
+      
+        
+        
+          Integrated with Portfolio Management 
+          {' '}for end-to-end governance
+        
+      
+    
+    
+    
+      
+        
+          45+
+          Lifecycle Templates
+        
+        
+          12
+          Active Projects
+        
+        
+          28
+          Governance Gates
+        
+      
+    
+  
+
+  {/* Lifecycle Services Grid */}
+  
+    
+      <ServiceCard
+        icon={FolderKanban}
+        iconColor="blue"
+        title="Project Lifecycle Management"
+        description="Manage projects from initiation through closure with standardized stage-gate processes."
+        features={[
+          'Waterfall, Agile, and Hybrid templates',
+          'Stage-gate approval workflows',
+          'Project governance frameworks',
+          'Post-implementation reviews'
+        ]}
+        metrics={{
+          label: 'Active Projects',
+          value: '12',
+          change: '3 in planning stage'
+        }}
+        ctaText="Manage Projects"
+        ctaAction={() => navigate('/stage2/lifecycle/projects')}
+      />
+
+      <ServiceCard
+        icon={Package}
+        iconColor="purple"
+        title="Product Lifecycle Management"
+        description="Plan, prioritize, and manage products from roadmap through sunset with comprehensive frameworks."
+        features={[
+          'Product roadmap templates',
+          'Feature prioritization frameworks',
+          'Release management processes',
+          'Product sunset workflows'
+        ]}
+        metrics={{
+          label: 'Product Roadmaps',
+          value: '8',
+          change: '23 releases planned'
+        }}
+        ctaText="Manage Products"
+        ctaAction={() => navigate('/stage2/lifecycle/products')}
+      />
+
+      <ServiceCard
+        icon={GitBranch}
+        iconColor="green"
+        title="Application Lifecycle Governance"
+        description="Govern applications through development, deployment, maintenance, and retirement stages."
+        features={[
+          'Development lifecycle workflows',
+          'Release approval processes',
+          'Change management procedures',
+          'Application retirement frameworks'
+        ]}
+        metrics={{
+          label: 'Apps Under Governance',
+          value: '47',
+          change: '5 pending retirement'
+        }}
+        ctaText="Application Governance"
+        ctaAction={() => navigate('/stage2/lifecycle/applications')}
+        integration={{
+          label: 'Synced with Portfolio',
+          icon: Link2
+        }}
+      />
+
+      <ServiceCard
+        icon={Shield}
+        iconColor="red"
+        title="Compliance & Risk Management"
+        description="Ensure compliance and manage risks with built-in checkpoints and audit trails throughout lifecycles."
+        features={[
+          'Compliance checkpoint templates',
+          'Risk assessment frameworks',
+          'Audit trail management',
+          'Regulatory compliance workflows'
+        ]}
+        metrics={{
+          label: 'Compliance Gates',
+          value: '28',
+          change: '100% completion rate'
+        }}
+        ctaText="Compliance Framework"
+        ctaAction={() => navigate('/stage2/lifecycle/compliance')}
+      />
+
+      <ServiceCard
+        icon={CheckSquare}
+        iconColor="orange"
+        title="Approval Workflows"
+        description="Streamline decision-making with configurable approval workflows and governance board processes."
+        features={[
+          'Multi-level approval routing',
+          'Governance board templates',
+          'Escalation procedures',
+          'Decision documentation'
+        ]}
+        metrics={{
+          label: 'Pending Approvals',
+          value: '7',
+          change: '15 approved this week'
+        }}
+        ctaText="Manage Approvals"
+        ctaAction={() => navigate('/stage2/lifecycle/approvals')}
+      />
+
+      <ServiceCard
+        icon={Archive}
+        iconColor="gray"
+        title="Retirement & Decommissioning"
+        description="Safely retire applications and systems with comprehensive decommissioning frameworks."
+        features={[
+          'Application retirement checklists',
+          'Data migration procedures',
+          'Legacy system sunset planning',
+          'Asset disposal compliance'
+        ]}
+        metrics={{
+          label: 'Active Retirements',
+          value: '5',
+          change: '$450K annual savings'
+        }}
+        ctaText="Retirement Processes"
+        ctaAction={() => navigate('/stage2/lifecycle/retirement')}
+        integration={{
+          label: 'From Portfolio Insights',
+          icon: TrendingDown
+        }}
+      />
+    
+  
+
+  {/* Integration with Portfolio Management */}
+  
+    
+      
+        
+          
+        
+        Portfolio Identifies
+        Portfolio Management discovers applications needing attention:
+        
+          Legacy apps with critical health scores
+          Redundant applications for rationalization
+          High-value apps requiring modernization
+        
+      
+      
+      
+        
+      
+      
+      
+        
+          
+        
+        Lifecycle Executes
+        Lifecycle Management provides governance processes:
+        
+          Retirement workflows with approval gates
+          Consolidation project templates
+          Modernization stage-gate frameworks
+        
+      
+      
+      
+        
+      
+      
+      
+        
+          
+        
+        Portfolio Reflects
+        Results update back in Portfolio Management:
+        
+          Status changes (Active → Retiring → Retired)
+          Health score improvements
+          Cost savings tracked and validated
+        
+      
+    
+    
+    
+      <button onClick={() => navigate('/stage2/portfolio/overview')}>
+        View Portfolio Management →
+      
+    
+  
+
+  {/* Popular Templates */}
+  
+    
+      <TemplateCard
+        icon={FolderKanban}
+        title="Application Retirement Lifecycle"
+        description="Complete framework for retiring legacy applications with compliance and data migration"
+        category="Retirement"
+        usageCount={23}
+        avgDuration="12-16 weeks"
+        onClick={() => navigate('/stage2/lifecycle/templates/app-retirement')}
+      />
+
+      <TemplateCard
+        icon={Package}
+        title="Product Launch Stage-Gate Process"
+        description="Six-stage framework from concept through launch with decision criteria at each gate"
+        category="Product"
+        usageCount={18}
+        avgDuration="8-12 months"
+        onClick={() => navigate('/stage2/lifecycle/templates/product-launch')}
+      />
+
+      <TemplateCard
+        icon={GitBranch}
+        title="Agile Project Lifecycle"
+        description="Scrum-based project framework with sprint planning and retrospective templates"
+        category="Project"
+        usageCount={34}
+        avgDuration="3-6 months"
+        onClick={() => navigate('/stage2/lifecycle/templates/agile-project')}
+      />
+    
+  
+
+  {/* Stage-Gate Process Visualization */}
+  
+    
+      
+        
+          1
+          Initiation
+          Define scope, objectives, stakeholders
+        
+        
+          
+            
+          
+          Gate 1: Approval to Plan
+        
+        
+          2
+          Planning
+          Detailed plans, resources, timeline
+        
+        
+          
+            
+          
+          Gate 2: Approval to Execute
+        
+        
+          3
+          Execution
+          Deliver work, manage changes
+        
+        
+          
+            
+          
+          Gate 3: Approval to Deploy
+        
+        
+          4
+          Closure
+          Review, lessons learned, archive
+        
+      
+    
+  
+
+  {/* Governance Statistics */}
+  
+    
+      
+      
+      
+      
+    
+  
+
+  {/* Getting Started */}
+  
+    
+      
+
+      
+
+      
+    
+  
+
+  {/* CTA Section */}
+  
+    Ready to streamline your governance?
+    Access proven lifecycle frameworks and stage-gate processes
+    
+      <button 
+        className="btn-primary-large"
+        onClick={() => navigate('/stage2/lifecycle/overview')}
+      >
+        
+        View Lifecycle Dashboard
+      
+      <button 
+        className="btn-secondary-large"
+        onClick={() => navigate('/stage2/portfolio/overview')}
+      >
+        
+        View Portfolio Management
+      
+    
+  
+
+```
+
+---
+
+## PART 3: UPDATE SIDEBAR NAVIGATION
+
+### Task: Add Lifecycle Management to Sidebar
+
+**Add Lifecycle Management with these sub-items:**
+```tsx
+
+  
+    
+    Lifecycle Management
+  
+  
+    
+      Projects
+    
+    
+      Applications
+    
+    
+      Templates Library
+    
+    
+      Pending Approvals
+    
+  
+
+```
+
+**Positioning:** Add Lifecycle Management after "Solutions Build" in the sidebar order.
+
+**Icon:** Use `RefreshCw` from lucide-react.
+
+---
+
+## PART 4: CREATE ROUTING STRUCTURE
+
+### Task: Add Lifecycle Management Routes
+
+**Stage 1 Route:**
+```tsx
+{
+  path: '/marketplaces/lifecycle-management',
+  element: 
+}
+```
+
+**Stage 2 Routes:**
+```tsx
+{
+  path: 'lifecycle',
+  children: [
+    { path: 'overview', element:  },
+    { path: 'projects', element:  },
+    { path: 'projects/:projectId', element:  },
+    { path: 'products', element:  },
+    { path: 'products/:productId', element:  },
+    { path: 'applications', element:  },
+    { path: 'applications/:appId', element:  },
+    { path: 'compliance', element:  },
+    { path: 'approvals', element:  },
+    { path: 'retirement', element:  },
+    { path: 'templates', element:  },
+    { path: 'templates/:templateId', element:  }
+  ]
+}
+```
+
+---
+
+## PART 5: CREATE DATA STRUCTURES
+
+### Task: Create `lifecycleData.ts`
+
+**Location:** Same directory as other data files
+
+**IMPORTANT:** This file should import and reference Portfolio Management data for integration
+
+**Data Structures Needed:**
+```typescript
+// Import Portfolio data for integration
+import { applications, projects } from './portfolioData';
+
+// Lifecycle Stage
+interface LifecycleStage {
+  id: string;
+  name: string;
+  description: string;
+  order: number;
+  durationEstimate: string; // e.g., "2-4 weeks"
+  deliverables: string[];
+  entryGate?: StageGate;
+  exitGate: StageGate;
+  activities: StageActivity[];
+}
+
+// Stage Gate (Approval Point)
+interface StageGate {
+  id: string;
+  name: string;
+  description: string;
+  criteria: GateCriteria[];
+  requiredApprovers: ApproverRole[];
+  optionalApprovers: ApproverRole[];
+  documents: string[]; // Required documentation
+  estimatedReviewTime: string;
+}
+
+interface GateCriteria {
+  id: string;
+  criterion: string; // "Business case approved", "Risk assessment completed"
+  mandatory: boolean;
+  evidenceRequired: string; // What proves this is met
+}
+
+interface ApproverRole {
+  role: string; // "Chief Architect", "Business Owner", "Security Lead"
+  level: 'required' | 'optional' | 'informed';
+}
+
+// Stage Activity
+interface StageActivity {
+  id: string;
+  name: string;
+  description: string;
+  owner: string; // Role responsible
+  estimatedEffort: string;
+  dependencies: string[]; // Activity IDs
+  outputs: string[];
+}
+
+// Lifecycle Template
+interface LifecycleTemplate {
+  id: string; // Format: LCT-001
+  title: string;
+  templateType: 'project' | 'product' | 'application' | 'retirement';
+  category: string;
+  description: string;
+  longDescription: string;
+  
+  // Metadata
+  author: {
+    name: string;
+    role: string;
+  };
+  version: string;
+  lastUpdated: string;
+  
+  // Lifecycle Definition
+  methodology: 'waterfall' | 'agile' | 'hybrid' | 'stage-gate';
+  totalDuration: string; // e.g., "12-16 weeks"
+  stages: LifecycleStage[];
+  
+  // Governance
+  governanceFramework: string;
+  complianceRequirements: string[];
+  riskLevel: 'low' | 'medium' | 'high';
+  
+  // Applicability
+  suitableFor: string[];
+  prerequisites: string[];
+  
+  // Documentation
+  templates: TemplateDocument[];
+  checklists: Checklist[];
+  guidelines: string; // Markdown
+  
+  // Success Metrics
+  successCriteria: string[];
+  kpis: string[];
+  
+  // Examples
+  caseStudies: {
+    title: string;
+    description: string;
+    outcome: string;
+    duration: string;
+  }[];
+  
+  // Relationships
+  relatedTemplates: string[];
+  
+  // Engagement
+  usageCount: number;
+  avgCompletionTime: string;
+  successRate: number; // Percentage
+  rating: number;
+  reviewCount: number;
+  
+  // Tags
+  tags: string[];
+  complexity: 'simple' | 'moderate' | 'complex';
+}
+
+interface TemplateDocument {
+  name: string;
+  type: 'word' | 'excel' | 'ppt' | 'pdf' | 'markdown';
+  purpose: string;
+  url: string;
+}
+
+interface Checklist {
+  id: string;
+  name: string;
+  stage: string; // Which stage this applies to
+  items: ChecklistItem[];
+}
+
+interface ChecklistItem {
+  id: string;
+  description: string;
+  required: boolean;
+  owner: string; // Role responsible
+}
+
+// Active Lifecycle Instance (Project/Product/App in lifecycle)
+interface LifecycleInstance {
+  id: string; // Format: LCI-2026-001
+  name: string;
+  type: 'project' | 'product' | 'application-retirement' | 'application-modernization';
+  basedOnTemplate: string; // Template ID
+  
+  // Link to Portfolio (CRITICAL INTEGRATION POINT)
+  portfolioLink?: {
+    type: 'application' | 'project';
+    id: string; // Application or Project ID from Portfolio
+    syncStatus: 'synced' | 'out-of-sync' | 'manual';
+    lastSynced: string;
+  };
+  
+  // Ownership
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  sponsor: {
+    name: string;
+    role: string;
+  };
+  team: TeamMember[];
+  
+  // Status
+  status: 'not-started' | 'in-progress' | 'on-hold' | 'completed' | 'cancelled';
+  currentStage: string; // Stage ID
+  overallHealth: 'on-track' | 'at-risk' | 'critical';
+  
+  // Timeline
+  plannedStartDate: string;
+  plannedEndDate: string;
+  actualStartDate?: string;
+  forecastEndDate: string;
+  actualEndDate?: string;
+  
+  // Progress
+  stageProgress: StageProgress[];
+  overallProgress: number; // 0-100
+  
+  // Gates
+  gatesCompleted: number;
+  totalGates: number;
+  pendingGate?: {
+    gateId: string;
+    gateName: string;
+    submittedDate: string;
+    pendingApprovals: PendingApproval[];
+  };
+  
+  // Documents & Deliverables
+  deliverables: Deliverable[];
+  documents: Document[];
+  
+  // Risks & Issues
+  risks: Risk[];
+  issues: Issue[];
+  
+  // Financial
+  budget?: {
+    total: number;
+    spent: number;
+    forecast: number;
+  };
+  
+  // Benefits (especially for retirement/modernization)
+  expectedBenefits: Benefit[];
+  realizedBenefits: Benefit[];
+  
+  // Activity Log
+  activityLog: ActivityLogEntry[];
+  
+  // Tags
+  tags: string[];
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  allocation: number; // Percentage
+}
+
+interface StageProgress {
+  stageId: string;
+  stageName: string;
+  status: 'not-started' | 'in-progress' | 'gate-pending' | 'completed';
+  progress: number; // 0-100
+  startDate?: string;
+  endDate?: string;
+  health: 'on-track' | 'at-risk' | 'delayed';
+  completedActivities: number;
+  totalActivities: number;
+}
+
+interface PendingApproval {
+  approverName: string;
+  approverRole: string;
+  requestedDate: string;
+  dueDate: string;
+  status: 'pending' | 'approved' | 'rejected' | 'conditional';
+  comments?: string;
+  decisionDate?: string;
+}
+
+interface Deliverable {
+  id: string;
+  name: string;
+  stage: string;
+  dueDate: string;
+  status: 'not-started' | 'in-progress' | 'completed' | 'overdue';
+  owner: string;
+  fileUrl?: string;
+  completionDate?: string;
+}
+
+interface Document {
+  id: string;
+  title: string;
+  type: string;
+  uploadedBy: string;
+  uploadedDate: string;
+  fileUrl: string;
+  fileSize: string;
+}
+
+interface Risk {
+  id: string;
+  description: string;
+  category: 'technical' | 'resource' | 'schedule' | 'budget' | 'stakeholder';
+  probability: 'low' | 'medium' | 'high';
+  impact: 'low' | 'medium' | 'high';
+  mitigation: string;
+  owner: string;
+  status: 'open' | 'mitigated' | 'closed';
+}
+
+interface Issue {
+  id: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  raisedBy: string;
+  raisedDate: string;
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  assignedTo: string;
+  resolutionDate?: string;
+}
+
+interface Benefit {
+  type: 'cost-savings' | 'efficiency' | 'revenue' | 'risk-reduction' | 'quality';
+  description: string;
+  quantifiedValue?: number;
+  realizationDate: string;
+  status: 'planned' | 'in-progress' | 'realized' | 'not-realized';
+  actualValue?: number;
+}
+
+interface ActivityLogEntry {
+  id: string;
+  timestamp: string;
+  actor: string;
+  action: 'stage-completed' | 'gate-submitted' | 'approval-received' | 'document-uploaded' | 'risk-added' | 'status-changed';
+  description: string;
+  details?: any;
+}
+
+// Approval Workflow
+interface ApprovalWorkflow {
+  id: string;
+  lifecycleInstanceId: string;
+  lifecycleInstanceName: string;
+  gate: {
+    id: string;
+    name: string;
+    stage: string;
+  };
+  
+  // Submission
+  submittedBy: string;
+  submittedDate: string;
+  submissionNotes: string;
+  
+  // Status
+  status: 'pending' | 'approved' | 'rejected' | 'conditional' | 'withdrawn';
+  
+  // Approvals
+  approvals: ApprovalDecision[];
+  requiredApprovals: number;
+  receivedApprovals: number;
+  
+  // Documents
+  supportingDocuments: string[]; // Document IDs
+  
+  // Timeline
+  expectedDecisionDate: string;
+  actualDecisionDate?: string;
+  
+  // Escalation
+  escalated: boolean;
+  escalationDate?: string;
+  escalationReason?: string;
+}
+
+interface ApprovalDecision {
+  approverName: string;
+  approverRole: string;
+  decision: 'approved' | 'rejected' | 'conditional';
+  decisionDate: string;
+  comments: string;
+  conditions?: string[]; // If conditional approval
+}
+
+// Retirement Process (Special type closely linked to Portfolio)
+interface RetirementProcess extends LifecycleInstance {
+  type: 'application-retirement';
+  
+  // Portfolio Integration (CRITICAL)
+  applicationId: string; // Direct link to Portfolio application
+  applicationName: string;
+  applicationCurrentStatus: string; // From Portfolio
+  
+  // Retirement Specifics
+  retirementReason: 'end-of-life' | 'redundant' | 'consolidation' | 'cost-optimization' | 'security';
+  replacementSystem?: string;
+  
+  // Migration
+  dataMigration: {
+    required: boolean;
+    volumeGB?: number;
+    targetSystem?: string;
+    migrationPlan?: string;
+    testingCompleted?: boolean;
+  };
+  
+  // Users
+  affectedUsers: number;
+  userMigrationPlan?: string;
+  trainingCompleted?: boolean;
+  
+  // Decommissioning
+  infrastructureToDecommission: string[];
+  licensesCancelled: string[];
+  
+  // Financial Impact
+  annualCostSavings: number;
+  decommissioningCost: number;
+  netSavings: number;
+  
+  // Compliance
+  dataRetentionPeriod: string;
+  archiveLocation?: string;
+  complianceSignOff?: {
+    signedBy: string;
+    signedDate: string;
+  };
+}
+```
+
+---
+
+### Mock Data to Create:
+
+#### **1. Lifecycle Templates (15-20 templates)**
+
+**Type Distribution:**
+- 5 Project lifecycle templates
+- 4 Product lifecycle templates
+- 4 Application retirement templates
+- 3 Application modernization templates
+- 2 Compliance/governance templates
+
+**Example Templates:**
+```typescript
+const lifecycleTemplates: LifecycleTemplate[] = [
+  {
+    id: 'LCT-001',
+    title: 'Application Retirement Lifecycle',
+    templateType: 'retirement',
+    category: 'Application Management',
+    description: 'Comprehensive framework for retiring legacy applications with proper governance, data migration, and compliance.',
+    longDescription: `
+# Application Retirement Lifecycle
+
+Complete framework for safely retiring legacy applications while ensuring:
+- Business continuity during transition
+- Proper data migration and archival
+- Compliance with regulatory requirements
+- Cost savings validation
+
+Used successfully to retire 23 applications with average cost savings of $120K per application.
+    `,
+    
+    author: {
+      name: 'Enterprise Architecture Team',
+      role: 'Lead Architects'
+    },
+    version: '3.2',
+    lastUpdated: '2026-01-20T00:00:00Z',Continue2:36 PMmethodology: 'stage-gate',
+totalDuration: '12-16 weeks',
+
+stages: [
+  {
+    id: 'stage-retirement-001',
+    name: 'Assessment & Planning',
+    description: 'Evaluate application for retirement readiness and create detailed plan',
+    order: 1,
+    durationEstimate: '2-3 weeks',
+    deliverables: [
+      'Retirement business case',
+      'Impact assessment',
+      'Stakeholder communication plan',
+      'Detailed retirement timeline'
+    ],
+    exitGate: {
+      id: 'gate-retirement-001',
+      name: 'Gate 1: Approval to Proceed',
+      description: 'Business case approved and stakeholders aligned',
+      criteria: [
+        {
+          id: 'criteria-001',
+          criterion: 'Business case demonstrates clear cost savings or risk reduction',
+          mandatory: true,
+          evidenceRequired: 'Approved business case document with financial analysis'
+        },
+        {
+          id: 'criteria-002',
+          criterion: 'All stakeholders identified and informed',
+          mandatory: true,
+          evidenceRequired: 'Stakeholder register with sign-offs'
+        },
+        {
+          id: 'criteria-003',
+          criterion: 'Impact assessment completed showing no critical blockers',
+          mandatory: true,
+          evidenceRequired: 'Impact assessment document'
+        },
+        {
+          id: 'criteria-004',
+          criterion: 'Replacement system identified (if applicable)',
+          mandatory: false,
+          evidenceRequired: 'System selection document'
+        }
+      ],
+      requiredApprovers: [
+        { role: 'Application Business Owner', level: 'required' },
+        { role: 'Chief Architect', level: 'required' },
+        { role: 'CFO or Finance Director', level: 'required' }
+      ],
+      optionalApprovers: [
+        { role: 'Compliance Officer', level: 'informed' }
+      ],
+      documents: [
+        'Business case',
+        'Impact assessment',
+        'Stakeholder register',
+        'Cost-benefit analysis'
+      ],
+      estimatedReviewTime: '3-5 business days'
+    },
+    activities: [
+      {
+        id: 'activity-001',
+        name: 'Conduct retirement readiness assessment',
+        description: 'Evaluate application dependencies, integrations, and user base',
+        owner: 'Enterprise Architect',
+        estimatedEffort: '3-5 days',
+        dependencies: [],
+        outputs: ['Readiness assessment report']
+      },
+      {
+        id: 'activity-002',
+        name: 'Develop business case',
+        description: 'Document cost savings, risks, and strategic alignment',
+        owner: 'Business Analyst',
+        estimatedEffort: '2-3 days',
+        dependencies: ['activity-001'],
+        outputs: ['Business case document']
+      },
+      {
+        id: 'activity-003',
+        name: 'Create stakeholder communication plan',
+        description: 'Identify all affected parties and communication strategy',
+        owner: 'Project Manager',
+        estimatedEffort: '1-2 days',
+        dependencies: ['activity-001'],
+        outputs: ['Communication plan', 'Stakeholder register']
+      }
+    ]
+  },
+  
+  {
+    id: 'stage-retirement-002',
+    name: 'Migration & Testing',
+    description: 'Execute data migration and validate replacement system',
+    order: 2,
+    durationEstimate: '4-6 weeks',
+    deliverables: [
+      'Data migration plan',
+      'Data migration execution report',
+      'User acceptance testing results',
+      'Training materials and completion records'
+    ],
+    entryGate: {
+      id: 'gate-retirement-001',
+      name: 'Gate 1: Approval to Proceed',
+      description: 'From previous stage',
+      criteria: [],
+      requiredApprovers: [],
+      optionalApprovers: [],
+      documents: [],
+      estimatedReviewTime: '0 days'
+    },
+    exitGate: {
+      id: 'gate-retirement-002',
+      name: 'Gate 2: Approval to Cutover',
+      description: 'Data migrated successfully and users ready',
+      criteria: [
+        {
+          id: 'criteria-005',
+          criterion: 'Data migration completed with 100% success rate',
+          mandatory: true,
+          evidenceRequired: 'Migration execution report with validation results'
+        },
+        {
+          id: 'criteria-006',
+          criterion: 'User acceptance testing passed',
+          mandatory: true,
+          evidenceRequired: 'UAT sign-off document'
+        },
+        {
+          id: 'criteria-007',
+          criterion: 'All users trained on replacement system',
+          mandatory: true,
+          evidenceRequired: 'Training completion records'
+        }
+      ],
+      requiredApprovers: [
+        { role: 'Application Business Owner', level: 'required' },
+        { role: 'IT Operations Manager', level: 'required' }
+      ],
+      optionalApprovers: [],
+      documents: [
+        'Migration execution report',
+        'UAT results',
+        'Training records'
+      ],
+      estimatedReviewTime: '2-3 business days'
+    },
+    activities: [
+      {
+        id: 'activity-004',
+        name: 'Execute data migration',
+        description: 'Migrate data to replacement system or archive',
+        owner: 'Data Engineer',
+        estimatedEffort: '2-3 weeks',
+        dependencies: [],
+        outputs: ['Migrated data', 'Migration report']
+      },
+      {
+        id: 'activity-005',
+        name: 'Conduct user acceptance testing',
+        description: 'Validate replacement system meets business needs',
+        owner: 'Business Users',
+        estimatedEffort: '1-2 weeks',
+        dependencies: ['activity-004'],
+        outputs: ['UAT results', 'Defect list']
+      },
+      {
+        id: 'activity-006',
+        name: 'Train users',
+        description: 'Provide training on replacement system',
+        owner: 'Training Team',
+        estimatedEffort: '1-2 weeks',
+        dependencies: [],
+        outputs: ['Training materials', 'Completion records']
+      }
+    ]
+  },
+  
+  {
+    id: 'stage-retirement-003',
+    name: 'Cutover & Decommission',
+    description: 'Transition to replacement system and decommission legacy application',
+    order: 3,
+    durationEstimate: '2-3 weeks',
+    deliverables: [
+      'Cutover execution report',
+      'Infrastructure decommission report',
+      'License cancellation confirmations',
+      'Data archival records'
+    ],
+    entryGate: {
+      id: 'gate-retirement-002',
+      name: 'Gate 2: Approval to Cutover',
+      description: 'From previous stage',
+      criteria: [],
+      requiredApprovers: [],
+      optionalApprovers: [],
+      documents: [],
+      estimatedReviewTime: '0 days'
+    },
+    exitGate: {
+      id: 'gate-retirement-003',
+      name: 'Gate 3: Retirement Complete',
+      description: 'Application fully decommissioned and cost savings validated',
+      criteria: [
+        {
+          id: 'criteria-008',
+          criterion: 'Application successfully disabled/uninstalled',
+          mandatory: true,
+          evidenceRequired: 'Decommission report'
+        },
+        {
+          id: 'criteria-009',
+          criterion: 'All infrastructure decommissioned or repurposed',
+          mandatory: true,
+          evidenceRequired: 'Infrastructure decommission report'
+        },
+        {
+          id: 'criteria-010',
+          criterion: 'Licenses cancelled and cost savings validated',
+          mandatory: true,
+          evidenceRequired: 'License cancellation confirmations, updated budget'
+        },
+        {
+          id: 'criteria-011',
+          criterion: 'Data archived according to retention policies',
+          mandatory: true,
+          evidenceRequired: 'Data archival records, compliance sign-off'
+        }
+      ],
+      requiredApprovers: [
+        { role: 'Application Business Owner', level: 'required' },
+        { role: 'IT Operations Manager', level: 'required' },
+        { role: 'Compliance Officer', level: 'required' },
+        { role: 'CFO or Finance Director', level: 'required' }
+      ],
+      optionalApprovers: [],
+      documents: [
+        'Decommission report',
+        'Cost savings validation',
+        'Data archival records',
+        'Compliance sign-off'
+      ],
+      estimatedReviewTime: '3-5 business days'
+    },
+    activities: [
+      {
+        id: 'activity-007',
+        name: 'Execute cutover',
+        description: 'Disable legacy application and activate replacement',
+        owner: 'IT Operations',
+        estimatedEffort: '1-2 days',
+        dependencies: [],
+        outputs: ['Cutover report']
+      },
+      {
+        id: 'activity-008',
+        name: 'Decommission infrastructure',
+        description: 'Remove servers, databases, and other infrastructure',
+        owner: 'Infrastructure Team',
+        estimatedEffort: '1 week',
+        dependencies: ['activity-007'],
+        outputs: ['Decommission report']
+      },
+      {
+        id: 'activity-009',
+        name: 'Archive data',
+        description: 'Archive data according to retention policies',
+        owner: 'Data Management',
+        estimatedEffort: '3-5 days',
+        dependencies: ['activity-007'],
+        outputs: ['Archive records', 'Compliance documentation']
+      }
+    ]
+  },
+  
+  {
+    id: 'stage-retirement-004',
+    name: 'Post-Implementation Review',
+    description: 'Review retirement process and validate outcomes',
+    order: 4,
+    durationEstimate: '1-2 weeks',
+    deliverables: [
+      'Post-implementation review report',
+      'Lessons learned document',
+      'Updated retirement knowledge base'
+    ],
+    entryGate: {
+      id: 'gate-retirement-003',
+      name: 'Gate 3: Retirement Complete',
+      description: 'From previous stage',
+      criteria: [],
+      requiredApprovers: [],
+      optionalApprovers: [],
+      documents: [],
+      estimatedReviewTime: '0 days'
+    },
+    exitGate: {
+      id: 'gate-retirement-004',
+      name: 'Gate 4: Project Closure',
+      description: 'Final closure and archival',
+      criteria: [
+        {
+          id: 'criteria-012',
+          criterion: 'Post-implementation review completed',
+          mandatory: true,
+          evidenceRequired: 'PIR report'
+        },
+        {
+          id: 'criteria-013',
+          criterion: 'Lessons learned documented',
+          mandatory: true,
+          evidenceRequired: 'Lessons learned document'
+        }
+      ],
+      requiredApprovers: [
+        { role: 'Project Sponsor', level: 'required' }
+      ],
+      optionalApprovers: [],
+      documents: [
+        'PIR report',
+        'Lessons learned'
+      ],
+      estimatedReviewTime: '1-2 business days'
+    },
+    activities: [
+      {
+        id: 'activity-010',
+        name: 'Conduct post-implementation review',
+        description: 'Review process, outcomes, and cost savings achieved',
+        owner: 'Project Manager',
+        estimatedEffort: '3-5 days',
+        dependencies: [],
+        outputs: ['PIR report']
+      },
+      {
+        id: 'activity-011',
+        name: 'Document lessons learned',
+        description: 'Capture what went well and what could be improved',
+        owner: 'Project Manager',
+        estimatedEffort: '2-3 days',
+        dependencies: ['activity-010'],
+        outputs: ['Lessons learned document']
+      }
+    ]
+  }
+],
+
+governanceFramework: 'Stage-Gate with multi-level approvals',
+complianceRequirements: [
+  'Data retention policy compliance',
+  'Security decommissioning standards',
+  'Financial control validation',
+  'Audit trail maintenance'
+],
+riskLevel: 'medium',
+
+suitableFor: [
+  'Legacy applications reaching end-of-life',
+  'Redundant applications identified through rationalization',
+  'Applications being consolidated',
+  'Applications with acceptable replacement systems'
+],
+
+prerequisites: [
+  'Replacement system identified and validated (if applicable)',
+  'Business owner support secured',
+  'Initial cost-benefit analysis completed',
+  'No critical business dependencies without workarounds'
+],
+
+templates: [
+  {
+    name: 'Retirement Business Case Template',
+    type: 'word',
+    purpose: 'Document rationale and financial justification for retirement',
+    url: '/templates/LCT-001/business-case.docx'
+  },
+  {
+    name: 'Impact Assessment Template',
+    type: 'excel',
+    purpose: 'Assess impact on users, processes, and integrations',
+    url: '/templates/LCT-001/impact-assessment.xlsx'
+  },
+  {
+    name: 'Data Migration Plan Template',
+    type: 'word',
+    purpose: 'Plan data extraction, transformation, and loading',
+    url: '/templates/LCT-001/data-migration-plan.docx'
+  },
+  {
+    name: 'Decommission Checklist',
+    type: 'excel',
+    purpose: 'Track all decommissioning activities',
+    url: '/templates/LCT-001/decommission-checklist.xlsx'
+  }
+],
+
+checklists: [
+  {
+    id: 'checklist-001',
+    name: 'Stage 1: Assessment Checklist',
+    stage: 'stage-retirement-001',
+    items: [
+      {
+        id: 'check-001',
+        description: 'Document business rationale for retirement',
+        required: true,
+        owner: 'Business Analyst'
+      },
+      {
+        id: 'check-002',
+        description: 'Identify all application dependencies',
+        required: true,
+        owner: 'Enterprise Architect'
+      },
+      {
+        id: 'check-003',
+        description: 'Assess integration impact',
+        required: true,
+        owner: 'Integration Architect'
+      },
+      {
+        id: 'check-004',
+        description: 'Calculate cost savings',
+        required: true,
+        owner: 'Financial Analyst'
+      },
+      {
+        id: 'check-005',
+        description: 'Identify replacement system (if needed)',
+        required: false,
+        owner: 'Business Owner'
+      }
+    ]
+  },
+  {
+    id: 'checklist-002',
+    name: 'Stage 2: Migration Checklist',
+    stage: 'stage-retirement-002',
+    items: [
+      {
+        id: 'check-006',
+        description: 'Create data migration plan',
+        required: true,
+        owner: 'Data Engineer'
+      },
+      {
+        id: 'check-007',
+        description: 'Execute data migration',
+        required: true,
+        owner: 'Data Engineer'
+      },
+      {
+        id: 'check-008',
+        description: 'Validate migrated data',
+        required: true,
+        owner: 'Data Quality Analyst'
+      },
+      {
+        id: 'check-009',
+        description: 'Conduct user acceptance testing',
+        required: true,
+        owner: 'Business Users'
+      },
+      {
+        id: 'check-010',
+        description: 'Train users on replacement system',
+        required: true,
+        owner: 'Training Team'
+      }
+    ]
+  },
+  {
+    id: 'checklist-003',
+    name: 'Stage 3: Decommission Checklist',
+    stage: 'stage-retirement-003',
+    items: [
+      {
+        id: 'check-011',
+        description: 'Disable application access',
+        required: true,
+        owner: 'IT Operations'
+      },
+      {
+        id: 'check-012',
+        description: 'Decommission servers',
+        required: true,
+        owner: 'Infrastructure Team'
+      },
+      {
+        id: 'check-013',
+        description: 'Cancel software licenses',
+        required: true,
+        owner: 'Procurement'
+      },
+      {
+        id: 'check-014',
+        description: 'Archive data per retention policy',
+        required: true,
+        owner: 'Data Management'
+      },
+      {
+        id: 'check-015',
+        description: 'Update CMDB/asset inventory',
+        required: true,
+        owner: 'IT Asset Management'
+      }
+    ]
+  }
+],
+
+guidelines: `
+Implementation Guidelines
+Planning Phase
+
+Engage stakeholders early and often
+Be realistic about timeline - rushing leads to problems
+Document everything for audit trail
+Plan for parallel run period if possible
+
+Migration Phase
+
+Test data migration in non-production first
+Validate 100% of critical data
+Have rollback plan ready
+Schedule cutover during low-usage period
+
+Decommission Phase
+
+Follow security protocols for data destruction
+Validate cost savings are realized
+Update all documentation and inventories
+Preserve institutional knowledge
+
+Common Pitfalls to Avoid
+
+Underestimating data migration complexity
+Not engaging compliance/legal early enough
+Insufficient user training
+Lack of rollback plan
+Poor communication with affected users
+`,
+successCriteria: [
+'Application successfully decommissioned with no business disruption',
+'Data migrated and validated to 100% accuracy',
+'Cost savings realized as projected in business case',
+'Compliance requirements met (data retention, security)',
+'Users successfully transitioned to replacement system'
+],
+kpis: [
+'Time to complete retirement (target: 12-16 weeks)',
+'Cost savings achieved vs. projected',
+'User satisfaction with replacement system (target: >80%)',
+'Zero critical incidents during cutover',
+'Compliance audit findings (target: 0 findings)'
+],
+caseStudies: [
+{
+title: 'Legacy Inventory System Retirement',
+description: 'Retired 15-year-old inventory management system serving 200 users',
+outcome: 'Successful retirement with $180K annual cost savings. Zero downtime during cutover. 95% user satisfaction.',
+duration: '14 weeks'
+},
+{
+title: 'Redundant CRM Consolidation',
+description: 'Retired 2 of 3 CRM systems as part of rationalization',
+outcome: 'Migrated 50,000 customer records. $240K annual savings. Improved data quality.',
+duration: '18 weeks'
+}
+],
+relatedTemplates: ['LCT-002', 'LCT-005'],
+usageCount: 23,
+avgCompletionTime: '14 weeks',
+successRate: 91, // 91% complete successfully
+rating: 4.8,
+reviewCount: 67,
+tags: ['retirement', 'decommission', 'legacy', 'cost-savings', 'governance'],
+complexity: 'moderate'
+},
+// ... create 14-19 more lifecycle templates
+];
+
+
+---
+
+#### **2. Active Lifecycle Instances (8-12 instances)**
+
+**CRITICAL:** These should link to Portfolio Management data
+
+**Type Distribution:**
+- 3-4 Project lifecycle instances
+- 2-3 Product lifecycle instances
+- 2-3 Application retirement instances
+- 1-2 Application modernization instances
+
+**Example Instances:**
+```typescript
+const lifecycleInstances: LifecycleInstance[] = [
+  {
+    id: 'LCI-2026-001',
+    name: 'Legacy Inventory System Retirement',
+    type: 'application-retirement',
+    basedOnTemplate: 'LCT-001',
+    
+    // CRITICAL: Portfolio Integration
+    portfolioLink: {
+      type: 'application',
+      id: 'APP-089', // Links to Portfolio Management application
+      syncStatus: 'synced',
+      lastSynced: '2026-02-10T08:00:00Z'
+    },
+    
+    owner: {
+      id: 'user-042',
+      name: 'Sarah Chen',
+      email: 'sarah.chen@company.com',
+      role: 'IT Operations Manager'
+    },
+    sponsor: {
+      name: 'VP IT Operations',
+      role: 'Executive Sponsor'
+    },
+    team: [
+      {
+        id: 'user-043',
+        name: 'Michael Torres',
+        email: 'michael.torres@company.com',
+        role: 'Enterprise Architect',
+        allocation: 50
+      },
+      {
+        id: 'user-044',
+        name: 'Jennifer Park',
+        email: 'jennifer.park@company.com',
+        role: 'Data Engineer',
+        allocation: 75
+      },
+      {
+        id: 'user-045',
+        name: 'David Kim',
+        email: 'david.kim@company.com',
+        role: 'Business Analyst',
+        allocation: 25
+      }
+    ],
+    
+    status: 'in-progress',
+    currentStage: 'stage-retirement-002', // Migration & Testing
+    overallHealth: 'on-track',
+    
+    plannedStartDate: '2026-01-08T00:00:00Z',
+    plannedEndDate: '2026-04-30T00:00:00Z',
+    actualStartDate: '2026-01-08T00:00:00Z',
+    forecastEndDate: '2026-04-28T00:00:00Z',
+    
+    stageProgress: [
+      {
+        stageId: 'stage-retirement-001',
+        stageName: 'Assessment & Planning',
+        status: 'completed',
+        progress: 100,
+        startDate: '2026-01-08T00:00:00Z',
+        endDate: '2026-01-26T00:00:00Z',
+        health: 'on-track',
+        completedActivities: 3,
+        totalActivities: 3
+      },
+      {
+        stageId: 'stage-retirement-002',
+        stageName: 'Migration & Testing',
+        status: 'in-progress',
+        progress: 65,
+        startDate: '2026-01-29T00:00:00Z',
+        health: 'on-track',
+        completedActivities: 2,
+        totalActivities: 3
+      },
+      {
+        stageId: 'stage-retirement-003',
+        stageName: 'Cutover & Decommission',
+        status: 'not-started',
+        progress: 0,
+        health: 'on-track',
+        completedActivities: 0,
+        totalActivities: 3
+      },
+      {
+        stageId: 'stage-retirement-004',
+        stageName: 'Post-Implementation Review',
+        status: 'not-started',
+        progress: 0,
+        health: 'on-track',
+        completedActivities: 0,
+        totalActivities: 2
+      }
+    ],
+    
+    overallProgress: 41, // Weighted average across stages
+    
+    gatesCompleted: 1,
+    totalGates: 4,
+    pendingGate: {
+      gateId: 'gate-retirement-002',
+      gateName: 'Gate 2: Approval to Cutover',
+      submittedDate: '2026-02-08T00:00:00Z',
+      pendingApprovals: [
+        {
+          approverName: 'Application Business Owner',
+          approverRole: 'Business Owner',
+          requestedDate: '2026-02-08T00:00:00Z',
+          dueDate: '2026-02-13T00:00:00Z',
+          status: 'approved',
+          comments: 'UAT results look good. Approved to proceed.',
+          decisionDate: '2026-02-09T00:00:00Z'
+        },
+        {
+          approverName: 'IT Operations Manager',
+          approverRole: 'Operations',
+          requestedDate: '2026-02-08T00:00:00Z',
+          dueDate: '2026-02-13T00:00:00Z',
+          status: 'pending',
+          comments: null
+        }
+      ]
+    },
+    
+    deliverables: [
+      {
+        id: 'deliv-001',
+        name: 'Retirement Business Case',
+        stage: 'stage-retirement-001',
+        dueDate: '2026-01-15T00:00:00Z',
+        status: 'completed',
+        owner: 'David Kim',
+        fileUrl: '/deliverables/LCI-2026-001/business-case.pdf',
+        completionDate: '2026-01-14T00:00:00Z'
+      },
+      {
+        id: 'deliv-002',
+        name: 'Data Migration Plan',
+        stage: 'stage-retirement-002',
+        dueDate: '2026-02-05T00:00:00Z',
+        status: 'completed',
+        owner: 'Jennifer Park',
+        fileUrl: '/deliverables/LCI-2026-001/data-migration-plan.pdf',
+        completionDate: '2026-02-04T00:00:00Z'
+      },
+      {
+        id: 'deliv-003',
+        name: 'UAT Results',
+        stage: 'stage-retirement-002',
+        dueDate: '2026-02-20T00:00:00Z',
+        status: 'completed',
+        owner: 'Business Users',
+        fileUrl: '/deliverables/LCI-2026-001/uat-results.xlsx',
+        completionDate: '2026-02-19T00:00:00Z'
+      }
+    ],
+    
+    documents: [
+      {
+        id: 'doc-001',
+        title: 'Stakeholder Register',
+        type: 'Excel',
+        uploadedBy: 'Sarah Chen',
+        uploadedDate: '2026-01-10T00:00:00Z',
+        fileUrl: '/documents/LCI-2026-001/stakeholder-register.xlsx',
+        fileSize: '245 KB'
+      }
+    ],
+    
+    risks: [
+      {
+        id: 'risk-001',
+        description: 'Data migration complexity higher than estimated',
+        category: 'technical',
+        probability: 'medium',
+        impact: 'medium',
+        mitigation: 'Added 1 week buffer to migration timeline. Conducted dry-run migration.',
+        owner: 'Jennifer Park',
+        status: 'mitigated'
+      }
+    ],
+    
+    issues: [],
+    
+    budget: {
+      total: 85000,
+      spent: 42000,
+      forecast: 83000
+    },
+    
+    expectedBenefits: [
+      {
+        type: 'cost-savings',
+        description: 'Annual infrastructure cost savings',
+        quantifiedValue: 120000,
+        realizationDate: '2026-05-01T00:00:00Z',
+        status: 'planned'
+      },
+      {
+        type: 'cost-savings',
+        description: 'Software license savings',
+        quantifiedValue: 60000,
+        realizationDate: '2026-05-01T00:00:00Z',
+        status: 'planned'
+      },
+      {
+        type: 'efficiency',
+        description: 'Reduced operational support effort',
+        realizationDate: '2026-06-01T00:00:00Z',
+        status: 'planned'
+      }
+    ],
+    
+    realizedBenefits: [],
+    
+    activityLog: [
+      {
+        id: 'log-001',
+        timestamp: '2026-02-09T10:30:00Z',
+        actor: 'Business Owner',
+        action: 'approval-received',
+        description: 'Gate 2 approval received from Business Owner'
+      },
+      {
+        id: 'log-002',
+        timestamp: '2026-02-08T14:20:00Z',
+        actor: 'Sarah Chen',
+        action: 'gate-submitted',
+        description: 'Submitted Gate 2 for approval'
+      },
+      {
+        id: 'log-003',
+        timestamp: '2026-01-26T16:00:00Z',
+        actor: 'Sarah Chen',
+        action: 'stage-completed',
+        description: 'Completed Stage 1: Assessment & Planning'
+      }
+    ],
+    
+    tags: ['retirement', 'inventory-system', 'cost-savings', 'high-priority']
+  },
+  
+  // ... create 7-11 more lifecycle instances
+];
+```
+
+---
+
+#### **3. Approval Workflows (5-8 active approvals)**
+```typescript
+const approvalWorkflows: ApprovalWorkflow[] = [
+  {
+    id: 'APR-2026-001',
+    lifecycleInstanceId: 'LCI-2026-001',
+    lifecycleInstanceName: 'Legacy Inventory System Retirement',
+    gate: {
+      id: 'gate-retirement-002',
+      name: 'Gate 2: Approval to Cutover',
+      stage: 'Migration & Testing'
+    },
+    
+    submittedBy: 'Sarah Chen',
+    submittedDate: '2026-02-08T14:20:00Z',
+    submissionNotes: 'Data migration completed successfully with 100% validation. UAT passed with no critical issues. All users trained. Ready for cutover approval.',
+    
+    status: 'pending',
+    
+    approvals: [
+      {
+        approverName: 'John Smith',
+        approverRole: 'Application Business Owner',
+        decision: 'approved',
+        decisionDate: '2026-02-09T10:30:00Z',
+        comments: 'UAT results look excellent. Business users are well-prepared. Approved to proceed with cutover.'
+      },
+      {
+        approverName: 'Maria Garcia',
+        approverRole: 'IT Operations Manager',
+        decision: 'approved', // This would be 'pending' in reality
+        decisionDate: '',
+        comments: ''
+      }
+    ],
+    
+    requiredApprovals: 2,
+    receivedApprovals: 1,
+    
+    supportingDocuments: ['deliv-002', 'deliv-003'],
+    
+    expectedDecisionDate: '2026-02-13T00:00:00Z',
+    
+    escalated: false
+  },
+  
+  // ... create 4-7 more approval workflows
+];
+```
+
+---
+
+## PART 6: CREATE LIFECYCLE MANAGEMENT PAGES
+
+### Page 1: Lifecycle Overview (`LifecycleOverview.tsx`)
+
+**Structure:** Dashboard showing active lifecycles, pending approvals, recent activity
+```tsx
+<div className="stage2-content">
+  <ContentHeader 
+    backLink="/stage2/overview"
+    breadcrumbs={['Lifecycle Management', 'Overview']}
+  />
+  
+  <PageTitle 
+    title="Lifecycle Management Dashboard"
+    description="Active projects, products, and applications under governance"
+    actions={[
+      { label: 'New Project', icon: Plus, variant: 'primary', onClick: () => {} },
+      { label: 'View All Templates', icon: FileText, variant: 'secondary', onClick: () => navigate('/stage2/lifecycle/templates') }
+    ]}
+  />
+  
+  {/* Key Metrics */}
+  <div className="metrics-row">
+    <MetricCard
+      icon={FolderKanban}
+      iconColor="blue"
+      label="Active Projects"
+      value="12"
+      change="3 in planning stage"
+      changeType="neutral"
+    />
+    <MetricCard
+      icon={CheckSquare}Continue2:51 PM  iconColor="orange"
+  label="Pending Approvals"
+  value="7"
+  change="Avg. decision time: 2.3 days"
+  changeType="neutral"
+  onClick={() => navigate('/stage2/lifecycle/approvals')}
+/>
+<MetricCard
+  icon={Archive}
+  iconColor="purple"
+  label="Active Retirements"
+  value="5"
+  change="$450K projected savings"
+  changeType="positive"
+/>
+<MetricCard
+  icon={TrendingUp}
+  iconColor="green"
+  label="Success Rate"
+  value="87%"
+  change="On-time completions"
+  changeType="positive"
+/>
+  </div>
+{/* Portfolio Integration Callout */}
+  <div className="integration-banner">
+    <Link2 size={20} />
+    <div className="integration-content">
+      <h3>Integrated with Portfolio Management</h3>
+      <p>5 applications flagged for retirement in Portfolio are now tracked here</p>
+    </div>
+    <button onClick={() => navigate('/stage2/portfolio/overview')}>
+      View Portfolio →
+    </button>
+  </div>
+{/* Active Lifecycle Instances by Type */}
+  <Section title="Active Lifecycle Activities">
+    <div className="lifecycle-type-tabs">
+      <button className={typeFilter === 'all' ? 'active' : ''} onClick={() => setTypeFilter('all')}>
+        All (12)
+      </button>
+      <button className={typeFilter === 'project' ? 'active' : ''} onClick={() => setTypeFilter('project')}>
+        Projects (4)
+      </button>
+      <button className={typeFilter === 'product' ? 'active' : ''} onClick={() => setTypeFilter('product')}>
+        Products (3)
+      </button>
+      <button className={typeFilter === 'application-retirement' ? 'active' : ''} onClick={() => setTypeFilter('application-retirement')}>
+        App Retirements (5)
+      </button>
+    </div>
+<div className="lifecycle-instances-list">
+  {filteredInstances.map(instance => (
+    <LifecycleInstanceCard key={instance.id} instance={instance} />
+  ))}
+</div>
+  </Section>
+{/* Pending Approvals Summary */}
+  <Section title="Pending My Approval">
+    <div className="approvals-list">
+      {myPendingApprovals.map(approval => (
+        <ApprovalCard key={approval.id} approval={approval} />
+      ))}
+    </div>
+  </Section>
+</div>
+````
+
+Pages 2-12: Additional Lifecycle Pages
+Following the same patterns, create:
+
+ProjectsLifecyclePage.tsx - Browse projects under lifecycle management
+ProjectLifecycleDetailPage.tsx - Individual project with stage progress
+ApplicationsLifecyclePage.tsx - Applications under governance (integrates with Portfolio)
+ApplicationLifecycleDetailPage.tsx - Individual app lifecycle detail
+TemplatesLibraryPage.tsx - Browse lifecycle templates
+TemplateDetailPage.tsx - Individual template detail
+ApprovalsPage.tsx - All pending approvals
+RetirementProcessesPage.tsx - Active retirement projects
+ProductsLifecyclePage.tsx - Product roadmaps and lifecycles
+ProductLifecycleDetailPage.tsx - Individual product lifecycle
+
+
+PART 7: INTEGRATION WITH PORTFOLIO MANAGEMENT
+Critical Integration Points:
+1. Data Sharing:
+typescript// In lifecycleData.ts
+import { applications as portfolioApplications } from './portfolioData';
+
+// Link lifecycle instances to portfolio applications
+const getPortfolioApplication = (appId: string) => {
+  return portfolioApplications.find(app => app.id === appId);
+};
+2. Status Synchronization:
+typescript// When lifecycle instance status changes
+const updatePortfolioStatus = (lifecycleInstance: LifecycleInstance) => {
+  if (lifecycleInstance.portfolioLink) {
+    const portfolioApp = getPortfolioApplication(lifecycleInstance.portfolioLink.id);
+    if (portfolioApp) {
+      // Update portfolio application status
+      portfolioApp.status = mapLifecycleToPortfolioStatus(lifecycleInstance.status);
+    }
+  }
+};
+3. Cross-Navigation:
+tsx// In Lifecycle pages, link to Portfolio
+<div className="portfolio-link">
+  <Link2 size={16} />
+  <Link to={`/stage2/portfolio/applications/${instance.portfolioLink.id}`}>
+    View in Portfolio Management
+  </Link>
+</div>
+
+// In Portfolio pages, link to Lifecycle
+{application.lifecycleInstanceId && (
+  <div className="lifecycle-link">
+    <RefreshCw size={16} />
+    <Link to={`/stage2/lifecycle/applications/${application.lifecycleInstanceId}`}>
+      View Retirement Process
+    </Link>
+  </div>
+)}
+
+SUCCESS CRITERIA
+✅ Stage 1 Lifecycle Management marketplace complete
+✅ Stage 2 accessible from sidebar with 4 sub-items
+✅ All 12 Lifecycle pages functional
+✅ 15-20 lifecycle templates with complete stage-gate processes
+✅ 8-12 active lifecycle instances
+✅ 5-8 approval workflows
+✅ CRITICAL: Integration with Portfolio Management working
+✅ Cross-navigation between Portfolio and Lifecycle
+✅ Status synchronization logic in place
+✅ Context-aware routing from Stage 1
+✅ Mobile responsive
+✅ Consistent styling
+
+Please build the complete Lifecycle Management service (Stage 1 + Stage 2) with special attention to the integration with Portfolio Management.

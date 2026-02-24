@@ -18,8 +18,8 @@ export interface SolutionBuild {
 export const solutionBuilds: SolutionBuild[] = [
   {
     id: "microservices-deployment",
-    title: "Microservices Platform Deployment Guide",
-    description: "Step-by-step implementation guide for deploying microservices on Kubernetes with service mesh, container orchestration, and comprehensive DevOps tooling.",
+    title: "Microservices Platform Deployment",
+    description: "Deploy microservices on Kubernetes with service mesh, container orchestration, and comprehensive DevOps tooling.",
     solutionType: "DBP",
     buildComplexity: "advanced",
     technologyStack: ["Kubernetes", "Helm", "ArgoCD", "Terraform", "Jenkins"],
@@ -32,8 +32,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "api-gateway-implementation",
-    title: "API Gateway Implementation Guide",
-    description: "Complete implementation of enterprise API gateway with Kong, including security policies, rate limiting, and observability integration.",
+    title: "API Gateway Implementation",
+    description: "Enterprise API gateway with Kong, including security policies, rate limiting, and observability integration.",
     solutionType: "DBP",
     buildComplexity: "intermediate",
     technologyStack: ["Kong", "Kubernetes", "OAuth2", "Prometheus", "Grafana"],
@@ -46,8 +46,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "data-platform-build",
-    title: "Modern Data Platform Build Guide",
-    description: "Implementation of lakehouse architecture on cloud with data lake, warehouse, governance, and analytics capabilities.",
+    title: "Modern Data Platform",
+    description: "Lakehouse architecture on cloud with data lake, warehouse, governance, and analytics capabilities.",
     solutionType: "DIA",
     buildComplexity: "advanced",
     technologyStack: ["S3", "Glue", "Athena", "Redshift", "Databricks"],
@@ -115,8 +115,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "event-streaming-platform-build",
-    title: "Event Streaming Platform Build",
-    description: "Implement Kafka-based event streaming architecture with schema registry, stream processing, and monitoring.",
+    title: "Event Streaming Platform",
+    description: "Kafka-based event streaming architecture with schema registry, stream processing, and monitoring.",
     solutionType: "DBP",
     buildComplexity: "advanced",
     technologyStack: ["Kafka", "Schema Registry", "Kafka Connect", "KSQL", "Monitoring"],
@@ -129,8 +129,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "mobile-backend-deployment",
-    title: "Mobile Backend Services Deployment",
-    description: "Deploy scalable mobile backend with push notifications, analytics, offline sync, and cross-platform support.",
+    title: "Mobile Backend Services",
+    description: "Scalable mobile backend with push notifications, analytics, offline sync, and cross-platform support.",
     solutionType: "DXP",
     buildComplexity: "intermediate",
     technologyStack: ["API Gateway", "Lambda", "DynamoDB", "SNS", "Cognito"],
@@ -143,8 +143,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "service-mesh-deployment",
-    title: "Service Mesh Deployment Guide",
-    description: "Implement Istio service mesh on Kubernetes cluster with traffic management, security, and observability.",
+    title: "Service Mesh Deployment",
+    description: "Istio service mesh on Kubernetes cluster with traffic management, security, and observability.",
     solutionType: "SDO",
     buildComplexity: "advanced",
     technologyStack: ["Istio", "Envoy", "Kiali", "Jaeger", "Prometheus"],
@@ -171,8 +171,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "collaboration-platform-deploy",
-    title: "Digital Workplace Hub Deployment",
-    description: "Deploy integrated collaboration and productivity platform with Microsoft 365, Teams, and Power Platform.",
+    title: "Digital Workplace Hub",
+    description: "Integrated collaboration and productivity platform with Microsoft 365, Teams, and Power Platform.",
     solutionType: "DWS",
     buildComplexity: "basic",
     technologyStack: ["Microsoft 365", "Teams", "SharePoint", "Azure AD", "Power Platform"],
@@ -198,8 +198,8 @@ export const solutionBuilds: SolutionBuild[] = [
   },
   {
     id: "chatbot-platform-build",
-    title: "Conversational AI Platform Build",
-    description: "Build enterprise chatbot platform with NLP, intent recognition, dialog management, and multi-channel support.",
+    title: "Conversational AI Platform",
+    description: "Enterprise chatbot platform with NLP, intent recognition, dialog management, and multi-channel support.",
     solutionType: "DXP",
     buildComplexity: "advanced",
     technologyStack: ["Dialogflow", "Cloud Functions", "Firestore", "NLP", "Analytics"],

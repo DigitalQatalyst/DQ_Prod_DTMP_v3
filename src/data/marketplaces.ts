@@ -87,8 +87,8 @@ export const marketplaces: Marketplace[] = [
     icon: Hammer,
     name: "DTMP Solution Build",
     description:
-      "Ready-to-deploy implementation guides with application integration patterns",
-    features: ["Implementation Guides", "Code Samples", "Integration Patterns"],
+      "Ready-to-deploy solutions with application integration patterns and production-ready implementations",
+    features: ["Implementation Resources", "Code Samples", "Integration Patterns"],
     serviceCount: 14,
     route: "/marketplaces/solution-build",
   },
