@@ -1,3 +1,5 @@
+import { dtmpDepartments } from "../departments";
+
 export interface Testimonial {
   id: string;
   organization: string;
@@ -138,7 +140,7 @@ export const testimonials: Testimonial[] = [
       "Scalable architecture"
     ],
     phase: "Design",
-    verified: false,
+    verified: true,
     organizationType: "SMB (<1k employees)",
     outcomeType: ["Revenue Growth"],
     date: "October 2023"
@@ -243,7 +245,7 @@ export const testimonials: Testimonial[] = [
       "Real-time visibility"
     ],
     phase: "Drive",
-    verified: false,
+    verified: true,
     organizationType: "Mid-Market (1k-10k)",
     outcomeType: ["Efficiency Gain"],
     date: "January 2024"
@@ -306,7 +308,7 @@ export const testimonials: Testimonial[] = [
       "Improved reliability"
     ],
     phase: "Deploy",
-    verified: false,
+    verified: true,
     organizationType: "SMB (<1k employees)",
     outcomeType: ["Efficiency Gain"],
     date: "November 2023"
@@ -331,14 +333,76 @@ export const testimonials: Testimonial[] = [
     organizationType: "Enterprise (10k+ employees)",
     outcomeType: ["Customer Experience", "Cost Reduction"],
     date: "January 2024"
+  },
+  {
+    id: "testimonial-016",
+    organization: "AeroLink Logistics",
+    industry: "Manufacturing",
+    title: "Control Tower Platform Reduced Exception Handling by 41%",
+    quote: "By integrating planning, execution, and incident workflows on one platform, we reduced exception resolution times dramatically.",
+    speaker: {
+      name: "Naomi Reid",
+      role: "Director of Supply Chain Technology"
+    },
+    outcomes: [
+      "41% fewer unresolved exceptions",
+      "Faster coordination",
+      "Improved fulfillment confidence"
+    ],
+    phase: "Drive",
+    verified: true,
+    organizationType: "Mid-Market (1k-10k)",
+    outcomeType: ["Efficiency Gain", "Customer Experience"],
+    date: "March 2024"
+  },
+  {
+    id: "testimonial-017",
+    organization: "CivicOne Services",
+    industry: "Public Sector",
+    title: "Digital Intake Workflow Cut Case Processing Time by 55%",
+    quote: "Workflow standardization and automation gave our teams consistent service delivery and better transparency for residents.",
+    speaker: {
+      name: "Helen Brooks",
+      role: "Head of Service Transformation"
+    },
+    outcomes: [
+      "55% faster processing",
+      "Service consistency improved",
+      "Lower rework rates"
+    ],
+    phase: "Deploy",
+    verified: true,
+    organizationType: "Public Sector",
+    outcomeType: ["Efficiency Gain", "Cost Reduction"],
+    date: "February 2024"
+  },
+  {
+    id: "testimonial-018",
+    organization: "Northstar Insurance",
+    industry: "Financial Services",
+    title: "Platform Modernization Lifted Digital Sales Conversion by 22%",
+    quote: "Unified journeys and API-driven underwriting allowed us to launch product changes faster and increase conversion rates.",
+    speaker: {
+      name: "Ibrahim Malik",
+      role: "VP, Digital Distribution"
+    },
+    outcomes: [
+      "22% conversion increase",
+      "Faster product launches",
+      "Improved advisor productivity"
+    ],
+    phase: "Drive",
+    verified: true,
+    organizationType: "Enterprise (10k+ employees)",
+    outcomeType: ["Revenue Growth", "Efficiency Gain"],
+    date: "March 2024"
   }
 ];
 
 export const testimonialsFilters = {
   organizationType: ["Enterprise (10k+ employees)", "Mid-Market (1k-10k)", "SMB (<1k employees)", "Public Sector", "Non-Profit"],
-  industry: ["Financial Services", "Healthcare", "Retail", "Manufacturing", "Technology", "Public Sector", "Education"],
+  department: [...dtmpDepartments],
   transformationPhase: ["Discern", "Design", "Deploy", "Drive", "All Phases"],
   outcomeType: ["Cost Reduction", "Revenue Growth", "Efficiency Gain", "Customer Experience", "Employee Experience", "Risk Mitigation"],
-  verificationStatus: ["Verified", "All"],
   datePublished: ["Last month", "Last 3 months", "Last 6 months", "Last year", "All time"]
 };

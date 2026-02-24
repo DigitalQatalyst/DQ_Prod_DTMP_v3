@@ -24,6 +24,7 @@ import { LearningTrackCard } from "@/components/learningCenter/LearningTrackCard
 import { LoginModal } from "@/components/learningCenter/LoginModal";
 import { courses, Course } from "@/data/learningCenter/courses";
 import { learningTracks, LearningTrack } from "@/data/learningCenter/learningTracks";
+import { getOrderedTrackCourses, getTrackPrimaryCourseId } from "@/data/learningCenter/trackRuntime";
 import { reviews, Review } from "@/data/learningCenter/reviews";
 
 type DetailTab = "about" | "eligibility" | "process" | "documents" | "provider";
@@ -79,6 +80,28 @@ export default function LearningCenterDetailPage() {
 
   const title = isCourse ? course?.title : isTrack ? track?.title : (item as Review).courseName;
   const description = isCourse ? course?.description : isTrack ? track?.description : (item as Review).text;
+  const enrollmentTargetCardId =
+    isTrack && track ? getTrackPrimaryCourseId(track) : cardId || "";
+  const integrationDeepLinks = [
+    {
+      id: "knowledge-center-link",
+      title: "Additional Reading: API-First Architecture Patterns",
+      description: "Open a related Knowledge Center article for deeper implementation guidance.",
+      to: "/stage2/knowledge/library/api-first-patterns?source=learning-center",
+    },
+    {
+      id: "portfolio-link",
+      title: "Practice With Portfolio Management Tool",
+      description: "Launch Portfolio Management with training context to complete hands-on exercises.",
+      to: "/stage2/portfolio-management?tab=application-portfolio&mode=training&source=learning-center",
+    },
+    {
+      id: "lifecycle-link",
+      title: "Launch Lifecycle Management (Training Mode)",
+      description: "Open Lifecycle Management in training mode for stage-gate practice submissions.",
+      to: "/stage2/lifecycle-management?mode=training&source=learning-center",
+    },
+  ];
 
   // Get related items
   const getRelatedCourses = () => {
@@ -291,22 +314,33 @@ export default function LearningCenterDetailPage() {
                   )}
 
                   {/* Track Course List */}
-                  {isTrack && track?.courseList && (
+                  {isTrack && track && (
                     <div>
                       <h3 className="text-xl font-semibold text-foreground mb-4">Courses in This Track</h3>
                       <div className="space-y-3">
-                        {track.courseList.map((courseItem, idx) => (
+                        {getOrderedTrackCourses(track).map((courseItem) => (
                           <div
-                            key={courseItem.id}
+                            key={courseItem.courseId}
                             className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={() => navigate(`/marketplaces/learning-center/courses/${courseItem.id}`)}
+                            onClick={() => navigate(`/marketplaces/learning-center/courses/${courseItem.courseId}`)}
                           >
                             <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-700 font-bold flex items-center justify-center flex-shrink-0">
-                              {idx + 1}
+                              {courseItem.order}
                             </div>
                             <div className="flex-1">
                               <h4 className="font-semibold text-foreground">{courseItem.title}</h4>
-                              <span className="text-sm text-muted-foreground">{courseItem.duration}</span>
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                <span className="text-sm text-muted-foreground">{courseItem.duration}</span>
+                                <Badge
+                                  className={`border-0 text-xs ${
+                                    courseItem.requirement === "required"
+                                      ? "bg-orange-100 text-orange-700"
+                                      : "bg-gray-200 text-gray-700"
+                                  }`}
+                                >
+                                  {courseItem.requirement === "required" ? "Required" : "Elective"}
+                                </Badge>
+                              </div>
                             </div>
                             <ArrowRight className="w-5 h-5 text-muted-foreground" />
                           </div>
@@ -452,6 +486,33 @@ export default function LearningCenterDetailPage() {
                       </ul>
                     </div>
                   )}
+
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-4">
+                      Connected DTMP Workflows
+                    </h3>
+                    <div className="space-y-3">
+                      {integrationDeepLinks.map((integrationLink) => (
+                        <Link
+                          key={integrationLink.id}
+                          to={integrationLink.to}
+                          className="block border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50/30 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-foreground">
+                                {integrationLink.title}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {integrationLink.description}
+                              </p>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
@@ -615,7 +676,7 @@ export default function LearningCenterDetailPage() {
         context={{
           marketplace: "learning-center",
           tab: tab || "courses",
-          cardId: cardId || "",
+          cardId: enrollmentTargetCardId,
           serviceName: title || "",
           action: "enroll",
         }}

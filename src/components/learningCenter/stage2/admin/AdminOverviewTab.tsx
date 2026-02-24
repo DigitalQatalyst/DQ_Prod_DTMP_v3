@@ -21,12 +21,14 @@ import {
   Legend,
 } from "recharts";
 import type { AdminCourseData } from "@/data/learningCenter/stage2/types";
+import type { TrackAnalyticsSnapshot } from "@/data/learningCenter/trackAnalytics";
 
 interface AdminOverviewTabProps {
   data: AdminCourseData;
+  trackAnalytics?: TrackAnalyticsSnapshot;
 }
 
-const AdminOverviewTab = ({ data }: AdminOverviewTabProps) => {
+const AdminOverviewTab = ({ data, trackAnalytics }: AdminOverviewTabProps) => {
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -162,6 +164,112 @@ const AdminOverviewTab = ({ data }: AdminOverviewTabProps) => {
           </p>
         </div>
       </div>
+
+      {trackAnalytics && (
+        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5">
+          <h3 className="text-lg font-semibold text-primary-navy">
+            Track Analytics: {trackAnalytics.trackTitle}
+          </h3>
+
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Enrollments
+              </p>
+              <p className="text-xl font-semibold text-primary-navy">
+                {trackAnalytics.totalEnrollments}
+              </p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Completion Rate
+              </p>
+              <p className="text-xl font-semibold text-primary-navy">
+                {trackAnalytics.completionRate}%
+              </p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Avg Completion Time
+              </p>
+              <p className="text-xl font-semibold text-primary-navy">
+                {trackAnalytics.avgCompletionTimeDays === null
+                  ? "N/A"
+                  : `${trackAnalytics.avgCompletionTimeDays}d`}
+              </p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                Bottleneck Course
+              </p>
+              <p className="text-sm font-semibold text-primary-navy">
+                {trackAnalytics.bottleneckCourseTitle}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {trackAnalytics.bottleneckCompletionRate}% completion
+              </p>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                At-Risk Learners
+              </p>
+              <p className="text-xl font-semibold text-primary-navy">
+                {trackAnalytics.atRiskLearners}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Drop-off by Course Position
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
+                      Position
+                    </th>
+                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
+                      Course
+                    </th>
+                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
+                      Reached
+                    </th>
+                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
+                      Completed
+                    </th>
+                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
+                      Drop-off
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {trackAnalytics.dropoffByCourse.map((course) => (
+                    <tr key={course.courseId} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 text-sm text-foreground">
+                        {course.position}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-foreground">
+                        {course.title}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-foreground">
+                        {course.reachedCount}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-foreground">
+                        {course.completedCount}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-foreground">
+                        {course.dropoffRate}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recent Activity & Alerts Side-by-Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

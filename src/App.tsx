@@ -69,6 +69,38 @@ const App = () => (
 
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
+          <Route path="/stage2/learning-center/course/:courseId/:view" element={<Stage2AppPage />} />
+          <Route path="/stage2/knowledge" element={<Navigate to="/stage2/knowledge/overview" replace />} />
+          <Route path="/stage2/knowledge/:tab" element={<Stage2AppPage />} />
+          <Route path="/stage2/knowledge/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
+          <Route path="/stage2/portfolio-management" element={<Stage2AppPage />} />
+          <Route path="/stage2/support/overview" element={<SupportServicesOverview />} />
+          <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />
+          <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
+          <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
+          <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
+          <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
+          <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
+          <Route path="/stage2/specs" element={<Stage2Layout />}>
+            <Route path="overview" element={<SolutionSpecsOverview />} />
+            <Route path="blueprints" element={<ArchitectureLibraryPage />} />
+            <Route path="blueprints/:blueprintId" element={<BlueprintDetailPage />} />
+            <Route path="templates" element={<DesignTemplatesPage />} />
+            <Route path="templates/:templateId" element={<SpecTemplateDetailPage />} />
+            <Route path="patterns" element={<DesignPatternsPage />} />
+            <Route path="patterns/:patternId" element={<PatternDetailPage />} />
+            <Route path="my-designs" element={<MyDesignsPage />} />
+            <Route path="my-designs/:designId" element={<DesignDetailPage />} />
+          </Route>
+          <Route path="/stage2/templates" element={<Stage2Layout />}>
+            <Route path="overview" element={<TemplatesOverview />} />
+            <Route path="library" element={<TemplateLibraryPage />} />
+            <Route path="library/:templateId" element={<MarketplaceTemplateDetailPage />} />
+            <Route path="new-request" element={<NewRequestPage />} />
+            <Route path="my-requests" element={<MyRequestsPage />} />
+            <Route path="my-requests/:requestId" element={<TemplatesRequestDetailPage />} />
+          </Route>
+          <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
           <Route path="/stage2/support/overview" element={<SupportServicesOverview />} />
           <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />

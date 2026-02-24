@@ -426,6 +426,82 @@ export const userCourseData: UserCourseData = {
     },
   ],
 
+  quizConfigs: [
+    {
+      moduleId: "mod-5",
+      lessonId: "l-5-5",
+      title: "Module 5 Assessment",
+      passThreshold: 80,
+      maxAttempts: 3,
+      questions: [
+        {
+          id: "q-5-1",
+          prompt: "What is the primary purpose of transformation roadmap phasing?",
+          options: [
+            { id: "a", text: "To delay delivery until all requirements are complete" },
+            { id: "b", text: "To sequence value delivery and manage dependencies" },
+            { id: "c", text: "To reduce stakeholder involvement" },
+            { id: "d", text: "To avoid measuring progress" },
+          ],
+          correctOptionId: "b",
+        },
+        {
+          id: "q-5-2",
+          prompt: "Which input is most critical when defining roadmap milestones?",
+          options: [
+            { id: "a", text: "Only technical team preferences" },
+            { id: "b", text: "Competitor roadmaps" },
+            { id: "c", text: "Business outcomes and value hypotheses" },
+            { id: "d", text: "Historical budget approvals only" },
+          ],
+          correctOptionId: "c",
+        },
+        {
+          id: "q-5-3",
+          prompt: "Dependency mapping helps teams primarily by:",
+          options: [
+            { id: "a", text: "Identifying sequencing risks early" },
+            { id: "b", text: "Replacing governance reviews" },
+            { id: "c", text: "Avoiding stakeholder communication" },
+            { id: "d", text: "Removing the need for KPIs" },
+          ],
+          correctOptionId: "a",
+        },
+      ],
+    },
+    {
+      moduleId: "mod-6",
+      lessonId: "l-6-5",
+      title: "Module 6 Assessment",
+      passThreshold: 85,
+      maxAttempts: 3,
+      questions: [
+        {
+          id: "q-6-1",
+          prompt: "Which is the strongest leading indicator of adoption success?",
+          options: [
+            { id: "a", text: "Number of slide decks published" },
+            { id: "b", text: "Stakeholder behavior change in target workflows" },
+            { id: "c", text: "Total meeting count per week" },
+            { id: "d", text: "Number of governance committees" },
+          ],
+          correctOptionId: "b",
+        },
+        {
+          id: "q-6-2",
+          prompt: "A change communication plan should be tailored by:",
+          options: [
+            { id: "a", text: "Audience segment and impact level" },
+            { id: "b", text: "Only executive preference" },
+            { id: "c", text: "Random weekly messaging" },
+            { id: "d", text: "Tool availability only" },
+          ],
+          correctOptionId: "a",
+        },
+      ],
+    },
+  ],
+
   achievements: [
     {
       id: "ach-1",
