@@ -1,0 +1,2220 @@
+LEARNING CENTER - DEVELOPER BRIEFING DOCUMENT
+________________________________________
+DOCUMENT METADATA
+Marketplace: Learning Center
+Version: 1.0
+Date: February 2026
+Audience: Developers, Designers, Product Managers
+Prerequisites: None - this document is self-contained
+________________________________________
+1. DTMP PLATFORM CONTEXT
+What is DTMP?
+The Digital Transformation Metamodel Platform (DTMP) is an internal enterprise platform designed to accelerate an organization's digital transformation journey toward becoming a Digital-Centric Organization (DCO).
+DTMP provides:
+•	9 specialized marketplaces for transformation resources and services
+•	AI-powered intelligence and analytics across the digital estate
+•	Governance frameworks aligned to the 4D Model (Discern, Design, Deploy, Drive)
+•	Role-based access for different stakeholder groups (Staff, Managers, Directors, Executives, Partners)
+Platform Architecture
+DTMP operates in two stages:
+Stage 1: Marketplaces (Public/Pre-login)
+•	Browse and discover available services and resources
+•	Explanatory content to help users understand what's available
+•	Search and filter capabilities
+•	Call-to-action to access detailed functionality
+Stage 2: Service Hub (Authenticated/Post-login)
+•	Access detailed dashboards, tools, and workspaces
+•	Execute on selected services
+•	Collaborate with Transformation Office
+•	Role-based access to data and capabilities
+•	Layout: LVE (Left-Vertical-Expanded) 
+o	Column 1: Sidebar navigation (all marketplaces)
+o	Column 2: Resource/content list or categories
+o	Column 3: Detailed content viewer or workspace
+The 9 Marketplaces
+1.	Learning Center ← THIS MARKETPLACE
+2.	Knowledge Center - Documentation, guides, best practices, case studies
+3.	Portfolio Management - Application inventory and catalog
+4.	Support Services - Service requests, incident management, support tickets
+5.	Digital Intelligence - AI-powered analytics dashboards
+6.	Solutions Specifications - Blueprints, reference architectures, design patterns
+7.	Solutions Build - Request delivery of pre-built or custom solutions
+8.	Lifecycle Management - Active transformation initiatives (retire, modernize, replace)
+9.	AI DocWriter/Templates - AI-generated governance documents (optional)
+Transformation Office (TO)
+The Transformation Office is the central team that:
+•	Governs the DTMP platform
+•	Provides services through the marketplaces
+•	Manages transformation initiatives
+•	Maintains data quality and standards
+•	Supports users across all marketplaces
+•	Creates and curates learning content
+________________________________________
+2. THIS MARKETPLACE: LEARNING CENTER
+What is Learning Center?
+Learning Center is the organizational learning and development hub for digital transformation. It provides structured courses, certifications, and learning paths designed to upskill the workforce on transformation methodologies, technologies, and best practices.
+Core Function: Deliver comprehensive, sequential education programs with progress tracking, assessments, and certification to build transformation capabilities across the organization.
+Why Does This Marketplace Exist?
+Problem Being Solved:
+Organizations typically struggle with:
+•	❌ Skills gaps - Workforce lacks transformation skills (cloud, APIs, agile, etc.)
+•	❌ Inconsistent training - Teams learn from random sources (YouTube, blogs, vendor docs)
+•	❌ No standardization - Everyone learns different approaches, creates confusion
+•	❌ Poor tracking - No visibility into who has what skills or training
+•	❌ Onboarding challenges - New hires struggle to learn organizational standards
+•	❌ Expensive external training - Paying for external courses repeatedly
+•	❌ Knowledge silos - Experts exist but don't share knowledge systematically
+Solution:
+Learning Center provides:
+•	✅ Curated curriculum - TO-created courses aligned to transformation strategy
+•	✅ Structured learning - Progressive courses with lessons, quizzes, projects
+•	✅ Certification programs - Recognized credentials for key competencies
+•	✅ Learning paths - Guided journeys for roles (architect, developer, PM)
+•	✅ Progress tracking - Visibility into individual and team learning
+•	✅ Internal experts - Leverage organizational knowledge through courses
+•	✅ Cost efficiency - Build once, train many, reduce external training costs
+•	✅ Consistent standards - Everyone learns the same organizational approaches
+Learning Center vs. Knowledge Center
+These are different marketplaces serving different learning needs:
+Dimension	Learning Center	Knowledge Center
+Purpose	Structured education & skill building	Reference & just-in-time answers
+Content Type	Courses with lessons, quizzes, projects	Articles, guides, case studies
+Learning Model	Sequential, comprehensive, progressive	Random-access, need-based
+Time Commitment	Hours to days (complete courses)	Minutes (read an article)
+Completion	✅ Progress tracking, certificates	❌ No completion (reference only)
+Assessment	✅ Quizzes, exams, projects	❌ No assessment
+Use Case	"Teach me cloud architecture"	"How do I configure this API?"
+Example	"Cloud Architecture Course (12 hours)"	"API Gateway Design Guide (article)"
+Analogy	University degree program	Wikipedia, Stack Overflow
+Outcome	Competency/certification	Knowledge/understanding
+When to use Learning Center:
+•	"I want to become a certified cloud architect"
+•	"Train my team on microservices fundamentals"
+•	"I need to learn SAFe agile methodology"
+•	"Onboard new developers to our tech stack"
+When to use Knowledge Center:
+•	"What's the API naming convention?"
+•	"Quick reminder on stage gate process"
+•	"Has anyone migrated to S/4HANA before?"
+Relationship to Other Marketplaces
+Learning Center builds skills that enable effective use of other marketplaces:
+LEARNING CENTER (The Training Ground)
+         ↓
+         ├─→ PORTFOLIO MANAGEMENT
+         │   (Course: "Application Portfolio Management")
+         │   Teaches: How to rationalize portfolio, assess health, manage lifecycle
+         │
+         ├─→ DIGITAL INTELLIGENCE
+         │   (Course: "Data-Driven Decision Making")
+         │   Teaches: How to use intelligence dashboards, interpret analytics
+         │
+         ├─→ LIFECYCLE MANAGEMENT
+         │   (Course: "Transformation Governance & Stage Gates")
+         │   Teaches: How to submit initiatives, navigate approvals
+         │
+         ├─→ SOLUTIONS SPECIFICATIONS
+         │   (Course: "Enterprise Architecture Fundamentals")
+         │   Teaches: How to read blueprints, apply reference architectures
+         │
+         └─→ KNOWLEDGE CENTER
+             (Relationship: Supplemental reading)
+             Courses link to Knowledge Center articles for deeper dives
+Key Principle: Learning Center provides structured education that builds foundational competencies, enabling users to effectively leverage all other marketplaces.
+Who Uses This Marketplace?
+Role	Primary Use Cases
+Individual Contributors	• Build technical skills (cloud, APIs, microservices)
+• Earn certifications
+• Follow learning paths for career growth
+• Complete onboarding courses
+Managers/Leads	• Assign training to team members
+• Track team progress and certifications
+• Identify skill gaps
+• Complete leadership courses
+Directors/Executives	• View organization-wide training metrics
+• Understand workforce capabilities
+• Approve training budgets
+• Complete strategic courses
+New Hires	• Onboarding learning paths
+• Organizational standards courses
+• Technology stack training
+• Culture and methodology courses
+Transformation Office	• Create and maintain courses
+• Curate learning paths
+• Track completion rates
+• Identify knowledge gaps
+External Partners	• Partner onboarding courses
+• Organizational process training
+• Tool and platform training
+What's Inside This Marketplace?
+Learning Center contains educational content organized as:
+Core Content Types:
+1.	Courses - Multi-lesson programs on specific topics (2-40 hours) 
+o	Individual lessons (video, text, interactive)
+o	Quizzes and assessments
+o	Hands-on projects/labs
+o	Final exam
+o	Certificate upon completion
+2.	Learning Paths - Curated sequences of courses for roles (20-100 hours) 
+o	Beginner → Intermediate → Advanced progression
+o	Role-specific (Enterprise Architect, Cloud Developer, PM)
+o	Milestone certifications
+3.	Certifications - Formal credentials for competencies 
+o	Required courses + final exam
+o	Renewable (annual or biennial)
+o	Recognized internally
+4.	Quick Skills - Microlearning modules (15-60 minutes) 
+o	Single-topic focused
+o	No assessment
+o	Just-in-time learning
+Content Categories:
+By Transformation Phase (4D Model):
+1.	Discern - Assessment, discovery, analysis skills
+2.	Design - Architecture, planning, design skills
+3.	Deploy - Implementation, delivery, execution skills
+4.	Drive - Operations, optimization, improvement skills
+By Domain/Discipline:
+1.	Cloud & Infrastructure - AWS, Azure, GCP, DevOps
+2.	Application Development - Microservices, APIs, frontend, backend
+3.	Data & Analytics - Data engineering, BI, ML/AI
+4.	Architecture & Design - Enterprise architecture, patterns, design
+5.	Agile & Project Management - Scrum, SAFe, Kanban, PM fundamentals
+6.	Security & Compliance - Security practices, compliance frameworks
+7.	Leadership & Soft Skills - Communication, change management, leadership
+By Difficulty Level:
+•	Beginner - No prerequisites, foundational
+•	Intermediate - Requires basic knowledge
+•	Advanced - Requires significant experience
+By Format:
+•	Self-paced - Complete on your own schedule
+•	Instructor-led - Live sessions with instructor (virtual or in-person)
+•	Hybrid - Combination of self-paced + live sessions
+________________________________________
+3. STAGE 1: MARKETPLACE DESIGN
+Page Layout
+URL: /marketplaces/learning-center
+Structure:
+┌─────────────────────────────────────────────────────────────┐
+│                    HEADER / NAVIGATION                       │
+│  Home > Marketplaces > Learning Center                       │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                      HERO SECTION                            │
+│                                                              │
+│  [Icon: GraduationCap/BookOpen - Large]                     │
+│                                                              │
+│  LEARNING CENTER                                             │
+│  Build transformation skills through structured learning     │
+│                                                              │
+│  127 courses • 18 learning paths • Industry certifications   │
+│                                                              │
+│  [Browse Courses →]  [View Learning Paths]                   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    KEY STATISTICS                            │
+│                                                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │   127    │  │    18    │  │  2,847   │  │   4.6    │   │
+│  │  Courses │  │ Learning │  │  Active  │  │   Avg    │   │
+│  │          │  │  Paths   │  │ Learners │  │  Rating  │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              LEARNING PATHS (FEATURED)                       │
+│                                                              │
+│  Choose a guided learning journey for your role:            │
+│                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐│
+│  │ Enterprise      │  │ Cloud           │  │ Project      ││
+│  │ Architect       │  │ Developer       │  │ Manager      ││
+│  │                 │  │                 │  │              ││
+│  │ 8 courses       │  │ 6 courses       │  │ 5 courses    ││
+│  │ 45 hours        │  │ 32 hours        │  │ 28 hours     ││
+│  │ Certification   │  │ Certification   │  │ Certification││
+│  │                 │  │                 │  │              ││
+│  │ [DESIGN]        │  │ [DEPLOY]        │  │ [DRIVE]      ││
+│  │                 │  │                 │  │              ││
+│  │ View Path →     │  │ View Path →     │  │ View Path →  ││
+│  └─────────────────┘  └─────────────────┘  └──────────────┘│
+│                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐│
+│  │ Data            │  │ DevOps          │  │ Business     ││
+│  │ Engineer        │  │ Engineer        │  │ Analyst      ││
+│  │                 │  │                 │  │              ││
+│  │ 7 courses       │  │ 5 courses       │  │ 4 courses    ││
+│  │ 38 hours        │  │ 30 hours        │  │ 22 hours     ││
+│  │ Certification   │  │ Certification   │  │ Certification││
+│  │                 │  │                 │  │              ││
+│  │ [DESIGN]        │  │ [DEPLOY]        │  │ [DISCERN]    ││
+│  │                 │  │                 │  │              ││
+│  │ View Path →     │  │ View Path →     │  │ View Path →  ││
+│  └─────────────────┘  └─────────────────┘  └──────────────┘│
+│                                                              │
+│  [View All Learning Paths →]                                │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              BROWSE BY CATEGORY                              │
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐│
+│  │ Cloud &        │  │ Application    │  │ Data &         ││
+│  │ Infrastructure │  │ Development    │  │ Analytics      ││
+│  │                │  │                │  │                ││
+│  │ 23 courses     │  │ 31 courses     │  │ 18 courses     ││
+│  └────────────────┘  └────────────────┘  └────────────────┘│
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐│
+│  │ Architecture   │  │ Agile & PM     │  │ Security       ││
+│  │ & Design       │  │                │  │                ││
+│  │                │  │                │  │                ││
+│  │ 19 courses     │  │ 16 courses     │  │ 12 courses     ││
+│  └────────────────┘  └────────────────┘  └────────────────┘│
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              FEATURED COURSES                                │
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐│
+│  │ [Video Icon]   │  │ [Video Icon]   │  │ [Video Icon]   ││
+│  │                │  │                │  │                ││
+│  │ Microservices  │  │ AWS Cloud      │  │ SAFe Agile     ││
+│  │ Architecture   │  │ Fundamentals   │  │ for PMs        ││
+│  │                │  │                │  │                ││
+│  │ 12 hours       │  │ 8 hours        │  │ 6 hours        ││
+│  │ Intermediate   │  │ Beginner       │  │ Intermediate   ││
+│  │ [DESIGN]       │  │ [DEPLOY]       │  │ [DRIVE]        ││
+│  │                │  │                │  │                ││
+│  │ 4.8⭐ 342 👥   │  │ 4.7⭐ 589 👥   │  │ 4.9⭐ 234 👥   ││
+│  │                │  │                │  │                ││
+│  │ Enroll Now →   │  │ Enroll Now →   │  │ Enroll Now →   ││
+│  └────────────────┘  └────────────────┘  └────────────────┘│
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              MOST POPULAR COURSES                            │
+│                                                              │
+│  1. Microservices Architecture Pattern (2,847 learners)     │
+│  2. AWS Cloud Practitioner Fundamentals (2,134 learners)    │
+│  3. REST API Design & Development (1,892 learners)          │
+│  4. Docker & Kubernetes Essentials (1,756 learners)         │
+│  5. SAFe Agile for Teams (1,623 learners)                   │
+│                                                              │
+│  [View All Popular Courses →]                               │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              NEW COURSES                                     │
+│                                                              │
+│  • GenAI for Developers (Added 1 week ago)                  │
+│  • Zero Trust Security Architecture (Added 2 weeks ago)     │
+│  • Event-Driven Architecture (Added 3 weeks ago)            │
+│                                                              │
+│  [View All New Courses →]                                   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              CERTIFICATIONS                                  │
+│                                                              │
+│  Earn recognized credentials:                                │
+│                                                              │
+│  ✓ Certified Enterprise Architect                           │
+│  ✓ Certified Cloud Developer                                │
+│  ✓ Certified Agile Project Manager                          │
+│  ✓ Certified Data Engineer                                  │
+│  ✓ Certified DevOps Engineer                                │
+│                                                              │
+│  [View All Certifications →]                                │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              FOR MANAGERS                                    │
+│                                                              │
+│  Manage your team's learning:                               │
+│                                                              │
+│  • Assign courses to team members                           │
+│  • Track team progress and completions                      │
+│  • View team skills and certifications                      │
+│  • Request new courses from TO                              │
+│                                                              │
+│  [Access Manager Dashboard →]                               │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  CALL TO ACTION                              │
+│                                                              │
+│         [Start Learning →]                                   │
+│              (Requires authentication)                       │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                        FOOTER                                │
+│  DTMP Platform | Governed by Transformation Office          │
+└─────────────────────────────────────────────────────────────┘
+Design Specifications
+Hero Section:
+•	Icon: GraduationCap or BookOpen from Lucide React (48-64px)
+•	Title: "Learning Center" (36-48px, bold, navy #001F3F)
+•	Subtitle: "Build transformation skills through structured learning" (18-24px, gray-600)
+•	Tags: "127 courses" • "18 learning paths" • "Industry certifications"
+•	CTA Buttons: 
+o	Primary: "Browse Courses" (orange #FF6600)
+o	Secondary: "View Learning Paths" (outline)
+Statistics Cards:
+•	4 metric cards in a row (responsive: stack on mobile)
+•	Large number (32-48px, bold)
+•	Label below (14-16px, gray-600)
+Learning Path Cards:
+•	6 cards (3x2 grid on desktop, 1 column on mobile)
+•	Title (bold, 18-20px)
+•	Course count + total hours
+•	"Certification" badge
+•	Phase badge (Discern/Design/Deploy/Drive)
+•	"View Path →" link
+•	Hover effect (shadow, scale)
+Category Cards:
+•	6 cards (3x2 grid)
+•	Simple design: Icon + Title + Course count
+•	Clickable to filter courses
+Featured Course Cards:
+•	3 cards horizontal (stack on mobile)
+•	Video/play icon at top
+•	Title (bold, 16-18px)
+•	Duration + Difficulty level
+•	Phase badge
+•	Rating (stars) + learner count
+•	"Enroll Now →" button
+Most Popular List:
+•	Numbered list (1-5)
+•	Title + (learner count)
+•	Clickable
+New Courses List:
+•	Bullet list
+•	Title + timestamp
+•	"View All" link
+Certifications Section:
+•	Checkmark list of available certs
+•	"View All" link
+For Managers Section:
+•	Bullet list of manager features
+•	"Access Manager Dashboard" CTA
+Color Palette:
+•	Primary: Navy (#001F3F), Blue (#0066CC), Light Blue (#E6F2FF)
+•	Accent: Orange (#FF6600), Purple (#8B5CF6), Pink (#EC4899), Green (#10B981)
+•	Phase Badges: 
+o	Discern: Blue (#0066CC)
+o	Design: Purple (#8B5CF6)
+o	Deploy: Green (#10B981)
+o	Drive: Orange (#FF6600)
+Typography:
+•	Font: Inter with system fallback
+•	Hero title: text-4xl sm:text-5xl lg:text-6xl font-bold
+•	Section title: text-2xl sm:text-3xl lg:text-4xl font-bold
+•	Card title: text-lg sm:text-xl font-semibold
+•	Body: text-base sm:text-lg
+Responsive Breakpoints:
+•	Mobile: < 640px (sm)
+•	Tablet: 640px - 1024px (md/lg)
+•	Desktop: 1024px+ (xl)
+User Journey (Stage 1)
+1. User lands on Learning Center marketplace
+   ↓
+2. User reads value proposition and sees statistics
+   ↓
+3. User browses learning paths OR course categories
+   ↓
+4. User sees featured and popular courses
+   ↓
+5. User clicks "Start Learning" or "Browse Courses"
+   ↓
+6. Login prompt appears (if not authenticated)
+   ↓
+7. User logs in
+   ↓
+8. Redirects to Stage 2: /stage2/learning/overview
+________________________________________
+4. STAGE 2: SERVICE HUB DESIGN
+LVE Layout Structure
+Base URL: /stage2/learning
+Layout: Left-Vertical-Expanded (3 Columns)
+┌────────────┬─────────────────────┬──────────────────────────────────┐
+│  COLUMN 1  │     COLUMN 2        │         COLUMN 3                 │
+│ Sidebar    │  Course List        │   Course Player                  │
+├────────────┼─────────────────────┼──────────────────────────────────┤
+│            │                     │                                  │
+│ Learning ← │ COURSES (127)       │ Microservices Architecture       │
+│ Knowledge  │                     │ ──────────────────────────────   │
+│ Portfolio  │ [Search courses...] │                                  │
+│ Support    │                     │ [Intermediate] [DESIGN] [12hrs]  │
+│ Intelligence│ [Filters ▼]        │                                  │
+│ Specs      │                     │ Progress: ████████░░ 75%         │
+│ Build      │ By Category:        │                                  │
+│ Lifecycle  │ ☐ Cloud (23)        │ ┌──────────────────────────────┐ │
+│            │ ☐ App Dev (31)      │ │ COURSE CURRICULUM            │ │
+│            │ ☐ Data (18)         │ │                              │ │
+│            │                     │ │ ✓ 1. Introduction (12 min)   │ │
+│            │ ┌─────────────────┐ │ │ ✓ 2. Monolith Challenges     │ │
+│            │ │ Microservices ← │ │ │ ▶ 3. Design Principles       │ │
+│            │ │ Architecture    │ │ │   ⏸ Currently watching       │ │
+│            │ │                 │ │ │   4. Patterns & Anti-patterns│ │
+│            │ │ 12 hours        │ │ │   5. API Gateway             │ │
+│            │ │ [DESIGN]        │ │ │   6. Service Discovery       │ │
+│            │ │ 4.8⭐ 342 👥   │ │ │   7. Final Project           │ │
+│            │ │ 75% complete    │ │ │   📝 Quiz 1                  │ │
+│            │ └─────────────────┘ │ └──────────────────────────────┘ │
+│            │ ┌─────────────────┐ │                                  │
+│            │ │ AWS Cloud       │ │ ┌──────────────────────────────┐ │
+│            │ │ Fundamentals    │ │ │ VIDEO PLAYER                 │ │
+│            │ │                 │ │ │                              │ │
+│            │ │ 8 hours         │ │ │ [Lesson 3: Design Principles]│ │
+│            │ │ [DEPLOY]        │ │ │                              │ │
+│            │ │ 4.7⭐ 589 👥   │ │ │ [Video playing: 8:32 / 15:20]│ │
+│            │ │ Not started     │ │ │                              │ │
+│            │ └─────────────────┘ │ │ [⏮ ⏸ ⏭] [🔊] [⚙] [⛶]       │ │
+│            │ ┌─────────────────┐ │ │                              │ │
+│            │ │ REST API        │ │ └──────────────────────────────┘ │
+│            │ │ Design          │ │                                  │
+│            │ │                 │ │ 📄 TRANSCRIPT                    │
+│            │ │ 6 hours         │ │ [00:15] In this lesson...        │
+│            │ │ [DESIGN]        │ │ [01:32] The first principle is...│
+│            │ │ 4.9⭐ 456 👥   │ │ [03:45] Let's look at an example │
+│            │ │ Completed ✓     │ │                                  │
+│            │ └─────────────────┘ │ 📝 NOTES                         │
+│            │                     │ [Your notes for this lesson...]  │
+│            │ (List continues...) │                                  │
+│            │                     │ [Next Lesson →]                  │
+│            │                     │                                  │
+└────────────┴─────────────────────┴──────────────────────────────────┘
+Column 1: Sidebar Navigation
+Standard DTMP Sidebar:
+•	All 9 marketplaces listed
+•	Learning Center is highlighted/active
+•	Sub-items under Learning Center: 
+o	My Learning
+o	Browse Courses
+o	Learning Paths
+o	Certifications
+o	My Certificates
+o	Team Dashboard (if manager)
+Implementation:
+•	Consistent across all Stage 2 pages
+•	Icons from Lucide React
+•	Active state styling
+•	Collapsible on mobile
+________________________________________
+Column 2: Course List
+Purpose: Browsable/searchable list of all courses with filtering and progress tracking
+Components:
+1.	View Tabs
+tsx
+   <ViewTabs>
+     <Tab active>My Courses (12)</Tab>
+     <Tab>All Courses (127)</Tab>
+     <Tab>Completed (8)</Tab>
+     <Tab>In Progress (3)</Tab>
+     <Tab>Bookmarked (7)</Tab>
+   </ViewTabs>
+2.	Search Bar
+tsx
+   <SearchInput placeholder="Search courses, learning paths..." />
+•	Searches: Title, description, instructor, tags
+•	Real-time filtering
+•	Search suggestions
+•	Clear button
+3.	Filter Sidebar (Collapsible)
+tsx
+   <FilterPanel>
+     <FilterSection title="Category">
+       <Checkbox label="Cloud & Infrastructure (23)" />
+       <Checkbox label="Application Development (31)" />
+       <Checkbox label="Data & Analytics (18)" />
+       <Checkbox label="Architecture & Design (19)" />
+       <Checkbox label="Agile & Project Management (16)" />
+       <Checkbox label="Security & Compliance (12)" />
+       <Checkbox label="Leadership & Soft Skills (8)" />
+     </FilterSection>
+     
+     <FilterSection title="Transformation Phase">
+       <Checkbox label="Discern (28)" />
+       <Checkbox label="Design (42)" />
+       <Checkbox label="Deploy (39)" />
+       <Checkbox label="Drive (18)" />
+     </FilterSection>
+     
+     <FilterSection title="Difficulty">
+       <Checkbox label="Beginner (48)" />
+       <Checkbox label="Intermediate (57)" />
+       <Checkbox label="Advanced (22)" />
+     </FilterSection>
+     
+     <FilterSection title="Duration">
+       <Checkbox label="Under 2 hours (15)" />
+       <Checkbox label="2-5 hours (34)" />
+       <Checkbox label="5-10 hours (42)" />
+       <Checkbox label="10+ hours (36)" />
+     </FilterSection>
+     
+     <FilterSection title="Format">
+       <Checkbox label="Self-paced (98)" />
+       <Checkbox label="Instructor-led (18)" />
+       <Checkbox label="Hybrid (11)" />
+     </FilterSection>
+     
+     <FilterSection title="Certification">
+       <Checkbox label="Offers Certificate (45)" />
+     </FilterSection>
+   </FilterPanel>
+4.	Sort Options
+tsx
+   <SortDropdown>
+     - Recommended (for you)
+     - Most Popular (enrollments)
+     - Highest Rated
+     - Recently Added
+     - Duration (Shortest first)
+     - Alphabetical (A-Z)
+   </SortDropdown>
+5.	Course List Items
+tsx
+   <CourseListItem>
+     <ThumbnailImage src={course.thumbnail} />
+     <div>
+       <h4>{course.title}</h4>
+       <p>{course.instructor}</p>
+       <div className="meta">
+         <DifficultyBadge level={course.difficulty} />
+         <PhaseBadge phase={course.phase} />
+         <span>{course.duration} hours</span>
+         <Rating value={course.rating} />
+         <span>{course.enrollments} learners</span>
+       </div>
+       {course.userProgress && (
+         <ProgressBar progress={course.userProgress.percentage} />
+       )}
+       <div className="actions">
+         {course.enrolled ? (
+           <button>Continue Learning →</button>
+         ) : (
+           <button>Enroll</button>
+         )}
+       </div>
+     </div>
+   </CourseListItem>
+```
+
+6. **Results Count & Active Filters**
+```
+   Showing 23 courses
+   
+   Active filters: [App Development ×] [Intermediate ×] [Clear all]
+```
+
+**User's Course Status:**
+- **Not Enrolled** - Can enroll
+- **Enrolled** - In progress, shows % complete
+- **Completed** - Checkmark, access to certificate
+- **Bookmarked** - Saved for later
+
+---
+
+### **Column 3: Course Player / Detail**
+
+**Purpose:** Display selected course with lessons, video player, progress tracking, and assessments
+
+**Two Modes:**
+
+**Mode 1: Course Overview (Before enrollment or for browsing)**
+```
+┌─────────────────────────────────────────────────────────┐
+│ COURSE OVERVIEW                                          │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ Microservices Architecture                               │
+│                                                          │
+│ [Intermediate] [DESIGN Phase] [12 hours] [Certificate]  │
+│                                                          │
+│ By: David Kim (Enterprise Architect)                     │
+│ Rating: 4.8⭐ (342 ratings) | 2,847 learners            │
+│                                                          │
+│ [Enroll in Course] [Bookmark]                            │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ WHAT YOU'LL LEARN                                        │
+├─────────────────────────────────────────────────────────┤
+│ ✓ Design microservices-based applications               │
+│ ✓ Apply architectural patterns and best practices       │
+│ ✓ Implement API Gateway and Service Discovery           │
+│ ✓ Handle distributed transactions and data consistency  │
+│ ✓ Deploy and monitor microservices in production        │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ COURSE DESCRIPTION                                       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ This comprehensive course covers microservices           │
+│ architecture from fundamentals to advanced patterns.     │
+│ You'll learn how to design, build, deploy, and monitor  │
+│ microservices-based applications using industry best    │
+│ practices.                                               │
+│                                                          │
+│ The course includes hands-on projects where you'll build│
+│ a complete microservices application from scratch...    │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ CURRICULUM (7 modules, 42 lessons)                       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ Module 1: Introduction (45 min)                         │
+│   • Welcome and Course Overview (12 min)                │
+│   • Monolith vs Microservices (18 min)                  │
+│   • When to Use Microservices (15 min)                  │
+│                                                          │
+│ Module 2: Design Principles (2 hours)                   │
+│   • Single Responsibility Principle (20 min)            │
+│   • API-First Design (25 min)                           │
+│   • Bounded Contexts (30 min)                           │
+│   • Domain-Driven Design (45 min)                       │
+│                                                          │
+│ Module 3: Architectural Patterns (3 hours)              │
+│   • API Gateway Pattern (35 min)                        │
+│   • Service Discovery (30 min)                          │
+│   • Circuit Breaker (25 min)                            │
+│   • Saga Pattern (40 min)                               │
+│   • CQRS and Event Sourcing (50 min)                    │
+│                                                          │
+│ [Show All Modules]                                       │
+│                                                          │
+│ 📝 3 Quizzes | 🛠 2 Hands-on Projects | 📜 Final Exam   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ PREREQUISITES                                            │
+├─────────────────────────────────────────────────────────┤
+│ • Basic understanding of APIs and web services           │
+│ • Familiarity with at least one programming language    │
+│ • Recommended: "REST API Design" course                  │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ INSTRUCTOR                                               │
+├─────────────────────────────────────────────────────────┤
+│ 👤 David Kim                                             │
+│ Enterprise Architect, Transformation Office              │
+│                                                          │
+│ David has 15 years of experience designing enterprise   │
+│ systems and has led the migration of 12+ applications   │
+│ to microservices architecture.                           │
+│                                                          │
+│ Other courses: API Gateway Design, Event-Driven Arch    │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ CERTIFICATE                                              │
+├─────────────────────────────────────────────────────────┤
+│ Upon completion, earn:                                   │
+│ 📜 Microservices Architecture Certificate                │
+│                                                          │
+│ Requirements:                                            │
+│ • Complete all lessons                                   │
+│ • Pass all quizzes (70% minimum)                        │
+│ • Submit hands-on projects                               │
+│ • Pass final exam (80% minimum)                         │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ STUDENT REVIEWS (342)                                    │
+├─────────────────────────────────────────────────────────┤
+│ ⭐⭐⭐⭐⭐ 4.8 out of 5                                  │
+│                                                          │
+│ 👤 Sarah Chen • 2 weeks ago • ⭐⭐⭐⭐⭐                 │
+│ Excellent course! The hands-on projects really helped   │
+│ me understand the concepts. Now applying this to our    │
+│ customer portal migration.                               │
+│                                                          │
+│ 👤 Michael Torres • 1 month ago • ⭐⭐⭐⭐               │
+│ Great content but could use more real-world examples    │
+│ from our organization's projects.                        │
+│                                                          │
+│ [Load more reviews]                                      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+**Mode 2: Course Player (After enrollment, during learning)**
+```
+┌─────────────────────────────────────────────────────────┐
+│ COURSE HEADER                                            │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ Microservices Architecture                               │
+│ Module 2: Design Principles                              │
+│ Lesson 3 of 42: Single Responsibility Principle          │
+│                                                          │
+│ Progress: ████████░░ 75% complete                        │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ COURSE SIDEBAR (Collapsible on mobile)                   │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ CURRICULUM                                               │
+│                                                          │
+│ ✓ Module 1: Introduction (Completed)                    │
+│   ✓ Welcome (12 min)                                    │
+│   ✓ Monolith vs Microservices (18 min)                 │
+│   ✓ When to Use (15 min)                                │
+│                                                          │
+│ ▶ Module 2: Design Principles (In Progress)             │
+│   ✓ Intro to Design Principles (10 min)                │
+│   ✓ API-First Design (25 min)                           │
+│   ▶ Single Responsibility (20 min) ← Current            │
+│   • Bounded Contexts (30 min)                           │
+│   • Domain-Driven Design (45 min)                       │
+│   📝 Quiz 1 (10 questions)                              │
+│                                                          │
+│ • Module 3: Architectural Patterns                       │
+│   • API Gateway Pattern (35 min)                        │
+│   • Service Discovery (30 min)                          │
+│   [...]                                                  │
+│                                                          │
+│ [Show All Modules]                                       │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ VIDEO PLAYER                                             │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ [Video: Single Responsibility Principle]                │
+│                                                          │
+│ ┌───────────────────────────────────────────────────┐  │
+│ │                                                    │  │
+│ │         [Video playing: 8:32 / 20:15]             │  │
+│ │                                                    │  │
+│ │         [Slide: "Each microservice should         │  │
+│ │          have ONE reason to change"]              │  │
+│ │                                                    │  │
+│ └───────────────────────────────────────────────────┘  │
+│                                                          │
+│ [⏮ Previous] [⏸ Pause] [⏭ Next] [🔊 Volume] [⚙ Settings] [⛶ Fullscreen] │
+│                                                          │
+│ Playback speed: [1x ▼] | Quality: [1080p ▼]            │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ TABS: [Overview] [Transcript] [Notes] [Resources]       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ TRANSCRIPT (Active)                                      │
+│ ────────────────────────────────────────────────────    │
+│                                                          │
+│ [00:00:15] Welcome to this lesson on the Single         │
+│            Responsibility Principle...                   │
+│                                                          │
+│ [00:01:32] The first principle we'll cover states that  │
+│            each microservice should have one reason...  │
+│                                                          │
+│ [00:03:45] Let's look at an example from our customer   │
+│            management system...                          │
+│                                                          │
+│ [00:08:32] ← You are here                               │
+│                                                          │
+│ [Transcript continues...]                                │
+│                                                          │
+│ [Search transcript...]                                   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ YOUR NOTES                                               │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ [8:32] SRP means one reason to change - important!      │
+│                                                          │
+│ [12:15] Example: Customer service should only handle    │
+│        customer data, not orders                         │
+│                                                          │
+│ [+ Add note at current timestamp]                       │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ LESSON RESOURCES                                         │
+├─────────────────────────────────────────────────────────┤
+│ 📄 Slides: Single Responsibility Principle.pdf          │
+│ 📄 Code Examples: microservices-srp.zip                 │
+│ 📄 Reading: "SRP in Microservices" (Knowledge Center)   │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ LESSON ACTIONS                                           │
+├─────────────────────────────────────────────────────────┤
+│ [✓ Mark as Complete] [← Previous Lesson] [Next Lesson →]│
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+**Quiz/Assessment View:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ QUIZ 1: DESIGN PRINCIPLES                                │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ 10 questions | 70% to pass | 20 minutes                 │
+│ Progress: Question 3 of 10                               │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ QUESTION 3                                               │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ Which pattern should you use to handle distributed      │
+│ transactions across multiple microservices?              │
+│                                                          │
+│ ○ Circuit Breaker                                       │
+│ ○ API Gateway                                           │
+│ ● Saga Pattern                                          │
+│ ○ Service Mesh                                          │
+│                                                          │
+│ [Previous Question] [Next Question]                      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ QUIZ PROGRESS                                            │
+├─────────────────────────────────────────────────────────┤
+│ ✓ Q1  ✓ Q2  ● Q3  • Q4  • Q5  • Q6  • Q7  • Q8  • Q9  • Q10 │
+│                                                          │
+│ Time remaining: 15:32                                    │
+│                                                          │
+│ [Save & Exit] [Submit Quiz]                              │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+**Project Submission View:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ HANDS-ON PROJECT: BUILD A MICROSERVICES APP              │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ PROJECT DESCRIPTION                                      │
+│                                                          │
+│ Build a simple e-commerce application using             │
+│ microservices architecture with the following services: │
+│                                                          │
+│ • Product Catalog Service                                │
+│ • Shopping Cart Service                                  │
+│ • Order Service                                          │
+│ • API Gateway                                            │
+│                                                          │
+│ Requirements:                                            │
+│ ✓ Use REST APIs for communication                       │
+│ ✓ Implement service discovery                           │
+│ ✓ Add circuit breaker pattern                           │
+│ ✓ Deploy using Docker containers                        │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ PROJECT RESOURCES                                        │
+├─────────────────────────────────────────────────────────┤
+│ 📄 Project Starter Code.zip                             │
+│ 📄 Project Requirements Document.pdf                     │
+│ 🎥 Project Walkthrough Video (30 min)                   │
+│ 📄 Grading Rubric.pdf                                    │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ SUBMIT YOUR PROJECT                                      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ GitHub Repository URL:                                   │
+│ [https://github.com/yourname/microservices-project]     │
+│                                                          │
+│ Project Demo Video (optional):                           │
+│ [Upload video or paste YouTube link]                     │
+│                                                          │
+│ Additional Notes:                                        │
+│ ┌─────────────────────────────────────────────────────┐│
+│ │ I implemented an additional payment service...       ││
+│ └─────────────────────────────────────────────────────┘│
+│                                                          │
+│ [Submit Project]                                         │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ SUBMISSION STATUS                                        │
+├─────────────────────────────────────────────────────────┤
+│ Status: Submitted • Awaiting review                     │
+│ Submitted: Feb 10, 2026                                  │
+│ Expected feedback: Within 5 business days                │
+│                                                          │
+│ [View Submission] [Resubmit]                             │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+### **Additional Stage 2 Pages**
+
+#### **Page: My Learning Dashboard** (`/stage2/learning/my-learning`)
+
+**Purpose:** Personal learning dashboard showing progress, certifications, and recommendations
+
+**Content:**
+```
+MY LEARNING DASHBOARD
+
+┌─────────────────────────────────────────┐
+│ LEARNING PROGRESS                        │
+├─────────────────────────────────────────┤
+│ • Courses in Progress: 3                │
+│ • Courses Completed: 8                  │
+│ • Certificates Earned: 2                │
+│ • Total Learning Time: 47 hours         │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ CONTINUE LEARNING                        │
+├─────────────────────────────────────────┤
+│ [Course cards for in-progress courses]  │
+│ • Microservices Architecture (75%)      │
+│ • AWS Cloud Fundamentals (40%)          │
+│ • Docker & Kubernetes (15%)             │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ UPCOMING DEADLINES                       │
+├─────────────────────────────────────────┤
+│ • AWS Cloud - Final Exam (Due Mar 1)    │
+│ • Microservices - Project 2 (Due Feb 28)│
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ MY CERTIFICATES                          │
+├─────────────────────────────────────────┤
+│ 📜 REST API Design Certificate          │
+│    Earned: Jan 15, 2026                 │
+│    [View] [Download PDF] [Share]        │
+│                                          │
+│ 📜 Agile Fundamentals Certificate       │
+│    Earned: Dec 10, 2025                 │
+│    [View] [Download PDF] [Share]        │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ RECOMMENDED FOR YOU                      │
+├─────────────────────────────────────────┤
+│ Based on your learning history:         │
+│ • Event-Driven Architecture              │
+│ • API Gateway Design Patterns           │
+│ • Kubernetes Advanced Topics            │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ LEARNING GOALS                           │
+├─────────────────────────────────────────┤
+│ Set for 2026:                            │
+│ ☐ Complete Cloud Developer Path         │
+│ ☐ Earn 3 certifications                 │
+│ ☐ Spend 50 hours learning               │
+│                                          │
+│ Progress: ████░░░░░░ 35%                │
+└─────────────────────────────────────────┘
+```
+
+---
+
+#### **Page: Learning Paths** (`/stage2/learning/paths`)
+
+**Purpose:** Browse and enroll in curated learning paths for different roles
+
+**Content:**
+```
+LEARNING PATHS
+
+[Filter by role, duration, difficulty]
+
+┌──────────────────────────────────────────┐
+│ ENTERPRISE ARCHITECT PATH                 │
+├──────────────────────────────────────────┤
+│ 8 courses • 45 hours • Certification     │
+│                                           │
+│ Master enterprise architecture skills    │
+│                                           │
+│ Courses in this path:                    │
+│ 1. Enterprise Architecture Fundamentals  │
+│ 2. Business Capability Modeling          │
+│ 3. Technology Strategy & Roadmapping     │
+│ 4. Architecture Patterns & Best Practices│
+│ 5. Cloud Architecture Design             │
+│ 6. API & Integration Architecture        │
+│ 7. Security Architecture                 │
+│ 8. EA Governance & Compliance            │
+│                                           │
+│ [Enroll in Path] [View Details]          │
+└──────────────────────────────────────────┘
+
+[More learning path cards...]
+```
+
+---
+
+#### **Page: Certifications** (`/stage2/learning/certifications`)
+
+**Purpose:** View available certifications and track progress toward earning them
+
+**Content:**
+```
+CERTIFICATIONS
+
+┌──────────────────────────────────────────┐
+│ CERTIFIED ENTERPRISE ARCHITECT            │
+├──────────────────────────────────────────┤
+│ Requirements:                             │
+│ ✓ Complete EA Learning Path (8 courses)  │
+│ ✓ Pass final certification exam (85%)    │
+│ • Submit architecture portfolio project   │
+│                                           │
+│ Your Progress: ████████░░ 75%            │
+│                                           │
+│ [Continue Learning] [View Requirements]   │
+└──────────────────────────────────────────┘
+
+[More certification cards...]
+```
+
+---
+
+#### **Page: Team Dashboard** (`/stage2/learning/team`) **(Manager Only)**
+
+**Purpose:** Managers track team learning progress and assign courses
+
+**Content:**
+```
+TEAM LEARNING DASHBOARD
+
+┌─────────────────────────────────────────┐
+│ TEAM OVERVIEW                            │
+├─────────────────────────────────────────┤
+│ Team: Engineering - Platform Team       │
+│ Members: 12                              │
+│ Active Learners: 9 (75%)                │
+│ Avg Hours/Month: 8.5 hours              │
+│ Certifications Earned: 5                │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ TEAM MEMBER PROGRESS                     │
+├─────────────────────────────────────────┤
+│ Sarah Chen                               │
+│ • Microservices Arch (75%)              │
+│ • AWS Cloud (40%)                        │
+│ Certificates: 2                          │
+│                                          │
+│ Michael Torres                           │
+│ • Docker & K8s (90%)                    │
+│ • API Design (Completed ✓)              │
+│ Certificates: 1                          │
+│                                          │
+│ [View All Team Members]                  │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ ASSIGN TRAINING                          │
+├─────────────────────────────────────────┤
+│ Select course: [Dropdown]                │
+│ Assign to: [Select team members]        │
+│ Due date: [Optional]                     │
+│ Notes: [Optional message]                │
+│                                          │
+│ [Assign Course]                          │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ SKILLS GAP ANALYSIS                      │
+├─────────────────────────────────────────┤
+│ Team needs more training in:             │
+│ • Kubernetes (3 team members)            │
+│ • Security Best Practices (5 members)   │
+│ • Event-Driven Architecture (7 members) │
+│                                          │
+│ [Recommend Courses]                      │
+└─────────────────────────────────────────┘
+________________________________________
+5. DATA STRUCTURES
+Core Data Model
+typescript
+interface Course {
+  // Identity
+  id: string; // Format: CRS-001
+  title: string;
+  slug: string; // URL-friendly: "microservices-architecture"
+  shortDescription: string; // 1-2 sentences
+  longDescription: string; // Multiple paragraphs
+  
+  // Classification
+  category: 'cloud-infrastructure' | 'app-development' | 'data-analytics' | 
+            'architecture-design' | 'agile-pm' | 'security-compliance' | 
+            'leadership-soft-skills';
+  phase: 'discern' | 'design' | 'deploy' | 'drive';
+  tags: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  
+  // Content
+  duration: number; // Total hours
+  format: 'self-paced' | 'instructor-led' | 'hybrid';
+  language: 'en' | 'es' | 'fr';
+  
+  // Structure
+  modules: CourseModule[];
+  totalLessons: number;
+  totalQuizzes: number;
+  totalProjects: number;
+  hasFinalExam: boolean;
+  
+  // Instructor
+  instructor: {
+    id: string;
+    name: string;
+    title: string;
+    bio: string;
+    photo?: string;
+  };
+  
+  // Prerequisites
+  prerequisites: string[]; // Course IDs
+  recommendedPrerequisites: string[];
+  
+  // Outcomes
+  learningObjectives: string[]; // What you'll learn
+  skills: string[]; // Skills gained
+  
+  // Certificate
+  offersCertificate: boolean;
+  certificateName?: string;
+  certificateRequirements?: {
+    completionPercentage: number;
+    minimumQuizScore: number;
+    requiredProjects: number;
+    finalExamScore?: number;
+  };
+  
+  // Media
+  thumbnail: string; // Image URL
+  trailerVideo?: string; // Preview video URL
+  
+  // Engagement
+  enrollments: number;
+  completions: number;
+  rating: number; // Average rating (0-5)
+  ratingCount: number;
+  reviews: Review[];
+  
+  // Metadata
+  createdAt: string;
+  publishedAt: string;
+  lastUpdatedAt: string;
+  status: 'draft' | 'published' | 'archived';
+  version: string;
+}
+
+interface CourseModule {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  duration: number; // Hours
+  lessons: Lesson[];
+  quiz?: Quiz;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  duration: number; // Minutes
+  type: 'video' | 'text' | 'interactive' | 'quiz' | 'project';
+  
+  // Video lessons
+  videoUrl?: string;
+  transcript?: string;
+  subtitles?: Subtitle[];
+  
+  // Text lessons
+  content?: string; // Markdown or HTML
+  
+  // Resources
+  resources: Resource[];
+  
+  // Completion
+  completionCriteria: 'view' | 'quiz-pass' | 'project-submit';
+}
+
+interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  questions: Question[];
+  passingScore: number; // Percentage (0-100)
+  timeLimit?: number; // Minutes
+  attemptsAllowed: number;
+}
+
+interface Question {
+  id: string;
+  type: 'multiple-choice' | 'true-false' | 'multi-select' | 'short-answer';
+  question: string;
+  options?: string[]; // For multiple-choice
+  correctAnswer: string | string[];
+  explanation?: string; // Shown after answering
+  points: number;
+}
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  resources: Resource[];
+  submissionInstructions: string;
+  gradingRubric: string;
+  dueDate?: string; // Optional deadline
+}
+
+interface Resource {
+  id: string;
+  type: 'pdf' | 'video' | 'link' | 'code' | 'document';
+  title: string;
+  url: string;
+  fileSize?: number; // For downloadable resources
+}
+
+interface Review {
+  id: string;
+  courseId: string;
+  userId: string;
+  userName: string;
+  rating: number; // 1-5
+  comment: string;
+  createdAt: string;
+  helpful: number; // Upvotes
+}
+
+interface Subtitle {
+  language: string;
+  url: string; // VTT file URL
+}
+
+// User enrollment and progress
+interface UserCourseEnrollment {
+  enrollmentId: string;
+  userId: string;
+  courseId: string;
+  
+  // Status
+  status: 'enrolled' | 'in-progress' | 'completed' | 'dropped';
+  enrolledAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  lastAccessedAt: string;
+  
+  // Progress
+  overallProgress: number; // Percentage (0-100)
+  completedLessons: string[]; // Lesson IDs
+  completedQuizzes: string[]; // Quiz IDs
+  submittedProjects: string[]; // Project IDs
+  
+  // Time tracking
+  totalTimeSpent: number; // Minutes
+  
+  // Certificate
+  certificateEarned: boolean;
+  certificateId?: string;
+  certificateIssuedAt?: string;
+  
+  // Notes (user's personal notes per lesson)
+  notes: LessonNote[];
+  
+  // Bookmarks
+  bookmarkedLessons: string[];
+}
+
+interface LessonNote {
+  lessonId: string;
+  timestamp: number; // Video timestamp in seconds (for video lessons)
+  note: string;
+  createdAt: string;
+}
+
+interface QuizAttempt {
+  id: string;
+  quizId: string;
+  userId: string;
+  
+  startedAt: string;
+  submittedAt: string;
+  
+  answers: QuizAnswer[];
+  score: number; // Percentage
+  passed: boolean;
+  
+  attemptNumber: number; // 1st attempt, 2nd attempt, etc.
+}
+
+interface QuizAnswer {
+  questionId: string;
+  answer: string | string[];
+  isCorrect: boolean;
+  pointsEarned: number;
+}
+
+interface ProjectSubmission {
+  id: string;
+  projectId: string;
+  userId: string;
+  
+  submittedAt: string;
+  
+  // Submission content
+  repositoryUrl?: string; // GitHub, GitLab, etc.
+  demoVideoUrl?: string;
+  notes: string;
+  attachments: Resource[];
+  
+  // Grading
+  status: 'submitted' | 'under-review' | 'approved' | 'revision-needed' | 'rejected';
+  score?: number; // Percentage
+  feedback?: string;
+  reviewedBy?: string; // Instructor ID
+  reviewedAt?: string;
+}
+
+interface Certificate {
+  id: string; // Format: CERT-2026-001
+  courseId: string;
+  courseName: string;
+  userId: string;
+  userName: string;
+  
+  issuedAt: string;
+  expiresAt?: string; // For renewable certs
+  
+  certificateUrl: string; // PDF URL
+  verificationCode: string; // Unique code for verification
+  
+  // Renewal (if applicable)
+  renewable: boolean;
+  renewalPeriod?: number; // Months
+  renewalStatus?: 'active' | 'expired' | 'renewed';
+}
+
+// Learning Paths
+interface LearningPath {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  
+  // Target audience
+  targetRole: string; // Enterprise Architect, Cloud Developer, etc.
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  
+  // Structure
+  courses: LearningPathCourse[];
+  totalDuration: number; // Total hours
+  totalCourses: number;
+  
+  // Certification
+  offersCertification: boolean;
+  certificationName?: string;
+  certificationRequirements?: string;
+  
+  // Engagement
+  enrollments: number;
+  completions: number;
+  
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface LearningPathCourse {
+  courseId: string;
+  order: number;
+  required: boolean; // true = must complete, false = optional
+}
+
+interface UserLearningPathEnrollment {
+  enrollmentId: string;
+  userId: string;
+  pathId: string;
+  
+  status: 'enrolled' | 'in-progress' | 'completed';
+  enrolledAt: string;
+  completedAt?: string;
+  
+  progress: number; // Percentage
+  completedCourses: string[]; // Course IDs
+  
+  certificateEarned: boolean;
+  certificateId?: string;
+}
+```
+
+### **Sample Data (Create 127 courses)**
+
+**Distribution:**
+
+**By Category:**
+- Cloud & Infrastructure: 23 courses
+- Application Development: 31 courses
+- Data & Analytics: 18 courses
+- Architecture & Design: 19 courses
+- Agile & Project Management: 16 courses
+- Security & Compliance: 12 courses
+- Leadership & Soft Skills: 8 courses
+
+**By Phase (4D):**
+- Discern: 28 courses
+- Design: 42 courses
+- Deploy: 39 courses
+- Drive: 18 courses
+
+**By Difficulty:**
+- Beginner: 48 courses
+- Intermediate: 57 courses
+- Advanced: 22 courses
+
+**By Duration:**
+- Under 2 hours: 15 courses (Quick Skills)
+- 2-5 hours: 34 courses
+- 5-10 hours: 42 courses
+- 10+ hours: 36 courses
+
+**By Format:**
+- Self-paced: 98 courses
+- Instructor-led: 18 courses
+- Hybrid: 11 courses
+
+**Example Courses to Include:**
+
+1. **Microservices Architecture** (Design, App Dev, Intermediate, 12 hrs, Certificate)
+2. **AWS Cloud Fundamentals** (Deploy, Cloud, Beginner, 8 hrs, Certificate)
+3. **REST API Design & Development** (Design, App Dev, Intermediate, 6 hrs, Certificate)
+4. **Docker & Kubernetes Essentials** (Deploy, Cloud, Intermediate, 10 hrs, Certificate)
+5. **SAFe Agile for Teams** (Drive, Agile/PM, Intermediate, 6 hrs, Certificate)
+6. **Enterprise Architecture Fundamentals** (Design, Architecture, Advanced, 15 hrs, Certificate)
+7. **Data Engineering with Python** (Deploy, Data, Intermediate, 12 hrs, Certificate)
+8. **Security Best Practices** (Design, Security, Intermediate, 8 hrs, Certificate)
+9. **API Gateway Design Patterns** (Design, Architecture, Advanced, 5 hrs)
+10. **Event-Driven Architecture** (Design, Architecture, Advanced, 8 hrs, Certificate)
+... (117 more)
+
+---
+
+**Learning Paths to Include (18 total):**
+
+1. **Enterprise Architect Path** (8 courses, 45 hrs, Certification)
+2. **Cloud Developer Path** (6 courses, 32 hrs, Certification)
+3. **Project Manager Path** (5 courses, 28 hrs, Certification)
+4. **Data Engineer Path** (7 courses, 38 hrs, Certification)
+5. **DevOps Engineer Path** (5 courses, 30 hrs, Certification)
+6. **Business Analyst Path** (4 courses, 22 hrs, Certification)
+7. **Security Specialist Path** (6 courses, 35 hrs, Certification)
+8. **Full-Stack Developer Path** (9 courses, 50 hrs, Certification)
+... (10 more)
+
+---
+
+## **6. KEY FEATURES & WORKFLOWS**
+
+### **Feature 1: Course Discovery & Enrollment**
+
+**User Story:**
+> "As a Developer, I want to learn microservices architecture so I can modernize our applications."
+
+**Workflow:**
+1. User navigates to `/stage2/learning/overview`
+2. User searches "microservices"
+3. Finds "Microservices Architecture" course (4.8⭐, 12 hours)
+4. Clicks course to view details in Column 3
+5. Reads course description, curriculum, prerequisites
+6. Watches trailer video
+7. Checks reviews from other learners
+8. Clicks "Enroll in Course" button
+9. System confirms enrollment
+10. Course appears in "My Courses" and "Continue Learning"
+11. User clicks "Start Learning"
+12. Column 3 switches to Course Player mode
+13. User begins Lesson 1
+
+**Implementation:**
+- Search with real-time filtering
+- Rich course detail page
+- Video trailer embed
+- One-click enrollment
+- Instant access to content
+
+---
+
+### **Feature 2: Structured Learning Experience**
+
+**User Story:**
+> "As a learner, I want a guided learning experience with videos, quizzes, and projects so I can build real skills."
+
+**Workflow:**
+1. User is enrolled in "Microservices Architecture"
+2. User watches Lesson 1 video (12 min)
+3. System auto-marks lesson as complete when video ends
+4. User takes notes during video (timestamp-linked)
+5. User downloads lesson resources (slides, code samples)
+6. User proceeds to Lesson 2, 3, 4...
+7. User completes Module 1
+8. User takes Module 1 Quiz (10 questions, 70% to pass)
+9. User scores 85% → Quiz passed ✓
+10. User continues to Module 2
+11. ... (progresses through modules)
+12. User reaches Hands-on Project
+13. User downloads project requirements
+14. User builds microservices application
+15. User submits GitHub repo + demo video
+16. Instructor reviews project (5 business days)
+17. Project approved ✓
+18. User completes final exam (20 questions, 80% to pass)
+19. User scores 87% → Exam passed ✓
+20. Certificate automatically generated
+21. User receives notification: "You earned a certificate!"
+22. User downloads certificate PDF
+23. User shares certificate on LinkedIn
+
+**Implementation:**
+- Sequential lesson progression
+- Auto-progress tracking
+- Embedded video player with controls
+- Timestamp-linked note-taking
+- Quiz engine with instant feedback
+- Project submission workflow
+- Instructor grading interface
+- Auto-certificate generation
+- Certificate download/sharing
+
+---
+
+### **Feature 3: Learning Path Progression**
+
+**User Story:**
+> "As a Junior Developer, I want to follow a Cloud Developer learning path so I can become certified."
+
+**Workflow:**
+1. User browses Learning Paths
+2. User selects "Cloud Developer Path"
+3. Sees 6 courses in sequence:
+   - AWS Cloud Fundamentals (Beginner)
+   - Docker & Containers (Intermediate)
+   - Kubernetes Essentials (Intermediate)
+   - CI/CD Pipelines (Intermediate)
+   - Cloud Security (Advanced)
+   - Cloud Architecture Design (Advanced)
+4. User clicks "Enroll in Path"
+5. System enrolls user in all 6 courses
+6. User completes courses sequentially
+7. Progress bar shows: ████░░ 4/6 courses complete
+8. User completes final course
+9. User takes certification exam
+10. User earns "Certified Cloud Developer" certificate
+11. Certificate added to profile
+12. User can display on resume, LinkedIn
+
+**Implementation:**
+- Path enrollment (bulk course enrollment)
+- Sequential course unlocking (optional)
+- Path progress tracking
+- Certification exam at end
+- Digital badge/certificate
+
+---
+
+### **Feature 4: Manager Team Oversight**
+
+**User Story:**
+> "As a Manager, I want to track my team's learning progress and assign training so I can develop their skills."
+
+**Workflow:**
+1. Manager navigates to Team Dashboard
+2. Manager sees team overview:
+   - 12 team members
+   - 9 active learners (75%)
+   - 8.5 avg hours/month
+   - 5 certificates earned
+3. Manager reviews individual progress:
+   - Sarah: Microservices (75%), AWS Cloud (40%)
+   - Michael: Docker/K8s (90%), API Design (Complete)
+4. Manager identifies skill gap: Only 3/12 know Kubernetes
+5. Manager clicks "Assign Training"
+6. Manager selects "Kubernetes Essentials" course
+7. Manager selects 9 team members (those who don't know K8s)
+8. Manager sets due date: March 31, 2026
+9. Manager adds message: "Please complete by end of Q1 for our cloud migration"
+10. Manager clicks "Assign Course"
+11. System sends notifications to 9 team members
+12. Team members see assigned course in "My Learning"
+13. Manager tracks completion over time
+14. By March 31: 8/9 completed (89%)
+15. Manager follows up with 1 incomplete
+
+**Implementation:**
+- Team dashboard with aggregated metrics
+- Individual team member drill-down
+- Course assignment interface
+- Bulk assignment
+- Due date tracking
+- Email notifications
+- Completion reporting
+
+---
+
+### **Feature 5: Certificate Earning & Verification**
+
+**User Story:**
+> "As a learner, I want to earn a recognized certificate so I can prove my skills to my manager and on my resume."
+
+**Workflow:**
+1. User completes all requirements for "Microservices Architecture":
+   - ✓ All lessons viewed
+   - ✓ All quizzes passed (>70%)
+   - ✓ Projects submitted and approved
+   - ✓ Final exam passed (>80%)
+2. System automatically generates certificate:
+   - Certificate ID: CERT-2026-1247
+   - User name: Sarah Chen
+   - Course: Microservices Architecture
+   - Issue date: Feb 16, 2026
+   - Verification code: MS-ARCH-2026-SC-1247
+3. User receives notification: "Congratulations! You earned a certificate!"
+4. User navigates to "My Certificates"
+5. User sees certificate thumbnail
+6. User clicks "View Certificate"
+7. Certificate displays in Column 3 (professional design)
+8. User clicks "Download PDF"
+9. PDF downloads (suitable for printing/sharing)
+10. User clicks "Share on LinkedIn"
+11. LinkedIn share dialog opens with certificate details
+12. User posts certificate to LinkedIn profile
+13. Colleagues can verify certificate authenticity:
+    - Visit verify.dtmp.com/certificates
+    - Enter verification code: MS-ARCH-2026-SC-1247
+    - System confirms: "Valid certificate issued to Sarah Chen on Feb 16, 2026"
+
+**Implementation:**
+- Auto-certificate generation on completion
+- Professional certificate template (PDF)
+- Unique verification codes
+- Public verification portal
+- LinkedIn sharing integration
+- Certificate gallery in user profile
+
+---
+
+### **Feature 6: Progress Tracking & Gamification**
+
+**User Story:**
+> "As a learner, I want to see my progress and achievements so I stay motivated."
+
+**Workflow:**
+1. User's Learning Dashboard shows:
+   - **Progress Stats:**
+     - 3 courses in progress
+     - 8 courses completed
+     - 47 total hours learned
+     - 2 certificates earned
+   - **Achievements:**
+     - 🏆 First Course Completed
+     - 🏆 5-Day Learning Streak
+     - 🏆 Certificate Earner
+     - 🏆 10 Hours Milestone
+   - **Current Streak:**
+     - 5 days in a row ️
+     - "Keep it up! 2 more days to earn 7-Day Streak badge"
+   - **Learning Goals:**
+     - Goal: Complete Cloud Developer Path by Q1 2026
+     - Progress: ████░░ 67% (4/6 courses)
+     - Status: On track
+2. User feels motivated by visible progress
+3. User continues learning to maintain streak
+4. User completes one more course
+5. New achievement unlocked: "5 Courses Completed"
+6. User sees notification: "🎉 You earned a new badge!"
+
+**Implementation:**
+- Progress dashboard with metrics
+- Achievement/badge system
+- Learning streaks (daily, weekly)
+- Goal setting and tracking
+- Celebration animations for milestones
+- Leaderboards (optional, if desired)
+
+---
+
+## **7. ROLE-BASED ACCESS CONTROL (RBAC)**
+
+### **Permission Matrix**
+
+| Role | View Courses | Enroll in Courses | View Own Progress | View Team Progress | Assign Training | Create Courses | Edit Courses | Manage Certifications |
+|------|--------------|-------------------|-------------------|--------------------|-----------------|----------------|--------------|----------------------|
+| **Staff/Associate** | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Manager/Lead** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes (team) | ✅ Yes (team) | ❌ No | ❌ No | ❌ No |
+| **Director** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes (dept) | ✅ Yes (dept) | ❌ No | ❌ No | ❌ No |
+| **Executive** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes (all) | ✅ Yes (all) | ❌ No | ❌ No | ❌ No |
+| **Transformation Office** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes (all) | ✅ Yes (all) | ✅ Yes | ✅ Yes | ✅ Yes |
+| **External Partner** | ✅ Yes (limited) | ✅ Yes (limited) | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+
+### **Key RBAC Principles**
+
+**Open Course Access:**
+- All internal users can view and enroll in all courses
+- Promotes learning culture
+- No artificial barriers to skill development
+
+**Manager Oversight:**
+- Managers can see team members' progress
+- Can assign training to team
+- Cannot view progress outside their team
+
+**TO Content Control:**
+- Only TO can create/edit courses
+- Quality control for curriculum
+- Consistent standards
+
+**Certificate Authority:**
+- Certificates issued automatically by system
+- TO can revoke if needed (fraud, policy violation)
+- Public verification for authenticity
+
+**External Partners:**
+- Limited course catalog (partner onboarding, tools training)
+- No access to internal strategic content
+- Cannot see other learners' progress
+
+---
+
+## **8. INTEGRATION POINTS**
+
+### **Knowledge Center Integration**
+
+**Scenario:** Course references Knowledge Center article for deeper reading
+
+**Flow:**
+```
+Learning Center (Lesson: "API Gateway Pattern")
+  ↓
+Lesson resources include:
+"📄 Additional Reading: API Gateway Design Guide (Knowledge Center)"
+  ↓
+User clicks link
+  ↓
+Opens Knowledge Center: /stage2/knowledge/articles/api-gateway-design-guide
+  ↓
+User reads article for more details
+  ↓
+Returns to course to continue learning
+```
+
+**Implementation:**
+- Deep linking to Knowledge Center articles
+- "Recommended Reading" in course resources
+- Bi-directional references (articles → courses, courses → articles)
+
+---
+
+### **Portfolio Management Integration**
+
+**Scenario:** Course teaches portfolio rationalization, references actual portfolio data
+
+**Flow:**
+```
+Learning Center (Course: "Application Portfolio Management")
+  ↓
+Lesson 5: "Hands-on Exercise: Rationalize a Sample Portfolio"
+  ↓
+Exercise provides link: "Use the Portfolio Management tool"
+  ↓
+Opens Portfolio Management with sample/sandbox portfolio
+  ↓
+User practices rationalization techniques
+  ↓
+Returns to course to submit exercise
+```
+
+**Implementation:**
+- Sandbox/demo data in other marketplaces for training
+- Deep links to other marketplace tools
+- "Practice with real tools" exercises
+
+---
+
+### **Lifecycle Management Integration**
+
+**Scenario:** Course teaches stage gate process, users practice submissions
+
+**Flow:**
+```
+Learning Center (Course: "Transformation Governance & Stage Gates")
+  ↓
+Lesson 8: "Submit a Stage Gate (Practice)"
+  ↓
+Exercise: "Submit a practice stage gate for review"
+  ↓
+Opens Lifecycle Management in "Training Mode"
+  ↓
+User submits practice initiative
+  ↓
+TO provides feedback on submission quality
+  ↓
+User learns process before doing real submissions
+Implementation:
+•	Training/sandbox mode in Lifecycle Management
+•	Practice submissions (flagged as training, not real)
+•	TO provides educational feedback
+________________________________________
+9. TECHNICAL IMPLEMENTATION NOTES
+Video Delivery
+Options:
+1.	Self-hosted (S3 + CloudFront) 
+o	Store videos in AWS S3
+o	Deliver via CloudFront CDN
+o	Pros: Full control, cost-effective at scale
+o	Cons: Need to build player, transcoding
+2.	Video Platform (Vimeo, Wistia) 
+o	Upload videos to platform
+o	Embed player in course
+o	Pros: Easy, built-in analytics
+o	Cons: Monthly cost, less control
+3.	Learning Platform (Moodle, Canvas LMS) 
+o	Full LMS solution
+o	Pros: Complete feature set
+o	Cons: Complex, may not fit DTMP design
+Recommendation: Self-hosted (S3 + CloudFront) with custom player for brand consistency
+Video Player Features
+Must-have:
+•	Play/pause, seek, volume
+•	Playback speed (0.5x, 0.75x, 1x, 1.25x, 1.5x, 2x)
+•	Quality selection (if multiple resolutions)
+•	Fullscreen
+•	Keyboard shortcuts (space = play/pause, arrow keys = seek)
+•	Remember playback position (resume where left off)
+Nice-to-have:
+•	Captions/subtitles
+•	Transcript sync (highlight current spoken text)
+•	Clickable transcript (click to jump to timestamp)
+•	Picture-in-picture
+•	Download for offline viewing
+Progress Tracking
+What to track:
+•	Lesson completion (video watched to end OR manually marked complete)
+•	Quiz attempts and scores
+•	Project submissions
+•	Time spent per lesson
+•	Last accessed lesson (resume course)
+•	Overall course progress percentage
+Storage:
+•	User progress in database (UserCourseEnrollment table)
+•	Real-time updates as user progresses
+•	Sync across devices (if same user logs in elsewhere)
+Quiz Engine
+Features:
+•	Multiple question types (multiple-choice, true/false, multi-select, short-answer)
+•	Randomize question order (optional)
+•	Randomize answer order (optional)
+•	Time limit (optional, countdown timer)
+•	Multiple attempts allowed
+•	Show correct answers after submission (optional)
+•	Explanations for each question
+•	Instant scoring
+Implementation:
+•	React forms for quiz interface
+•	State management for answers
+•	Timer using setInterval
+•	Score calculation client-side or server-side
+Certificate Generation
+Options:
+1.	PDF generation (server-side) 
+o	Node.js + PDFKit or Puppeteer
+o	Generate from HTML template
+o	Pros: Full control over design
+o	Cons: Need to build generator
+2.	Third-party service (Accredible, Credly) 
+o	API integration
+o	Pros: Professional, verified badges
+o	Cons: Cost per certificate
+Recommendation: Server-side PDF generation with professional template
+Certificate Template:
+•	Organization logo
+•	Certificate title
+•	Recipient name
+•	Course name
+•	Issue date
+•	Verification code (QR code + text)
+•	Signatures (TO lead, instructor)
+•	Professional border/design
+Performance Considerations
+•	Video Streaming: 
+o	Use adaptive bitrate streaming (HLS or DASH)
+o	Multiple quality levels (360p, 720p, 1080p)
+o	CDN delivery for low latency
+•	Course List (Column 2): 
+o	Virtual scrolling for 127 courses
+o	Lazy load thumbnails
+o	Client-side filtering for speed
+•	Progress Sync: 
+o	Debounce progress updates (every 10 seconds during video)
+o	Batch updates to reduce API calls
+o	Optimistic UI updates
+Technology Stack Recommendations
+•	Frontend: React + TypeScript
+•	Video Player: Video.js or Plyr.js
+•	Video Storage: AWS S3 + CloudFront
+•	Video Transcoding: AWS MediaConvert or Elastic Transcoder
+•	Quiz Engine: Custom React forms
+•	Progress Tracking: React Query (server state) + Local storage (backup)
+•	Certificate Generation: Puppeteer (HTML → PDF)
+•	State Management: React Query + Zustand
+________________________________________
+10. SUCCESS CRITERIA
+Stage 1 Marketplace
+✅ Hero section with clear value proposition
+✅ Key statistics displayed (127 courses, 18 paths, 2,847 learners)
+✅ Featured learning paths (6 cards)
+✅ Browse by category (6 cards)
+✅ Featured courses (3 cards)
+✅ Most popular list
+✅ New courses list
+✅ Certifications section
+✅ For Managers section
+✅ "Start Learning" CTA
+✅ Mobile responsive
+✅ Consistent with other DTMP marketplaces
+Stage 2 Service Hub
+✅ LVE layout (3 columns)
+✅ Column 1: Sidebar with Learning Center highlighted
+✅ Column 2: Course list with search/filter (127 courses)
+✅ Column 2: View tabs (My Courses, All Courses, Completed, etc.)
+✅ Column 3: Course overview (before enrollment)
+✅ Column 3: Course player (after enrollment)
+✅ Search functionality works (full-text)
+✅ Filters work (category, phase, difficulty, duration, format)
+✅ Sort options work
+✅ Course enrollment works (one-click)
+✅ Video player works:
+•	Play/pause, seek, volume
+•	Playback speed control
+•	Quality selection
+•	Fullscreen
+•	Resume where left off
+✅ Progress tracking works:
+•	Lessons auto-marked complete
+•	Progress % updates real-time
+•	Sync across sessions
+✅ Quiz engine works:
+•	Questions display correctly
+•	Answer selection works
+•	Timer counts down (if time-limited)
+•	Instant scoring
+•	Show correct answers + explanations
+✅ Project submission works:
+•	Upload/link submission
+•	Status tracking
+•	Instructor grading interface
+✅ Certificate generation works:
+•	Auto-generated on completion
+•	PDF download
+•	LinkedIn sharing
+✅ Notes functionality works:
+•	Timestamp-linked notes for videos
+•	Note creation/editing/deletion
+✅ Transcript display works:
+•	Synced with video
+•	Clickable to jump to timestamp
+✅ Learning paths work:
+•	Path enrollment
+•	Path progress tracking
+✅ Team dashboard works (managers):
+•	View team progress
+•	Assign courses
+•	Track completions
+✅ My Learning dashboard works:
+•	Personal progress stats
+•	Continue learning section
+•	Certificates gallery
+✅ Mobile responsive
+✅ No console errors
+✅ Loading states for data fetching
+✅ Error handling for failed requests
+Content Quality
+✅ 127 courses with complete metadata
+✅ Realistic distribution (by category, phase, difficulty, duration)
+✅ Sample courses include:
+•	Microservices Architecture (Design, 12 hrs, 4.8⭐)
+•	AWS Cloud Fundamentals (Deploy, 8 hrs, 4.7⭐)
+•	REST API Design (Design, 6 hrs, 4.9⭐)
+•	Docker & Kubernetes (Deploy, 10 hrs, 4.8⭐)
+•	SAFe Agile for Teams (Drive, 6 hrs, 4.9⭐)
+•	... (122 more)
+✅ 18 learning paths with course sequences
+✅ Courses have structured modules and lessons
+✅ Quizzes have diverse question types
+✅ Projects have clear requirements
+✅ Certificates have professional design
+✅ Realistic enrollment and completion data
+________________________________________
+11. USER STORIES
+Epic 1: Course Discovery
+US-001: As a Developer, I want to search for courses by keyword so I can find specific training quickly.
+US-002: As a learner, I want to filter courses by difficulty level so I can find courses appropriate for my skill level.
+US-003: As a Manager, I want to see popular courses so I can identify high-value training for my team.
+Epic 2: Structured Learning
+US-004: As a learner, I want to watch video lessons with controls (speed, quality) so I can learn efficiently.
+US-005: As a learner, I want to take quizzes after lessons so I can test my understanding.
+US-006: As a learner, I want to submit hands-on projects so I can practice skills in realistic scenarios.
+Epic 3: Progress & Motivation
+US-007: As a learner, I want to see my progress percentage so I know how close I am to completion.
+US-008: As a learner, I want to earn certificates so I can prove my skills.
+US-009: As a learner, I want achievement badges so I stay motivated to keep learning.
+Epic 4: Learning Paths
+US-010: As a Career-focused learner, I want to follow a learning path so I can develop role-specific skills systematically.
+US-011: As a learner, I want to see path progress so I know how far I've come in my journey.
+US-012: As a learner, I want to earn path certifications so I can demonstrate comprehensive expertise.
+Epic 5: Manager Oversight
+US-013: As a Manager, I want to see my team's learning progress so I know who has what skills.
+US-014: As a Manager, I want to assign training to team members so I can ensure they develop needed skills.
+US-015: As a Manager, I want to see skills gaps so I can prioritize training investments.
+Epic 6: Certificates & Credentials
+US-016: As a learner, I want to download my certificate as PDF so I can print or attach to applications.
+US-017: As a learner, I want to share my certificate on LinkedIn so I can showcase my achievement.
+US-018: As a hiring manager, I want to verify certificate authenticity so I can trust claimed credentials.
+________________________________________
+12. REFERENCE EXAMPLES
+Similar Marketplaces for Pattern Reference
+Knowledge Center:
+•	Similar content consumption pattern (browse → select → consume)
+•	Both are educational resources
+•	Use this as reference for content organization
+Portfolio Management:
+•	Similar search and filter pattern
+•	Column 2 list → Column 3 detail
+•	Use this as reference for UI patterns
+Digital Intelligence:
+•	Both track user progress/activity
+•	Dashboard with metrics
+•	Use this as reference for progress dashboards
+External Platforms for Feature Reference
+Udemy, Coursera, LinkedIn Learning:
+•	Course catalog and enrollment
+•	Video player and progress tracking
+•	Use as reference for UX patterns (don't copy exact design)
+Moodle, Canvas LMS:
+•	Quiz engine functionality
+•	Assignment submission
+•	Use as reference for assessment features
+Design System Reference
+All design patterns documented in DTMP Design System:
+•	Colors: Navy, Blue, Orange, Purple, Pink, Green
+•	Typography: Inter font, responsive scales
+•	Components: Cards, Buttons, Badges, Video Player, Progress Bars
+•	Icons: Lucide React
+•	Layout: LVE pattern, responsive breakpoints
+________________________________________
+13. OPEN QUESTIONS FOR STAKEHOLDERS
+1.	Instructor-Led Courses: Do we need live/virtual classroom functionality, or are all courses self-paced initially?
+2.	Course Authoring: Should non-TO staff be able to create courses (subject to approval), or only TO?
+3.	Paid Courses: Are all courses free internally, or do some require budget approval?
+4.	External Certifications: Should we integrate with external certification providers (AWS, Microsoft, etc.) or only internal certs?
+5.	Mobile App: Is a native mobile app needed for learning on-the-go, or is mobile web sufficient?
+6.	Social Learning: Should we add discussion forums, study groups, or peer connections?
+7.	Gamification: How much gamification is desired (badges, leaderboards, streaks)?
+8.	Video Download: Should users be able to download videos for offline viewing?
+9.	Course Expiration: Do course enrollments expire, or once enrolled, always access?
+10.	Certification Renewal: Which certifications require periodic renewal (e.g., annual)?
+________________________________________
+14. NEXT STEPS
+1.	Review this briefing with stakeholders and developers
+2.	Clarify open questions (Section 13)
+3.	Begin implementation: 
+o	Stage 1 marketplace (3-4 days)
+o	Stage 2 LVE layout (1 day)
+o	Column 2 course list with search/filter (4-5 days)
+o	Column 3 course overview (3-4 days)
+o	Column 3 course player (7-10 days) 
+	Video player integration
+	Progress tracking
+	Notes functionality
+	Transcript sync
+o	Quiz engine (5-6 days)
+o	Project submission system (4-5 days)
+o	Certificate generation (3-4 days)
+o	Learning paths (4-5 days)
+o	Team dashboard (managers) (4-5 days)
+o	My Learning dashboard (3-4 days)
+o	Data model and sample courses (5-7 days)
+o	Integration points (3-4 days)
+4.	Content Creation: 
+o	Develop first 10-15 courses with full content
+o	Create video content (record, edit, transcode)
+o	Write quizzes and projects
+o	Design certificate templates
+5.	Iterate based on feedback
+6.	Move to next marketplace (Digital Intelligence, Solutions Specifications, etc.)
+________________________________________
+15. APPENDIX
+Glossary
+•	LMS: Learning Management System
+•	SCORM: Sharable Content Object Reference Model (e-learning standard)
+•	xAPI: Experience API (learning tracking standard)
+•	CDN: Content Delivery Network
+•	HLS: HTTP Live Streaming (video protocol)
+•	DASH: Dynamic Adaptive Streaming over HTTP (video protocol)
+•	4D Model: Discern, Design, Deploy, Drive (transformation phases)
+•	TO: Transformation Office
+•	DCO: Digital-Centric Organization
+Video File Formats
+•	Source: MP4 (H.264 video, AAC audio)
+•	Streaming: HLS (.m3u8 manifest + .ts segments)
+•	Subtitles: WebVTT (.vtt) format
+•	Thumbnail: JPG images for preview
+Certificate Verification
+Public Verification Portal: verify.dtmp.com/certificates
+Verification Process:
+1.	Enter verification code (e.g., MS-ARCH-2026-SC-1247)
+2.	System queries certificate database
+3.	Returns: 
+o	✅ Valid: "Certificate issued to [Name] on [Date] for [Course]"
+o	❌ Invalid: "Certificate not found or invalid code"

@@ -1,4 +1,5 @@
 import { LucideIcon, Lightbulb, Target, Shield, Database, Users, Layers, Lock, Network } from "lucide-react";
+import { dtmpDepartments } from "../departments";
 
 export interface BestPractice {
   id: string;
@@ -316,6 +317,51 @@ export const bestPractices: BestPractice[] = [
     contentType: "Pattern",
     dateAdded: "2023-11-15",
     icon: Target
+  },
+  {
+    id: "cloud-finops-governance",
+    title: "Cloud FinOps Governance Model",
+    summary: "Align cloud spend decisions with product outcomes using shared accountability and guardrails",
+    domain: "Governance",
+    category: "Operations",
+    maturityLevel: "Developing",
+    complexity: "Medium",
+    impactAreas: ["Cost Optimization", "Visibility", "Accountability"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Guideline",
+    dateAdded: "2024-03-01",
+    icon: Shield
+  },
+  {
+    id: "domain-driven-integration",
+    title: "Domain-Driven Integration Blueprint",
+    summary: "Structure platform integration around domain boundaries to reduce coupling and improve ownership",
+    domain: "Integration",
+    category: "Architecture",
+    maturityLevel: "Advanced",
+    complexity: "High",
+    impactAreas: ["Integration", "Ownership", "Resilience"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Pattern",
+    dateAdded: "2024-03-05",
+    icon: Network
+  },
+  {
+    id: "workplace-adoption-loop",
+    title: "Digital Workplace Adoption Loop",
+    summary: "Drive sustained adoption with usage telemetry, feedback loops, and targeted enablement cycles",
+    domain: "Digital Workplace",
+    category: "Change Management",
+    maturityLevel: "Foundation",
+    complexity: "Low",
+    impactAreas: ["Adoption", "Engagement", "Productivity"],
+    featured: false,
+    industryApplicability: "Universal",
+    contentType: "Guideline",
+    dateAdded: "2024-02-22",
+    icon: Users
   }
 ];
 
@@ -324,7 +370,7 @@ export const bestPracticesFilters = {
   category: ["Strategy", "Architecture", "Delivery", "Operations", "Change Management"],
   maturityLevel: ["Foundation", "Developing", "Advanced", "Optimizing"],
   implementationComplexity: ["Low", "Medium", "High"],
-  industryApplicability: ["Universal", "Financial Services", "Healthcare", "Retail", "Manufacturing", "Public Sector"],
+  departmentApplicability: [...dtmpDepartments],
   contentType: ["Pattern", "Anti-Pattern", "Decision Framework", "Guideline"],
   dateAdded: ["Last week", "Last month", "Last 3 months", "Last 6 months", "All time"]
 };

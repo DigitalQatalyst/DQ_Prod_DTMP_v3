@@ -2,37 +2,29 @@
 // SHARED TYPES
 // ==========================================
 
-export type ModuleStatus = "completed" | "in-progress" | "locked";
-export type LessonStatus = "completed" | "in-progress" | "not-started" | "locked";
-export type LessonType = "video" | "reading" | "quiz" | "exercise" | "discussion";
+import type {
+  LearningCertificate,
+  LearningCertificateRequirement,
+  LearningLesson,
+  LearningLessonStatus,
+  LearningLessonType,
+  LearningModule,
+  LearningModuleStatus,
+  LearningProject,
+  LearningQuizResult,
+} from "../learningModel";
+
+export type ModuleStatus = LearningModuleStatus;
+export type LessonStatus = LearningLessonStatus;
+export type LessonType = LearningLessonType;
 
 // ==========================================
 // USER VIEW TYPES
 // ==========================================
 
-export interface Lesson {
-  id: string;
-  title: string;
-  type: LessonType;
-  duration: string;
-  status: LessonStatus;
-  description?: string;
-  completedDate?: string;
-}
+export type Lesson = LearningLesson;
 
-export interface CourseModule {
-  id: string;
-  number: number;
-  title: string;
-  description: string;
-  duration: string;
-  status: ModuleStatus;
-  progress: number;
-  lessons: Lesson[];
-  quizScore?: number;
-  quizAttempts?: number;
-  unlockDate?: string;
-}
+export type CourseModule = LearningModule;
 
 export interface LearningOutcome {
   id: string;
@@ -65,12 +57,27 @@ export interface WeeklyActivity {
   hoursSpent: number;
 }
 
-export interface QuizResult {
+export type QuizResult = LearningQuizResult;
+
+export interface QuizQuestionOption {
+  id: string;
+  text: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  prompt: string;
+  options: QuizQuestionOption[];
+  correctOptionId: string;
+}
+
+export interface QuizRuntimeConfig {
   moduleId: string;
-  moduleName: string;
-  score: number | null;
-  attempts: number;
-  status: "passed" | "pending" | "locked";
+  lessonId: string;
+  title: string;
+  passThreshold: number;
+  maxAttempts: number;
+  questions: QuizQuestion[];
 }
 
 export interface Achievement {
@@ -82,12 +89,7 @@ export interface Achievement {
   earnedDate?: string;
 }
 
-export interface CertificateRequirement {
-  id: string;
-  text: string;
-  met: boolean;
-  detail?: string;
-}
+export type CertificateRequirement = LearningCertificateRequirement;
 
 export interface InstructorMessage {
   name: string;
@@ -109,6 +111,7 @@ export interface UserCourseData {
   resources: Resource[];
   weeklyActivity: WeeklyActivity[];
   quizResults: QuizResult[];
+  quizConfigs?: QuizRuntimeConfig[];
   achievements: Achievement[];
   certificateRequirements: CertificateRequirement[];
   instructorMessage: InstructorMessage;
@@ -118,6 +121,8 @@ export interface UserCourseData {
   cpeCredits: number;
   cpeDomains: { name: string; credits: number }[];
   cpeReportableTo: string[];
+  finalProject?: LearningProject;
+  issuedCertificates?: LearningCertificate[];
 }
 
 // ==========================================

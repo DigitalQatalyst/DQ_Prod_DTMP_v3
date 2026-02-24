@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle,
   PlayCircle,
@@ -13,15 +13,90 @@ import {
   Play,
   RotateCcw,
   Eye,
+  ExternalLink,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import type { CourseModule, Lesson, ModuleStatus } from "@/data/learningCenter/stage2/types";
+import type {
+  CourseModule,
+  Lesson,
+  ModuleStatus,
+  QuizRuntimeConfig,
+} from "@/data/learningCenter/stage2/types";
+import QuizPlayer from "./QuizPlayer";
 
 interface UserModulesTabProps {
+  courseId?: string;
   modules: CourseModule[];
+  quizConfigs?: QuizRuntimeConfig[];
+  quizAttemptsByModule?: Record<string, number>;
+  onCompleteLesson?: (moduleId: string, lessonId: string) => void;
+  onQuizSubmit?: (
+    moduleId: string,
+    lessonId: string,
+    score: number,
+    passThreshold: number
+  ) => void;
 }
+
+interface LessonIntegrationLink {
+  id: string;
+  label: string;
+  description: string;
+  to: string;
+}
+
+const getLessonIntegrationLinks = (
+  courseId: string | undefined,
+  moduleTitle: string,
+  lessonTitle: string
+): LessonIntegrationLink[] => {
+  const context = `${courseId ?? ""} ${moduleTitle} ${lessonTitle}`.toLowerCase();
+  const links: LessonIntegrationLink[] = [];
+
+  if (
+    context.includes("api") ||
+    context.includes("architecture") ||
+    context.includes("integration")
+  ) {
+    links.push({
+      id: "knowledge-link",
+      label: "Open Knowledge Center Article",
+      description: "Review a related architecture reference before continuing this lesson.",
+      to: "/stage2/knowledge/library/api-first-patterns?source=learning-center",
+    });
+  }
+
+  if (
+    context.includes("portfolio") ||
+    context.includes("rationaliz") ||
+    context.includes("application assessment")
+  ) {
+    links.push({
+      id: "portfolio-link",
+      label: "Launch Portfolio Management Tool",
+      description: "Practice this exercise using the portfolio sandbox workspace.",
+      to: "/stage2/portfolio-management?tab=application-portfolio&mode=training&source=learning-center",
+    });
+  }
+
+  if (
+    context.includes("stage gate") ||
+    context.includes("governance") ||
+    context.includes("lifecycle")
+  ) {
+    links.push({
+      id: "lifecycle-link",
+      label: "Open Lifecycle Management (Training)",
+      description: "Submit a practice stage-gate workflow in training mode.",
+      to: "/stage2/lifecycle-management?mode=training&source=learning-center",
+    });
+  }
+
+  return links;
+};
 
 const statusConfig: Record<
   ModuleStatus,
@@ -35,6 +110,11 @@ const statusConfig: Record<
   "in-progress": {
     label: "In Progress",
     color: "bg-blue-100 text-blue-700",
+    icon: PlayCircle,
+  },
+  available: {
+    label: "Available",
+    color: "bg-amber-100 text-amber-700",
     icon: PlayCircle,
   },
   locked: {
@@ -145,16 +225,39 @@ const VideoPlayerPlaceholder = ({ title }: { title: string }) => (
   </div>
 );
 
-const UserModulesTab = ({ modules }: UserModulesTabProps) => {
+const UserModulesTab = ({
+  courseId,
+  modules,
+  quizConfigs = [],
+  quizAttemptsByModule = {},
+  onCompleteLesson,
+  onQuizSubmit,
+}: UserModulesTabProps) => {
   const [expandedModule, setExpandedModule] = useState<string | null>(
     modules.find((m) => m.status === "in-progress")?.id || null
   );
   const [showPlayer, setShowPlayer] = useState(false);
+  const [activeQuizKey, setActiveQuizKey] = useState<string | null>(null);
+
+  const resumeModule = useMemo(
+    () =>
+      modules.find((module) => module.status === "in-progress") ??
+      modules.find((module) => module.status === "available"),
+    [modules]
+  );
+
+  useEffect(() => {
+    if (!resumeModule) return;
+    setExpandedModule(resumeModule.id);
+    setShowPlayer(true);
+  }, [resumeModule]);
 
   const toggleModule = (moduleId: string) => {
-    if (modules.find((m) => m.id === moduleId)?.status === "locked") return;
+    const status = modules.find((m) => m.id === moduleId)?.status;
+    if (status === "locked") return;
     setExpandedModule(expandedModule === moduleId ? null : moduleId);
     setShowPlayer(false);
+    setActiveQuizKey(null);
   };
 
   return (
@@ -276,6 +379,19 @@ const UserModulesTab = ({ modules }: UserModulesTabProps) => {
                       Continue Module
                     </Button>
                   )}
+                  {mod.status === "available" && (
+                    <Button
+                      size="sm"
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowPlayer(!showPlayer);
+                      }}
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Start Module
+                    </Button>
+                  )}
                   {mod.status === "completed" && (
                     <>
                       <Button size="sm" variant="outline">
@@ -294,15 +410,212 @@ const UserModulesTab = ({ modules }: UserModulesTabProps) => {
 
                 {/* Inline Video Player */}
                 {showPlayer && mod.status === "in-progress" && (
-                  <VideoPlayerPlaceholder
-                    title={`Module ${mod.number} - ${
-                      mod.lessons.find(
-                        (l) =>
-                          l.status === "not-started" ||
-                          l.status === "in-progress"
-                      )?.title || "Next Lesson"
-                    }`}
-                  />
+                  <div>
+                    <VideoPlayerPlaceholder
+                      title={`Module ${mod.number} - ${
+                        mod.lessons.find(
+                          (l) =>
+                            l.status === "not-started" ||
+                            l.status === "in-progress"
+                        )?.title || "Next Lesson"
+                      }`}
+                    />
+                    {(() => {
+                      const activeLesson = mod.lessons.find(
+                        (lesson) =>
+                          lesson.status === "in-progress" ||
+                          lesson.status === "not-started"
+                      );
+                      if (!activeLesson) return null;
+
+                      const quizConfig = quizConfigs.find(
+                        (config) =>
+                          config.moduleId === mod.id &&
+                          config.lessonId === activeLesson.id
+                      );
+                      const quizKey = `${mod.id}:${activeLesson.id}`;
+                      const isQuizLesson =
+                        activeLesson.type === "quiz" && Boolean(quizConfig);
+
+                      if (isQuizLesson && quizConfig && onQuizSubmit) {
+                        return (
+                          <div className="mt-3 space-y-2">
+                            <Button
+                              size="sm"
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setActiveQuizKey((prev) =>
+                                  prev === quizKey ? null : quizKey
+                                );
+                              }}
+                            >
+                              <HelpCircle className="w-4 h-4 mr-2" />
+                              {activeQuizKey === quizKey ? "Hide Quiz" : "Start Quiz"}
+                            </Button>
+                            {activeQuizKey === quizKey && (
+                              <QuizPlayer
+                                config={quizConfig}
+                                attemptsUsed={quizAttemptsByModule[mod.id] ?? 0}
+                                onSubmit={(score) =>
+                                  onQuizSubmit(
+                                    mod.id,
+                                    activeLesson.id,
+                                    score,
+                                    quizConfig.passThreshold
+                                  )
+                                }
+                                onClose={() => setActiveQuizKey(null)}
+                              />
+                            )}
+                          </div>
+                        );
+                      }
+
+                      if (!onCompleteLesson) return null;
+
+                      return (
+                        <div className="mt-3 space-y-3">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onCompleteLesson(mod.id, activeLesson.id);
+                            }}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Complete "{activeLesson.title}"
+                          </Button>
+                          {getLessonIntegrationLinks(courseId, mod.title, activeLesson.title).map(
+                            (integrationLink) => (
+                              <Link
+                                key={integrationLink.id}
+                                to={integrationLink.to}
+                                className="block border border-gray-200 rounded-lg p-3 hover:border-orange-300 hover:bg-orange-50/40 transition-colors"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <p className="text-xs font-semibold text-foreground">
+                                      {integrationLink.label}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {integrationLink.description}
+                                    </p>
+                                  </div>
+                                  <ExternalLink className="w-3 h-3 text-orange-600 mt-0.5 flex-shrink-0" />
+                                </div>
+                              </Link>
+                            )
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                {showPlayer && mod.status === "available" && (
+                  <div>
+                    <VideoPlayerPlaceholder
+                      title={`Module ${mod.number} - ${
+                        mod.lessons.find(
+                          (l) =>
+                            l.status === "not-started" ||
+                            l.status === "in-progress"
+                        )?.title || "First Lesson"
+                      }`}
+                    />
+                    {(() => {
+                      const activeLesson = mod.lessons.find(
+                        (lesson) =>
+                          lesson.status === "in-progress" ||
+                          lesson.status === "not-started"
+                      );
+                      if (!activeLesson) return null;
+
+                      const quizConfig = quizConfigs.find(
+                        (config) =>
+                          config.moduleId === mod.id &&
+                          config.lessonId === activeLesson.id
+                      );
+                      const quizKey = `${mod.id}:${activeLesson.id}`;
+                      const isQuizLesson =
+                        activeLesson.type === "quiz" && Boolean(quizConfig);
+
+                      if (isQuizLesson && quizConfig && onQuizSubmit) {
+                        return (
+                          <div className="mt-3 space-y-2">
+                            <Button
+                              size="sm"
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setActiveQuizKey((prev) =>
+                                  prev === quizKey ? null : quizKey
+                                );
+                              }}
+                            >
+                              <HelpCircle className="w-4 h-4 mr-2" />
+                              {activeQuizKey === quizKey ? "Hide Quiz" : "Start Quiz"}
+                            </Button>
+                            {activeQuizKey === quizKey && (
+                              <QuizPlayer
+                                config={quizConfig}
+                                attemptsUsed={quizAttemptsByModule[mod.id] ?? 0}
+                                onSubmit={(score) =>
+                                  onQuizSubmit(
+                                    mod.id,
+                                    activeLesson.id,
+                                    score,
+                                    quizConfig.passThreshold
+                                  )
+                                }
+                                onClose={() => setActiveQuizKey(null)}
+                              />
+                            )}
+                          </div>
+                        );
+                      }
+
+                      if (!onCompleteLesson) return null;
+
+                      return (
+                        <div className="mt-3 space-y-3">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onCompleteLesson(mod.id, activeLesson.id);
+                            }}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Complete "{activeLesson.title}"
+                          </Button>
+                          {getLessonIntegrationLinks(courseId, mod.title, activeLesson.title).map(
+                            (integrationLink) => (
+                              <Link
+                                key={integrationLink.id}
+                                to={integrationLink.to}
+                                className="block border border-gray-200 rounded-lg p-3 hover:border-orange-300 hover:bg-orange-50/40 transition-colors"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <p className="text-xs font-semibold text-foreground">
+                                      {integrationLink.label}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {integrationLink.description}
+                                    </p>
+                                  </div>
+                                  <ExternalLink className="w-3 h-3 text-orange-600 mt-0.5 flex-shrink-0" />
+                                </div>
+                              </Link>
+                            )
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
             )}

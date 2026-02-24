@@ -4,6 +4,8 @@ import { X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { enrolledCourses } from "@/data/learning";
+import { setUserAuthenticated } from "@/data/sessionAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -17,15 +19,58 @@ interface LoginModalProps {
   };
 }
 
+const learningStage1ToStage2CourseMap: Record<string, string> = {
+  "dt-fundamentals": "digital-transformation-fundamentals",
+  "dbp-capability": "dbp-framework-essentials",
+  "4d-model-mastery": "agile-transformation-leadership",
+  "enterprise-arch": "enterprise-architecture-patterns",
+  "change-leadership": "change-management-excellence",
+  "data-driven-decisions": "data-driven-decision-making",
+  "agile-transformation": "agile-transformation-leadership",
+  "cloud-architecture": "cloud-migration-strategies",
+  "transformation-roi": "data-driven-decision-making",
+  "transformation-leadership": "agile-transformation-leadership",
+};
+
 export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const resolveLearningRole = (value: string): "learner" | "admin" => {
+    const normalized = value.trim().toLowerCase();
+    return normalized.includes("admin") ? "admin" : "learner";
+  };
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setUserAuthenticated(true);
+
+    if (context.marketplace === "learning-center") {
+      const fallbackCourseId = enrolledCourses[0]?.id ?? "digital-transformation-fundamentals";
+      const mappedCourseId =
+        learningStage1ToStage2CourseMap[context.cardId] ??
+        (enrolledCourses.some((course) => course.id === context.cardId)
+          ? context.cardId
+          : fallbackCourseId);
+      const learningRole = resolveLearningRole(email);
+      const targetView = learningRole === "admin" ? "admin" : "user";
+
+      navigate(`/stage2/learning-center/course/${mappedCourseId}/${targetView}`, {
+        state: {
+          ...context,
+          learningRole,
+        },
+      });
+    } else if (context.marketplace === "knowledge-center") {
+      const targetTab = context.action === "save-to-workspace" ? "saved" : "overview";
+      navigate(`/stage2/knowledge/${targetTab}`, {
+        state: context,
+      });
+    } else {
+      // Keep existing handoff flow for non-learning marketplaces
     
     // Handle solution-specs marketplace - navigate to specific stage 2 routes
     if (context.marketplace === "solution-specs") {
@@ -51,6 +96,7 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
         state: context,
       });
     }
+
     
     onClose();
   };

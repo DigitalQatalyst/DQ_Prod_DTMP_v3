@@ -1,3 +1,5 @@
+import { dtmpDepartments } from "../departments";
+
 export interface Playbook {
   id: string;
   title: string;
@@ -240,11 +242,68 @@ export const playbooks: Playbook[] = [
       "Alternative Sourcing",
       "Demand-Supply Matching"
     ]
+  },
+  {
+    id: "enterprise-data-governance-accelerator",
+    title: "Enterprise Data Governance Accelerator",
+    description: "Pragmatic rollout plan for federated data governance across multiple business units",
+    industry: "Technology",
+    type: "Compliance-Driven",
+    scope: "Enterprise-wide",
+    format: "Workshop Kit",
+    formatIcon: "Presentation",
+    contributor: "Internal Experts",
+    coverGradient: "linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)",
+    topics: [
+      "Data Ownership Model",
+      "Policy Automation",
+      "Metadata Stewardship",
+      "Lineage and Controls",
+      "Operating Cadence"
+    ]
+  },
+  {
+    id: "customer-operations-modernization",
+    title: "Customer Operations Modernization Playbook",
+    description: "Blueprint for modernizing service operations with platform-based orchestration",
+    industry: "Retail & E-commerce",
+    type: "End-to-End Transformation",
+    scope: "Business Unit",
+    format: "Interactive Guide",
+    formatIcon: "MonitorPlay",
+    contributor: "Consulting Firms",
+    coverGradient: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
+    topics: [
+      "Case Flow Automation",
+      "Agent Workspace Consolidation",
+      "Self-Service Deflection",
+      "Experience Metrics",
+      "Workload Forecasting"
+    ]
+  },
+  {
+    id: "secure-product-delivery",
+    title: "Secure Product Delivery Operating Model",
+    description: "Secure-by-default delivery practices integrated into product teams and pipelines",
+    industry: "Financial Services",
+    type: "Technology-Specific",
+    scope: "Function",
+    format: "PDF Document",
+    formatIcon: "FileText",
+    contributor: "Technology Vendors",
+    coverGradient: "linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)",
+    topics: [
+      "Threat Modeling",
+      "Pipeline Security Gates",
+      "Runtime Hardening",
+      "Incident Readiness",
+      "Compliance Evidence"
+    ]
   }
 ];
 
 export const playbooksFilters = {
-  industry: ["Financial Services", "Healthcare", "Retail & E-commerce", "Manufacturing", "Public Sector", "Technology", "Education", "Energy & Utilities"],
+  department: [...dtmpDepartments],
   playbookType: ["End-to-End Transformation", "Domain-Specific", "Technology-Specific", "Compliance-Driven"],
   scope: ["Enterprise-wide", "Business Unit", "Department", "Function"],
   format: ["Interactive Guide", "PDF Document", "Video Series", "Workshop Kit"],

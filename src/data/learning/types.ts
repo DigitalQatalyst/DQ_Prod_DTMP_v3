@@ -1,3 +1,9 @@
+import type {
+  LearningEnrollmentStatus,
+  LearningLesson,
+  LearningModule,
+} from "../learningCenter/learningModel";
+
 // Learning Center Data Types
 
 export interface CourseEnrollment {
@@ -8,7 +14,7 @@ export interface CourseEnrollment {
   instructorTitle: string;
   thumbnail: string;
   progress: number; // 0-100
-  status: 'not-started' | 'in-progress' | 'completed';
+  status: LearningEnrollmentStatus;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   duration: string; // e.g., "6 weeks"
   credits: number; // CPE credits
@@ -33,26 +39,9 @@ export interface CourseEnrollment {
   enrolledCount: number;
 }
 
-export interface Lesson {
-  id: string;
-  title: string;
-  type: 'video' | 'reading' | 'exercise' | 'quiz' | 'discussion';
-  duration: string;
-  status: 'locked' | 'available' | 'in-progress' | 'completed';
-  completedAt?: string;
-}
+export type Lesson = LearningLesson;
 
-export interface CourseModule {
-  id: string;
-  number: number;
-  title: string;
-  description: string;
-  duration: string;
-  status: 'locked' | 'available' | 'in-progress' | 'completed';
-  progress: number; // 0-100
-  quizScore?: number; // If completed
-  lessons: Lesson[];
-}
+export type CourseModule = LearningModule;
 
 export interface CourseReview {
   id: string;

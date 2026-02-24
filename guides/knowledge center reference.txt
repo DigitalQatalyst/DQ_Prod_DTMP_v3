@@ -1,0 +1,1537 @@
+KNOWLEDGE CENTER - DEVELOPER BRIEFING DOCUMENT
+________________________________________
+DOCUMENT METADATA
+Marketplace: Knowledge Center
+Version: 1.0
+Date: February 2026
+Audience: Developers, Designers, Product Managers
+Prerequisites: None - this document is self-contained
+________________________________________
+1. DTMP PLATFORM CONTEXT
+What is DTMP?
+The Digital Transformation Metamodel Platform (DTMP) is an internal enterprise platform designed to accelerate an organization's digital transformation journey toward becoming a Digital-Centric Organization (DCO).
+DTMP provides:
+•	9 specialized marketplaces for transformation resources and services
+•	AI-powered intelligence and analytics across the digital estate
+•	Governance frameworks aligned to the 4D Model (Discern, Design, Deploy, Drive)
+•	Role-based access for different stakeholder groups (Staff, Managers, Directors, Executives, Partners)
+Platform Architecture
+DTMP operates in two stages:
+Stage 1: Marketplaces (Public/Pre-login)
+•	Browse and discover available services and resources
+•	Explanatory content to help users understand what's available
+•	Search and filter capabilities
+•	Call-to-action to access detailed functionality
+Stage 2: Service Hub (Authenticated/Post-login)
+•	Access detailed dashboards, tools, and workspaces
+•	Execute on selected services
+•	Collaborate with Transformation Office
+•	Role-based access to data and capabilities
+•	Layout: LVE (Left-Vertical-Expanded) 
+o	Column 1: Sidebar navigation (all marketplaces)
+o	Column 2: Resource/content list or categories
+o	Column 3: Detailed content viewer or workspace
+The 9 Marketplaces
+1.	Learning Center - Courses, certifications, training materials
+2.	Knowledge Center ← THIS MARKETPLACE
+3.	Portfolio Management - Application inventory and catalog
+4.	Support Services - Service requests, incident management, support tickets
+5.	Digital Intelligence - AI-powered analytics dashboards
+6.	Solutions Specifications - Blueprints, reference architectures, design patterns
+7.	Solutions Build - Request delivery of pre-built or custom solutions
+8.	Lifecycle Management - Active transformation initiatives (retire, modernize, replace)
+9.	AI DocWriter/Templates - AI-generated governance documents (optional)
+Transformation Office (TO)
+The Transformation Office is the central team that:
+•	Governs the DTMP platform
+•	Provides services through the marketplaces
+•	Manages transformation initiatives
+•	Maintains data quality and standards
+•	Supports users across all marketplaces
+________________________________________
+2. THIS MARKETPLACE: KNOWLEDGE CENTER
+What is Knowledge Center?
+Knowledge Center is the central repository of transformation knowledge, documentation, and best practices for the organization. It serves as the collective wisdom accumulated from transformation initiatives, industry research, and organizational experience.
+Core Function: Provide searchable, categorized access to articles, guides, case studies, reference materials, FAQs, lessons learned, and best practices that help users navigate their digital transformation journey.
+Why Does This Marketplace Exist?
+Problem Being Solved:
+Organizations typically struggle with:
+•	❌ Knowledge scattered - Documentation spread across wikis, SharePoint, email, personal drives
+•	❌ Tribal knowledge - Critical information exists only in people's heads
+•	❌ Reinventing the wheel - Teams solve problems that others have already solved
+•	❌ Lost lessons learned - Insights from past projects are not captured or shared
+•	❌ No single source - Users don't know where to find transformation guidance
+•	❌ Outdated content - No clear ownership or review process for documentation
+•	❌ Low discoverability - Good content exists but can't be found when needed
+Solution:
+Knowledge Center provides:
+•	✅ Centralized repository - Single place for all transformation knowledge
+•	✅ Curated content - Transformation Office reviews and maintains quality
+•	✅ Searchable library - Find answers quickly with search and filters
+•	✅ Categorized by topic - Browse by transformation phase, domain, or content type
+•	✅ Living documentation - Regularly updated with new learnings
+•	✅ Best practices - Proven approaches from successful initiatives
+•	✅ Self-service - Users find answers without asking for help
+•	✅ Contribution model - Teams can share their knowledge back
+Knowledge Center vs. Learning Center
+These are different marketplaces serving different needs:
+Dimension	Knowledge Center	Learning Center
+Purpose	Reference & documentation	Structured education
+Content Type	Articles, guides, wikis	Courses, certifications
+Format	Read-at-your-own-pace	Structured lessons + assessments
+Learning Model	Just-in-time, need-based	Comprehensive, sequential
+Completion	No completion tracking	Progress tracking, certificates
+Use Case	"How do I solve X?"	"Teach me about Y"
+Example	"API Gateway Design Guide"	"API Design Course (8 hours)"
+Analogy	Stack Overflow, Wikipedia	Udemy, Coursera
+When to use Knowledge Center:
+•	"I need to quickly reference the API naming conventions"
+•	"What's the best practice for data migration?"
+•	"Has anyone solved this integration problem before?"
+When to use Learning Center:
+•	"I want to learn cloud architecture fundamentals"
+•	"I need certification in SAFe methodology"
+•	"Train my team on microservices patterns"
+Relationship to Other Marketplaces
+Knowledge Center supports other marketplaces with documentation:
+KNOWLEDGE CENTER (The Library)
+         ↓
+         ├─→ SOLUTIONS SPECIFICATIONS
+         │   (References: "How to use this blueprint" guides)
+         │   Example: "CDP Implementation Checklist" article
+         │
+         ├─→ LIFECYCLE MANAGEMENT
+         │   (References: Stage gate templates, governance guides)
+         │   Example: "How to Submit a Stage Gate" article
+         │
+         ├─→ PORTFOLIO MANAGEMENT
+         │   (References: Data entry guidelines, rationalization frameworks)
+         │   Example: "Application Rationalization Framework" guide
+         │
+         ├─→ DIGITAL INTELLIGENCE
+         │   (References: Dashboard user guides, metric definitions)
+         │   Example: "Understanding Health Score Calculation" article
+         │
+         └─→ LEARNING CENTER
+             (References: Course prerequisites, supplemental reading)
+             Example: "Additional Resources" links in courses
+Key Principle: Knowledge Center provides just-in-time reference materials that complement structured learning (Learning Center) and active work (other marketplaces).
+Who Uses This Marketplace?
+Role	Primary Use Cases
+All Users (General)	• Quick reference for common questions
+• Search for best practices
+• Browse transformation guides
+• Access FAQs and how-to articles
+Enterprise Architects	• Reference architecture patterns
+• Design principles and standards
+• Technology decision frameworks
+• Case studies from past projects
+Project/Program Managers	• Project templates and checklists
+• Governance process guides
+• Lessons learned from similar projects
+• Risk management frameworks
+Developers/Engineers	• Coding standards and conventions
+• Technical how-to guides
+• Troubleshooting articles
+• Integration patterns
+Business Stakeholders	• Transformation glossary
+• Business capability models
+• Change management guides
+• Vendor evaluation frameworks
+Transformation Office	• Create and maintain articles
+• Curate best practices
+• Track content usage
+• Identify knowledge gaps
+What's Inside This Marketplace?
+Knowledge Center contains articles and documents organized by:
+Content Types:
+1.	Articles - Written guides, explanations, how-tos (2-10 pages)
+2.	Case Studies - Real project examples with outcomes (3-8 pages)
+3.	Best Practices - Proven approaches and patterns (1-5 pages)
+4.	Reference Materials - Standards, glossaries, templates (varies)
+5.	FAQs - Common questions with answers (1-2 pages)
+6.	Lessons Learned - Post-project insights (2-4 pages)
+7.	Checklists - Step-by-step validation lists (1-2 pages)
+8.	Decision Frameworks - How to make specific decisions (2-5 pages)
+Categories (by Transformation Phase - 4D Model):
+1.	Discern - Discovery, assessment, analysis
+2.	Design - Planning, architecture, specifications
+3.	Deploy - Implementation, execution, delivery
+4.	Drive - Operations, optimization, continuous improvement
+Categories (by Domain):
+1.	Strategy & Governance - Transformation strategy, governance models
+2.	Architecture & Design - Patterns, principles, standards
+3.	Technology & Engineering - Technical guides, coding standards
+4.	Data & Analytics - Data management, analytics practices
+5.	Security & Compliance - Security standards, compliance frameworks
+6.	Change Management - Organizational change, communications
+7.	Project Management - PM methodologies, templates
+8.	Vendor Management - Vendor selection, contract management
+Additional Metadata:
+•	Tags - Searchable keywords
+•	Author - Who created the content
+•	Last Updated - Date of last revision
+•	Review Status - Draft, Published, Archived
+•	Difficulty Level - Beginner, Intermediate, Advanced
+•	Related Content - Links to related articles
+•	Attachments - Downloadable templates, worksheets
+________________________________________
+3. STAGE 1: MARKETPLACE DESIGN
+Page Layout
+URL: /marketplaces/knowledge-center
+Structure:
+┌─────────────────────────────────────────────────────────────┐
+│                    HEADER / NAVIGATION                       │
+│  Home > Marketplaces > Knowledge Center                      │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                      HERO SECTION                            │
+│                                                              │
+│  [Icon: BookOpen/Library - Large]                           │
+│                                                              │
+│  KNOWLEDGE CENTER                                            │
+│  Your transformation knowledge library                       │
+│                                                              │
+│  385+ articles • Best practices • Lessons learned            │
+│                                                              │
+│  [Explore Knowledge Base →]  [Submit Article]                │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    KEY STATISTICS                            │
+│                                                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │   385    │  │   47     │  │  12K     │  │   4.7    │   │
+│  │ Articles │  │ Case     │  │  Monthly │  │  Avg     │   │
+│  │          │  │ Studies  │  │  Views   │  │  Rating  │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              BROWSE BY TRANSFORMATION PHASE (4D)             │
+│                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │ [DISCERN]       │  │ [DESIGN]        │                  │
+│  │ Discovery       │  │ Planning        │                  │
+│  │                 │  │                 │                  │
+│  │ 87 articles     │  │ 102 articles    │                  │
+│  │                 │  │                 │                  │
+│  │ • Assessment    │  │ • Architecture  │                  │
+│  │   frameworks    │  │   patterns      │                  │
+│  │ • Discovery     │  │ • Design        │                  │
+│  │   guides        │  │   standards     │                  │
+│  │ • Maturity      │  │ • Planning      │                  │
+│  │   models        │  │   templates     │                  │
+│  └─────────────────┘  └─────────────────┘                  │
+│                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │ [DEPLOY]        │  │ [DRIVE]         │                  │
+│  │ Implementation  │  │ Operations      │                  │
+│  │                 │  │                 │                  │
+│  │ 128 articles    │  │ 68 articles     │                  │
+│  │                 │  │                 │                  │
+│  │ • Delivery      │  │ • Optimization  │                  │
+│  │   playbooks     │  │   guides        │                  │
+│  │ • Integration   │  │ • Monitoring    │                  │
+│  │   patterns      │  │   practices     │                  │
+│  │ • Testing       │  │ • Continuous    │                  │
+│  │   strategies    │  │   improvement   │                  │
+│  └─────────────────┘  └─────────────────┘                  │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              BROWSE BY DOMAIN                                │
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐│
+│  │ Strategy &     │  │ Architecture & │  │ Technology &   ││
+│  │ Governance     │  │ Design         │  │ Engineering    ││
+│  │                │  │                │  │                ││
+│  │ 52 articles    │  │ 89 articles    │  │ 94 articles    ││
+│  └────────────────┘  └────────────────┘  └────────────────┘│
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐│
+│  │ Data &         │  │ Security &     │  │ Change         ││
+│  │ Analytics      │  │ Compliance     │  │ Management     ││
+│  │                │  │                │  │                ││
+│  │ 67 articles    │  │ 43 articles    │  │ 40 articles    ││
+│  └────────────────┘  └────────────────┘  └────────────────┘│
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              FEATURED CONTENT                                │
+│                                                              │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐│
+│  │ [Doc Icon]     │  │ [Doc Icon]     │  │ [Doc Icon]     ││
+│  │                │  │                │  │                ││
+│  │ API Gateway    │  │ Cloud          │  │ Data           ││
+│  │ Design Guide   │  │ Migration      │  │ Governance     ││
+│  │                │  │ Playbook       │  │ Framework      ││
+│  │ Architecture   │  │ Case Study     │  │ Best Practice  ││
+│  │ [DESIGN]       │  │ [DEPLOY]       │  │ [DISCERN]      ││
+│  │                │  │                │  │                ││
+│  │ 4.8 ⭐ 142 👁  │  │ 4.9 ⭐ 278 👁  │  │ 4.7 ⭐ 89 👁   ││
+│  │                │  │                │  │                ││
+│  │ Read More →    │  │ Read More →    │  │ Read More →    ││
+│  └────────────────┘  └────────────────┘  └────────────────┘│
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              MOST POPULAR                                    │
+│                                                              │
+│  1. Microservices Architecture Pattern (Technology, 2.4K)   │
+│  2. Stage Gate Submission Guide (Governance, 1.8K)          │
+│  3. Application Rationalization Framework (Architecture,1.6K)│
+│  4. Data Migration Best Practices (Data, 1.4K)              │
+│  5. API Naming Conventions (Technology, 1.2K)               │
+│                                                              │
+│  [View All Popular Articles →]                              │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              RECENTLY UPDATED                                │
+│                                                              │
+│  • Zero Trust Security Model (Updated 2 days ago)           │
+│  • S/4HANA Migration Checklist (Updated 5 days ago)         │
+│  • Remote Work Policy Template (Updated 1 week ago)         │
+│                                                              │
+│  [View All Recent Updates →]                                │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  CONTRIBUTE                                  │
+│                                                              │
+│  Have knowledge to share?                                   │
+│                                                              │
+│  Share lessons learned from your projects, document best    │
+│  practices, or submit case studies to help others.          │
+│                                                              │
+│  [Submit an Article →]  [Contribution Guidelines]           │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  CALL TO ACTION                              │
+│                                                              │
+│         [Explore Knowledge Base →]                           │
+│              (Requires authentication)                       │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                        FOOTER                                │
+│  DTMP Platform | Governed by Transformation Office          │
+└─────────────────────────────────────────────────────────────┘
+Design Specifications
+Hero Section:
+•	Icon: BookOpen or Library from Lucide React (48-64px)
+•	Title: "Knowledge Center" (36-48px, bold, navy #001F3F)
+•	Subtitle: "Your transformation knowledge library" (18-24px, gray-600)
+•	Tags: "385+ articles" • "Best practices" • "Lessons learned"
+•	CTA Buttons: 
+o	Primary: "Explore Knowledge Base" (orange #FF6600)
+o	Secondary: "Submit Article" (outline)
+Statistics Cards:
+•	4 metric cards in a row (responsive: stack on mobile)
+•	Large number (32-48px, bold)
+•	Label below (14-16px, gray-600)
+•	Icon above number (optional)
+Phase Cards (4D Model):
+•	4 cards (2x2 grid on desktop, 1 column on mobile)
+•	Each with phase badge color: 
+o	Discern: Blue (#0066CC)
+o	Design: Purple (#8B5CF6)
+o	Deploy: Green (#10B981)
+o	Drive: Orange (#FF6600)
+•	White background, border, shadow on hover
+•	Article count prominent
+•	3 bullet points showing content types
+Domain Cards:
+•	6 cards (3x2 grid on desktop, 1 column on mobile)
+•	Simpler than phase cards
+•	Icon + title + article count
+•	Clickable to filter
+Featured Content Cards:
+•	3 cards horizontal (stack on mobile)
+•	Document icon at top
+•	Title (bold, 16-18px)
+•	Content type label
+•	Phase badge
+•	Rating (stars) + views count
+•	"Read More →" link
+Most Popular List:
+•	Numbered list (1-5)
+•	Title + (category, view count)
+•	Clickable
+•	"View All" link at bottom
+Recently Updated List:
+•	Bullet list
+•	Title + timestamp
+•	"View All" link at bottom
+Contribute Section:
+•	Call-to-action for user submissions
+•	Two buttons: "Submit an Article" + "Contribution Guidelines"
+•	Encouraging tone
+Color Palette:
+•	Primary: Navy (#001F3F), Blue (#0066CC), Light Blue (#E6F2FF)
+•	Accent: Orange (#FF6600), Purple (#8B5CF6), Pink (#EC4899), Green (#10B981)
+•	Phase Badges: 
+o	Discern: Blue (#0066CC)
+o	Design: Purple (#8B5CF6)
+o	Deploy: Green (#10B981)
+o	Drive: Orange (#FF6600)
+Typography:
+•	Font: Inter with system fallback
+•	Hero title: text-4xl sm:text-5xl lg:text-6xl font-bold
+•	Section title: text-2xl sm:text-3xl lg:text-4xl font-bold
+•	Card title: text-lg sm:text-xl font-semibold
+•	Body: text-base sm:text-lg
+Responsive Breakpoints:
+•	Mobile: < 640px (sm)
+•	Tablet: 640px - 1024px (md/lg)
+•	Desktop: 1024px+ (xl)
+User Journey (Stage 1)
+1. User lands on Knowledge Center marketplace
+   ↓
+2. User reads value proposition and sees statistics
+   ↓
+3. User browses by phase (4D) or domain
+   ↓
+4. User sees featured articles and popular content
+   ↓
+5. User clicks "Explore Knowledge Base" button
+   ↓
+6. Login prompt appears (if not authenticated)
+   ↓
+7. User logs in
+   ↓
+8. Redirects to Stage 2: /stage2/knowledge/overview
+________________________________________
+4. STAGE 2: SERVICE HUB DESIGN
+LVE Layout Structure
+Base URL: /stage2/knowledge
+Layout: Left-Vertical-Expanded (3 Columns)
+┌────────────┬─────────────────────┬──────────────────────────────────┐
+│  COLUMN 1  │     COLUMN 2        │         COLUMN 3                 │
+│ Sidebar    │  Article List       │   Article Reader                 │
+├────────────┼─────────────────────┼──────────────────────────────────┤
+│            │                     │                                  │
+│ Learning   │ KNOWLEDGE (385)     │ API Gateway Design Guide         │
+│ Knowledge ←│                     │ ──────────────────────────────   │
+│ Portfolio  │ [Search articles...] │                                 │
+│ Support    │                     │ [Architecture] [Design] [APIs]   │
+│ Intelligence│ [Filters ▼]        │                                  │
+│ Specs      │                     │ ┌──────────────────────────────┐ │
+│ Build      │ By Phase:           │ │ TABLE OF CONTENTS            │ │
+│ Lifecycle  │ ☐ Discern (87)      │ │ 1. Introduction              │ │
+│            │ ☐ Design (102)      │ │ 2. Design Principles         │ │
+│            │ ☐ Deploy (128)      │ │ 3. Architecture Patterns     │ │
+│            │ ☐ Drive (68)        │ │ 4. Implementation Guide      │ │
+│            │                     │ │ 5. Examples                  │ │
+│            │ ┌─────────────────┐ │ └──────────────────────────────┘ │
+│            │ │ API Gateway  ←  │ │                                  │
+│            │ │ Design Guide    │ │ # 1. Introduction                │
+│            │ │                 │ │                                  │
+│            │ │ [DESIGN]        │ │ An API Gateway is a server that  │
+│            │ │ 4.8⭐ 142 views │ │ acts as an API front-end...      │
+│            │ └─────────────────┘ │                                  │
+│            │ ┌─────────────────┐ │ ## Purpose                       │
+│            │ │ Cloud Migration │ │ The API Gateway pattern...       │
+│            │ │ Playbook        │ │                                  │
+│            │ │                 │ │ [Article content continues...]   │
+│            │ │ [DEPLOY]        │ │                                  │
+│            │ │ 4.9⭐ 278 views │ │ ┌──────────────────────────────┐ │
+│            │ └─────────────────┘ │ │ RELATED ARTICLES             │ │
+│            │ ┌─────────────────┐ │ │ • REST API Best Practices    │ │
+│            │ │ Data Governance │ │ │ • Microservices Patterns     │ │
+│            │ │ Framework       │ │ │ • API Security Guide         │ │
+│            │ │                 │ │ └──────────────────────────────┘ │
+│            │ │ [DISCERN]       │ │                                  │
+│            │ │ 4.7⭐ 89 views  │ │ [👍 Helpful] [📝 Edit] [💾 Save] │
+│            │ └─────────────────┘ │                                  │
+│            │                     │                                  │
+│            │ (List continues...) │                                  │
+│            │                     │                                  │
+└────────────┴─────────────────────┴──────────────────────────────────┘
+Column 1: Sidebar Navigation
+Standard DTMP Sidebar:
+•	All 9 marketplaces listed
+•	Knowledge Center is highlighted/active
+•	Sub-items under Knowledge Center: 
+o	Overview
+o	Browse Articles
+o	My Saved Articles
+o	My Contributions
+o	Submit Article
+Implementation:
+•	Consistent across all Stage 2 pages
+•	Icons from Lucide React
+•	Active state styling
+•	Collapsible on mobile
+________________________________________
+Column 2: Article List
+Purpose: Browsable/searchable list of all articles with filtering
+Components:
+1.	Search Bar
+tsx
+   <SearchInput placeholder="Search articles, guides, case studies..." />
+•	Searches: Title, content, tags, author
+•	Real-time filtering
+•	Search suggestions/autocomplete
+•	Clear button
+2.	Filter Sidebar (Collapsible)
+tsx
+   <FilterPanel>
+     <FilterSection title="Transformation Phase">
+       <Checkbox label="Discern (87)" value="discern" />
+       <Checkbox label="Design (102)" value="design" />
+       <Checkbox label="Deploy (128)" value="deploy" />
+       <Checkbox label="Drive (68)" value="drive" />
+     </FilterSection>
+     
+     <FilterSection title="Domain">
+       <Checkbox label="Strategy & Governance (52)" />
+       <Checkbox label="Architecture & Design (89)" />
+       <Checkbox label="Technology & Engineering (94)" />
+       <Checkbox label="Data & Analytics (67)" />
+       <Checkbox label="Security & Compliance (43)" />
+       <Checkbox label="Change Management (40)" />
+     </FilterSection>
+     
+     <FilterSection title="Content Type">
+       <Checkbox label="Article (245)" />
+       <Checkbox label="Case Study (47)" />
+       <Checkbox label="Best Practice (38)" />
+       <Checkbox label="Checklist (25)" />
+       <Checkbox label="FAQ (15)" />
+       <Checkbox label="Lessons Learned (15)" />
+     </FilterSection>
+     
+     <FilterSection title="Difficulty">
+       <Checkbox label="Beginner (112)" />
+       <Checkbox label="Intermediate (198)" />
+       <Checkbox label="Advanced (75)" />
+     </FilterSection>
+     
+     <FilterSection title="Last Updated">
+       <Radio label="Last 7 days" />
+       <Radio label="Last 30 days" />
+       <Radio label="Last 3 months" />
+       <Radio label="Last year" />
+       <Radio label="All time" />
+     </FilterSection>
+   </FilterPanel>
+3.	Sort Options
+tsx
+   <SortDropdown>
+     - Most Relevant (default for search)
+     - Most Popular (views)
+     - Highest Rated
+     - Recently Updated
+     - Alphabetical (A-Z)
+   </SortDropdown>
+4.	Article List Items
+tsx
+   <ArticleListItem>
+     <Icon type={article.contentType} /> {/* Document, CheckSquare, Lightbulb, etc. */}
+     <div>
+       <h4>{article.title}</h4>
+       <p>{article.excerpt}</p>
+       <div className="meta">
+         <PhaseBadge phase={article.phase} />
+         <span>{article.domain}</span>
+         <span>{article.readTime} min read</span>
+         <Rating value={article.rating} />
+         <span>{article.views} views</span>
+       </div>
+       <div className="tags">
+         {article.tags.map(tag => <Tag key={tag}>{tag}</Tag>)}
+       </div>
+     </div>
+   </ArticleListItem>
+```
+
+5. **Results Count & Active Filters**
+```
+   Showing 23 articles
+   
+   Active filters: [Design ×] [Architecture & Design ×] [Clear all]
+```
+
+**RBAC Considerations:**
+
+Unlike Portfolio Management, **all users see all published articles** in Knowledge Center. There's no role-based filtering of content visibility.
+
+**Reasoning:**
+- Knowledge should be openly accessible
+- Promotes knowledge sharing culture
+- Reduces duplication of effort
+- Encourages collaboration
+
+**Exception:** Draft articles (unpublished) are only visible to:
+- The author
+- Transformation Office (reviewers)
+
+---
+
+### **Column 3: Article Reader**
+
+**Purpose:** Display selected article with full content, navigation, and actions
+
+**Layout:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ ARTICLE HEADER                                           │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ API Gateway Design Guide                                 │
+│                                                          │
+│ [Architecture] [Design] [DESIGN Phase] [APIs]           │
+│                                                          │
+│ By: David Kim (Enterprise Architect)                     │
+│ Published: Jan 15, 2026 | Updated: Feb 1, 2026          │
+│ Reading time: 12 minutes                                 │
+│ Rating: 4.8⭐ (142 ratings) | 2,847 views               │
+│                                                          │
+│ [👍 Helpful 127] [📝 Suggest Edit] [💾 Save] [🔗 Share] │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ TABLE OF CONTENTS (Sticky)                               │
+├─────────────────────────────────────────────────────────┤
+│ 1. Introduction                                          │
+│ 2. Design Principles                                     │
+│    2.1. Single Entry Point                               │
+│    2.2. Protocol Translation                             │
+│ 3. Architecture Patterns                                 │
+│    3.1. Gateway Aggregation                              │
+│    3.2. Gateway Offloading                               │
+│ 4. Implementation Guide                                  │
+│ 5. Code Examples                                         │
+│ 6. Common Pitfalls                                       │
+│ 7. Related Resources                                     │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ ARTICLE CONTENT                                          │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│ # 1. Introduction                                        │
+│                                                          │
+│ An API Gateway is a server that acts as an API          │
+│ front-end, receiving API requests, enforcing throttling │
+│ and security policies, passing requests to the back-end │
+│ service, and then passing the response back to the      │
+│ requester.                                               │
+│                                                          │
+│ ## Purpose                                               │
+│                                                          │
+│ The API Gateway pattern provides a single entry point   │
+│ for clients to access backend microservices...          │
+│                                                          │
+│ [Rich text content with:]                                │
+│ - Headings (H1-H6)                                       │
+│ - Paragraphs                                             │
+│ - Bold, italic, code formatting                          │
+│ - Bullet lists and numbered lists                        │
+│ - Code blocks with syntax highlighting                   │
+│ - Images and diagrams                                    │
+│ - Tables                                                 │
+│ - Blockquotes for callouts                               │
+│ - Links to other articles                                │
+│                                                          │
+│ # 2. Design Principles                                   │
+│                                                          │
+│ ## 2.1. Single Entry Point                               │
+│                                                          │
+│ The gateway provides a single, well-known endpoint...   │
+│                                                          │
+│ [Content continues...]                                   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ ATTACHMENTS & DOWNLOADS                                  │
+├─────────────────────────────────────────────────────────┤
+│ 📄 API_Gateway_Checklist.xlsx (45 KB)                   │
+│ 📄 Gateway_Architecture_Diagram.pdf (1.2 MB)            │
+│ 📄 Sample_Configuration.yaml (8 KB)                      │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ RELATED ARTICLES                                         │
+├─────────────────────────────────────────────────────────┤
+│ • REST API Best Practices                                │
+│ • Microservices Communication Patterns                   │
+│ • API Security and Authentication                        │
+│ • Service Mesh vs. API Gateway                           │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ COMMENTS & DISCUSSION (12)                               │
+├─────────────────────────────────────────────────────────┤
+│ 👤 Sarah Chen • 5 days ago                               │
+│ Great guide! We used this pattern for our customer      │
+│ portal migration and it worked perfectly.               │
+│                                                          │
+│ 👤 Michael Torres • 3 days ago                           │
+│ Question: How do you handle versioning with the         │
+│ gateway pattern?                                         │
+│   ↳ David Kim (Author) • 2 days ago                     │
+│     Good question! We handle versioning via...          │
+│                                                          │
+│ [Load more comments]                                     │
+│                                                          │
+│ [Add a comment...]                                       │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ ARTICLE METADATA                                         │
+├─────────────────────────────────────────────────────────┤
+│ Article ID: KB-2026-089                                  │
+│ Version: 2.3                                             │
+│ Last reviewed: Feb 1, 2026                               │
+│ Review cycle: Quarterly                                  │
+│ Status: Published                                        │
+│                                                          │
+│ Contributors:                                            │
+│ • David Kim (Author, Enterprise Architect)              │
+│ • Jennifer Park (Reviewer, Solution Architect)          │
+│ • Alex Johnson (Technical Editor)                        │
+│                                                          │
+│ Change History:                                          │
+│ • v2.3 (Feb 1, 2026): Added section on rate limiting    │
+│ • v2.2 (Dec 15, 2025): Updated diagrams                 │
+│ • v2.1 (Nov 1, 2025): Added code examples               │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+### **Article Reader Features**
+
+**1. Table of Contents (Sticky)**
+- Auto-generated from headings
+- Highlights current section as user scrolls
+- Click to jump to section
+- Collapses on mobile
+
+**2. Rich Text Formatting**
+- Markdown or WYSIWYG editor content
+- Syntax highlighting for code blocks
+- Responsive images
+- Embedded diagrams/charts
+- Tables with sorting
+- Collapsible sections (optional)
+
+**3. Action Buttons**
+- **Helpful** - Like/upvote (tracks helpful count)
+- **Suggest Edit** - Submit corrections or improvements
+- **Save** - Bookmark for later (adds to "My Saved Articles")
+- **Share** - Copy link, email, Slack
+- **Print/PDF** - Export article as PDF
+
+**4. Attachments**
+- Downloadable files (Excel, PDF, templates)
+- File size displayed
+- Click to download
+
+**5. Related Articles**
+- AI-recommended similar content
+- Manual curator-selected links
+- Clickable to navigate
+
+**6. Comments & Discussion**
+- Threaded comments
+- Reply to comments
+- @ mentions
+- Author can respond
+- Moderation by TO
+
+**7. Article Metadata**
+- Version history
+- Contributors
+- Review status
+- Change log
+
+**8. Breadcrumb Navigation**
+```
+Knowledge Center > Architecture & Design > API Gateway Design Guide
+```
+
+---
+
+### **Additional Stage 2 Pages**
+
+#### **Page: Knowledge Overview** (`/stage2/knowledge/overview`)
+
+**Purpose:** Dashboard view of knowledge base metrics and activity
+
+**Content:**
+- Total article count by category
+- Most popular articles (this month)
+- Recently updated articles
+- My recently viewed articles
+- My saved articles (quick access)
+- Trending topics
+- Knowledge gaps (TO identified)
+- Contribution statistics
+
+**Layout:** Dashboard with metric cards and lists
+
+---
+
+#### **Page: My Saved Articles** (`/stage2/knowledge/saved`)
+
+**Purpose:** User's bookmarked articles for quick access
+
+**Content:**
+- List of articles user saved
+- Organized by date saved or custom folders
+- Quick search within saved articles
+- Remove from saved
+
+**Use Case:** "I know I saved that API guide somewhere..."
+
+---
+
+#### **Page: My Contributions** (`/stage2/knowledge/contributions`)
+
+**Purpose:** Track articles user has authored or contributed to
+
+**Content:**
+- Articles authored by user
+- Status (Draft, Under Review, Published)
+- Edit drafts
+- View submission history
+- Track reviews and feedback
+
+**Use Case:** "What's the status of my article submission?"
+
+---
+
+#### **Page: Submit Article** (`/stage2/knowledge/submit`)
+
+**Purpose:** Form for users to submit new articles
+
+**Content:**
+- Article submission form:
+  - Title
+  - Category (Phase + Domain)
+  - Content Type
+  - Difficulty Level
+  - Tags
+  - Content (rich text editor)
+  - Attachments
+  - Related articles (optional)
+- Save as draft or submit for review
+- Preview before submission
+
+**Workflow:**
+```
+User writes article
+  ↓
+Saves as draft (can edit anytime)
+  ↓
+Submits for review
+  ↓
+TO reviews article
+  ↓
+TO provides feedback or publishes
+  ↓
+Article appears in Knowledge Center
+  ↓
+User gets notification
+________________________________________
+5. DATA STRUCTURES
+Core Data Model
+typescript
+interface Article {
+  // Identity
+  id: string; // Format: KB-2026-089
+  title: string;
+  slug: string; // URL-friendly: "api-gateway-design-guide"
+  excerpt: string; // 2-3 sentence summary
+  
+  // Content
+  content: string; // Markdown or HTML
+  tableOfContents: TOCItem[];
+  attachments: Attachment[];
+  
+  // Classification
+  phase: 'discern' | 'design' | 'deploy' | 'drive';
+  domain: 'strategy-governance' | 'architecture-design' | 'technology-engineering' | 
+          'data-analytics' | 'security-compliance' | 'change-management' | 
+          'project-management' | 'vendor-management';
+  contentType: 'article' | 'case-study' | 'best-practice' | 'reference' | 
+               'faq' | 'lessons-learned' | 'checklist' | 'framework';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  tags: string[];
+  
+  // Authorship
+  author: {
+    id: string;
+    name: string;
+    title: string;
+    email: string;
+  };
+  contributors: {
+    id: string;
+    name: string;
+    role: 'reviewer' | 'editor' | 'co-author';
+  }[];
+  
+  // Publishing
+  status: 'draft' | 'under-review' | 'published' | 'archived';
+  publishedDate?: string;
+  lastUpdatedDate: string;
+  lastReviewedDate?: string;
+  reviewCycle: 'monthly' | 'quarterly' | 'annually';
+  version: string; // Semantic versioning
+  
+  // Engagement
+  views: number;
+  uniqueViews: number;
+  helpfulCount: number; // Upvotes
+  rating: number; // Average rating (0-5)
+  ratingCount: number; // Number of ratings
+  saves: number; // Bookmark count
+  
+  // Related Content
+  relatedArticles: string[]; // Article IDs
+  prerequisites: string[]; // Required reading
+  furtherReading: string[]; // Suggested next steps
+  
+  // SEO & Metadata
+  keywords: string[];
+  readTime: number; // Estimated minutes
+  language: 'en' | 'es' | 'fr'; // Multi-language support (future)
+  
+  // Change History
+  changeLog: ChangeLogEntry[];
+  
+  // Metadata
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+}
+
+interface TOCItem {
+  id: string;
+  level: number; // 1-6 (H1-H6)
+  title: string;
+  anchor: string; // URL anchor
+}
+
+interface Attachment {
+  id: string;
+  fileName: string;
+  fileSize: number; // Bytes
+  fileType: string; // MIME type
+  downloadUrl: string;
+  uploadedBy: string;
+  uploadedAt: string;
+}
+
+interface ChangeLogEntry {
+  version: string;
+  date: string;
+  author: string;
+  changes: string; // Description of changes
+}
+
+interface Comment {
+  id: string;
+  articleId: string;
+  parentCommentId?: string; // For threaded replies
+  
+  author: {
+    id: string;
+    name: string;
+  };
+  
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+  
+  likes: number;
+  isAuthorResponse: boolean; // True if article author replied
+  
+  status: 'published' | 'flagged' | 'removed';
+}
+
+interface UserArticleInteraction {
+  userId: string;
+  articleId: string;
+  
+  viewed: boolean;
+  viewCount: number;
+  lastViewedAt?: string;
+  
+  saved: boolean;
+  savedAt?: string;
+  
+  rated: boolean;
+  rating?: number; // 1-5
+  ratedAt?: string;
+  
+  markedHelpful: boolean;
+  helpfulAt?: string;
+}
+```
+
+### **Sample Data (Create 385 articles)**
+
+**Distribution:**
+
+**By Phase (4D Model):**
+- Discern: 87 articles
+- Design: 102 articles
+- Deploy: 128 articles
+- Drive: 68 articles
+
+**By Domain:**
+- Strategy & Governance: 52 articles
+- Architecture & Design: 89 articles
+- Technology & Engineering: 94 articles
+- Data & Analytics: 67 articles
+- Security & Compliance: 43 articles
+- Change Management: 40 articles
+
+**By Content Type:**
+- Article: 245
+- Case Study: 47
+- Best Practice: 38
+- Checklist: 25
+- FAQ: 15
+- Lessons Learned: 15
+
+**By Difficulty:**
+- Beginner: 112 articles
+- Intermediate: 198 articles
+- Advanced: 75 articles
+
+**Example Articles to Include:**
+
+1. **API Gateway Design Guide** (Design, Architecture, Article, Intermediate)
+2. **Cloud Migration Playbook** (Deploy, Technology, Case Study, Advanced)
+3. **Data Governance Framework** (Discern, Data, Framework, Intermediate)
+4. **Microservices Architecture Pattern** (Design, Architecture, Article, Advanced)
+5. **Stage Gate Submission Guide** (Drive, Governance, Article, Beginner)
+6. **Application Rationalization Framework** (Discern, Architecture, Framework, Intermediate)
+7. **Data Migration Best Practices** (Deploy, Data, Best Practice, Intermediate)
+8. **API Naming Conventions** (Design, Technology, Article, Beginner)
+9. **Zero Trust Security Model** (Design, Security, Article, Advanced)
+10. **S/4HANA Migration Checklist** (Deploy, Technology, Checklist, Intermediate)
+... (375 more)
+
+---
+
+## **6. KEY FEATURES & WORKFLOWS**
+
+### **Feature 1: Article Search & Discovery**
+
+**User Story:**
+> "As a Developer, I want to find best practices for API design so I can follow organizational standards."
+
+**Workflow:**
+1. User navigates to `/stage2/knowledge/overview`
+2. User types "API design" in search bar
+3. System shows 12 matching articles
+4. User applies filter: "Technology & Engineering"
+5. Results narrow to 7 articles
+6. User sorts by "Highest Rated"
+7. User clicks on "API Design Best Practices" (4.9⭐)
+8. Column 3 shows full article
+9. User reads article, downloads attached "API Standards Checklist.xlsx"
+10. User clicks "Save" to bookmark for later reference
+
+**Implementation:**
+- Full-text search (ElasticSearch or similar)
+- Real-time filtering
+- Sort options
+- Highlight search terms in results
+- Search suggestions/autocomplete
+
+---
+
+### **Feature 2: Curated Content Discovery (Browsing)**
+
+**User Story:**
+> "As an Enterprise Architect new to the organization, I want to browse all architecture-related articles to understand our standards."
+
+**Workflow:**
+1. User navigates to `/stage2/knowledge/overview`
+2. User clicks on "Architecture & Design" domain card
+3. Column 2 filters to 89 architecture articles
+4. User further filters by Phase: "Design"
+5. Results narrow to 42 articles
+6. User browses list, sees:
+   - Microservices Patterns
+   - API Gateway Design
+   - Event-Driven Architecture
+   - Domain-Driven Design
+   - etc.
+7. User clicks on each, reads in Column 3
+8. User saves 5 articles for deeper study later
+
+**Implementation:**
+- Category-based navigation
+- Multi-filter support (AND logic)
+- Persistent filters (maintain state across navigation)
+- "Save all filtered" bulk action (optional)
+
+---
+
+### **Feature 3: Article Contribution**
+
+**User Story:**
+> "As a Project Manager who just completed a cloud migration, I want to share lessons learned so other teams can benefit."
+
+**Workflow:**
+1. User navigates to `/stage2/knowledge/submit`
+2. User fills out form:
+   - Title: "Lessons Learned: AWS Cloud Migration"
+   - Phase: Deploy
+   - Domain: Technology & Engineering
+   - Content Type: Lessons Learned
+   - Difficulty: Intermediate
+   - Tags: cloud, aws, migration, lessons-learned
+   - Content: [Writes article in rich text editor]
+   - Attachments: [Uploads "Migration Timeline.xlsx"]
+3. User clicks "Save as Draft" (saves progress)
+4. User returns later, clicks "Submit for Review"
+5. TO receives notification of submission
+6. TO Reviewer (Jennifer Park) reviews article:
+   - Suggests minor edits
+   - Adds to "Related Articles"
+7. User makes edits based on feedback
+8. TO approves and publishes
+9. Article appears in Knowledge Center (KB-2026-234)
+10. User receives notification: "Your article has been published!"
+11. User's contribution tracked in "My Contributions"
+
+**Implementation:**
+- Rich text editor (TinyMCE, Quill, or similar)
+- Draft auto-save (every 30 seconds)
+- File upload for attachments
+- Review workflow with comments
+- Email notifications
+- Contribution tracking
+
+---
+
+### **Feature 4: Related Content Discovery**
+
+**User Story:**
+> "As a Developer reading about API Gateway patterns, I want to discover related articles about API security."
+
+**Workflow:**
+1. User reads "API Gateway Design Guide"
+2. User scrolls to "Related Articles" section
+3. User sees:
+   - REST API Best Practices
+   - Microservices Communication Patterns
+   - API Security and Authentication ← clicks this
+   - Service Mesh vs. API Gateway
+4. Column 3 loads "API Security and Authentication" article
+5. User continues reading related content
+6. User navigates through 4-5 related articles in sequence
+
+**Implementation:**
+- Manual curator-selected related articles
+- AI-recommended similar content (based on tags, domain, phase)
+- "Users who read this also read" recommendations
+- Breadcrumb trail of recently viewed articles
+
+---
+
+### **Feature 5: Content Feedback & Improvement**
+
+**User Story:**
+> "As a user reading an article with outdated information, I want to suggest an update so the content stays current."
+
+**Workflow:**
+1. User reads "Kubernetes Deployment Guide"
+2. User notices section on "Kubernetes 1.18" is outdated (current is 1.29)
+3. User clicks "Suggest Edit" button
+4. Modal opens with form:
+   - Section: "3.2 Version Requirements"
+   - Suggested change: "Update to Kubernetes 1.29"
+   - Details: [User provides updated content]
+5. User submits suggestion
+6. Author (David Kim) receives notification
+7. Author reviews suggestion:
+   - Accepts change
+   - Updates article to v3.1
+   - Article republished
+8. User receives notification: "Your suggestion was accepted!"
+9. User's contribution noted in article metadata
+
+**Implementation:**
+- "Suggest Edit" form
+- Notification system
+- Version control
+- Contribution tracking
+- Change log
+
+---
+
+### **Feature 6: Article Rating & Helpful Votes**
+
+**User Story:**
+> "As a user who found an article helpful, I want to rate it so others know it's valuable."
+
+**Workflow:**
+1. User reads "Data Migration Best Practices"
+2. User finds article very helpful
+3. User clicks "👍 Helpful" button (count increases)
+4. User also clicks "Rate this article"
+5. Star rating widget appears (1-5 stars)
+6. User selects 5 stars
+7. System records rating
+8. Article average rating updates: 4.7 → 4.8
+9. High-rated articles appear in "Most Popular" lists
+
+**Implementation:**
+- One helpful vote per user per article
+- One rating per user per article
+- Aggregate ratings calculation
+- Display average rating + count
+- Sort by rating option
+
+---
+
+## **7. ROLE-BASED ACCESS CONTROL (RBAC)**
+
+### **Permission Matrix**
+
+| Role | View Published Articles | View Drafts | Create Articles | Edit Own Articles | Edit Any Article | Publish Articles | Delete Articles |
+|------|------------------------|-------------|-----------------|-------------------|------------------|------------------|----------------|
+| **Staff/Associate** | ✅ Yes | ❌ No (own only) | ✅ Yes | ✅ Yes (drafts) | ❌ No | ❌ No | ❌ No (request TO) |
+| **Manager/Lead** | ✅ Yes | ❌ No (own only) | ✅ Yes | ✅ Yes | ❌ No | ❌ No | ❌ No |
+| **Director** | ✅ Yes | ❌ No (own only) | ✅ Yes | ✅ Yes | ❌ No | ❌ No | ❌ No |
+| **Executive** | ✅ Yes | ❌ No | ✅ Yes (delegate) | ✅ Yes | ❌ No | ❌ No | ❌ No |
+| **Transformation Office** | ✅ Yes | ✅ Yes (all) | ✅ Yes | ✅ Yes | ✅ Yes (all) | ✅ Yes | ✅ Yes |
+| **External Partner** | ✅ Yes | ❌ No | ✅ Yes (limited) | ✅ Yes | ❌ No | ❌ No | ❌ No |
+
+### **Key RBAC Principles**
+
+**Open Read Access:**
+- All published articles visible to all authenticated users
+- Promotes knowledge sharing culture
+- No content filtering by role
+
+**Controlled Write Access:**
+- Anyone can contribute articles
+- Only TO can publish (quality control)
+- Authors can edit their own drafts
+- TO can edit any article
+
+**Draft Privacy:**
+- Only author + TO can see drafts
+- Prevents premature exposure of incomplete work
+
+**Contribution Tracking:**
+- All contributions attributed to author
+- Builds knowledge-sharing culture
+- Recognition for contributors
+
+---
+
+## **8. INTEGRATION POINTS**
+
+### **Learning Center Integration**
+
+**Scenario:** Article references related course
+
+**Flow:**
+```
+Knowledge Center (Article: "API Design Fundamentals")
+  ↓
+Article includes note:
+"For comprehensive training, see: REST API Design Course"
+  ↓
+User clicks link
+  ↓
+Opens Learning Center: /stage2/learning/courses/rest-api-design
+  ↓
+User enrolls in course for deeper learning
+```
+
+**Implementation:**
+- Deep linking between marketplaces
+- "Related Courses" section in articles
+- "Recommended Reading" section in courses
+
+---
+
+### **Solutions Specifications Integration**
+
+**Scenario:** Article explains how to use a specification
+
+**Flow:**
+```
+Solutions Specifications (Blueprint: "Customer Data Platform")
+  ↓
+Blueprint includes link:
+"Implementation Guide: CDP Implementation Checklist"
+  ↓
+User clicks link
+  ↓
+Opens Knowledge Center: /stage2/knowledge/articles/cdp-implementation-checklist
+  ↓
+User reads checklist alongside blueprint
+```
+
+**Implementation:**
+- Cross-marketplace references
+- "Related Documentation" in specifications
+- "Related Blueprints" in articles
+
+---
+
+### **Lifecycle Management Integration**
+
+**Scenario:** User needs guidance on stage gate process
+
+**Flow:**
+```
+Lifecycle Management (User preparing stage gate submission)
+  ↓
+UI shows help icon: "Need help with stage gates?"
+  ↓
+User clicks help icon
+  ↓
+Opens Knowledge Center: /stage2/knowledge/articles/stage-gate-submission-guide
+  ↓
+User reads guide
+  ↓
+Returns to Lifecycle Management with understanding
+Implementation:
+•	Contextual help links
+•	Embedded knowledge base search
+•	"Help & Documentation" panel
+________________________________________
+9. TECHNICAL IMPLEMENTATION NOTES
+Content Storage
+Options:
+1.	Database (PostgreSQL/MySQL) 
+o	Store content as text/markdown
+o	Good for search and queries
+o	Version control via separate table
+2.	Headless CMS (Contentful, Strapi) 
+o	Rich content management features
+o	Version control built-in
+o	API-first approach
+3.	Git-based (GitHub, GitLab) 
+o	Markdown files in repository
+o	Natural version control
+o	Developer-friendly
+o	CI/CD for publishing
+Recommendation: Headless CMS for best balance of features and flexibility
+Search Implementation
+Options:
+1.	ElasticSearch 
+o	Full-text search
+o	Powerful filtering
+o	Faceted search
+o	Search suggestions
+2.	Algolia 
+o	Hosted solution
+o	Fast and easy to implement
+o	Good developer experience
+3.	Database full-text search 
+o	PostgreSQL full-text search
+o	Simpler but less powerful
+Recommendation: ElasticSearch for best search experience
+Rich Text Editor
+Options:
+1.	TinyMCE - Feature-rich WYSIWYG
+2.	Quill - Lightweight and modern
+3.	ProseMirror - Highly customizable
+4.	Markdown Editor - SimpleMDE, EasyMDE
+Recommendation: TinyMCE or Markdown Editor (based on user preference)
+Performance Considerations
+•	Article List (Column 2): 
+o	Virtual scrolling for 385 items
+o	Lazy loading
+o	Client-side filtering for speed
+o	Server-side search for accuracy
+•	Article Content (Column 3): 
+o	Lazy load images
+o	Syntax highlighting on-demand
+o	Table of contents: sticky positioning
+o	Comments: paginated (load 10 at a time)
+•	Caching: 
+o	Cache popular articles (CDN)
+o	Cache search results (short TTL)
+o	Invalidate cache on article update
+Technology Stack Recommendations
+•	Frontend: React + TypeScript
+•	Rich Text: TinyMCE or Markdown (marked.js)
+•	Search: ElasticSearch + React InstantSearch
+•	Syntax Highlighting: Prism.js or Highlight.js
+•	Markdown Rendering: marked.js or remark
+•	State Management: React Query (server state) + Zustand (client state)
+•	Export: jsPDF (PDF export)
+________________________________________
+10. SUCCESS CRITERIA
+Stage 1 Marketplace
+✅ Hero section with clear value proposition
+✅ Key statistics displayed (385 articles, 47 case studies, etc.)
+✅ Browse by Phase (4D) - 4 cards
+✅ Browse by Domain - 6 cards
+✅ Featured content - 3 articles
+✅ Most popular list
+✅ Recently updated list
+✅ Contribute section
+✅ "Explore Knowledge Base" CTA
+✅ Mobile responsive
+✅ Consistent with other DTMP marketplaces
+Stage 2 Service Hub
+✅ LVE layout (3 columns)
+✅ Column 1: Sidebar with Knowledge Center highlighted
+✅ Column 2: Article list with search/filter (385 articles)
+✅ Column 3: Article reader with rich content
+✅ Search functionality works (full-text)
+✅ Filters work (phase, domain, type, difficulty, date)
+✅ Sort options work
+✅ Article reader displays:
+•	Rich formatted content
+•	Table of contents (sticky)
+•	Attachments for download
+•	Related articles
+•	Comments
+•	Action buttons (helpful, save, share, edit)
+•	Article metadata
+✅ Save article functionality (bookmark)
+✅ Rate article functionality
+✅ Helpful vote functionality
+✅ Comment/discussion functionality
+✅ Submit article form works
+✅ My Saved Articles page works
+✅ My Contributions page works
+✅ Export to PDF works
+✅ Share functionality works
+✅ Related articles navigation works
+✅ Mobile responsive
+✅ No console errors
+✅ Loading states for data fetching
+✅ Error handling for failed requests
+Content Quality
+✅ 385 articles with complete metadata
+✅ Realistic distribution (by phase, domain, type, difficulty)
+✅ Sample articles include:
+•	API Gateway Design Guide (Design, Architecture, 4.8⭐)
+•	Cloud Migration Playbook (Deploy, Technology, 4.9⭐)
+•	Data Governance Framework (Discern, Data, 4.7⭐)
+•	Microservices Patterns (Design, Architecture, 4.9⭐)
+•	Stage Gate Guide (Drive, Governance, 4.6⭐)
+•	... (380 more)
+✅ Articles have rich content (headings, lists, code, images)
+✅ Related articles linked correctly
+✅ Attachments available for download
+✅ Comments and engagement data realistic
+________________________________________
+11. USER STORIES
+Epic 1: Content Discovery
+US-001: As a Developer, I want to search for technical articles by keyword so I can find specific guidance quickly.
+US-002: As an Enterprise Architect, I want to browse all architecture articles so I can understand organizational standards.
+US-003: As a Project Manager, I want to filter articles by transformation phase so I can find relevant content for my current project stage.
+Epic 2: Content Consumption
+US-004: As a user reading a long article, I want a table of contents so I can jump to specific sections.
+US-005: As a user, I want to download article attachments so I can use templates and checklists.
+US-006: As a user, I want to see related articles so I can explore related topics.
+Epic 3: Content Engagement
+US-007: As a user who found an article helpful, I want to vote it as helpful so others know it's valuable.
+US-008: As a user, I want to save articles for later so I can easily find them again.
+US-009: As a user, I want to comment on articles so I can ask questions or share insights.
+Epic 4: Content Contribution
+US-010: As a Project Manager who learned valuable lessons, I want to submit an article so others can benefit.
+US-011: As an author, I want to save my article as a draft so I can finish it later.
+US-012: As a user, I want to suggest edits to outdated articles so content stays current.
+Epic 5: Content Management (TO)
+US-013: As a Transformation Office reviewer, I want to review submitted articles so I can maintain quality standards.
+US-014: As a Transformation Office editor, I want to update any article so I can keep content current.
+US-015: As a Transformation Office curator, I want to feature high-quality articles so users discover valuable content.
+________________________________________
+12. REFERENCE EXAMPLES
+Similar Marketplaces for Pattern Reference
+Learning Center:
+•	Similar content consumption pattern (browse → select → read/take)
+•	Use this as reference for list/detail pattern
+•	Both are educational resources
+Portfolio Management:
+•	Similar search and filter pattern
+•	Column 2 list → Column 3 detail
+•	Use this as reference for data presentation
+Solutions Specifications:
+•	Similar documentation focus
+•	Both provide reference materials
+•	Use this as reference for technical content
+Design System Reference
+All design patterns documented in DTMP Design System:
+•	Colors: Navy, Blue, Orange, Purple, Pink, Green
+•	Typography: Inter font, responsive scales
+•	Components: Cards, Buttons, Badges, Tables, Rich Text
+•	Icons: Lucide React
+•	Layout: LVE pattern, responsive breakpoints
+________________________________________
+13. OPEN QUESTIONS FOR STAKEHOLDERS
+1.	Content Approval: Should all articles require TO approval, or can some be auto-published?
+2.	Versioning: Should we show previous versions of articles to users, or only to TO?
+3.	Multi-language: Is multi-language support needed initially, or phase 2?
+4.	Content Lifecycle: How long should archived articles remain searchable?
+5.	External Contributions: Can external partners submit articles, or only internal staff?
+6.	Moderation: Should comments be pre-moderated or post-moderated?
+7.	Analytics: What content analytics should we track (views, time-on-page, bounce rate)?
+8.	API Access: Should knowledge base be accessible via API for external tools?
+________________________________________
+14. NEXT STEPS
+1.	Review this briefing with stakeholders and developers
+2.	Clarify open questions (Section 13)
+3.	Begin implementation: 
+o	Stage 1 marketplace (2-3 days)
+o	Stage 2 LVE layout (1 day)
+o	Column 2 list view with search/filter (3-4 days)
+o	Column 3 article reader (4-5 days)
+o	Rich text editor for submissions (3-4 days)
+o	Comments system (2-3 days)
+o	Data model and sample content (3-4 days)
+o	Integration points (2-3 days)
+4.	Content Migration: 
+o	Identify existing content to migrate
+o	Classify and tag articles
+o	Import into knowledge base
+5.	Iterate based on feedback
+6.	Move to next marketplace (Learning Center or Digital Intelligence)
+________________________________________
+15. APPENDIX
+Glossary
+•	4D Model: Discern, Design, Deploy, Drive (transformation phases)
+•	TO: Transformation Office
+•	DCO: Digital-Centric Organization
+•	CMS: Content Management System
+•	WYSIWYG: What You See Is What You Get (editor type)
+•	TOC: Table of Contents
+•	RBAC: Role-Based Access Control
+•	LVE: Left-Vertical-Expanded (layout pattern)
+Content Type Definitions
+•	Article: General written guide or explanation (2-10 pages)
+•	Case Study: Real project example with outcomes (3-8 pages)
+•	Best Practice: Proven approach or pattern (1-5 pages)
+•	Reference Material: Standard, glossary, or template (varies)
+•	FAQ: Common questions with answers (1-2 pages)
+•	Lessons Learned: Post-project insights (2-4 pages)
+•	Checklist: Step-by-step validation list (1-2 pages)
+•	Framework: Decision or evaluation framework (2-5 pages)

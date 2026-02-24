@@ -1,4 +1,7 @@
-export interface Course {
+import type { LearningCourseContract } from "./learningModel";
+import { dtmpDepartments } from "../departments";
+
+export interface Course extends LearningCourseContract {
   id: string;
   title: string;
   description: string;
@@ -543,12 +546,11 @@ export const courses: Course[] = [
 ];
 
 export const coursesFilters = {
-  department: ["Engineering", "Marketing", "Sales", "Operations", "HR", "Finance", "Executive", "Architecture", "Leadership", "Strategy"],
+  department: [...dtmpDepartments],
   category: ["Technical", "Business", "Leadership", "Change Management", "Architecture"],
   provider: ["Internal", "Coursera", "LinkedIn Learning", "Udemy", "Custom"],
   level: ["Beginner", "Intermediate", "Advanced", "Executive"],
   duration: ["< 5 hours", "5-10 hours", "10-20 hours", "20-40 hours", "40+ hours"],
   format: ["Self-paced", "Instructor-led", "Blended", "Workshop", "Cohort-based"],
-  certification: ["Available", "Not Available"],
   rating: ["5 stars", "4+ stars", "3+ stars", "All"]
 };
