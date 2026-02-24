@@ -26,16 +26,10 @@ import {
   ChevronRight,
   BookOpen,
   CheckCircle,
-  Award,
-  Clock,
-  Bookmark,
-  Search,
-  Bell
+  Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { applicationPortfolio } from "@/data/portfolio";
-import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { learningTracks, trackEnrollments } from "@/data/learningCenter";
 import {
@@ -54,16 +48,6 @@ import {
   completeLessonAndRecalculate,
   submitQuizAttemptAndRecalculate,
 } from "@/data/learningCenter/stage2/progressionEngine";
-import UserOverviewTab from "@/components/learningCenter/stage2/user/UserOverviewTab";
-import UserModulesTab from "@/components/learningCenter/stage2/user/UserModulesTab";
-import UserProgressTab from "@/components/learningCenter/stage2/user/UserProgressTab";
-import UserResourcesTab from "@/components/learningCenter/stage2/user/UserResourcesTab";
-import UserCertificateTab from "@/components/learningCenter/stage2/user/UserCertificateTab";
-import AdminOverviewTab from "@/components/learningCenter/stage2/admin/AdminOverviewTab";
-import AdminEnrollmentsTab from "@/components/learningCenter/stage2/admin/AdminEnrollmentsTab";
-import AdminPerformanceTab from "@/components/learningCenter/stage2/admin/AdminPerformanceTab";
-import AdminContentTab from "@/components/learningCenter/stage2/admin/AdminContentTab";
-import AdminSettingsTab from "@/components/learningCenter/stage2/admin/AdminSettingsTab";
 import { knowledgeItems } from "@/data/knowledgeCenter/knowledgeItems";
 import {
   getContinueReading,
@@ -84,6 +68,20 @@ import {
   type TORequestStatus,
 } from "@/data/knowledgeCenter/requestState";
 import { getKnowledgeUsageMetrics } from "@/data/knowledgeCenter/analyticsState";
+import {
+  KnowledgeWorkspaceMain,
+  KnowledgeWorkspaceSidebar,
+  isKnowledgeWorkspaceTab,
+  type KnowledgeWorkspaceTab,
+} from "@/components/stage2/knowledge/KnowledgeWorkspacePanels";
+import {
+  LearningWorkspaceMain,
+  LearningWorkspaceSidebar,
+} from "@/components/stage2/learning/LearningWorkspacePanels";
+import {
+  PortfolioWorkspaceMain,
+  PortfolioWorkspaceSidebar,
+} from "@/components/stage2/portfolio/PortfolioWorkspacePanels";
 
 interface LocationState {
   marketplace?: string;
@@ -98,39 +96,9 @@ const EMPTY_LOCATION_STATE: LocationState = {};
 type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
-type KnowledgeWorkspaceTab = "overview" | "saved" | "history";
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-
-const knowledgeTabConfig: Array<{
-  id: KnowledgeWorkspaceTab;
-  label: string;
-  icon: React.ElementType;
-  description: string;
-}> = [
-  {
-    id: "overview",
-    label: "Overview",
-    icon: LayoutGrid,
-    description: "High-level activity and quick entry points for Knowledge Center collaboration.",
-  },
-  {
-    id: "saved",
-    label: "Saved",
-    icon: Bookmark,
-    description: "Curated resources you bookmarked for later action and team follow-up.",
-  },
-  {
-    id: "history",
-    label: "History",
-    icon: Clock,
-    description: "Recent resources opened in your knowledge workspace.",
-  },
-];
-
-const isKnowledgeWorkspaceTab = (value: string | undefined): value is KnowledgeWorkspaceTab =>
-  value === "overview" || value === "saved" || value === "history";
 
 const buildAdminDataForCourse = (course: EnrolledCourse | undefined) => {
   if (!course) return adminCourseData;
@@ -331,6 +299,7 @@ export default function Stage2AppPage() {
   const isLearningCenterRoute =
     !!routeCourseId && (routeView === "user" || routeView === "admin");
   const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
+  const isPortfolioCenterRoute = location.pathname.startsWith("/stage2/portfolio-management");
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
   const canAccessAdminView = learningRole === "admin";
 
@@ -351,6 +320,8 @@ export default function Stage2AppPage() {
     ? "learning-center"
     : isKnowledgeCenterRoute
       ? "knowledge-center"
+      : isPortfolioCenterRoute
+        ? "portfolio-management"
       : stateMarketplace;
   const cardId = isLearningCenterRoute ? resolvedLearningCourseId : stateCardId;
   const serviceName = isLearningCenterRoute
@@ -1168,117 +1139,25 @@ export default function Stage2AppPage() {
             {/* Dynamic Content Based on Active Service */}
             <div className="flex-1 p-4 overflow-y-auto">
               {activeService === "Portfolio Management" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Portfolio Tools</h3>
-                    <div className="space-y-2">
-                      {portfolioSubServices.map((subService) => {
-                        const Icon = subService.icon;
-                        return (
-                          <button
-                            key={subService.id}
-                            onClick={() => handleSubServiceClick(subService.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === subService.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <div className="text-left">
-                              <div className="font-medium">{subService.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{subService.description}</div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                <PortfolioWorkspaceSidebar
+                  portfolioSubServices={portfolioSubServices}
+                  activeSubService={activeSubService}
+                  onSelectSubService={handleSubServiceClick}
+                />
               ) : activeService === "Learning Center" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">
-                      {viewMode === "admin" ? "All Courses" : "My Courses"}
-                    </h3>
-                    <div className="space-y-2">
-                      {learningSubServices.map((course) => {
-                        const Icon = course.icon;
-                        const statusColor = course.status === 'completed' ? 'text-green-600' : 
-                                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
-                        return (
-                          <button
-                            key={course.id}
-                            onClick={() => handleSubServiceClick(course.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === course.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
-                            <div className="text-left flex-1">
-                              <div className="font-medium">{course.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{course.description}</div>
-                              {course.progress > 0 && (
-                                <div className="mt-2">
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div 
-                                      className="bg-orange-600 h-1.5 rounded-full" 
-                                      style={{ width: `${course.progress}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                <LearningWorkspaceSidebar
+                  viewMode={viewMode}
+                  learningSubServices={learningSubServices}
+                  activeSubService={activeSubService}
+                  onSelectSubService={handleSubServiceClick}
+                />
               ) : activeService === "Knowledge Center" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">
-                      Knowledge Workspace
-                    </h3>
-                    <div className="relative mb-3">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        value={knowledgeSearchQuery}
-                        onChange={(event) => setKnowledgeSearchQuery(event.target.value)}
-                        placeholder="Search saved/history..."
-                        className="pl-9"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      {knowledgeTabConfig.map((workspaceTab) => {
-                        const Icon = workspaceTab.icon;
-                        return (
-                          <button
-                            key={workspaceTab.id}
-                            type="button"
-                            onClick={() => handleKnowledgeTabClick(workspaceTab.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeKnowledgeTab === workspaceTab.id
-                                ? "bg-orange-50 text-orange-700 border border-orange-200"
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <div className="text-left">
-                              <div className="font-medium">{workspaceTab.label}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {workspaceTab.description}
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                <KnowledgeWorkspaceSidebar
+                  activeTab={activeKnowledgeTab}
+                  searchQuery={knowledgeSearchQuery}
+                  onSearchChange={setKnowledgeSearchQuery}
+                  onTabChange={handleKnowledgeTabClick}
+                />
               ) : activeService === "Overview" ? (
                 <div className="space-y-4">
                   <div>
@@ -1366,553 +1245,47 @@ export default function Stage2AppPage() {
         {/* Main Content */}
         <div className="flex-1 bg-gray-50 overflow-y-auto">
           {activeService === "Portfolio Management" && activeSubService ? (
-            <div className="h-full">
-              {activeSubService === "portfolio-health-dashboard" && (
-                <PortfolioHealthDashboard className="h-full" />
-              )}
-
-              {activeSubService === "application-rationalization" && (
-                <div className="p-6">
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <div className="bg-red-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Activity className="w-5 h-5 text-red-600" />
-                          <h3 className="font-semibold text-red-900">Redundant Apps</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-red-900">23</p>
-                        <p className="text-sm text-red-700">Candidates for retirement</p>
-                      </div>
-                      <div className="bg-orange-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <DollarSign className="w-5 h-5 text-orange-600" />
-                          <h3 className="font-semibold text-orange-900">Potential Savings</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-orange-900">$1.2M</p>
-                        <p className="text-sm text-orange-700">Annual cost reduction</p>
-                      </div>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <TrendingUp className="w-5 h-5 text-green-600" />
-                          <h3 className="font-semibold text-green-900">Rationalization Score</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-green-900">78%</p>
-                        <p className="text-sm text-green-700">Portfolio efficiency</p>
-                      </div>
-                    </div>
-                    <div className="text-center py-12">
-                      <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Application Rationalization Assessment</h3>
-                      <p className="text-gray-500">Comprehensive analysis and recommendations would be displayed here</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeSubService === "tco-optimization" && (
-                <div className="p-6">
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <DollarSign className="w-5 h-5 text-blue-600" />
-                          <h3 className="font-semibold text-blue-900">Total TCO</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-blue-900">$2.4M</p>
-                        <p className="text-sm text-blue-700">Annual portfolio cost</p>
-                      </div>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <TrendingUp className="w-5 h-5 text-green-600" />
-                          <h3 className="font-semibold text-green-900">Cost per User</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-green-900">$1,200</p>
-                        <p className="text-sm text-green-700">Per user annually</p>
-                      </div>
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Target className="w-5 h-5 text-purple-600" />
-                          <h3 className="font-semibold text-purple-900">Savings Potential</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-purple-900">$480K</p>
-                        <p className="text-sm text-purple-700">License optimization</p>
-                      </div>
-                    </div>
-                    <div className="text-center py-12">
-                      <DollarSign className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">TCO Optimization</h3>
-                      <p className="text-gray-500">Cost analysis and optimization tools would be displayed here</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Other sub-services with placeholder content */}
-              {!["portfolio-health-dashboard", "application-rationalization", "tco-optimization"].includes(activeSubService) && (
-                <div className="p-6">
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="text-center py-12">
-                      <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {portfolioSubServices.find(s => s.id === activeSubService)?.name}
-                      </h3>
-                      <p className="text-gray-500">
-                        {portfolioSubServices.find(s => s.id === activeSubService)?.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <PortfolioWorkspaceMain
+              activeSubService={activeSubService}
+              portfolioSubServices={portfolioSubServices}
+            />
           ) : activeService === "Learning Center" && activeSubService ? (
-            <div className="h-full">
-              <div className="p-6 space-y-6">
-                {viewMode === "user" && activeTrackSnapshot && (
-                  <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                      <div className="space-y-2">
-                        <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                          Active Learning Track
-                        </p>
-                        <h3 className="text-lg font-semibold text-primary-navy">
-                          {activeTrackSnapshot.trackTitle}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {activeTrackSnapshot.requiredCompleted}/
-                          {activeTrackSnapshot.requiredTotal} required courses complete
-                        </p>
-                        <div className="w-full md:w-72 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-orange-600 h-2 rounded-full transition-all"
-                            style={{ width: `${activeTrackSnapshot.progressPercent}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="md:text-right space-y-2">
-                        <p className="text-sm text-gray-500">Track Progress</p>
-                        <p className="text-2xl font-bold text-primary-navy">
-                          {activeTrackSnapshot.progressPercent}%
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Next:{" "}
-                          {activeTrackSnapshot.nextRequiredCourseTitle ??
-                            "All required courses completed"}
-                        </p>
-                        <Button
-                          size="sm"
-                          className="bg-orange-600 hover:bg-orange-700"
-                          onClick={handleContinueTrack}
-                          disabled={!activeTrackSnapshot.nextStage2CourseId}
-                        >
-                          Continue Track
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {viewMode === "user" &&
-                  activeTrackSnapshot &&
-                  trackMilestoneNotifications.length > 0 && (
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                      <h3 className="text-base font-semibold text-primary-navy mb-3">
-                        Path Milestones
-                      </h3>
-                      <div className="space-y-2">
-                        {trackMilestoneNotifications.map((notification) => (
-                          <div
-                            key={notification.id}
-                            className="flex items-start gap-2 rounded-lg border border-gray-200 px-3 py-2"
-                          >
-                            <CheckCircle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                            <div>
-                              <p className="text-sm text-foreground">{notification.message}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {notification.timestamp}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-4">
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <h3 className="text-base font-semibold text-primary-navy">
-                      {viewMode === "admin" ? "Admin Workspace" : "Learner Workspace"}
-                    </h3>
-                  </div>
-
-                  {viewMode === "admin" ? (
-                    <div className="flex flex-wrap gap-2">
-                      {(
-                        [
-                          ["overview", "Overview"],
-                          ["enrollments", "Enrollments"],
-                          ["performance", "Performance"],
-                          ["content", "Content"],
-                          ["settings", "Settings"],
-                        ] as Array<[LearningAdminTab, string]>
-                      ).map(([tabKey, tabLabel]) => (
-                        <button
-                          key={tabKey}
-                          type="button"
-                          onClick={() => setActiveLearningAdminTab(tabKey)}
-                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                            activeLearningAdminTab === tabKey
-                              ? "bg-orange-600 text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          {tabLabel}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {(
-                        [
-                          ["overview", "Overview"],
-                          ["modules", "Modules"],
-                          ["progress", "Progress"],
-                          ["resources", "Resources"],
-                          ["certificate", "Certificate"],
-                        ] as Array<[LearningUserTab, string]>
-                      ).map(([tabKey, tabLabel]) => (
-                        <button
-                          key={tabKey}
-                          type="button"
-                          onClick={() => setActiveLearningUserTab(tabKey)}
-                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                            activeLearningUserTab === tabKey
-                              ? "bg-orange-600 text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                        >
-                          {tabLabel}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  {viewMode === "admin" ? (
-                    !canAccessAdminView ? (
-                      <div className="bg-white border border-red-200 rounded-xl p-6">
-                        <h4 className="text-base font-semibold text-red-700">
-                          Access Restricted
-                        </h4>
-                        <p className="text-sm text-red-600 mt-1">
-                          You do not have permission to access manager/admin analytics.
-                        </p>
-                      </div>
-                    ) : !selectedLearningCourse ? (
-                      <div className="bg-white border border-gray-200 rounded-xl p-6">
-                        <h4 className="text-base font-semibold text-primary-navy">
-                          No Course Selected
-                        </h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Select a course in Column 2 to load admin analytics.
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        {activeLearningAdminTab === "overview" && (
-                          <>
-                            {!activeTrackAnalytics && (
-                              <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                                <p className="text-sm text-blue-800">
-                                  Track analytics are unavailable for this course. Overview metrics
-                                  are currently course-level only.
-                                </p>
-                              </div>
-                            )}
-                            <AdminOverviewTab
-                              data={adminViewData}
-                              trackAnalytics={activeTrackAnalytics}
-                            />
-                          </>
-                        )}
-                        {activeLearningAdminTab === "enrollments" && (
-                          <AdminEnrollmentsTab students={adminViewData.students} />
-                        )}
-                        {activeLearningAdminTab === "performance" && (
-                          <AdminPerformanceTab data={adminViewData} />
-                        )}
-                        {activeLearningAdminTab === "content" && (
-                          <AdminContentTab
-                            modules={adminViewData.contentModules}
-                            resources={adminViewData.contentResources}
-                          />
-                        )}
-                        {activeLearningAdminTab === "settings" && (
-                          <AdminSettingsTab settings={adminViewData.settings} />
-                        )}
-                      </>
-                    )
-                  ) : (
-                    <>
-                      {activeLearningUserTab === "overview" && (
-                        <UserOverviewTab data={userViewData} />
-                      )}
-                      {activeLearningUserTab === "modules" && (
-                        <UserModulesTab
-                          courseId={userViewData.courseId}
-                          modules={userViewData.modules}
-                          quizConfigs={userViewData.quizConfigs}
-                          quizAttemptsByModule={Object.fromEntries(
-                            userViewData.quizResults.map((quiz) => [
-                              quiz.moduleId,
-                              quiz.attempts,
-                            ])
-                          )}
-                          onCompleteLesson={handleLessonComplete}
-                          onQuizSubmit={handleQuizSubmit}
-                        />
-                      )}
-                      {activeLearningUserTab === "progress" && (
-                        <UserProgressTab data={userViewData} />
-                      )}
-                      {activeLearningUserTab === "resources" && (
-                        <UserResourcesTab resources={userViewData.resources} />
-                      )}
-                      {activeLearningUserTab === "certificate" && (
-                        <UserCertificateTab
-                          data={userViewData}
-                          pathCertificate={activePathCertificate}
-                        />
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+            <LearningWorkspaceMain
+              viewMode={viewMode}
+              activeTrackSnapshot={activeTrackSnapshot}
+              trackMilestoneNotifications={trackMilestoneNotifications}
+              onContinueTrack={handleContinueTrack}
+              activeLearningUserTab={activeLearningUserTab}
+              setActiveLearningUserTab={setActiveLearningUserTab}
+              activeLearningAdminTab={activeLearningAdminTab}
+              setActiveLearningAdminTab={setActiveLearningAdminTab}
+              canAccessAdminView={canAccessAdminView}
+              selectedLearningCourse={selectedLearningCourse}
+              activeTrackAnalytics={activeTrackAnalytics}
+              adminViewData={adminViewData}
+              userViewData={userViewData}
+              onCompleteLesson={handleLessonComplete}
+              onQuizSubmit={handleQuizSubmit}
+              activePathCertificate={activePathCertificate}
+            />
           ) : activeService === "Knowledge Center" ? (
-            <div className="h-full">
-              <div className="p-6 space-y-6">
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-primary-navy mb-1">
-                    {knowledgeTabConfig.find((workspaceTab) => workspaceTab.id === activeKnowledgeTab)
-                      ?.label}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-5">
-                    {knowledgeTabConfig.find((workspaceTab) => workspaceTab.id === activeKnowledgeTab)
-                      ?.description}
-                  </p>
-
-                  {activeKnowledgeTab === "overview" && (
-                    <div className="space-y-4">
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Bell className="w-4 h-4 text-orange-600" />
-                          <h4 className="text-sm font-semibold text-foreground">Mention Notifications</h4>
-                        </div>
-                        {knowledgeMentionNotifications.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">
-                            No mention notifications yet.
-                          </p>
-                        ) : (
-                          <div className="space-y-2">
-                            {knowledgeMentionNotifications.slice(0, 4).map((notification) => (
-                              <button
-                                key={notification.id}
-                                type="button"
-                                onClick={() => handleKnowledgeNotificationClick(notification)}
-                                className={`w-full text-left text-xs rounded-md border p-2 ${
-                                  notification.read
-                                    ? "border-gray-200 text-muted-foreground"
-                                    : "border-orange-300 bg-orange-50 text-foreground"
-                                }`}
-                              >
-                                {notification.message}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <h4 className="text-sm font-semibold text-foreground">
-                            Clarification/Update Requests
-                          </h4>
-                          <span className="text-xs text-muted-foreground">
-                            {knowledgeRequests.filter((request) => request.status !== "Resolved").length} open
-                          </span>
-                        </div>
-                        {knowledgeRequests.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">
-                            No requests submitted yet.
-                          </p>
-                        ) : (
-                          <div className="space-y-2">
-                            {knowledgeRequests.slice(0, 4).map((request) => (
-                              <div key={request.id} className="border border-gray-200 rounded-md p-2">
-                                <div className="flex items-center justify-between gap-2 mb-1">
-                                  <p className="text-xs font-semibold text-foreground">
-                                    {request.type === "clarification" ? "Clarification" : "Outdated Section"}
-                                  </p>
-                                  <span
-                                    className={`text-[11px] px-2 py-0.5 rounded-full ${
-                                      request.status === "Open"
-                                        ? "bg-orange-100 text-orange-700"
-                                        : request.status === "In Review"
-                                          ? "bg-blue-100 text-blue-700"
-                                          : "bg-green-100 text-green-700"
-                                    }`}
-                                  >
-                                    {request.status}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mb-2">{request.message}</p>
-                                {request.status !== "Resolved" && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleKnowledgeAdvanceRequestStatus(request.id, request.status)
-                                    }
-                                    className="h-7 text-xs"
-                                  >
-                                    Demo: Advance to {getNextKnowledgeRequestStatus(request.status)}
-                                  </Button>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <h4 className="text-sm font-semibold text-foreground mb-3">
-                          TO Governance Signals (Read-side)
-                        </h4>
-                        {knowledgeUsageSignals.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">No usage signals captured yet.</p>
-                        ) : (
-                          <div className="space-y-2">
-                            {knowledgeUsageSignals.map((signal) => (
-                              <button
-                                key={signal.id}
-                                type="button"
-                                onClick={() =>
-                                  navigate(`/stage2/knowledge/${signal.sourceTab}/${signal.sourceId}`)
-                                }
-                                className="w-full text-left border border-gray-200 rounded-md p-2 hover:border-orange-300"
-                              >
-                                <p className="text-xs font-semibold text-foreground">{signal.title}</p>
-                                <p className="text-[11px] text-muted-foreground">
-                                  Owner: {signal.author} | Freshness: {signal.updatedAt}
-                                </p>
-                                <p className="text-[11px] text-muted-foreground">
-                                  Views: {signal.views} | Helpful: {signal.helpfulVotes} | Stale Flags: {signal.staleFlags}
-                                </p>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {filteredKnowledgeContinueItems.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                          No reading activity yet. Open any Knowledge Center resource to build your continue-reading list.
-                        </p>
-                      ) : (
-                        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-                          {filteredKnowledgeContinueItems.map(({ item, entry }) => (
-                            <button
-                              key={item.id}
-                              type="button"
-                              onClick={() =>
-                                navigate(`/stage2/knowledge/${item.sourceTab}/${item.sourceId}`)
-                              }
-                              className="text-left border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50/30 transition-colors"
-                            >
-                              <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {item.type} | {item.department}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Continue reading - Last viewed {formatKnowledgeViewedAt(entry.lastViewedAt)}
-                              </p>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {activeKnowledgeTab === "saved" && (
-                    <div className="space-y-3">
-                      {filteredSavedKnowledgeItems.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                          No saved resources yet. Use "Save to Workspace" from any resource detail page.
-                        </p>
-                      ) : (
-                        filteredSavedKnowledgeItems.map((item) => (
-                          <div
-                            key={item.id}
-                            className="border border-gray-200 rounded-lg p-4 flex items-start justify-between gap-4"
-                          >
-                            <button
-                              type="button"
-                              onClick={() =>
-                                navigate(`/stage2/knowledge/${item.sourceTab}/${item.sourceId}`)
-                              }
-                              className="text-left flex-1"
-                            >
-                              <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {item.type} | {item.department}
-                              </p>
-                            </button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleKnowledgeToggleSave(item.id)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-
-                  {activeKnowledgeTab === "history" && (
-                    <div className="space-y-3">
-                      {filteredKnowledgeHistoryItems.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">
-                          No history yet. Open a resource from Stage 1 or Stage 2 to populate this list.
-                        </p>
-                      ) : (
-                        filteredKnowledgeHistoryItems.map(({ item, entry }) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() =>
-                              navigate(`/stage2/knowledge/${item.sourceTab}/${item.sourceId}`)
-                            }
-                            className="w-full text-left border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50/30 transition-colors"
-                          >
-                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {item.type} | {item.department}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              Last viewed {formatKnowledgeViewedAt(entry.lastViewedAt)} - {entry.views} view(s)
-                            </p>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <KnowledgeWorkspaceMain
+              activeTab={activeKnowledgeTab}
+              mentionNotifications={knowledgeMentionNotifications}
+              requests={knowledgeRequests}
+              usageSignals={knowledgeUsageSignals}
+              continueItems={filteredKnowledgeContinueItems}
+              savedItems={filteredSavedKnowledgeItems}
+              historyItems={filteredKnowledgeHistoryItems}
+              formatViewedAt={formatKnowledgeViewedAt}
+              onNotificationClick={handleKnowledgeNotificationClick}
+              onAdvanceRequestStatus={handleKnowledgeAdvanceRequestStatus}
+              getNextRequestStatus={getNextKnowledgeRequestStatus}
+              onOpenItem={(sourceTab, sourceId) =>
+                navigate(`/stage2/knowledge/${sourceTab}/${sourceId}`)
+              }
+              onToggleSave={handleKnowledgeToggleSave}
+            />
           ) : (
             <div className="p-6">
               <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">

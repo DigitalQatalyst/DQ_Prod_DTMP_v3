@@ -48,7 +48,7 @@ const App = () => (
           <Route path="/stage2/knowledge" element={<Navigate to="/stage2/knowledge/overview" replace />} />
           <Route path="/stage2/knowledge/:tab" element={<Stage2AppPage />} />
           <Route path="/stage2/knowledge/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
-          <Route path="/stage2/portfolio-management" element={<PortfolioManagementPage />} />
+          <Route path="/stage2/portfolio-management" element={<Stage2AppPage />} />
           <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
           
