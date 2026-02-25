@@ -421,10 +421,10 @@ export default function TemplatesDetailPage() {
 
                 <Button 
                   onClick={handleGenerateClick}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-lg text-lg font-semibold transition-all hover:shadow-xl flex items-center justify-center gap-2"
+                  variant="outline"
+                  className="w-full border-2 border-purple-600 text-purple-600 hover:bg-purple-50 py-4 rounded-lg text-lg font-semibold transition-all flex items-center justify-center gap-2"
                 >
-                  <Wand2 size={20} />
-                  Generate Document
+                  Request Service
                 </Button>
               </div>
             </div>

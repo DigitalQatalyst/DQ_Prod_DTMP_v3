@@ -26,10 +26,32 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to Stage 2 with context
-    navigate("/stage2", {
-      state: context,
-    });
+    
+    // Handle solution-specs marketplace - navigate to specific stage 2 routes
+    if (context.marketplace === "solution-specs") {
+      if (context.cardId.includes('architecture') || context.cardId.includes('blueprint') || context.cardId.includes('reference')) {
+        navigate(`/stage2/specs/blueprints`, {
+          state: { fromStage1: true, specId: context.cardId },
+        });
+      } else {
+        navigate(`/stage2/specs/overview`, {
+          state: { fromStage1: true, specId: context.cardId },
+        });
+      }
+    } else if (context.marketplace === "templates") {
+      // For templates, go directly to new request page with template pre-selected
+      navigate("/stage2/templates/new-request", {
+        state: {
+          templateId: context.cardId,
+          ...context
+        },
+      });
+    } else {
+      navigate("/stage2", {
+        state: context,
+      });
+    }
+    
     onClose();
   };
 
@@ -78,7 +100,11 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
         {/* Description */}
         <p className="text-base text-muted-foreground text-center mb-8">
-          Please log in to continue with your enrollment
+          {context.marketplace === "digital-intelligence"
+            ? `Please log in to access the ${context.serviceName} dashboard`
+            : context.marketplace === "solution-specs"
+            ? "Log in to complete your request."
+            : "Please log in to continue with your enrollment"}
         </p>
 
         {/* Form */}

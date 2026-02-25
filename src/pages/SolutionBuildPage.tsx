@@ -140,7 +140,7 @@ export function SolutionBuildPage() {
       {/* Header Section */}
       <MarketplaceHeader
         title="Solution Build"
-        description="Explore implementation guides and build resources organized by solution type. Find step-by-step deployment guides, code samples, and technical resources for your digital transformation projects."
+        description="Ready-to-deploy solutions organized by solution type. Access production-ready implementations, code samples, and technical resources for your digital transformation projects."
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         itemCount={filteredBuilds.length}

@@ -597,14 +597,14 @@
                  </div>
                )}
              </div>
- 
+
              {/* CTA Button */}
              <button
                onClick={handleAccessClick}
-               className="bg-purple-600 text-white hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+               className="bg-orange-600 text-white hover:bg-orange-700 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
              >
-               <Sparkles className="w-5 h-5" />
-               Access Intelligence Service
+               <BarChart3 className="w-5 h-5" />
+               View Analytics
              </button>
            </div>
  
@@ -653,7 +653,7 @@
            tab: tab || "systems-portfolio",
            cardId: service.id,
            serviceName: service.title,
-           action: "Access Intelligence Service",
+           action: "Request Dashboard",
          }}
        />
  
