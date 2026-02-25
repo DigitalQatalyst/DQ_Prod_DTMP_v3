@@ -28,12 +28,10 @@ const MarketplacesPage = () => {
             </nav>
 
             <h1 className="text-4xl lg:text-5xl font-bold text-primary mb-4">
-              Transformation Marketplaces
+              Explore Our Transformation Resources
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl">
-              Access integrated resources, blueprints, and tools organized
-              around the 4D governance model—supporting our journey toward the
-              Digital Business Platform
+              Access a range of tools, resources, and blueprints designed to support your journey towards a successful digital transformation.
             </p>
           </div>
         </section>
@@ -56,9 +54,18 @@ const MarketplacesPage = () => {
                     >
                       {phase}
                     </span>
-                    <h2 className="text-3xl font-bold text-primary">
-                      {phase} Marketplaces
+                    <h2 className="text-3xl font-bold text-primary mb-2">
+                      {phase === "Discern" && "Discover Key Resources"}
+                      {phase === "Design" && "Design Your Solutions"}
+                      {phase === "Deploy" && "Deploy with Confidence"}
+                      {phase === "Drive" && "Drive Continuous Improvement"}
                     </h2>
+                    <p className="text-muted-foreground">
+                      {phase === "Discern" && "Explore resources that help you assess and understand the foundational aspects of digital transformation."}
+                      {phase === "Design" && "Access tools and blueprints to design effective transformation solutions tailored to your needs."}
+                      {phase === "Deploy" && "Implement your transformation initiatives with ready-to-use solutions and best practices."}
+                      {phase === "Drive" && "Monitor, optimize, and sustain your transformation with ongoing insights and support."}
+                    </p>
                   </div>
 
                   {/* Marketplace Grid */}

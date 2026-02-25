@@ -158,7 +158,10 @@ export function MarketplaceCard({
             {serviceCount} services
           </span>
           <span className="text-accent group-hover:text-orange-hover font-semibold flex items-center gap-1 transition-colors">
-            Explore
+            {phase === "Discern" && "Start Learning"}
+            {phase === "Design" && "Explore Resources"}
+            {phase === "Deploy" && "View Solutions"}
+            {phase === "Drive" && "Explore Services"}
             <ArrowRight size={16} />
           </span>
         </div>
@@ -218,7 +221,10 @@ export function MarketplaceCard({
 
           <Link to={route} className="block">
             <Button className="w-full bg-accent hover:bg-orange-hover text-accent-foreground font-semibold inline-flex items-center justify-center gap-2">
-              View Marketplace
+              {phase === "Discern" && "Start Learning"}
+              {phase === "Design" && "Explore Resources"}
+              {phase === "Deploy" && "View Solutions"}
+              {phase === "Drive" && "Explore Services"}
               <ArrowRight size={16} />
             </Button>
           </Link>
