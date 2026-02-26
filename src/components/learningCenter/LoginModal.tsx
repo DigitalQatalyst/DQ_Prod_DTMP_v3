@@ -100,6 +100,14 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
       navigate(`/stage2/knowledge/${targetTab}`, {
         state: context,
       });
+    } else if (context.marketplace === "digital-intelligence") {
+      const isSubmitFlow = Boolean(context.formData) || context.action !== "View Analytics";
+      const targetPath = isSubmitFlow
+        ? "/stage2/intelligence/requests"
+        : "/stage2/intelligence/overview";
+      navigate(targetPath, {
+        state: context,
+      });
     } else {
       // Keep existing handoff flow for non-learning marketplaces
       if (context.marketplace === "solution-specs") {

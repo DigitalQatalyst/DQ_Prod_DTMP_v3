@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { 
   ArrowLeft,
@@ -105,15 +105,7 @@ import ProjectsPage from "./lifecycle/ProjectsPage";
 import ApplicationsPage from "./lifecycle/ApplicationsPage";
 import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
 import type { SolutionType } from "@/data/blueprints/solutionSpecs";
-import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
-import {
-  IntelligenceOverviewPage,
-  IntelligenceServicesPage,
-  MyDashboardsPage,
-  MyRequestsPage as IntelligenceMyRequestsPage,
-  RequestDetailPage as IntelligenceRequestDetailPage,
-  ServiceDashboardPage,
-} from "@/pages/stage2/intelligence";
+import IntelligenceWorkspacePage from "@/pages/stage2/intelligence/IntelligenceWorkspacePage";
 import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest } from "@/data/supportData";
 import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
@@ -155,7 +147,6 @@ type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "cert
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
 type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
 type SpecsWorkspaceTab = "overview" | "blueprints" | "templates" | "patterns" | "my-designs";
-type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
@@ -456,11 +447,13 @@ export default function Stage2AppPage() {
       (marketplace === "portfolio-management" ||
         marketplace === "learning-center" ||
         marketplace === "lifecycle-management" ||
-        marketplace === "solution-build" ||
-        marketplace === "digital-intelligence") &&
+        marketplace === "solution-build") &&
       cardId
     ) {
       return cardId;
+    }
+    if (marketplace === "digital-intelligence") {
+      return "di-overview";
     }
     if (marketplace === "support-services") {
       return cardId ? "support-detail" : "support-overview";
@@ -502,15 +495,6 @@ export default function Stage2AppPage() {
   const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
     getSpecsTabFromPath()
   );
-  const getIntelligenceTabFromPath = (): IntelligenceWorkspaceTab => {
-    if (location.pathname.startsWith("/stage2/intelligence/services")) return "services";
-    if (location.pathname.startsWith("/stage2/intelligence/my-dashboards")) return "my-dashboards";
-    if (location.pathname.startsWith("/stage2/intelligence/requests")) return "requests";
-    return "overview";
-  };
-  const [activeIntelligenceTab, setActiveIntelligenceTab] = useState<IntelligenceWorkspaceTab>(
-    getIntelligenceTabFromPath()
-  );
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
   const [knowledgeHistory, setKnowledgeHistory] = useState<KnowledgeHistoryEntry[]>([]);
@@ -526,10 +510,16 @@ export default function Stage2AppPage() {
     setActiveService(getDefaultActiveService(marketplace));
 
     if (
-      (marketplace === "portfolio-management" || marketplace === "learning-center") &&
+      (marketplace === "portfolio-management" ||
+        marketplace === "learning-center") &&
       cardId
     ) {
       setActiveSubService(cardId);
+      return;
+    }
+
+    if (marketplace === "digital-intelligence" && !cardId) {
+      setActiveSubService("di-overview");
       return;
     }
 
@@ -697,26 +687,23 @@ export default function Stage2AppPage() {
 
   useEffect(() => {
     if (!isIntelligenceRoute) return;
-    setActiveIntelligenceTab(getIntelligenceTabFromPath());
-  }, [isIntelligenceRoute, location.pathname]);
-
-  useEffect(() => {
-    if (!isIntelligenceRoute) return;
     if (routeIntelligenceTab === "services" && routeIntelligenceItemId) {
       setActiveSubService(routeIntelligenceItemId);
       return;
     }
-    if (routeIntelligenceTab === "services" && !routeIntelligenceItemId) {
-      setActiveSubService(null);
+    if (routeIntelligenceTab === "overview") {
+      setActiveSubService("di-overview");
       return;
     }
-    if (
-      routeIntelligenceTab === "overview" ||
-      routeIntelligenceTab === "my-dashboards" ||
-      routeIntelligenceTab === "requests"
-    ) {
-      setActiveSubService(null);
+    if (routeIntelligenceTab === "requests") {
+      setActiveSubService("di-my-requests");
+      return;
     }
+    if (routeIntelligenceTab === "services" && !routeIntelligenceItemId) {
+      setActiveSubService("di-overview");
+      return;
+    }
+    setActiveSubService("di-overview");
   }, [isIntelligenceRoute, routeIntelligenceTab, routeIntelligenceItemId]);
 
   useEffect(() => {
@@ -799,7 +786,7 @@ export default function Stage2AppPage() {
   const learningSubServices = scopedLearningCourses.map(course => ({
     id: course.id,
     name: course.courseName,
-    description: `${course.instructor} • ${course.duration} • ${course.progress}% complete`,
+    description: `${course.instructor} â€¢ ${course.duration} â€¢ ${course.progress}% complete`,
     icon: BookOpen,
     category: course.difficulty,
     status: course.status,
@@ -1088,22 +1075,6 @@ export default function Stage2AppPage() {
       },
     });
   };
-  const handleIntelligenceTabClick = (tabId: IntelligenceWorkspaceTab) => {
-    setActiveIntelligenceTab(tabId);
-    const pathByTab: Record<IntelligenceWorkspaceTab, string> = {
-      overview: "/stage2/intelligence/overview",
-      services: "/stage2/intelligence/services",
-      "my-dashboards": "/stage2/intelligence/my-dashboards",
-      requests: "/stage2/intelligence/requests",
-    };
-    navigate(pathByTab[tabId], {
-      replace: true,
-      state: {
-        ...state,
-        marketplace: "digital-intelligence",
-      },
-    });
-  };
   const handleKnowledgeNotificationClick = (notification: MentionNotification) => {
     markMentionNotificationRead(notification.id);
     const [sourceTab, sourceId] = notification.itemId.split(":");
@@ -1181,16 +1152,27 @@ export default function Stage2AppPage() {
     SDO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
   };
 
-  // Digital Intelligence sub-services - Use actual intelligence services
-  const intelligenceSubServices = intelligenceServices.map(service => ({
-    id: service.id,
-    name: service.title,
-    description: service.description,
-    icon: Brain,
-    category: service.category,
-    accuracy: service.accuracy,
-    updateFrequency: service.updateFrequency
-  }));
+  // Digital Intelligence Stage 2 workspace menu
+  const intelligenceSubServices = [
+    {
+      id: "di-overview",
+      name: "Overview",
+      description: "Summary of all your requests",
+      icon: BarChart3,
+      category: "workspace",
+      accuracy: " ",
+      updateFrequency: " ",
+    },
+    {
+      id: "di-my-requests",
+      name: "My Requests",
+      description: "Track status, SLAs & handlers",
+      icon: FileText,
+      category: "workspace",
+      accuracy: " ",
+      updateFrequency: " ",
+    },
+  ];
 
   // Support sub-services
   const supportSubServices = [
@@ -1264,6 +1246,7 @@ export default function Stage2AppPage() {
           marketplace: "digital-intelligence",
         },
       });
+      setActiveSubService("di-overview");
     }
     if (service !== "Support Services") {
       setSupportSelectedService(null);
@@ -1284,6 +1267,26 @@ export default function Stage2AppPage() {
       });
     }
     if (activeService === "Digital Intelligence") {
+      if (subServiceId === "di-overview") {
+        navigate(`/stage2/intelligence/overview`, {
+          replace: true,
+          state: {
+            ...state,
+            marketplace: "digital-intelligence",
+          },
+        });
+        return;
+      }
+      if (subServiceId === "di-my-requests") {
+        navigate(`/stage2/intelligence/requests`, {
+          replace: true,
+          state: {
+            ...state,
+            marketplace: "digital-intelligence",
+          },
+        });
+        return;
+      }
       navigate(`/stage2/intelligence/services/${subServiceId}`, {
         replace: true,
         state: {
@@ -1615,7 +1618,7 @@ export default function Stage2AppPage() {
               <div className="border border-gray-200 rounded-lg p-3">
                 <p className="text-xs text-gray-500">Office / Team</p>
                 <p className="font-semibold">Support Operations Center</p>
-                <p className="text-xs text-gray-600">Hours: 24x7 • TZ: UTC</p>
+                <p className="text-xs text-gray-600">Hours: 24x7 â€¢ TZ: UTC</p>
               </div>
               <div className="border border-gray-200 rounded-lg p-3">
                 <p className="text-xs text-gray-500">Contact Channels</p>
@@ -1690,7 +1693,7 @@ export default function Stage2AppPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{t.subject}</p>
-                        <p className="text-xs text-gray-600">{t.category} • {t.subcategory}</p>
+                        <p className="text-xs text-gray-600">{t.category} â€¢ {t.subcategory}</p>
                       </div>
                       <PriorityBadge priority={t.priority} size="small" />
                     </div>
@@ -1800,7 +1803,7 @@ export default function Stage2AppPage() {
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <Badge variant="secondary">{article.category}</Badge>
                 <span>{article.difficulty}</span>
-                <span>•</span>
+                <span>â€¢</span>
                 <span>{article.estimatedReadTime}</span>
               </div>
               <h3 className="text-sm font-semibold text-gray-900 mt-2">{article.title}</h3>
@@ -1825,7 +1828,7 @@ export default function Stage2AppPage() {
                 setSupportSelectedArticleId(null);
               }}
             >
-              ← Back to Knowledge Base
+              â† Back to Knowledge Base
             </button>
             <Badge variant="secondary">{article.category}</Badge>
             <span className="text-xs text-gray-600 capitalize">{article.difficulty}</span>
@@ -2395,7 +2398,7 @@ export default function Stage2AppPage() {
               ) : activeService === "Digital Intelligence" ? (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Intelligence Services</h3>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Dashboard</h3>
                     <div className="space-y-2">
                       {intelligenceSubServices.map((service) => {
                         const Icon = service.icon;
@@ -2405,19 +2408,21 @@ export default function Stage2AppPage() {
                             onClick={() => handleSubServiceClick(service.id)}
                             className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
                               activeSubService === service.id 
-                                ? "bg-purple-50 text-purple-700 border border-purple-200" 
+                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
                                 : "text-gray-700 hover:bg-gray-50 border border-transparent"
                             }`}
                           >
-                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600" />
+                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
                             <div className="text-left flex-1">
                               <div className="font-medium">{service.name}</div>
                               <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{service.description}</div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-xs text-purple-600">{service.accuracy}</span>
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs text-gray-500 capitalize">{service.updateFrequency}</span>
-                              </div>
+                              {service.accuracy.trim() && service.updateFrequency.trim() && (
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs text-purple-600">{service.accuracy}</span>
+                                  <span className="text-xs text-gray-400">•</span>
+                                  <span className="text-xs text-gray-500 capitalize">{service.updateFrequency}</span>
+                                </div>
+                              )}
                             </div>
                           </button>
                         );
@@ -2538,8 +2543,8 @@ export default function Stage2AppPage() {
                       ? intelligenceSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Support Services"
                       ? supportSubServices.find(s => s.id === activeSubService)?.description
-                      : `${activeService} • Service Hub`)
-                    : `${activeService} • Service Hub`
+                      : `${activeService} â€¢ Service Hub`)
+                    : `${activeService} â€¢ Service Hub`
                   }
                 </p>
               </div>
@@ -4053,22 +4058,7 @@ export default function Stage2AppPage() {
               })()}
             </div>
           ) : activeService === "Digital Intelligence" ? (
-            <div className="h-full">
-              {activeIntelligenceTab === "overview" && <IntelligenceOverviewPage />}
-              {activeIntelligenceTab === "services" && !routeIntelligenceItemId && (
-                <IntelligenceServicesPage />
-              )}
-              {activeIntelligenceTab === "services" && !!routeIntelligenceItemId && (
-                <ServiceDashboardPage serviceId={routeIntelligenceItemId} />
-              )}
-              {activeIntelligenceTab === "my-dashboards" && <MyDashboardsPage />}
-              {activeIntelligenceTab === "requests" && !routeIntelligenceItemId && (
-                <IntelligenceMyRequestsPage />
-              )}
-              {activeIntelligenceTab === "requests" && !!routeIntelligenceItemId && (
-                <IntelligenceRequestDetailPage />
-              )}
-            </div>
+            <IntelligenceWorkspacePage activeSubService={activeSubService} />
           ) : activeService === "Support Services" && activeSubService ? (
             <div className="h-full">
               {renderSupportWorkspace()}
@@ -4143,3 +4133,5 @@ export default function Stage2AppPage() {
     </div>
   );
 }
+
+
