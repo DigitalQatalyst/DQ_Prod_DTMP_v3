@@ -1,14 +1,23 @@
-import { X, SlidersHorizontal } from "lucide-react";
+import { X, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FilterPanelProps {
   filters: Record<string, string[]>;
   selectedFilters: Record<string, string[]>;
   onFilterChange: (group: string, value: string) => void;
+  onFilterSelect?: (group: string, value: string | null) => void;
   onClearAll: () => void;
   isOpen: boolean;
   onClose: () => void;
+  variant?: "checkbox" | "dropdown";
 }
 
 const filterLabels: Record<string, string> = {
@@ -55,18 +64,40 @@ const filterLabels: Record<string, string> = {
   experienceLevel: "Experience Level",
   engagementDuration: "Engagement Duration",
   industrySpecialization: "Industry Specialization",
+  // Digital Intelligence-specific filters
+  analyticsType: "Analytic Type",
+  systemScope: "System Scope",
+  dataSource: "Data Source",
+  aiCapability: "AI Capability",
+  updateFrequency: "Update Frequency",
+  visualizationType: "Visualization Type",
+  complexity: "Complexity",
+  assessmentType: "Assessment Type",
+  assessmentScope: "Assessment Scope",
+  framework: "Framework",
+  outputFormat: "Output Format",
+  assessmentFrequency: "Assessment Frequency",
+  projectType: "Project Type",
 };
 
 export function FilterPanel({
   filters,
   selectedFilters,
   onFilterChange,
+  onFilterSelect,
   onClearAll,
   isOpen,
   onClose,
+  variant = "checkbox",
 }: FilterPanelProps) {
   const hasActiveFilters = Object.values(selectedFilters).some(arr => arr.length > 0);
   const activeFilterCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0);
+
+  const handleDropdownChange = (group: string, value: string) => {
+    if (onFilterSelect) {
+      onFilterSelect(group, value === "__all__" ? null : value);
+    }
+  };
 
   return (
     <>
@@ -122,6 +153,42 @@ export function FilterPanel({
         {/* Filter Groups */}
         {Object.entries(filters).map(([group, options]) => {
           const selectedCount = selectedFilters[group]?.length || 0;
+          const selectedValue = selectedFilters[group]?.[0] || "";
+
+          if (variant === "dropdown") {
+            return (
+              <div key={group} className="mb-5">
+                <label
+                  className="block text-sm font-semibold text-gray-900 mb-2"
+                  htmlFor={`filter-select-${group}`}
+                >
+                  {filterLabels[group] || group}
+                </label>
+                <Select
+                  value={selectedValue || "__all__"}
+                  onValueChange={(val) => handleDropdownChange(group, val)}
+                >
+                  <SelectTrigger
+                    id={`filter-select-${group}`}
+                    className="w-full border-gray-300 bg-white text-sm focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <SelectValue placeholder={`All ${filterLabels[group] || group}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">
+                      All
+                    </SelectItem>
+                    {options.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            );
+          }
+
           return (
             <fieldset key={group} className="mb-6 pb-6 border-b border-gray-100 last:border-0">
               <legend className="text-sm font-semibold text-gray-900 mb-3">

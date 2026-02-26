@@ -14,6 +14,8 @@ interface LoginModalProps {
     cardId: string;
     serviceName: string;
     action: string;
+    formData?: Record<string, string>;
+    dashboardName?: string;
   };
 }
 

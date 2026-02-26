@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -35,6 +35,9 @@ import { enrolledCourses } from "@/data/learning";
 import { CourseDetailView } from "@/components/learning";
 import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
 import { ServiceDashboardPage } from "@/pages/stage2/intelligence";
+import { OverviewTab, MyRequestsTab } from "@/components/digitalIntelligence/stage2/DIRequestsHub";
+import { dashboardRequests } from "@/data/digitalIntelligence/stage2";
+import type { DashboardUpdateRequest } from "@/data/digitalIntelligence/stage2/types";
 
 interface LocationState {
   marketplace?: string;
@@ -42,6 +45,8 @@ interface LocationState {
   cardId?: string;
   serviceName?: string;
   action?: string;
+  formData?: Record<string, string>;
+  dashboardName?: string;
 }
 
 export default function Stage2AppPage() {
@@ -53,12 +58,86 @@ export default function Stage2AppPage() {
     marketplace = "portfolio-management",
     cardId = "portfolio-dashboard",
     serviceName = "Portfolio Service",
+    action,
+    formData,
+    dashboardName,
   } = state;
 
   const marketplaceLabel = marketplace
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+
+  const actionToRequestType: Record<string, DashboardUpdateRequest['requestType']> = {
+    'schedule-report': 'schedule-report',
+    'set-alert': 'set-alert',
+    'share-dashboard': 'share-dashboard',
+    'request-audit': 'request-audit',
+    'request-api': 'request-api',
+    'request-update': 'modify-chart',
+    'request-datasource': 'new-data-source',
+  };
+
+  const actionTitleMap: Record<string, string> = {
+    'schedule-report': 'Schedule Email Report',
+    'set-alert': 'Set Threshold Alert',
+    'share-dashboard': 'Share with Team',
+    'request-audit': 'Request Data Audit',
+    'request-api': 'Request API Access',
+    'request-update': 'Request Dashboard Update',
+    'request-datasource': 'Request Data Source',
+  };
+
+  const processedRef = useRef<string | null>(null);
+
+  const [diRequests, setDiRequests] = useState<DashboardUpdateRequest[]>(() => {
+    if (
+      marketplace === 'digital-intelligence' &&
+      action &&
+      actionToRequestType[action]
+    ) {
+      const reqId = `REQ-INT-${new Date().getFullYear()}-${String(dashboardRequests.length + 1).padStart(3, '0')}`;
+      processedRef.current = action + cardId;
+
+      const formDescription = formData
+        ? Object.entries(formData)
+            .filter(([, v]) => v)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ')
+        : '';
+
+      const validPriorities = ['low', 'medium', 'high', 'urgent'] as const;
+      const submittedPriority = formData?.priority;
+      const resolvedPriority: DashboardUpdateRequest['priority'] =
+        submittedPriority && validPriorities.includes(submittedPriority as any)
+          ? (submittedPriority as DashboardUpdateRequest['priority'])
+          : 'medium';
+
+      const newReq: DashboardUpdateRequest = {
+        id: reqId,
+        dashboardId: cardId,
+        dashboardName: dashboardName || serviceName,
+        requestType: actionToRequestType[action],
+        priority: resolvedPriority,
+        description: `${actionTitleMap[action] || action} — ${formDescription || 'User submitted request'}`,
+        requestedBy: {
+          id: 'user-current',
+          name: 'You',
+          email: formData?.email || 'user@company.com',
+          role: 'Platform User',
+        },
+        status: 'submitted',
+        submittedDate: new Date().toISOString(),
+        sla: '48 hours',
+        messages: [],
+        notifyEmail: true,
+        notifyInApp: true,
+      };
+
+      return [newReq, ...dashboardRequests];
+    }
+    return [...dashboardRequests];
+  });
 
   // State for navigation
   const [activeService, setActiveService] = useState(() => {
@@ -79,12 +158,16 @@ export default function Stage2AppPage() {
   });
   
   const [activeSubService, setActiveSubService] = useState<string | null>(() => {
-    // Auto-select the specific service if coming from a marketplace card
-    if ((marketplace === "portfolio-management" || marketplace === "learning-center" || marketplace === "digital-intelligence") && cardId) {
+    if (marketplace === "digital-intelligence") {
+      return "di-overview";
+    }
+    if ((marketplace === "portfolio-management" || marketplace === "learning-center") && cardId) {
       return cardId;
     }
     return null;
   });
+
+  const [diTypeFilter, setDiTypeFilter] = useState<string>('all');
 
   // Collapsible sidebar states
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -148,7 +231,7 @@ export default function Stage2AppPage() {
 
   const handleServiceClick = (service: string) => {
     setActiveService(service);
-    setActiveSubService(null); // Reset sub-service when switching main service
+    setActiveSubService(service === "Digital Intelligence" ? "di-overview" : null);
   };
 
   const handleSubServiceClick = (subServiceId: string) => {
@@ -421,33 +504,36 @@ export default function Stage2AppPage() {
               ) : activeService === "Digital Intelligence" ? (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Intelligence Services</h3>
-                    <div className="space-y-2">
-                      {intelligenceSubServices.map((service) => {
-                        const Icon = service.icon;
-                        return (
-                          <button
-                            key={service.id}
-                            onClick={() => handleSubServiceClick(service.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === service.id 
-                                ? "bg-purple-50 text-purple-700 border border-purple-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600" />
-                            <div className="text-left flex-1">
-                              <div className="font-medium">{service.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{service.description}</div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-xs text-purple-600">{service.accuracy}</span>
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs text-gray-500 capitalize">{service.updateFrequency}</span>
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Dashboard</h3>
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => handleSubServiceClick('di-overview')}
+                        className={`w-full flex items-center gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'di-overview'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <BarChart3 className="w-4 h-4 flex-shrink-0" />
+                        <div className="text-left">
+                          <div className="font-medium">Overview</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Summary of all your requests</div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleSubServiceClick('di-my-requests')}
+                        className={`w-full flex items-center gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'di-my-requests'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <FileText className="w-4 h-4 flex-shrink-0" />
+                        <div className="text-left">
+                          <div className="font-medium">My Requests</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Track status, SLAs & handlers</div>
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -512,6 +598,10 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      : activeService === "Digital Intelligence" && activeSubService === 'di-overview'
+                      ? 'Overview'
+                      : activeService === "Digital Intelligence" && activeSubService === 'di-my-requests'
+                      ? 'My Requests'
                       : activeService)
                     : activeService
                   }
@@ -522,6 +612,10 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.description
+                      : activeService === "Digital Intelligence" && activeSubService === 'di-overview'
+                      ? 'Summary of all your Digital Intelligence requests'
+                      : activeService === "Digital Intelligence" && activeSubService === 'di-my-requests'
+                      ? 'Track status, SLAs, handlers & details'
                       : `${activeService} • Service Hub`)
                     : `${activeService} • Service Hub`
                   }
@@ -646,9 +740,16 @@ export default function Stage2AppPage() {
                 return <CourseDetailView course={course} />;
               })()}
             </div>
+          ) : activeService === "Digital Intelligence" && activeSubService === 'di-overview' ? (
+            <div className="h-full overflow-y-auto p-6">
+              <OverviewTab requests={diRequests} onFilterByType={(type) => { setDiTypeFilter(type); setActiveSubService('di-my-requests'); }} />
+            </div>
+          ) : activeService === "Digital Intelligence" && activeSubService === 'di-my-requests' ? (
+            <div className="h-full overflow-y-auto p-6">
+              <MyRequestsTab requests={diRequests} initialTypeFilter={diTypeFilter} onFilterConsumed={() => setDiTypeFilter('all')} />
+            </div>
           ) : activeService === "Digital Intelligence" && activeSubService ? (
             <div className="h-full">
-              {/* Digital Intelligence Dashboard Content */}
               <ServiceDashboardPage serviceId={activeSubService} />
             </div>
           ) : (

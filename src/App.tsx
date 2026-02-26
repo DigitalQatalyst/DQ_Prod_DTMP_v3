@@ -25,6 +25,7 @@ import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
+import DigitalIntelligenceDashboardPage from "./pages/DigitalIntelligenceDashboardPage";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
           {/* Digital Intelligence marketplace */}
           <Route path="/marketplaces/digital-intelligence" element={<DigitalIntelligencePage />} />
           <Route path="/marketplaces/digital-intelligence/:tab/:cardId" element={<DigitalIntelligenceDetailPage />} />
+          <Route path="/marketplaces/digital-intelligence/:tab/:cardId/dashboard" element={<DigitalIntelligenceDashboardPage />} />
           
           {/* Portfolio Management marketplace */}
           <Route path="/marketplaces/portfolio-management" element={<PortfolioManagementPage />} />
