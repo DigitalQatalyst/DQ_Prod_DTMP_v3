@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
+import { isUserAuthenticated } from "@/data/sessionAuth";
+import { getSessionRole, isTOStage3Role } from "@/data/sessionRole";
 
 const navLinks = [
   { name: "DBP", sectionId: "dbp-overview" },
@@ -14,6 +17,7 @@ const navLinks = [
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAccessLogin, setShowAccessLogin] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,6 +43,19 @@ export function Header() {
   const handleNavClick = (sectionId: string) => {
     scrollToSection(sectionId);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleAccessPlatform = () => {
+    if (isUserAuthenticated()) {
+      const role = getSessionRole();
+      if (isTOStage3Role(role)) {
+        navigate("/stage3/dashboard");
+        return;
+      }
+      setShowAccessLogin(true);
+      return;
+    }
+    setShowAccessLogin(true);
   };
 
   return (
@@ -73,15 +90,14 @@ export function Header() {
             <span className="text-xs text-primary-foreground/50">
               Internal Platform
             </span>
-            <Link to="/marketplaces">
-              <Button
-                variant="default"
-                className="bg-accent hover:bg-orange-hover text-accent-foreground px-6 py-2.5 rounded-lg font-semibold inline-flex items-center gap-2"
-              >
-                Access Platform
-                <ArrowRight size={16} />
-              </Button>
-            </Link>
+            <Button
+              variant="default"
+              onClick={handleAccessPlatform}
+              className="bg-accent hover:bg-orange-hover text-accent-foreground px-6 py-2.5 rounded-lg font-semibold inline-flex items-center gap-2"
+            >
+              Access Platform
+              <ArrowRight size={16} />
+            </Button>
             <button
               className="text-primary-foreground/50 hover:text-primary-foreground transition-colors"
               aria-label="Exit Platform"
@@ -92,15 +108,14 @@ export function Header() {
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center gap-3">
-            <Link to="/marketplaces">
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-accent hover:bg-orange-hover text-accent-foreground rounded-lg font-semibold"
-              >
-                Access
-              </Button>
-            </Link>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleAccessPlatform}
+              className="bg-accent hover:bg-orange-hover text-accent-foreground rounded-lg font-semibold"
+            >
+              Access
+            </Button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-primary-foreground p-2"
@@ -153,19 +168,31 @@ export function Header() {
             </nav>
 
             <div className="px-4 pb-8">
-              <Link
-                to="/marketplaces"
-                onClick={() => setIsMobileMenuOpen(false)}
+              <Button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleAccessPlatform();
+                }}
+                className="w-full bg-accent hover:bg-orange-hover text-accent-foreground py-4 rounded-lg font-semibold text-lg inline-flex items-center justify-center gap-2"
               >
-                <Button className="w-full bg-accent hover:bg-orange-hover text-accent-foreground py-4 rounded-lg font-semibold text-lg inline-flex items-center justify-center gap-2">
-                  Access Platform
-                  <ArrowRight size={18} />
-                </Button>
-              </Link>
+                Access Platform
+                <ArrowRight size={18} />
+              </Button>
             </div>
           </div>
         </div>
       )}
+      <LoginModal
+        isOpen={showAccessLogin}
+        onClose={() => setShowAccessLogin(false)}
+        context={{
+          marketplace: "platform",
+          tab: "overview",
+          cardId: "access-platform",
+          serviceName: "Internal Platform",
+          action: "access-platform",
+        }}
+      />
     </header>
   );
 }

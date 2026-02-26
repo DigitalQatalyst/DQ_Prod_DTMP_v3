@@ -109,6 +109,7 @@ import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
 import { Tag, Calendar, Clock as ClockIcon, Eye } from "lucide-react";
+import { createStage3Request } from "@/data/stage3";
 import TemplatesOverview from "@/pages/stage2/templates/TemplatesOverview";
 import TemplateLibraryPage from "@/pages/stage2/templates/TemplateLibraryPage";
 import TemplateDetailPage from "@/pages/stage2/templates/TemplateDetailPage";
@@ -588,6 +589,48 @@ export default function Stage2AppPage() {
       : "overview";
     setActiveKnowledgeTab(nextTab);
   }, [isKnowledgeCenterRoute, routeKnowledgeTab]);
+
+  useEffect(() => {
+    if (!isKnowledgeCenterRoute) return;
+    if (state.action !== "request-clarification" && state.action !== "post-comment") return;
+
+    const resourceTitle = state.serviceName?.trim() || "Knowledge Resource";
+    const isClarification = state.action === "request-clarification";
+
+    createStage3Request({
+      type: "knowledge-center",
+      title: isClarification
+        ? `Knowledge Clarification: ${resourceTitle}`
+        : `Knowledge Collaboration Follow-up: ${resourceTitle}`,
+      description: isClarification
+        ? `Escalated from Stage 2 Knowledge action. Clarification requested for "${resourceTitle}".`
+        : `Escalated from Stage 2 Knowledge action. Comment/collaboration follow-up for "${resourceTitle}".`,
+      requester: {
+        name: "John Doe",
+        email: "john.doe@dtmp.local",
+        department: "Portfolio Management",
+        organization: "DTMP",
+      },
+      priority: isClarification ? "medium" : "low",
+      estimatedHours: isClarification ? 4 : 2,
+      tags: [
+        "knowledge",
+        isClarification ? "clarification" : "collaboration",
+        state.tab || "library",
+        state.cardId || "unknown-resource",
+      ],
+      notes: [
+        `Source: Stage 2 Knowledge Workspace`,
+        `Action: ${state.action}`,
+      ],
+    });
+
+    const { action: _unusedAction, ...nextState } = state;
+    navigate(location.pathname, {
+      replace: true,
+      state: nextState,
+    });
+  }, [isKnowledgeCenterRoute, state, navigate, location.pathname]);
 
   useEffect(() => {
     if (!isTemplatesRoute) return;
@@ -1192,6 +1235,36 @@ export default function Stage2AppPage() {
         },
       }
     );
+  };
+  const handleEscalateLearningToStage3 = () => {
+    if (activeService !== "Learning Center" || viewMode !== "admin" || !selectedLearningCourse) {
+      return;
+    }
+
+    const created = createStage3Request({
+      type: "learning-center",
+      title: `Learning Ops: ${selectedLearningCourse.courseName}`,
+      description:
+        `Escalated from Stage 2 Learning Admin for operational follow-up. ` +
+        `Course: ${selectedLearningCourse.courseName}.`,
+      requester: {
+        name: "Amina TO",
+        email: "amina.to@dtmp.local",
+        department: "Transformation Office",
+        organization: "DTMP",
+      },
+      priority: "medium",
+      estimatedHours: 6,
+      tags: ["learning", "stage2-admin", selectedLearningCourse.id],
+      notes: ["Created from Learning Stage 2 admin view."],
+    });
+
+    navigate("/stage3/new", {
+      state: {
+        fromStage2: true,
+        requestId: created.id,
+      },
+    });
   };
   const profiles = {
     user: {
@@ -2355,10 +2428,18 @@ export default function Stage2AppPage() {
                 </p>
               </div>
             </div>
-            <Button size="sm" className="bg-orange-600 hover:bg-orange-700" onClick={() => setShowRequestsModal(true)}>
-              <FileText className="w-4 h-4 mr-2" />
-              My Requests
-            </Button>
+            <div className="flex items-center gap-2">
+              {activeService === "Learning Center" && viewMode === "admin" && (
+                <Button size="sm" variant="outline" onClick={handleEscalateLearningToStage3}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Send To TO Ops
+                </Button>
+              )}
+              <Button size="sm" className="bg-orange-600 hover:bg-orange-700" onClick={() => setShowRequestsModal(true)}>
+                <FileText className="w-4 h-4 mr-2" />
+                My Requests
+              </Button>
+            </div>
           </div>
         </div>
 

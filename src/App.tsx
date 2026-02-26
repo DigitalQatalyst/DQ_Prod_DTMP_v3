@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
@@ -12,6 +12,7 @@ import KnowledgeCenterPage from "./pages/KnowledgeCenterPage";
 import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
 import Stage2AppPage from "./pages/Stage2AppPage";
+import Stage3AppPage from "./pages/Stage3AppPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import TemplatesDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
@@ -34,8 +35,44 @@ import LifecycleDetailPage from "./pages/LifecycleDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
+import { isUserAuthenticated } from "./data/sessionAuth";
+import { getSessionRole, isTOStage3Role } from "./data/sessionRole";
 
 const queryClient = new QueryClient();
+
+const Stage3GuardedRoute = () => {
+  const location = useLocation();
+  const authenticated = isUserAuthenticated();
+  const role = getSessionRole();
+  const hasStage3Access = isTOStage3Role(role);
+
+  if (!authenticated) {
+    return (
+      <Navigate
+        to="/marketplaces"
+        replace
+        state={{ reason: "stage3-auth-required", from: location.pathname }}
+      />
+    );
+  }
+
+  if (!hasStage3Access) {
+    return (
+      <Navigate
+        to="/stage2"
+        replace
+        state={{
+          reason: "stage3-to-role-required",
+          from: location.pathname,
+          marketplace: "portfolio-management",
+          serviceName: "Service Hub",
+        }}
+      />
+    );
+  }
+
+  return <Stage3AppPage />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -87,6 +124,8 @@ const App = () => (
           <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
           <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
+          <Route path="/stage3" element={<Navigate to="/stage3/dashboard" replace />} />
+          <Route path="/stage3/:view" element={<Stage3GuardedRoute />} />
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />

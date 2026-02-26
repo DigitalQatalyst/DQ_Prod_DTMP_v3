@@ -6,6 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { enrolledCourses } from "@/data/learning";
 import { setUserAuthenticated } from "@/data/sessionAuth";
+import {
+  isTOStage3Role,
+  setSessionRole,
+  type SessionRole,
+} from "@/data/sessionRole";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -41,12 +46,32 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
     const normalized = value.trim().toLowerCase();
     return normalized.includes("admin") ? "admin" : "learner";
   };
+  const resolveSessionRole = (value: string): SessionRole => {
+    const normalized = value.trim().toLowerCase();
+    if (normalized.includes("to") || normalized.includes("transformation")) {
+      return "to-ops";
+    }
+    if (normalized.includes("admin")) {
+      return "to-admin";
+    }
+    return "business-user";
+  };
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setUserAuthenticated(true);
+    const sessionRole = resolveSessionRole(email);
+    setSessionRole(sessionRole);
+
+    if (context.action === "access-platform") {
+      if (isTOStage3Role(sessionRole)) {
+        navigate("/stage3/dashboard");
+      }
+      onClose();
+      return;
+    }
 
     if (context.marketplace === "learning-center") {
       const fallbackCourseId = enrolledCourses[0]?.id ?? "digital-transformation-fundamentals";
@@ -152,6 +177,8 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
             ? `Please log in to access the ${context.serviceName} dashboard`
             : context.marketplace === "solution-specs"
             ? "Log in to complete your request."
+            : context.action === "access-platform"
+            ? "Log in to access internal platform workspace."
             : "Please log in to continue with your enrollment"}
         </p>
 
