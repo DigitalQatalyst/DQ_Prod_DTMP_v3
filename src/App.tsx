@@ -13,8 +13,8 @@ import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
 import Stage2AppPage from "./pages/Stage2AppPage";
 import Stage3AppPage from "./pages/Stage3AppPage";
-import TemplatesPage from "./pages/TemplatesPage";
-import TemplatesDetailPage from "./pages/TemplatesDetailPage";
+import DocumentStudioPage from "./pages/TemplatesPage";
+import DocumentStudioDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
 import { SolutionSpecDetailPage } from "./pages/SolutionSpecDetailPage";
 import { SolutionBuildPage } from "./pages/SolutionBuildPage";
@@ -140,9 +140,9 @@ const App = () => (
           <Route path="/marketplaces/knowledge-center" element={<KnowledgeCenterPage />} />
           <Route path="/marketplaces/knowledge-center/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
 
-          {/* Templates marketplace */}
-          <Route path="/marketplaces/templates" element={<TemplatesPage />} />
-          <Route path="/marketplaces/templates/:tab/:cardId" element={<TemplatesDetailPage />} />
+          {/* Document Studio marketplace */}
+          <Route path="/marketplaces/document-studio" element={<DocumentStudioPage />} />
+          <Route path="/marketplaces/document-studio/:tab/:cardId" element={<DocumentStudioDetailPage />} />
 
           {/* Blueprints marketplace - Legacy route with redirect */}
           <Route path="/marketplaces/blueprints" element={<Navigate to="/marketplaces/solution-specs" replace />} />

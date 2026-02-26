@@ -51,22 +51,18 @@ export const marketplaces: Marketplace[] = [
 
   // DESIGN
   {
-    id: "templates",
+    id: "document-studio",
     phase: "Design",
     icon: FileText,
-    name: "DTMP Templates",
+    name: "DTMP Document Studio",
     description:
-      "Generate governance-compliant documents using AI DocWriter 4.0 - Policy, Procedure, and Application Profile Reports",
+      "Generate context-specific documents on demand using AI. Submit a request with your organisational context and the Transformation Office will use AI DocWriter 4.0 to generate a tailored document ready for your review and use.",
     features: [
-      "Policy Reports",
-      "Procedure Reports",
       "Application Profiles",
-      "Strategy Docs",
       "Assessments",
-      "Executive Summaries",
     ],
-    serviceCount: 18,
-    route: "/marketplaces/templates",
+    serviceCount: 8,
+    route: "/marketplaces/document-studio",
   },
   {
     id: "solution-specs",

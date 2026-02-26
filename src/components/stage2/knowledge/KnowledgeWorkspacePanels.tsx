@@ -202,7 +202,11 @@ export function KnowledgeWorkspaceMain({
                       <div key={request.id} className="border border-gray-200 rounded-md p-2">
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <p className="text-xs font-semibold text-foreground">
-                            {request.type === "clarification" ? "Clarification" : "Outdated Section"}
+                            {request.type === "clarification"
+                              ? "Clarification"
+                              : request.type === "collaboration"
+                                ? "Collaboration"
+                                : "Outdated Section"}
                           </p>
                           <span
                             className={`text-[11px] px-2 py-0.5 rounded-full ${

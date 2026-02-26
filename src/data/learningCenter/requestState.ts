@@ -1,20 +1,20 @@
-export type TORequestStatus = "Open" | "In Review" | "Resolved";
-export type TORequestType = "clarification" | "outdated-section" | "collaboration";
+export type LearningTORequestStatus = "Open" | "In Review" | "Resolved";
+export type LearningTORequestType = "admin-escalation";
 
-export interface TORequest {
+export interface LearningTORequest {
   id: string;
-  itemId: string;
+  courseId: string;
+  courseName: string;
   requesterName: string;
   requesterRole: string;
-  type: TORequestType;
+  type: LearningTORequestType;
   message: string;
-  sectionRef?: string;
-  status: TORequestStatus;
+  status: LearningTORequestStatus;
   createdAt: string;
   updatedAt: string;
 }
 
-const REQUESTS_KEY = "dtmp.knowledge.toRequests";
+const REQUESTS_KEY = "dtmp.learning.toRequests";
 const isBrowser = typeof window !== "undefined";
 
 const parseJson = <T>(raw: string | null, fallback: T): T => {
@@ -25,17 +25,17 @@ const parseJson = <T>(raw: string | null, fallback: T): T => {
   }
 };
 
-const readRequests = (): TORequest[] => {
+const readRequests = (): LearningTORequest[] => {
   if (!isBrowser) return [];
-  return parseJson<TORequest[]>(window.localStorage.getItem(REQUESTS_KEY), []);
+  return parseJson<LearningTORequest[]>(window.localStorage.getItem(REQUESTS_KEY), []);
 };
 
-const writeRequests = (requests: TORequest[]) => {
+const writeRequests = (requests: LearningTORequest[]) => {
   if (!isBrowser) return;
   window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests.slice(0, 300)));
 };
 
-export const getTORequests = (requesterName?: string): TORequest[] => {
+export const getLearningTORequests = (requesterName?: string): LearningTORequest[] => {
   const requests = readRequests().sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -45,33 +45,31 @@ export const getTORequests = (requesterName?: string): TORequest[] => {
   );
 };
 
-export const addTORequest = ({
-  itemId,
+export const addLearningTORequest = ({
+  courseId,
+  courseName,
   requesterName,
   requesterRole,
-  type,
   message,
-  sectionRef,
 }: {
-  itemId: string;
+  courseId: string;
+  courseName: string;
   requesterName: string;
   requesterRole: string;
-  type: TORequestType;
   message: string;
-  sectionRef?: string;
-}): TORequest | null => {
+}): LearningTORequest | null => {
   const trimmedMessage = message.trim();
   if (!trimmedMessage) return null;
 
   const now = new Date().toISOString();
-  const request: TORequest = {
-    id: `to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    itemId,
+  const request: LearningTORequest = {
+    id: `learning-to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    courseId,
+    courseName,
     requesterName,
     requesterRole,
-    type,
+    type: "admin-escalation",
     message: trimmedMessage,
-    sectionRef: sectionRef?.trim() || undefined,
     status: "Open",
     createdAt: now,
     updatedAt: now,
@@ -82,12 +80,12 @@ export const addTORequest = ({
   return request;
 };
 
-export const updateTORequestStatus = (
+export const updateLearningTORequestStatus = (
   requestId: string,
-  status: TORequestStatus
-): TORequest | null => {
+  status: LearningTORequestStatus
+): LearningTORequest | null => {
   const requests = readRequests();
-  let updated: TORequest | null = null;
+  let updated: LearningTORequest | null = null;
   const next = requests.map((request) => {
     if (request.id !== requestId) return request;
     updated = {

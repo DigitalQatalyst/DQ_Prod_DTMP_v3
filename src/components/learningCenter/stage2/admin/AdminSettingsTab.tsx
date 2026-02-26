@@ -20,6 +20,10 @@ import type { CourseSettings } from "@/data/learningCenter/stage2/types";
 
 interface AdminSettingsTabProps {
   settings: CourseSettings;
+  onChange: (next: CourseSettings) => void;
+  deleteRequested: boolean;
+  onDeleteRequestedChange: (value: boolean) => void;
+  pendingChangeCount: number;
 }
 
 const SectionHeader = ({
@@ -35,9 +39,28 @@ const SectionHeader = ({
   </div>
 );
 
-const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
+const AdminSettingsTab = ({
+  settings,
+  onChange,
+  deleteRequested,
+  onDeleteRequestedChange,
+  pendingChangeCount,
+}: AdminSettingsTabProps) => {
+  const updateField = <K extends keyof CourseSettings>(field: K, value: CourseSettings[K]) => {
+    onChange({
+      ...settings,
+      [field]: value,
+    });
+  };
+
   return (
     <div className="space-y-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <p className="text-sm text-blue-900 font-medium">Pending Draft Changes</p>
+        <p className="text-xs text-blue-700 mt-1">
+          {pendingChangeCount} field change(s) {deleteRequested ? " + delete request" : ""} ready for TO review submission.
+        </p>
+      </div>
       {/* General Settings */}
       <div className="bg-white border border-gray-200 rounded-xl p-6">
         <SectionHeader icon={Settings} title="General Settings" />
@@ -48,7 +71,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <Input
               id="courseTitle"
-              defaultValue={settings.courseTitle}
+              value={settings.courseTitle}
+              onChange={(event) => updateField("courseTitle", event.target.value)}
               className="mt-1"
             />
           </div>
@@ -58,7 +82,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <Input
               id="courseCode"
-              defaultValue={settings.courseCode}
+              value={settings.courseCode}
+              onChange={(event) => updateField("courseCode", event.target.value)}
               className="mt-1"
             />
           </div>
@@ -68,7 +93,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <Input
               id="duration"
-              defaultValue={settings.duration}
+              value={settings.duration}
+              onChange={(event) => updateField("duration", event.target.value)}
               className="mt-1"
             />
           </div>
@@ -78,7 +104,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <select
               id="difficulty"
-              defaultValue={settings.difficulty}
+              value={settings.difficulty}
+              onChange={(event) => updateField("difficulty", event.target.value)}
               className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
             >
               <option>Beginner</option>
@@ -93,7 +120,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <select
               id="language"
-              defaultValue={settings.language}
+              value={settings.language}
+              onChange={(event) => updateField("language", event.target.value)}
               className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
             >
               <option>English</option>
@@ -152,10 +180,11 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
                 Max Enrollments
               </Label>
               <select
-                id="maxEnrollments"
-                defaultValue={settings.maxEnrollments}
-                className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
-              >
+              id="maxEnrollments"
+              value={settings.maxEnrollments}
+              onChange={(event) => updateField("maxEnrollments", event.target.value)}
+              className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+            >
                 <option>Unlimited</option>
                 <option>100</option>
                 <option>500</option>
@@ -169,7 +198,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
               </Label>
               <Input
                 id="enrollStart"
-                defaultValue={settings.enrollmentStart}
+                value={settings.enrollmentStart}
+                onChange={(event) => updateField("enrollmentStart", event.target.value)}
                 className="mt-1"
               />
             </div>
@@ -179,7 +209,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
               </Label>
               <Input
                 id="enrollEnd"
-                defaultValue={settings.enrollmentEnd}
+                value={settings.enrollmentEnd}
+                onChange={(event) => updateField("enrollmentEnd", event.target.value)}
                 className="mt-1"
               />
             </div>
@@ -202,7 +233,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             <Input
               id="passingScore"
               type="number"
-              defaultValue={settings.passingScore}
+              value={settings.passingScore}
+              onChange={(event) => updateField("passingScore", Number(event.target.value) || 0)}
               className="mt-1"
             />
           </div>
@@ -212,7 +244,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <select
               id="quizAttempts"
-              defaultValue={settings.quizAttempts}
+              value={settings.quizAttempts}
+              onChange={(event) => updateField("quizAttempts", event.target.value)}
               className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
             >
               <option>Unlimited</option>
@@ -229,19 +262,19 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
         </h4>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <Switch defaultChecked={settings.requireCompleteModules} />
+            <Switch checked={settings.requireCompleteModules} onCheckedChange={(value) => updateField("requireCompleteModules", value)} />
             <Label>Complete all modules</Label>
           </div>
           <div className="flex items-center gap-3">
-            <Switch defaultChecked={settings.requirePassQuizzes} />
+            <Switch checked={settings.requirePassQuizzes} onCheckedChange={(value) => updateField("requirePassQuizzes", value)} />
             <Label>Pass all quizzes</Label>
           </div>
           <div className="flex items-center gap-3">
-            <Switch defaultChecked={settings.requireFinalProject} />
+            <Switch checked={settings.requireFinalProject} onCheckedChange={(value) => updateField("requireFinalProject", value)} />
             <Label>Complete final project</Label>
           </div>
           <div className="flex items-center gap-3">
-            <Switch defaultChecked={settings.requireFinalExam} />
+            <Switch checked={settings.requireFinalExam} onCheckedChange={(value) => updateField("requireFinalExam", value)} />
             <Label>
               Pass final exam with {settings.finalExamPassScore}%+
             </Label>
@@ -254,7 +287,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
           <Input
             id="cpeCredits"
             type="number"
-            defaultValue={settings.cpeCredits}
+            value={settings.cpeCredits}
+            onChange={(event) => updateField("cpeCredits", Number(event.target.value) || 0)}
             className="mt-1 w-32"
           />
         </div>
@@ -274,7 +308,8 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
             </Label>
             <select
               id="primaryInstructor"
-              defaultValue={settings.primaryInstructor}
+              value={settings.primaryInstructor}
+              onChange={(event) => updateField("primaryInstructor", event.target.value)}
               className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
             >
               <option>{settings.primaryInstructor}</option>
@@ -305,19 +340,19 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label>Notify instructor of new enrollments</Label>
-            <Switch defaultChecked={settings.notifyNewEnrollments} />
+            <Switch checked={settings.notifyNewEnrollments} onCheckedChange={(value) => updateField("notifyNewEnrollments", value)} />
           </div>
           <div className="flex items-center justify-between">
             <Label>Send weekly progress reports to instructor</Label>
-            <Switch defaultChecked={settings.notifyWeeklyReports} />
+            <Switch checked={settings.notifyWeeklyReports} onCheckedChange={(value) => updateField("notifyWeeklyReports", value)} />
           </div>
           <div className="flex items-center justify-between">
             <Label>Alert on student inactivity (14+ days)</Label>
-            <Switch defaultChecked={settings.notifyInactivity} />
+            <Switch checked={settings.notifyInactivity} onCheckedChange={(value) => updateField("notifyInactivity", value)} />
           </div>
           <div className="flex items-center justify-between">
             <Label>Notify of quiz failures (3+ attempts)</Label>
-            <Switch defaultChecked={settings.notifyQuizFailures} />
+            <Switch checked={settings.notifyQuizFailures} onCheckedChange={(value) => updateField("notifyQuizFailures", value)} />
           </div>
         </div>
         <Button className="mt-4 bg-orange-600 hover:bg-orange-700 text-white" size="sm">
@@ -344,10 +379,13 @@ const AdminSettingsTab = ({ settings }: AdminSettingsTabProps) => {
           </Button>
           <Button
             variant="outline"
-            className="text-red-600 border-red-300 hover:bg-red-50"
+            className={`text-red-600 border-red-300 hover:bg-red-50 ${
+              deleteRequested ? "bg-red-50" : ""
+            }`}
+            onClick={() => onDeleteRequestedChange(!deleteRequested)}
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete Course
+            {deleteRequested ? "Delete Requested" : "Request Course Deletion"}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground mt-3">

@@ -23,12 +23,14 @@ import {
   appendStage3RequestNote,
   assignStage3Request,
   getAvailableStage3Transitions,
+  syncMarketplaceRequestStatusFromStage3,
   stage3Requests,
   stage3TeamMembers,
   type Stage3Request,
   transitionStage3RequestStatus,
   unassignStage3Request,
 } from "@/data/stage3";
+import { getLearningChangeSetById } from "@/data/learningCenter/changeReviewState";
 
 type Stage3View =
   | "dashboard"
@@ -117,6 +119,15 @@ export default function Stage3AppPage() {
     () => requests.find((request) => request.id === selectedRequestId) ?? null,
     [requests, selectedRequestId]
   );
+  const selectedLearningChangeSet = useMemo(() => {
+    if (!selectedRequest) return null;
+    const changeAsset = (selectedRequest.relatedAssets ?? []).find((asset) =>
+      asset.startsWith("learning-change:")
+    );
+    if (!changeAsset) return null;
+    const changeId = changeAsset.replace("learning-change:", "").trim();
+    return changeId ? getLearningChangeSetById(changeId) ?? null : null;
+  }, [selectedRequest, requests]);
 
   useEffect(() => {
     if (!selectedRequestId) return;
@@ -279,6 +290,7 @@ export default function Stage3AppPage() {
     if (!selectedRequest || !selectedNextStatus) return;
     const updated = transitionStage3RequestStatus(selectedRequest.id, selectedNextStatus);
     if (!updated) return;
+    syncMarketplaceRequestStatusFromStage3(updated);
     setRequests([...stage3Requests]);
   };
 
@@ -288,6 +300,28 @@ export default function Stage3AppPage() {
     if (!updated) return;
     setRequests([...stage3Requests]);
     setNoteDraft("");
+  };
+
+  const advanceLearningChangeReview = (
+    request: Stage3Request,
+    terminal: "approved" | "rejected"
+  ) => {
+    const transitionOrder: Stage3Request["status"][] =
+      terminal === "approved"
+        ? ["assigned", "in-progress", "pending-review", "completed"]
+        : ["on-hold", "cancelled"];
+
+    let working = request;
+    for (const nextStatus of transitionOrder) {
+      if (working.status === nextStatus) continue;
+      const updated = transitionStage3RequestStatus(working.id, nextStatus);
+      if (!updated) continue;
+      working = updated;
+      syncMarketplaceRequestStatusFromStage3(updated);
+      if (terminal === "rejected" && nextStatus === "cancelled") break;
+      if (terminal === "approved" && nextStatus === "completed") break;
+    }
+    setRequests([...stage3Requests]);
   };
 
   const requestNavCounts = {
@@ -600,6 +634,33 @@ export default function Stage3AppPage() {
               <p>{selectedRequest.requester.name}</p>
               <p className="text-gray-600">{selectedRequest.requester.email}</p>
             </div>
+            {selectedLearningChangeSet && (
+              <div className="border-t pt-3">
+                <p className="text-xs text-gray-500">Proposed Learning Changes</p>
+                <p className="text-sm font-medium text-gray-900 mb-2">
+                  {selectedLearningChangeSet.courseName}
+                </p>
+                <p className="text-xs text-gray-600 mb-2">
+                  Draft status: {selectedLearningChangeSet.status}
+                </p>
+                {selectedLearningChangeSet.deleteRequested && (
+                  <Badge className="bg-red-100 text-red-700 mb-2">Delete Course Requested</Badge>
+                )}
+                <div className="space-y-2 max-h-44 overflow-y-auto">
+                  {selectedLearningChangeSet.diffs.map((diff) => (
+                    <div key={`${diff.field}-${diff.before}-${diff.after}`} className="border border-gray-200 rounded-md p-2">
+                      <p className="text-xs font-semibold text-gray-900">{diff.label}</p>
+                      <p className="text-xs text-gray-600">Before: {diff.before}</p>
+                      <p className="text-xs text-gray-900">After: {diff.after}</p>
+                    </div>
+                  ))}
+                  {selectedLearningChangeSet.diffs.length === 0 &&
+                    !selectedLearningChangeSet.deleteRequested && (
+                      <p className="text-xs text-gray-500">No field-level diffs captured.</p>
+                    )}
+                </div>
+              </div>
+            )}
             <div className="border-t pt-3">
               <p className="text-xs text-gray-500">Assignment</p>
               <p>{selectedRequest.assignedTo ?? "Unassigned"}</p>
@@ -732,6 +793,24 @@ export default function Stage3AppPage() {
               >
                 Add Note
               </Button>
+              {selectedLearningChangeSet && (
+                <>
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => advanceLearningChangeReview(selectedRequest, "approved")}
+                  >
+                    Approve Changes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => advanceLearningChangeReview(selectedRequest, "rejected")}
+                  >
+                    Reject Changes
+                  </Button>
+                </>
+              )}
             </div>
             </div>
           </aside>

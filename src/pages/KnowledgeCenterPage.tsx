@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ChevronRight, BookOpen, Users, Award, Lightbulb, Quote, Map, Library } from "lucide-react";
+import { ChevronRight, BookOpen, Users, Award, Lightbulb, Quote, Map, Library, FileText } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -14,17 +14,33 @@ import { bestPractices, bestPracticesFilters } from "@/data/knowledgeCenter/best
 import { testimonials, testimonialsFilters } from "@/data/knowledgeCenter/testimonials";
 import { playbooks, playbooksFilters } from "@/data/knowledgeCenter/playbooks";
 import { libraryItems, libraryFilters } from "@/data/knowledgeCenter/library";
+import { policyReports, policyReportsFilters } from "@/data/knowledgeCenter/policyReports";
+import { procedureReports, procedureReportsFilters } from "@/data/knowledgeCenter/procedureReports";
+import { executiveSummaries, executiveSummariesFilters } from "@/data/knowledgeCenter/executiveSummaries";
+import { strategyDocs, strategyDocsFilters } from "@/data/knowledgeCenter/strategyDocs";
 import type { BestPractice } from "@/data/knowledgeCenter/bestPractices";
 import type { Testimonial } from "@/data/knowledgeCenter/testimonials";
 import type { Playbook } from "@/data/knowledgeCenter/playbooks";
 import type { LibraryItem } from "@/data/knowledgeCenter/library";
+import type { PolicyReport } from "@/data/knowledgeCenter/policyReports";
+import type { ProcedureReport } from "@/data/knowledgeCenter/procedureReports";
+import type { ExecutiveSummary } from "@/data/knowledgeCenter/executiveSummaries";
+import type { StrategyDoc } from "@/data/knowledgeCenter/strategyDocs";
 import { getKnowledgeItem } from "@/data/knowledgeCenter/knowledgeItems";
 import {
   mapBestPracticeToDepartment,
   mapIndustryToDepartment,
 } from "@/data/knowledgeCenter/departmentMapping";
 
-type TabType = "best-practices" | "testimonials" | "playbooks" | "library";
+type TabType =
+  | "best-practices"
+  | "testimonials"
+  | "playbooks"
+  | "library"
+  | "policy-reports"
+  | "procedure-reports"
+  | "executive-summaries"
+  | "strategy-docs";
 type SortOption =
   | "most-relevant"
   | "newest"
@@ -272,11 +288,124 @@ const filterLibraryItems = (
     });
   });
 
+const matchesSelected = (
+  selected: string[],
+  value: string | boolean | string[] | undefined
+) => {
+  if (!selected || selected.length === 0) return true;
+  if (typeof value === "boolean") {
+    return selected.includes(value ? "Yes" : "No");
+  }
+  if (Array.isArray(value)) {
+    return selected.some((entry) => value.includes(entry));
+  }
+  if (typeof value === "string") {
+    return selected.includes(value);
+  }
+  return false;
+};
+
+const filterPolicyReports = (
+  items: PolicyReport[],
+  query: string,
+  filters: Record<string, string[]>
+) =>
+  items.filter((item) => {
+    const matchesSearch = includesQuery(
+      [item.title, item.description, item.category, item.policyType, item.compliance ?? "", item.aiGeneration, item.specialFeature],
+      query
+    );
+    if (!matchesSearch) return false;
+    return Object.entries(filters).every(([group, selected]) => {
+      if (group === "policyDomain") return matchesSelected(selected, item.category);
+      if (group === "policyType") return matchesSelected(selected, item.policyType);
+      if (group === "complianceFramework") return matchesSelected(selected, item.compliance ?? "None");
+      if (group === "outputFormat") return matchesSelected(selected, item.outputFormats);
+      if (group === "complexity") return matchesSelected(selected, item.complexity);
+      if (group === "pageLength") return matchesSelected(selected, item.pageLength);
+      if (group === "aiGeneration") return matchesSelected(selected, item.aiGeneration);
+      return true;
+    });
+  });
+
+const filterProcedureReports = (
+  items: ProcedureReport[],
+  query: string,
+  filters: Record<string, string[]>
+) =>
+  items.filter((item) => {
+    const matchesSearch = includesQuery(
+      [item.title, item.description, item.category, item.procedureType, item.aiGeneration, item.specialFeature],
+      query
+    );
+    if (!matchesSearch) return false;
+    return Object.entries(filters).every(([group, selected]) => {
+      if (group === "processArea") return matchesSelected(selected, item.category);
+      if (group === "procedureType") return matchesSelected(selected, item.procedureType);
+      if (group === "audienceLevel") return true;
+      if (group === "outputFormat") return matchesSelected(selected, item.outputFormats);
+      if (group === "includesFlowchart") return matchesSelected(selected, item.includesFlowchart);
+      if (group === "complexity") return matchesSelected(selected, item.complexity);
+      if (group === "aiGeneration") return matchesSelected(selected, item.aiGeneration);
+      return true;
+    });
+  });
+
+const filterExecutiveSummaries = (
+  items: ExecutiveSummary[],
+  query: string,
+  filters: Record<string, string[]>
+) =>
+  items.filter((item) => {
+    const matchesSearch = includesQuery(
+      [item.title, item.description, item.category, item.summaryType, item.audience, item.format, item.aiGeneration, item.specialFeature],
+      query
+    );
+    if (!matchesSearch) return false;
+    return Object.entries(filters).every(([group, selected]) => {
+      if (group === "summaryType") return matchesSelected(selected, item.summaryType);
+      if (group === "audience") return matchesSelected(selected, item.audience);
+      if (group === "format") return matchesSelected(selected, item.format);
+      if (group === "outputFormat") return matchesSelected(selected, item.outputFormats);
+      if (group === "includesMetrics") return matchesSelected(selected, item.includesMetrics);
+      if (group === "includesVisualizations") return matchesSelected(selected, item.includesVisualizations);
+      if (group === "aiGeneration") return matchesSelected(selected, item.aiGeneration);
+      return true;
+    });
+  });
+
+const filterStrategyDocs = (
+  items: StrategyDoc[],
+  query: string,
+  filters: Record<string, string[]>
+) =>
+  items.filter((item) => {
+    const matchesSearch = includesQuery(
+      [item.title, item.description, item.category, item.strategyType, item.timeHorizon, item.scopeLevel, item.aiGeneration, item.specialFeature],
+      query
+    );
+    if (!matchesSearch) return false;
+    return Object.entries(filters).every(([group, selected]) => {
+      if (group === "strategyType") return matchesSelected(selected, item.strategyType);
+      if (group === "timeHorizon") return matchesSelected(selected, item.timeHorizon);
+      if (group === "scopeLevel") return matchesSelected(selected, item.scopeLevel);
+      if (group === "outputFormat") return matchesSelected(selected, item.outputFormats);
+      if (group === "includesFinancials") return matchesSelected(selected, item.includesFinancials);
+      if (group === "includesRoadmap") return matchesSelected(selected, item.includesRoadmap);
+      if (group === "aiGeneration") return matchesSelected(selected, item.aiGeneration);
+      return true;
+    });
+  });
+
 const tabPlaceholders: Record<TabType, string> = {
   "best-practices": "Search best practices, patterns, or topics...",
   testimonials: "Search testimonials, organizations, or outcomes...",
   playbooks: "Search playbooks, departments, or use cases...",
   library: "Search documents, topics, or authors...",
+  "policy-reports": "Search policy reports...",
+  "procedure-reports": "Search procedure reports...",
+  "executive-summaries": "Search executive summaries...",
+  "strategy-docs": "Search strategy docs...",
 };
 
 const tabIcons: Record<TabType, React.ElementType> = {
@@ -284,6 +413,10 @@ const tabIcons: Record<TabType, React.ElementType> = {
   testimonials: Quote,
   playbooks: Map,
   library: Library,
+  "policy-reports": FileText,
+  "procedure-reports": FileText,
+  "executive-summaries": FileText,
+  "strategy-docs": FileText,
 };
 
 const defaultSortByTab: Record<TabType, SortOption> = {
@@ -291,6 +424,10 @@ const defaultSortByTab: Record<TabType, SortOption> = {
   testimonials: "most-relevant",
   playbooks: "most-relevant",
   library: "most-relevant",
+  "policy-reports": "most-relevant",
+  "procedure-reports": "most-relevant",
+  "executive-summaries": "most-relevant",
+  "strategy-docs": "most-relevant",
 };
 
 export default function KnowledgeCenterPage() {
@@ -305,7 +442,14 @@ export default function KnowledgeCenterPage() {
   const [sortBy, setSortBy] = useState<SortOption>(defaultSortByTab[initialTab]);
   const [currentPage, setCurrentPage] = useState(1);
   const totalResourceCount =
-    bestPractices.length + testimonials.length + playbooks.length + libraryItems.length;
+    bestPractices.length +
+    testimonials.length +
+    playbooks.length +
+    libraryItems.length +
+    policyReports.length +
+    procedureReports.length +
+    executiveSummaries.length +
+    strategyDocs.length;
 
   const handleTabChange = (value: string) => {
     const tab = value as TabType;
@@ -342,6 +486,14 @@ export default function KnowledgeCenterPage() {
         return playbooksFilters;
       case "library":
         return libraryFilters;
+      case "policy-reports":
+        return policyReportsFilters;
+      case "procedure-reports":
+        return procedureReportsFilters;
+      case "executive-summaries":
+        return executiveSummariesFilters;
+      case "strategy-docs":
+        return strategyDocsFilters;
       default:
         return {};
     }
@@ -361,6 +513,22 @@ export default function KnowledgeCenterPage() {
   );
   const filteredLibraryItems = useMemo(
     () => filterLibraryItems(libraryItems, searchQuery, selectedFilters),
+    [searchQuery, selectedFilters]
+  );
+  const filteredPolicyReports = useMemo(
+    () => filterPolicyReports(policyReports, searchQuery, selectedFilters),
+    [searchQuery, selectedFilters]
+  );
+  const filteredProcedureReports = useMemo(
+    () => filterProcedureReports(procedureReports, searchQuery, selectedFilters),
+    [searchQuery, selectedFilters]
+  );
+  const filteredExecutiveSummaries = useMemo(
+    () => filterExecutiveSummaries(executiveSummaries, searchQuery, selectedFilters),
+    [searchQuery, selectedFilters]
+  );
+  const filteredStrategyDocs = useMemo(
+    () => filterStrategyDocs(strategyDocs, searchQuery, selectedFilters),
     [searchQuery, selectedFilters]
   );
 
@@ -568,6 +736,14 @@ export default function KnowledgeCenterPage() {
     });
   }, [filteredLibraryItems, sortBy, searchQuery]);
 
+  const sortedPolicyReports = useMemo(() => [...filteredPolicyReports], [filteredPolicyReports]);
+  const sortedProcedureReports = useMemo(() => [...filteredProcedureReports], [filteredProcedureReports]);
+  const sortedExecutiveSummaries = useMemo(
+    () => [...filteredExecutiveSummaries],
+    [filteredExecutiveSummaries]
+  );
+  const sortedStrategyDocs = useMemo(() => [...filteredStrategyDocs], [filteredStrategyDocs]);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab, searchQuery, selectedFilters, sortBy]);
@@ -582,6 +758,14 @@ export default function KnowledgeCenterPage() {
         return sortedPlaybooks.length;
       case "library":
         return sortedLibraryItems.length;
+      case "policy-reports":
+        return sortedPolicyReports.length;
+      case "procedure-reports":
+        return sortedProcedureReports.length;
+      case "executive-summaries":
+        return sortedExecutiveSummaries.length;
+      case "strategy-docs":
+        return sortedStrategyDocs.length;
       default:
         return 0;
     }
@@ -622,6 +806,22 @@ export default function KnowledgeCenterPage() {
       ),
     [sortedLibraryItems, safePage]
   );
+  const pagedPolicyReports = useMemo(
+    () => sortedPolicyReports.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE),
+    [sortedPolicyReports, safePage]
+  );
+  const pagedProcedureReports = useMemo(
+    () => sortedProcedureReports.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE),
+    [sortedProcedureReports, safePage]
+  );
+  const pagedExecutiveSummaries = useMemo(
+    () => sortedExecutiveSummaries.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE),
+    [sortedExecutiveSummaries, safePage]
+  );
+  const pagedStrategyDocs = useMemo(
+    () => sortedStrategyDocs.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE),
+    [sortedStrategyDocs, safePage]
+  );
 
   const sortOptions: Array<{ value: SortOption; label: string }> = [
     { value: "most-relevant", label: "Most Relevant" },
@@ -640,6 +840,14 @@ export default function KnowledgeCenterPage() {
         return sortedPlaybooks.length;
       case "library":
         return sortedLibraryItems.length;
+      case "policy-reports":
+        return sortedPolicyReports.length;
+      case "procedure-reports":
+        return sortedProcedureReports.length;
+      case "executive-summaries":
+        return sortedExecutiveSummaries.length;
+      case "strategy-docs":
+        return sortedStrategyDocs.length;
       default:
         return 0;
     }
@@ -655,10 +863,34 @@ export default function KnowledgeCenterPage() {
         return "playbooks";
       case "library":
         return "library items";
+      case "policy-reports":
+        return "policy reports";
+      case "procedure-reports":
+        return "procedure reports";
+      case "executive-summaries":
+        return "executive summaries";
+      case "strategy-docs":
+        return "strategy docs";
       default:
         return "items";
     }
   };
+
+  const toLibraryCardItem = (
+    item: PolicyReport | ProcedureReport | ExecutiveSummary | StrategyDoc
+  ): LibraryItem => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    contentType: item.category,
+    format: item.outputFormats[0] ?? "PDF",
+    typeIcon: "FileText",
+    author: "Transformation Office",
+    length: item.pageLength,
+    datePublished: "2024",
+    topics: [item.category, item.aiGeneration, item.specialFeature],
+    audience: "All Roles",
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -718,19 +950,36 @@ export default function KnowledgeCenterPage() {
         <div className="bg-white border-b-2 border-gray-200">
           <div className="max-w-7xl mx-auto">
             <TabsList className="h-auto bg-transparent p-0 gap-2 overflow-x-auto flex justify-start px-4 lg:px-8">
-              {(["best-practices", "testimonials", "playbooks", "library"] as TabType[]).map((tab) => {
+              {([
+                "best-practices",
+                "testimonials",
+                "playbooks",
+                "library",
+                "policy-reports",
+                "procedure-reports",
+                "executive-summaries",
+                "strategy-docs",
+              ] as TabType[]).map((tab) => {
                 const Icon = tabIcons[tab];
                 const counts = {
                   "best-practices": filteredBestPractices.length,
                   testimonials: filteredTestimonials.length,
                   playbooks: filteredPlaybooks.length,
                   library: filteredLibraryItems.length,
+                  "policy-reports": filteredPolicyReports.length,
+                  "procedure-reports": filteredProcedureReports.length,
+                  "executive-summaries": filteredExecutiveSummaries.length,
+                  "strategy-docs": filteredStrategyDocs.length,
                 };
                 const labels = {
                   "best-practices": "Best Practices",
                   testimonials: "Testimonials",
                   playbooks: "Industry Playbooks",
                   library: "Library",
+                  "policy-reports": "Policy Reports",
+                  "procedure-reports": "Procedure Reports",
+                  "executive-summaries": "Executive Summaries",
+                  "strategy-docs": "Strategy Docs",
                 };
                 return (
                   <TabsTrigger
@@ -855,6 +1104,86 @@ export default function KnowledgeCenterPage() {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">No library items match your search/filters.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="policy-reports" className="mt-0">
+                {sortedPolicyReports.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {pagedPolicyReports.map((item) => (
+                      <LibraryItemCard
+                        key={item.id}
+                        item={toLibraryCardItem(item)}
+                        showAccessIcon={false}
+                        showAccessLabel={false}
+                        onClick={() =>
+                          navigate(`/marketplaces/knowledge-center/policy-reports/${item.id}`)
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No policy reports match your search/filters.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="procedure-reports" className="mt-0">
+                {sortedProcedureReports.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {pagedProcedureReports.map((item) => (
+                      <LibraryItemCard
+                        key={item.id}
+                        item={toLibraryCardItem(item)}
+                        showAccessIcon={false}
+                        showAccessLabel={false}
+                        onClick={() =>
+                          navigate(`/marketplaces/knowledge-center/procedure-reports/${item.id}`)
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No procedure reports match your search/filters.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="executive-summaries" className="mt-0">
+                {sortedExecutiveSummaries.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {pagedExecutiveSummaries.map((item) => (
+                      <LibraryItemCard
+                        key={item.id}
+                        item={toLibraryCardItem(item)}
+                        showAccessIcon={false}
+                        showAccessLabel={false}
+                        onClick={() =>
+                          navigate(`/marketplaces/knowledge-center/executive-summaries/${item.id}`)
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No executive summaries match your search/filters.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="strategy-docs" className="mt-0">
+                {sortedStrategyDocs.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {pagedStrategyDocs.map((item) => (
+                      <LibraryItemCard
+                        key={item.id}
+                        item={toLibraryCardItem(item)}
+                        showAccessIcon={false}
+                        showAccessLabel={false}
+                        onClick={() =>
+                          navigate(`/marketplaces/knowledge-center/strategy-docs/${item.id}`)
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No strategy docs match your search/filters.</p>
                 )}
               </TabsContent>
 

@@ -109,6 +109,11 @@ interface LearningWorkspaceMainProps {
   onCompleteLesson: (moduleId: string, lessonId: string) => void;
   onQuizSubmit: (moduleId: string, lessonId: string, score: number, passThreshold: number) => void;
   activePathCertificate?: any;
+  adminDraftSettings: any;
+  onAdminDraftSettingsChange: (next: any) => void;
+  adminDeleteRequested: boolean;
+  onAdminDeleteRequestedChange: (value: boolean) => void;
+  adminPendingChangeCount: number;
 }
 
 export function LearningWorkspaceMain({
@@ -128,6 +133,11 @@ export function LearningWorkspaceMain({
   onCompleteLesson,
   onQuizSubmit,
   activePathCertificate,
+  adminDraftSettings,
+  onAdminDraftSettingsChange,
+  adminDeleteRequested,
+  onAdminDeleteRequestedChange,
+  adminPendingChangeCount,
 }: LearningWorkspaceMainProps) {
   return (
     <div className="h-full">
@@ -301,7 +311,13 @@ export function LearningWorkspaceMain({
                   />
                 )}
                 {activeLearningAdminTab === "settings" && (
-                  <AdminSettingsTab settings={adminViewData.settings} />
+                  <AdminSettingsTab
+                    settings={adminDraftSettings}
+                    onChange={onAdminDraftSettingsChange}
+                    deleteRequested={adminDeleteRequested}
+                    onDeleteRequestedChange={onAdminDeleteRequestedChange}
+                    pendingChangeCount={adminPendingChangeCount}
+                  />
                 )}
               </>
             )

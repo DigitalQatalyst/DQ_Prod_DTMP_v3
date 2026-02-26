@@ -2,12 +2,24 @@ import { bestPractices, type BestPractice } from "./bestPractices";
 import { testimonials, type Testimonial } from "./testimonials";
 import { playbooks, type Playbook } from "./playbooks";
 import { libraryItems, type LibraryItem } from "./library";
+import { policyReports, type PolicyReport } from "./policyReports";
+import { procedureReports, type ProcedureReport } from "./procedureReports";
+import { executiveSummaries, type ExecutiveSummary } from "./executiveSummaries";
+import { strategyDocs, type StrategyDoc } from "./strategyDocs";
 import {
   mapBestPracticeToDepartment,
   mapIndustryToDepartment,
 } from "./departmentMapping";
 
-export type KnowledgeTab = "best-practices" | "testimonials" | "playbooks" | "library";
+export type KnowledgeTab =
+  | "best-practices"
+  | "testimonials"
+  | "playbooks"
+  | "library"
+  | "policy-reports"
+  | "procedure-reports"
+  | "executive-summaries"
+  | "strategy-docs";
 
 export interface KnowledgeItem {
   id: string;
@@ -104,11 +116,79 @@ const mapLibraryItem = (item: LibraryItem): KnowledgeItem => ({
   author: item.author,
 });
 
+const mapPolicyReport = (item: PolicyReport): KnowledgeItem => ({
+  id: `policy-reports:${item.id}`,
+  sourceId: item.id,
+  sourceTab: "policy-reports",
+  title: item.title,
+  description: item.description,
+  type: item.policyType,
+  department: item.category,
+  tags: [item.category, item.aiGeneration, item.specialFeature],
+  audience: "All Roles",
+  difficulty: item.complexity,
+  phase: "Design",
+  updatedAt: "2024-01-15",
+  author: "Transformation Office",
+});
+
+const mapProcedureReport = (item: ProcedureReport): KnowledgeItem => ({
+  id: `procedure-reports:${item.id}`,
+  sourceId: item.id,
+  sourceTab: "procedure-reports",
+  title: item.title,
+  description: item.description,
+  type: item.procedureType,
+  department: item.category,
+  tags: [item.category, item.aiGeneration, item.specialFeature],
+  audience: "All Roles",
+  difficulty: item.complexity,
+  phase: "Design",
+  updatedAt: "2024-01-15",
+  author: "Transformation Office",
+});
+
+const mapExecutiveSummary = (item: ExecutiveSummary): KnowledgeItem => ({
+  id: `executive-summaries:${item.id}`,
+  sourceId: item.id,
+  sourceTab: "executive-summaries",
+  title: item.title,
+  description: item.description,
+  type: item.summaryType,
+  department: item.category,
+  tags: [item.category, item.aiGeneration, item.specialFeature],
+  audience: item.audience,
+  difficulty: item.format,
+  phase: "Design",
+  updatedAt: "2024-01-15",
+  author: "Transformation Office",
+});
+
+const mapStrategyDoc = (item: StrategyDoc): KnowledgeItem => ({
+  id: `strategy-docs:${item.id}`,
+  sourceId: item.id,
+  sourceTab: "strategy-docs",
+  title: item.title,
+  description: item.description,
+  type: item.strategyType,
+  department: item.category,
+  tags: [item.category, item.aiGeneration, item.specialFeature],
+  audience: item.scopeLevel,
+  difficulty: item.timeHorizon,
+  phase: "Design",
+  updatedAt: "2024-01-15",
+  author: "Transformation Office",
+});
+
 export const knowledgeItems: KnowledgeItem[] = [
   ...bestPractices.map(mapBestPractice),
   ...testimonials.map(mapTestimonial),
   ...playbooks.map(mapPlaybook),
   ...libraryItems.map(mapLibraryItem),
+  ...policyReports.map(mapPolicyReport),
+  ...procedureReports.map(mapProcedureReport),
+  ...executiveSummaries.map(mapExecutiveSummary),
+  ...strategyDocs.map(mapStrategyDoc),
 ];
 
 const knowledgeItemsByCompositeId = new Map(
@@ -125,6 +205,7 @@ export const getKnowledgeItemsByTab = (tab: KnowledgeTab): KnowledgeItem[] =>
 
 const scoreRelatedness = (base: KnowledgeItem, candidate: KnowledgeItem): number => {
   let score = 0;
+  if (base.sourceTab === candidate.sourceTab) score += 8;
   if (base.department === candidate.department) score += 4;
   if (base.type === candidate.type) score += 2;
   if (base.phase === candidate.phase) score += 1;
@@ -141,11 +222,18 @@ export const getRelatedKnowledgeItems = (
   const base = getKnowledgeItem(tab, sourceId);
   if (!base) return [];
 
-  return knowledgeItems
+  const ranked = knowledgeItems
     .filter((item) => item.id !== base.id)
     .map((item) => ({ item, score: scoreRelatedness(base, item) }))
     .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
+    .sort((a, b) => b.score - a.score);
+
+  const sameTab = ranked
+    .filter((entry) => entry.item.sourceTab === base.sourceTab)
     .map((entry) => entry.item);
+  const crossTab = ranked
+    .filter((entry) => entry.item.sourceTab !== base.sourceTab)
+    .map((entry) => entry.item);
+
+  return [...sameTab, ...crossTab].slice(0, limit);
 };

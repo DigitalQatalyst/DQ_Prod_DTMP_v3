@@ -21,6 +21,10 @@ interface LoginModalProps {
     cardId: string;
     serviceName: string;
     action: string;
+    commentText?: string;
+    requestMessage?: string;
+    sectionRef?: string;
+    requestType?: string;
   };
 }
 
@@ -110,8 +114,11 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
             state: { fromStage1: true, specId: context.cardId },
           });
         }
-      } else if (context.marketplace === "templates") {
-        // For templates, go directly to new request page with template pre-selected
+      } else if (
+        context.marketplace === "templates" ||
+        context.marketplace === "document-studio"
+      ) {
+        // For document studio, go directly to new request page with template pre-selected
         navigate("/stage2/templates/new-request", {
           state: {
             templateId: context.cardId,

@@ -48,6 +48,7 @@ import {
 } from "@/data/learningCenter/trackAnalytics";
 import { buildTrackMilestoneNotifications } from "@/data/learningCenter/trackNotifications";
 import { adminCourseData, userCourseData } from "@/data/learningCenter/stage2";
+import type { CourseSettings } from "@/data/learningCenter/stage2/types";
 import {
   buildUserProgressionData,
   completeLessonAndRecalculate,
@@ -67,11 +68,20 @@ import {
   type MentionNotification,
 } from "@/data/knowledgeCenter/collaborationState";
 import {
+  addTORequest,
   getTORequests,
   updateTORequestStatus,
   type TORequest,
   type TORequestStatus,
 } from "@/data/knowledgeCenter/requestState";
+import { addLearningTORequest } from "@/data/learningCenter/requestState";
+import {
+  attachStage3RequestToLearningChange,
+  buildLearningSettingDiffs,
+  getLearningDraftChangeSetByCourse,
+  submitLearningDraftChangeSet,
+  upsertLearningDraftChangeSet,
+} from "@/data/learningCenter/changeReviewState";
 import { getKnowledgeUsageMetrics } from "@/data/knowledgeCenter/analyticsState";
 import {
   KnowledgeWorkspaceMain,
@@ -133,6 +143,10 @@ interface LocationState {
   serviceName?: string;
   action?: string;
   learningRole?: "learner" | "admin";
+  commentText?: string;
+  requestMessage?: string;
+  sectionRef?: string;
+  requestType?: string;
 }
 const EMPTY_LOCATION_STATE: LocationState = {};
 
@@ -595,37 +609,76 @@ export default function Stage2AppPage() {
     if (state.action !== "request-clarification" && state.action !== "post-comment") return;
 
     const resourceTitle = state.serviceName?.trim() || "Knowledge Resource";
-    const isClarification = state.action === "request-clarification";
+    const requestType =
+      state.action === "post-comment"
+        ? "collaboration"
+        : state.requestType === "outdated-section"
+          ? "outdated-section"
+          : "clarification";
+    const isClarification = requestType === "clarification";
+    const isOutdated = requestType === "outdated-section";
+    const userMessage =
+      state.requestMessage?.trim() ||
+      state.commentText?.trim() ||
+      (isOutdated
+        ? `Outdated content reported for "${resourceTitle}".`
+        : isClarification
+          ? `Clarification requested for "${resourceTitle}".`
+          : `Collaboration follow-up requested for "${resourceTitle}".`);
+    const sectionRef = state.sectionRef?.trim() || state.tab || "library";
+
+    const knowledgeRequest = addTORequest({
+      itemId: `${state.tab || "library"}:${state.cardId || "unknown-resource"}`,
+      requesterName: knowledgeCurrentUserName,
+      requesterRole: "Portfolio Manager",
+      type: requestType,
+      message: userMessage,
+      sectionRef,
+    });
 
     createStage3Request({
       type: "knowledge-center",
-      title: isClarification
+      title: isOutdated
+        ? `Knowledge Outdated Section: ${resourceTitle}`
+        : isClarification
         ? `Knowledge Clarification: ${resourceTitle}`
         : `Knowledge Collaboration Follow-up: ${resourceTitle}`,
-      description: isClarification
-        ? `Escalated from Stage 2 Knowledge action. Clarification requested for "${resourceTitle}".`
-        : `Escalated from Stage 2 Knowledge action. Comment/collaboration follow-up for "${resourceTitle}".`,
+      description: isOutdated
+        ? `Escalated from Stage 2 Knowledge action. Outdated-section report for "${resourceTitle}". User message: "${userMessage}"`
+        : isClarification
+          ? `Escalated from Stage 2 Knowledge action. Clarification requested for "${resourceTitle}". User message: "${userMessage}"`
+          : `Escalated from Stage 2 Knowledge action. Comment/collaboration follow-up for "${resourceTitle}". User message: "${userMessage}"`,
       requester: {
         name: "John Doe",
         email: "john.doe@dtmp.local",
         department: "Portfolio Management",
         organization: "DTMP",
       },
-      priority: isClarification ? "medium" : "low",
-      estimatedHours: isClarification ? 4 : 2,
+      priority: isClarification || isOutdated ? "medium" : "low",
+      estimatedHours: isClarification || isOutdated ? 4 : 2,
       tags: [
         "knowledge",
-        isClarification ? "clarification" : "collaboration",
+        requestType,
         state.tab || "library",
         state.cardId || "unknown-resource",
       ],
+      relatedAssets: knowledgeRequest ? [`knowledge-request:${knowledgeRequest.id}`] : [],
       notes: [
         `Source: Stage 2 Knowledge Workspace`,
         `Action: ${state.action}`,
+        `Section: ${sectionRef}`,
+        `User message: ${userMessage}`,
       ],
     });
 
-    const { action: _unusedAction, ...nextState } = state;
+    const {
+      action: _unusedAction,
+      commentText: _unusedCommentText,
+      requestMessage: _unusedRequestMessage,
+      sectionRef: _unusedSectionRef,
+      requestType: _unusedRequestType,
+      ...nextState
+    } = state;
     navigate(location.pathname, {
       replace: true,
       state: nextState,
@@ -713,7 +766,13 @@ export default function Stage2AppPage() {
   // Collapsible sidebar states
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
-  const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [learningDraftSettingsByCourse, setLearningDraftSettingsByCourse] = useState<
+    Record<string, CourseSettings>
+  >({});
+  const [learningDeleteIntentByCourse, setLearningDeleteIntentByCourse] = useState<
+    Record<string, boolean>
+  >({});
+  const [learningEscalationMessage, setLearningEscalationMessage] = useState<string | null>(null);
 
   // Portfolio Management sub-services - Use actual application portfolio services
   const portfolioSubServices = applicationPortfolio.map(service => ({
@@ -895,8 +954,23 @@ export default function Stage2AppPage() {
     () => buildAdminDataForCourse(selectedLearningCourse),
     [selectedLearningCourse]
   );
+  const activeAdminBaseSettings = adminViewData.settings;
+  const activeAdminDraftSettings = useMemo(() => {
+    if (!selectedLearningCourse) return activeAdminBaseSettings;
+    return learningDraftSettingsByCourse[selectedLearningCourse.id] ?? activeAdminBaseSettings;
+  }, [selectedLearningCourse, learningDraftSettingsByCourse, activeAdminBaseSettings]);
+  const activeAdminDeleteRequested = selectedLearningCourse
+    ? Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id])
+    : false;
+  const activeAdminPendingChangeCount = useMemo(() => {
+    if (!selectedLearningCourse) return 0;
+    return buildLearningSettingDiffs(activeAdminBaseSettings, activeAdminDraftSettings).length;
+  }, [selectedLearningCourse, activeAdminBaseSettings, activeAdminDraftSettings]);
   const savedKnowledgeItems = useMemo(
-    () => knowledgeItems.filter((item) => savedKnowledgeIds.includes(item.id)),
+    () =>
+      savedKnowledgeIds
+        .map((id) => knowledgeItems.find((item) => item.id === id))
+        .filter((item): item is (typeof knowledgeItems)[number] => Boolean(item)),
     [savedKnowledgeIds]
   );
   const knowledgeHistoryItems = useMemo(
@@ -1241,12 +1315,46 @@ export default function Stage2AppPage() {
       return;
     }
 
+    const baseSettings = adminViewData.settings;
+    const draftSettings =
+      learningDraftSettingsByCourse[selectedLearningCourse.id] ?? baseSettings;
+    const deleteRequested = Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id]);
+    const diffs = buildLearningSettingDiffs(baseSettings, draftSettings);
+
+    if (diffs.length === 0 && !deleteRequested) {
+      setLearningEscalationMessage("No pending settings changes to submit.");
+      return;
+    }
+
+    const draftSet = upsertLearningDraftChangeSet({
+      courseId: selectedLearningCourse.id,
+      courseName: selectedLearningCourse.courseName,
+      requestedBy: "Amina TO",
+      settingsBefore: baseSettings,
+      settingsAfter: draftSettings,
+      deleteRequested,
+    });
+
+    const submittedSet = submitLearningDraftChangeSet(draftSet.id);
+    if (!submittedSet) return;
+
+    const learningRequest = addLearningTORequest({
+      courseId: selectedLearningCourse.id,
+      courseName: selectedLearningCourse.courseName,
+      requesterName: "Amina TO",
+      requesterRole: "Admin",
+      message: `Review requested for ${selectedLearningCourse.courseName}: ${diffs.length} field change(s)${
+        deleteRequested ? " and delete request" : ""
+      }.`,
+    });
+
     const created = createStage3Request({
       type: "learning-center",
       title: `Learning Ops: ${selectedLearningCourse.courseName}`,
       description:
         `Escalated from Stage 2 Learning Admin for operational follow-up. ` +
-        `Course: ${selectedLearningCourse.courseName}.`,
+        `Course: ${selectedLearningCourse.courseName}. ` +
+        `Proposed changes: ${diffs.length}${deleteRequested ? " + delete request" : ""}.`,
       requester: {
         name: "Amina TO",
         email: "amina.to@dtmp.local",
@@ -1256,14 +1364,63 @@ export default function Stage2AppPage() {
       priority: "medium",
       estimatedHours: 6,
       tags: ["learning", "stage2-admin", selectedLearningCourse.id],
-      notes: ["Created from Learning Stage 2 admin view."],
+      relatedAssets: [
+        ...(learningRequest ? [`learning-request:${learningRequest.id}`] : []),
+        `learning-change:${submittedSet.id}`,
+      ],
+      notes: [
+        "Created from Learning Stage 2 admin view.",
+        ...diffs.slice(0, 12).map(
+          (diff) => `CHANGE | ${diff.label}: "${diff.before}" -> "${diff.after}"`
+        ),
+        ...(deleteRequested ? ["CHANGE | Course Deletion Requested: Yes"] : []),
+      ],
     });
+
+    attachStage3RequestToLearningChange(submittedSet.id, created.id);
 
     navigate("/stage3/new", {
       state: {
         fromStage2: true,
         requestId: created.id,
       },
+    });
+    setLearningEscalationMessage(
+      `Submitted ${diffs.length} change(s)${
+        deleteRequested ? " + delete request" : ""
+      } to TO Ops.`
+    );
+  };
+  const handleAdminDraftSettingsChange = (next: CourseSettings) => {
+    if (!selectedLearningCourse) return;
+    setLearningDraftSettingsByCourse((prev) => ({
+      ...prev,
+      [selectedLearningCourse.id]: next,
+    }));
+    upsertLearningDraftChangeSet({
+      courseId: selectedLearningCourse.id,
+      courseName: selectedLearningCourse.courseName,
+      requestedBy: "Amina TO",
+      settingsBefore: adminViewData.settings,
+      settingsAfter: next,
+      deleteRequested: Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id]),
+    });
+  };
+  const handleAdminDeleteRequestedChange = (value: boolean) => {
+    if (!selectedLearningCourse) return;
+    setLearningDeleteIntentByCourse((prev) => ({
+      ...prev,
+      [selectedLearningCourse.id]: value,
+    }));
+    const nextDraft =
+      learningDraftSettingsByCourse[selectedLearningCourse.id] ?? adminViewData.settings;
+    upsertLearningDraftChangeSet({
+      courseId: selectedLearningCourse.id,
+      courseName: selectedLearningCourse.courseName,
+      requestedBy: "Amina TO",
+      settingsBefore: adminViewData.settings,
+      settingsAfter: nextDraft,
+      deleteRequested: value,
     });
   };
   const profiles = {
@@ -1309,47 +1466,6 @@ export default function Stage2AppPage() {
     }
     if (subServiceId !== "support-knowledge-detail") {
       setSupportSelectedArticleId(null);
-    }
-  };
-
-  // Mock requests data
-  const mockRequests = [
-    {
-      id: "req-001",
-      resourceName: "Pre-configured Kubernetes Cluster",
-      solutionBuild: "Microservices Platform Deployment",
-      requestDate: "2024-01-15",
-      status: "Approved",
-      estimatedDelivery: "2024-01-20"
-    },
-    {
-      id: "req-002",
-      resourceName: "Kong Gateway Package",
-      solutionBuild: "API Gateway Implementation",
-      requestDate: "2024-01-14",
-      status: "In Progress",
-      estimatedDelivery: "2024-01-18"
-    },
-    {
-      id: "req-003",
-      resourceName: "Data Lake Starter Kit",
-      solutionBuild: "Modern Data Platform",
-      requestDate: "2024-01-13",
-      status: "Pending",
-      estimatedDelivery: "2024-01-22"
-    }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Approved":
-        return "bg-green-100 text-green-800";
-      case "In Progress":
-        return "bg-blue-100 text-blue-800";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -2435,12 +2551,11 @@ export default function Stage2AppPage() {
                   Send To TO Ops
                 </Button>
               )}
-              <Button size="sm" className="bg-orange-600 hover:bg-orange-700" onClick={() => setShowRequestsModal(true)}>
-                <FileText className="w-4 h-4 mr-2" />
-                My Requests
-              </Button>
             </div>
           </div>
+          {activeService === "Learning Center" && viewMode === "admin" && learningEscalationMessage && (
+            <p className="text-xs text-gray-600 mt-2">{learningEscalationMessage}</p>
+          )}
         </div>
 
         {/* Main Content */}
@@ -2468,6 +2583,11 @@ export default function Stage2AppPage() {
               onCompleteLesson={handleLessonComplete}
               onQuizSubmit={handleQuizSubmit}
               activePathCertificate={activePathCertificate}
+              adminDraftSettings={activeAdminDraftSettings}
+              onAdminDraftSettingsChange={handleAdminDraftSettingsChange}
+              adminDeleteRequested={activeAdminDeleteRequested}
+              onAdminDeleteRequestedChange={handleAdminDeleteRequestedChange}
+              adminPendingChangeCount={activeAdminPendingChangeCount}
             />
           ) : activeService === "Knowledge Center" ? (
             <KnowledgeWorkspaceMain
@@ -4020,58 +4140,6 @@ export default function Stage2AppPage() {
         </div>
       </div>
 
-      {/* My Requests Modal */}
-      {showRequestsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">My Requests</h2>
-              <button
-                onClick={() => setShowRequestsModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-4">
-                {mockRequests.map((request) => (
-                  <div key={request.id} className="border border-gray-200 rounded-lg p-4 hover:border-orange-300 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">{request.resourceName}</h3>
-                        <p className="text-sm text-gray-600">{request.solutionBuild}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                        {request.status}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <dt className="text-gray-500 mb-1">Request ID</dt>
-                        <dd className="font-medium text-gray-900">{request.id}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-gray-500 mb-1">Request Date</dt>
-                        <dd className="font-medium text-gray-900">{request.requestDate}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-gray-500 mb-1">Est. Delivery</dt>
-                        <dd className="font-medium text-gray-900">{request.estimatedDelivery}</dd>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="p-6 border-t border-gray-200 flex justify-end">
-              <Button onClick={() => setShowRequestsModal(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

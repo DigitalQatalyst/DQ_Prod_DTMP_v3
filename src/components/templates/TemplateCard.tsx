@@ -25,12 +25,12 @@ export function TemplateCard({ template, tab }: TemplateCardProps) {
   const IconComponent: LucideIcon = (icons[template.icon as keyof typeof icons] as LucideIcon) || FileText;
 
   const handleClick = () => {
-    navigate(`/marketplaces/templates/${tab}/${template.id}`);
+    navigate(`/marketplaces/document-studio/${tab}/${template.id}`);
   };
 
   const handleGenerateClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/marketplaces/templates/${tab}/${template.id}`);
+    navigate(`/marketplaces/document-studio/${tab}/${template.id}`);
   };
 
   return (

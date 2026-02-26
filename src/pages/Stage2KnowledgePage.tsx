@@ -318,7 +318,9 @@ export default function Stage2KnowledgePage() {
                           <p className="text-xs font-semibold text-foreground">
                             {request.type === "clarification"
                               ? "Clarification"
-                              : "Outdated Section"}
+                              : request.type === "collaboration"
+                                ? "Collaboration"
+                                : "Outdated Section"}
                           </p>
                           <span
                             className={`text-[11px] px-2 py-0.5 rounded-full ${

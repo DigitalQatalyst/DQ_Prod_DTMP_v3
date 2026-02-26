@@ -15,6 +15,10 @@ import { bestPractices } from "@/data/knowledgeCenter/bestPractices";
 import { testimonials } from "@/data/knowledgeCenter/testimonials";
 import { playbooks } from "@/data/knowledgeCenter/playbooks";
 import { libraryItems } from "@/data/knowledgeCenter/library";
+import { policyReports } from "@/data/knowledgeCenter/policyReports";
+import { procedureReports } from "@/data/knowledgeCenter/procedureReports";
+import { executiveSummaries } from "@/data/knowledgeCenter/executiveSummaries";
+import { strategyDocs } from "@/data/knowledgeCenter/strategyDocs";
 import {
   getKnowledgeItem,
   getRelatedKnowledgeItems,
@@ -68,13 +72,21 @@ export default function KnowledgeCenterDetailPage() {
   const [usageMetric, setUsageMetric] = useState<KnowledgeUsageMetric | undefined>();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingAction, setPendingAction] = useState("open-overview");
+  const [pendingCommentText, setPendingCommentText] = useState("");
+  const [pendingRequestMessage, setPendingRequestMessage] = useState("");
+  const [pendingRequestSectionRef, setPendingRequestSectionRef] = useState("");
+  const [pendingRequestType, setPendingRequestType] = useState<TORequestType>("clarification");
   const currentUserName = "John Doe";
   const currentUserRole = "Portfolio Manager";
   const normalizedTab =
     tab === "best-practices" ||
     tab === "testimonials" ||
     tab === "playbooks" ||
-    tab === "library"
+    tab === "library" ||
+    tab === "policy-reports" ||
+    tab === "procedure-reports" ||
+    tab === "executive-summaries" ||
+    tab === "strategy-docs"
       ? tab
       : null;
   const knowledgeItem =
@@ -111,6 +123,74 @@ export default function KnowledgeCenterDetailPage() {
         return playbooks.find((p) => p.id === cardId);
       case "library":
         return libraryItems.find((i) => i.id === cardId);
+      case "policy-reports": {
+        const doc = policyReports.find((entry) => entry.id === cardId);
+        if (!doc) return null;
+        return {
+          id: doc.id,
+          title: doc.title,
+          description: doc.description,
+          contentType: doc.category,
+          format: doc.outputFormats[0] ?? "PDF",
+          typeIcon: "FileText",
+          author: "Transformation Office",
+          length: doc.pageLength,
+          datePublished: "2024",
+          topics: [doc.category, doc.aiGeneration, doc.specialFeature],
+          audience: "All Roles",
+        };
+      }
+      case "procedure-reports": {
+        const doc = procedureReports.find((entry) => entry.id === cardId);
+        if (!doc) return null;
+        return {
+          id: doc.id,
+          title: doc.title,
+          description: doc.description,
+          contentType: doc.category,
+          format: doc.outputFormats[0] ?? "PDF",
+          typeIcon: "FileText",
+          author: "Transformation Office",
+          length: doc.pageLength,
+          datePublished: "2024",
+          topics: [doc.category, doc.aiGeneration, doc.specialFeature],
+          audience: "All Roles",
+        };
+      }
+      case "executive-summaries": {
+        const doc = executiveSummaries.find((entry) => entry.id === cardId);
+        if (!doc) return null;
+        return {
+          id: doc.id,
+          title: doc.title,
+          description: doc.description,
+          contentType: doc.category,
+          format: doc.outputFormats[0] ?? "PDF",
+          typeIcon: "FileText",
+          author: "Transformation Office",
+          length: doc.pageLength,
+          datePublished: "2024",
+          topics: [doc.category, doc.aiGeneration, doc.specialFeature],
+          audience: doc.audience,
+        };
+      }
+      case "strategy-docs": {
+        const doc = strategyDocs.find((entry) => entry.id === cardId);
+        if (!doc) return null;
+        return {
+          id: doc.id,
+          title: doc.title,
+          description: doc.description,
+          contentType: doc.category,
+          format: doc.outputFormats[0] ?? "PDF",
+          typeIcon: "FileText",
+          author: "Transformation Office",
+          length: doc.pageLength,
+          datePublished: "2024",
+          topics: [doc.category, doc.aiGeneration, doc.specialFeature],
+          audience: doc.scopeLevel,
+        };
+      }
       default:
         return null;
     }
@@ -145,6 +225,10 @@ export default function KnowledgeCenterDetailPage() {
       case "testimonials": return "Testimonials";
       case "playbooks": return "Playbooks";
       case "library": return "Library";
+      case "policy-reports": return "Policy Reports";
+      case "procedure-reports": return "Procedure Reports";
+      case "executive-summaries": return "Executive Summaries";
+      case "strategy-docs": return "Strategy Docs";
       default: return "";
     }
   };
@@ -229,6 +313,8 @@ export default function KnowledgeCenterDetailPage() {
 
   const handleAddComment = () => {
     if (!knowledgeItem) return;
+    const commentText = commentDraft.trim();
+    setPendingCommentText(commentText);
     runProtectedAction("post-comment", () => {
       navigate("/stage2/knowledge/overview", {
         state: {
@@ -237,6 +323,7 @@ export default function KnowledgeCenterDetailPage() {
           cardId: cardId || "",
           serviceName: getTitle(),
           action: "post-comment",
+          commentText,
         },
       });
     });
@@ -249,7 +336,11 @@ export default function KnowledgeCenterDetailPage() {
       sourceTab === "best-practices" ||
       sourceTab === "testimonials" ||
       sourceTab === "playbooks" ||
-      sourceTab === "library"
+      sourceTab === "library" ||
+      sourceTab === "policy-reports" ||
+      sourceTab === "procedure-reports" ||
+      sourceTab === "executive-summaries" ||
+      sourceTab === "strategy-docs"
     ) {
       navigate(buildKnowledgeDetailPath(sourceTab, sourceId));
     }
@@ -258,6 +349,11 @@ export default function KnowledgeCenterDetailPage() {
 
   const handleSubmitTORequest = () => {
     if (!knowledgeItem) return;
+    const message = requestMessage.trim();
+    const sectionRef = requestSectionRef.trim();
+    setPendingRequestMessage(message);
+    setPendingRequestSectionRef(sectionRef);
+    setPendingRequestType(requestType);
     runProtectedAction("request-clarification", () => {
       navigate("/stage2/knowledge/overview", {
         state: {
@@ -266,6 +362,9 @@ export default function KnowledgeCenterDetailPage() {
           cardId: cardId || "",
           serviceName: getTitle(),
           action: "request-clarification",
+          requestMessage: message,
+          sectionRef,
+          requestType,
         },
       });
     });
@@ -874,6 +973,108 @@ export default function KnowledgeCenterDetailPage() {
     );
   };
 
+  const renderMigratedDocumentDetail = () => {
+    const libraryItem = item as typeof libraryItems[0];
+
+    return (
+      <>
+        <div className="py-8 lg:py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+                {libraryItem.contentType}
+              </span>
+              <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                {libraryItem.format}
+              </span>
+              <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">
+                {libraryItem.audience}
+              </span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy mb-4">
+              {libraryItem.title}
+            </h1>
+            <p className="text-lg text-muted-foreground mb-4">{libraryItem.description}</p>
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <User className="w-4 h-4" />
+                {libraryItem.author}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                {libraryItem.length}
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {libraryItem.datePublished}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 pb-16">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-foreground mb-4">Topics</h3>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {libraryItem.topics.map((topic) => (
+                  <span key={topic} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
+                    {topic}
+                  </span>
+                ))}
+              </div>
+
+              <h3 className="text-xl font-semibold text-foreground mb-4">Description</h3>
+              <p className="text-muted-foreground mb-8">
+                This {libraryItem.contentType.toLowerCase()} provides comprehensive insights into{" "}
+                {libraryItem.topics.slice(0, 2).join(" and ")}.
+              </p>
+            </div>
+
+            <div className="lg:w-96">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg sticky top-24">
+                <h3 className="text-lg font-bold text-foreground mb-6">Document Profile</h3>
+                <table className="w-full mb-6">
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">Type</td>
+                      <td className="text-sm font-medium text-foreground py-3">{libraryItem.contentType}</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">Format</td>
+                      <td className="text-sm font-medium text-foreground py-3">{libraryItem.format}</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">Length</td>
+                      <td className="text-sm font-medium text-foreground py-3">{libraryItem.length}</td>
+                    </tr>
+                    <tr>
+                      <td className="text-sm text-muted-foreground py-3 pr-4">Updated</td>
+                      <td className="text-sm font-medium text-foreground py-3">{knowledgeItem?.updatedAt}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <Button variant="outline" onClick={handleToggleSave} className="w-full mb-3">
+                  <Bookmark className="w-4 h-4 mr-2" />
+                  {isSaved ? "Saved to Workspace" : "Save to Workspace"}
+                </Button>
+
+                <Button
+                  onClick={handleViewResource}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold flex items-center justify-center gap-2"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  View Resource
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -1197,6 +1398,10 @@ export default function KnowledgeCenterDetailPage() {
           {tab === "testimonials" && renderTestimonialDetail()}
           {tab === "playbooks" && renderPlaybookDetail()}
           {tab === "library" && renderLibraryItemDetail()}
+          {tab === "policy-reports" && renderMigratedDocumentDetail()}
+          {tab === "procedure-reports" && renderMigratedDocumentDetail()}
+          {tab === "executive-summaries" && renderMigratedDocumentDetail()}
+          {tab === "strategy-docs" && renderMigratedDocumentDetail()}
 
           <section className="bg-gray-50 py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -1311,6 +1516,10 @@ export default function KnowledgeCenterDetailPage() {
           cardId: cardId || "",
           serviceName: getTitle(),
           action: pendingAction,
+          commentText: pendingCommentText,
+          requestMessage: pendingRequestMessage,
+          sectionRef: pendingRequestSectionRef,
+          requestType: pendingRequestType,
         }}
       />
 
