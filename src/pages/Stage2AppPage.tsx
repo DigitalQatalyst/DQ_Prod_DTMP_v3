@@ -39,7 +39,7 @@ import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { CourseDetailView } from "@/components/learning";
-import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest, KnowledgeArticle } from "@/data/supportData";
+import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest, KnowledgeArticle, SupportTicket } from "@/data/supportData";
 import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
@@ -52,6 +52,8 @@ interface LocationState {
   cardId?: string;
   serviceName?: string;
   action?: string;
+  submittedTicket?: SupportTicket;
+  submittedRequest?: ServiceRequest;
 }
 
 interface KnowledgeDetailContent {
@@ -76,8 +78,7 @@ const supportSubServiceTabMap: Record<string, string> = {
   overview: "support-overview",
   tickets: "support-tickets",
   requests: "support-requests",
-  knowledge: "support-knowledge",
-  "new-request": "support-new-request",
+  "new-request": "support-tickets",
   history: "support-history",
   team: "support-team",
   analytics: "support-analytics",
@@ -85,6 +86,10 @@ const supportSubServiceTabMap: Record<string, string> = {
 
 const normalizeSupportSubService = (value?: string | null): string | null => {
   if (!value) return null;
+  if (value === "support-new-request") return "support-tickets";
+  if (value === "knowledge" || value === "support-knowledge" || value === "support-knowledge-detail") {
+    return "support-overview";
+  }
   if (value.startsWith("support-")) return value;
   return supportSubServiceTabMap[value] || null;
 };
@@ -206,7 +211,12 @@ export default function Stage2AppPage() {
   });
   const [supportAttachments, setSupportAttachments] = useState<File[]>([]);
   const [supportSelectedArticleId, setSupportSelectedArticleId] = useState<string | null>(null);
-  const [supportTicketsState, setSupportTicketsState] = useState(supportTickets);
+  const [supportTicketsState, setSupportTicketsState] = useState<SupportTicket[]>(() => {
+    if (state.submittedTicket) {
+      return [state.submittedTicket, ...supportTickets];
+    }
+    return supportTickets;
+  });
   const [supportSubmitMessage, setSupportSubmitMessage] = useState<string | null>(null);
   const [supportRequestsState, setSupportRequestsState] = useState<ServiceRequest[]>(() => {
     const seeded = technicalSupport.slice(0, 8).map((svc, idx) => ({
@@ -229,6 +239,9 @@ export default function Stage2AppPage() {
       updatedAt: new Date().toISOString(),
       activityLog: [],
     }));
+    if (state.submittedRequest) {
+      return [state.submittedRequest, ...seeded, ...serviceRequests];
+    }
     return [...seeded, ...serviceRequests];
   });
   const [newRequestForm, setNewRequestForm] = useState<NewSupportRequestForm>({
@@ -273,8 +286,6 @@ export default function Stage2AppPage() {
     { id: "support-overview", name: "Overview", description: "Dashboards & SLAs", icon: Headphones },
     { id: "support-tickets", name: "My Tickets", description: "Track incidents", icon: Ticket },
     { id: "support-requests", name: "Service Requests", description: "Access & changes", icon: ClipboardList },
-    { id: "support-knowledge", name: "Knowledge Base", description: "Articles and guides", icon: BookOpen },
-    { id: "support-new-request", name: "Submit New Request", description: "Create support ticket", icon: FileText },
     { id: "support-history", name: "Request History", description: "Past and closed requests", icon: Activity },
     { id: "support-team", name: "Team Dashboard", description: "Manager operations view", icon: Users },
     { id: "support-analytics", name: "Support Analytics", description: "TO metrics and trends", icon: BarChart3 },

@@ -26,6 +26,15 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Support Services uses a Stage 1 request form before entering Stage 2.
+    if (context.marketplace === "support-services" && context.action === "request-service") {
+      navigate("/marketplaces/support-services/new-request", {
+        state: context,
+      });
+      onClose();
+      return;
+    }
+
     // Navigate to Stage 2 with context
     navigate("/stage2", {
       state: context,

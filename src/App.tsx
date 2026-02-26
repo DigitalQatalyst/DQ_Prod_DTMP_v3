@@ -20,13 +20,14 @@ import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
 import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
+import SupportNewRequestPage from "./pages/SupportNewRequestPage";
+import SupportKnowledgeArticlePage from "./pages/SupportKnowledgeArticlePage";
+import SupportKnowledgeLegacyRedirectPage from "./pages/SupportKnowledgeLegacyRedirectPage";
 import SupportServicesOverview from "./pages/stage2/support/SupportServicesOverview";
 import MyTicketsPage from "./pages/stage2/support/MyTicketsPage";
 import TicketDetailPage from "./pages/stage2/support/TicketDetailPage";
 import ServiceRequestsPage from "./pages/stage2/support/ServiceRequestsPage";
 import RequestDetailPage from "./pages/stage2/support/RequestDetailPage";
-import KnowledgeBasePage from "./pages/stage2/support/KnowledgeBasePage";
-import ArticleDetailPage from "./pages/stage2/support/ArticleDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
@@ -53,7 +54,7 @@ const App = () => (
           <Route path="/transact-app" element={<TransactAppPage />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
           <Route path="/stage2/support" element={<Navigate to="/stage2?marketplace=support-services&tab=support-overview" replace />} />
-          <Route path="/stage2/support/new-request" element={<Navigate to="/stage2?marketplace=support-services&tab=support-new-request" replace />} />
+          <Route path="/stage2/support/new-request" element={<Navigate to="/marketplaces/support-services/new-request" replace />} />
           <Route path="/stage2/support/history" element={<Navigate to="/stage2?marketplace=support-services&tab=support-history" replace />} />
           <Route path="/stage2/support/team" element={<Navigate to="/stage2?marketplace=support-services&tab=support-team" replace />} />
           <Route path="/stage2/support/analytics" element={<Navigate to="/stage2?marketplace=support-services&tab=support-analytics" replace />} />
@@ -62,8 +63,8 @@ const App = () => (
           <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
           <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
           <Route path="/stage2/support/requests/:requestId" element={<RequestDetailPage />} />
-          <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
-          <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
+          <Route path="/stage2/support/knowledge" element={<Navigate to="/marketplaces/support-services?tab=knowledge-base" replace />} />
+          <Route path="/stage2/support/knowledge/:articleId" element={<SupportKnowledgeLegacyRedirectPage />} />
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
@@ -96,7 +97,9 @@ const App = () => (
           
           {/* Support Services marketplace */}
           <Route path="/marketplaces/support-services" element={<SupportServicesPage />} />
+          <Route path="/marketplaces/support-services/knowledge/:articleId" element={<SupportKnowledgeArticlePage />} />
           <Route path="/marketplaces/support-services/:tab/:cardId" element={<SupportServicesDetailPage />} />
+          <Route path="/marketplaces/support-services/new-request" element={<SupportNewRequestPage />} />
           
           {/* Digital Intelligence marketplace */}
           <Route path="/marketplaces/digital-intelligence" element={<DigitalIntelligencePage />} />
