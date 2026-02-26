@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { DashboardWidget as WidgetType, DashboardData, DashboardMetric } from '@/data/digitalIntelligence/stage2';
-import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ScatterChart, Scatter, ZAxis } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 import { InsightCard } from './InsightCard';
 
@@ -219,6 +219,50 @@ function ChartWidget({ widget, data }: { widget: WidgetType; data: DashboardData
             />
             <Tooltip content={<CustomTooltip />} />
           </RadarChart>
+        ) : widget.chartType === 'scatter' ? (
+          <ScatterChart>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+            <XAxis 
+              dataKey="index" 
+              type="number"
+              name="Period"
+              tick={{ fontSize: 12, fill: '#9ca3af' }}
+              axisLine={{ stroke: '#e5e7eb' }}
+              tickLine={false}
+              hide
+            />
+            <YAxis 
+              dataKey="value" 
+              type="number"
+              name="Value"
+              tick={{ fontSize: 12, fill: '#9ca3af' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <ZAxis range={[60, 200]} />
+            <Tooltip 
+              cursor={{ strokeDasharray: '3 3' }}
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const d = payload[0].payload;
+                  return (
+                    <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">{d.name}</p>
+                      <p className="text-sm text-purple-600 font-semibold">{d.value}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Scatter 
+              data={chartData.map((d, i) => ({ ...d, index: i }))} 
+              fill="#7C3AED"
+              fillOpacity={0.7}
+              stroke="#7C3AED"
+              strokeWidth={1}
+            />
+          </ScatterChart>
         ) : null}
       </ResponsiveContainer>
     </Card>

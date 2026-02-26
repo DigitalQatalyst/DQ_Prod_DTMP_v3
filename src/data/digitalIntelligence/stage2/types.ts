@@ -108,7 +108,8 @@ export interface DashboardUpdateRequest {
   id: string;
   dashboardId: string;
   dashboardName: string;
-  requestType: 'add-visualization' | 'modify-chart' | 'fix-data' | 'new-data-source' | 'change-layout';
+  requestType: 'add-visualization' | 'modify-chart' | 'fix-data' | 'new-data-source' | 'change-layout'
+    | 'schedule-report' | 'set-alert' | 'share-dashboard' | 'request-audit' | 'request-api';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   description: string;
   requestedDataSource?: {
@@ -127,6 +128,7 @@ export interface DashboardUpdateRequest {
   submittedDate: string;
   expectedCompletionDate?: string;
   actualCompletionDate?: string;
+  sla?: string;
   assignedTo?: {
     id: string;
     name: string;

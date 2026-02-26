@@ -25,6 +25,8 @@ interface LoginModalProps {
     requestMessage?: string;
     sectionRef?: string;
     requestType?: string;
+    formData?: Record<string, string>;
+    dashboardName?: string;
   };
 }
 
