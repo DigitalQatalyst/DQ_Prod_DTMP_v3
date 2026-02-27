@@ -19,6 +19,12 @@ interface ServiceDashboardPageProps {
   serviceId: string;
 }
 
+interface PendingLoginContext {
+  action: ActionType | null;
+  formData: Record<string, string>;
+  requestDescription: string;
+}
+
 type ActionType = 'schedule-report' | 'export-excel' | 'export-pdf' | 'request-update' | 'request-datasource' | 'set-alert' | 'share-dashboard' | 'request-audit' | 'request-api';
 
 interface ActionField {
@@ -47,7 +53,6 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: 'Set up automated report delivery to your inbox',
     successMessage: 'Your scheduled report has been configured. You will start receiving reports at the selected frequency.',
     fields: [
-      { key: 'email', label: 'Recipient Email', icon: Mail, type: 'email', placeholder: 'e.g. john@company.com', required: true },
       { key: 'frequency', label: 'Report Frequency', icon: RefreshCw, type: 'select', required: true, options: [
         { value: 'daily', label: 'Daily — every morning at 8 AM' },
         { value: 'weekly', label: 'Weekly — every Monday morning' },
@@ -71,7 +76,6 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: 'Suggest improvements or new visualizations',
     successMessage: 'Your dashboard update request has been submitted to the analytics team. You will be notified when the changes are live.',
     fields: [
-      { key: 'email', label: 'Contact Email', icon: Mail, type: 'email', placeholder: 'e.g. john@company.com', required: true },
       { key: 'improvement', label: 'What Should We Improve?', icon: Edit, type: 'textarea', placeholder: 'e.g. Add a trend line for monthly revenue, split the bar chart by region...', required: true },
       priorityField,
     ],
@@ -82,7 +86,6 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: 'Request a new data integration',
     successMessage: 'Your data source request has been submitted. The integration team will review feasibility and reach out within 48 hours.',
     fields: [
-      { key: 'email', label: 'Contact Email', icon: Mail, type: 'email', placeholder: 'e.g. john@company.com', required: true },
       { key: 'sourceName', label: 'Data Source Name', icon: Database, type: 'text', placeholder: 'e.g. Salesforce, SAP, Snowflake...', required: true },
       { key: 'connectionType', label: 'Connection Type', icon: Globe, type: 'select', required: true, options: [
         { value: 'api', label: 'REST / GraphQL API' },
@@ -99,7 +102,6 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: 'Get notified when a metric crosses a critical threshold',
     successMessage: 'Your threshold alert has been configured. You will receive notifications when the metric crosses the specified value.',
     fields: [
-      { key: 'email', label: 'Alert Recipient Email', icon: Mail, type: 'email', placeholder: 'e.g. ops-team@company.com', required: true },
       { key: 'metric', label: 'Metric to Monitor', icon: Gauge, type: 'text', placeholder: 'e.g. System Uptime, Error Rate, Response Time...', required: true },
       { key: 'direction', label: 'Alert When Value Goes', icon: ArrowUpDown, type: 'select', required: true, options: [
         { value: 'above', label: 'Above threshold (e.g. error rate > 5%)' },
@@ -115,7 +117,7 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: 'Invite colleagues to collaborate on this dashboard',
     successMessage: 'Dashboard access has been shared. Your colleague will receive an invitation email shortly.',
     fields: [
-      { key: 'email', label: "Colleague's Email", icon: Users, type: 'email', placeholder: 'e.g. colleague@company.com', required: true },
+      { key: 'recipientEmail', label: "Colleague's Email", icon: Users, type: 'email', placeholder: 'e.g. colleague@company.com', required: true },
       { key: 'accessLevel', label: 'Access Level', icon: ShieldCheck, type: 'select', required: true, options: [
         { value: 'viewer', label: 'Viewer — can view dashboards and export data' },
         { value: 'editor', label: 'Editor — can modify filters and layout' },
@@ -131,7 +133,6 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: 'Verify data accuracy with a certified audit trail',
     successMessage: 'Your data audit request has been submitted. The compliance team will begin the review and share findings within 5 business days.',
     fields: [
-      { key: 'email', label: 'Contact Email', icon: Mail, type: 'email', placeholder: 'e.g. compliance@company.com', required: true },
       { key: 'auditScope', label: 'Audit Scope', icon: ShieldCheck, type: 'select', required: true, options: [
         { value: 'full', label: 'Full Audit — all data sources and transformations' },
         { value: 'source', label: 'Source Verification — validate raw data accuracy' },
@@ -148,7 +149,6 @@ const actionMeta: Record<ActionType, { title: string; icon: LucideIcon; descript
     description: "Get programmatic access to this dashboard's data",
     successMessage: 'Your API access request has been submitted. You will receive API credentials and documentation via email once approved.',
     fields: [
-      { key: 'email', label: 'Developer Email', icon: Mail, type: 'email', placeholder: 'e.g. dev@company.com', required: true },
       { key: 'useCase', label: 'Use Case', icon: Zap, type: 'textarea', placeholder: 'e.g. Integrate dashboard metrics into our internal BI tool, feed data into a Slack bot...', required: true },
       { key: 'volume', label: 'Expected Call Volume', icon: Gauge, type: 'select', required: true, options: [
         { value: 'low', label: 'Low — under 100 calls/day' },
@@ -177,8 +177,11 @@ export default function ServiceDashboardPage({ serviceId }: ServiceDashboardPage
   const [actionFormData, setActionFormData] = useState<Record<string, string>>({});
   const [completedActions, setCompletedActions] = useState<Set<ActionType>>(new Set());
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [pendingAction, setPendingAction] = useState<ActionType | null>(null);
-  const [pendingFormData, setPendingFormData] = useState<Record<string, string>>({});
+  const [pendingLoginContext, setPendingLoginContext] = useState<PendingLoginContext>({
+    action: null,
+    formData: {},
+    requestDescription: "",
+  });
 
   const directActions: ActionType[] = ['export-excel', 'export-pdf'];
 
@@ -197,15 +200,33 @@ export default function ServiceDashboardPage({ serviceId }: ServiceDashboardPage
 
   const handleActionFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPendingAction(activeAction);
-    setPendingFormData({ ...actionFormData });
+    const submittedAction = activeAction;
+    const submittedFormData = { ...actionFormData };
+    const requestDescription =
+      submittedFormData.description?.trim() ||
+      submittedFormData.improvement?.trim() ||
+      submittedFormData.reason?.trim() ||
+      submittedFormData.useCase?.trim() ||
+      submittedFormData.justification?.trim() ||
+      submittedFormData.message?.trim() ||
+      "";
+
+    setPendingLoginContext({
+      action: submittedAction,
+      formData: submittedFormData,
+      requestDescription,
+    });
     setActiveAction(null);
     setShowLoginModal(true);
   };
 
   const handleLoginClose = () => {
     setShowLoginModal(false);
-    setPendingAction(null);
+    setPendingLoginContext({
+      action: null,
+      formData: {},
+      requestDescription: "",
+    });
   };
 
   const closeActionModal = () => {
@@ -606,9 +627,10 @@ export default function ServiceDashboardPage({ serviceId }: ServiceDashboardPage
           tab: 'intelligence',
           cardId: service.id,
           serviceName: service.title,
-          action: pendingAction || '',
-          formData: pendingFormData,
+          action: pendingLoginContext.action || '',
+          formData: pendingLoginContext.formData,
           dashboardName: service.title,
+          requestDescription: pendingLoginContext.requestDescription,
         }}
       />
 

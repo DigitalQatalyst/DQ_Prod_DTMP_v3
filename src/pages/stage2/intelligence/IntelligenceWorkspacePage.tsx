@@ -15,8 +15,8 @@ export default function IntelligenceWorkspacePage({
   const location = useLocation();
   const navigate = useNavigate();
   const processedTokenRef = useRef<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [requests, setRequests] = useState<DashboardUpdateRequest[]>(() => [...dashboardRequests]);
+  const [focusRequestId, setFocusRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     const state = (location.state || {}) as {
@@ -25,6 +25,8 @@ export default function IntelligenceWorkspacePage({
       formData?: Record<string, string>;
       dashboardName?: string;
       serviceName?: string;
+      requestDescription?: string;
+      actorEmail?: string;
     };
 
     if (state.marketplace !== "digital-intelligence" || !state.formData) return;
@@ -65,10 +67,45 @@ export default function IntelligenceWorkspacePage({
       state.dashboardName?.trim() ||
       state.serviceName?.trim() ||
       "Digital Intelligence Dashboard";
+    const formData = state.formData || {};
+    const descriptionCandidates = [
+      formData.description,
+      formData.improvement,
+      formData.reason,
+      formData.useCase,
+      formData.justification,
+      formData.message,
+    ];
+
+    const descriptionFromPreferredFields = descriptionCandidates
+      .map((value) => value?.trim())
+      .find((value): value is string => Boolean(value && value.length > 0));
+
+    const excludedFallbackKeys = new Set([
+      "email",
+      "priority",
+      "frequency",
+      "direction",
+      "accessLevel",
+      "volume",
+      "threshold",
+      "dateRange",
+      "metric",
+      "sourceName",
+      "connectionType",
+      "name",
+      "role",
+    ]);
+
+    const descriptionFromAnyMeaningfulField = Object.entries(formData)
+      .filter(([key, value]) => !excludedFallbackKeys.has(key) && typeof value === "string")
+      .map(([, value]) => value.trim())
+      .find((value) => value.length > 0);
+
     const description =
-      state.formData.description?.trim() ||
-      state.formData.useCase?.trim() ||
-      state.formData.justification?.trim() ||
+      state.requestDescription?.trim() ||
+      descriptionFromPreferredFields ||
+      descriptionFromAnyMeaningfulField ||
       `Request submitted for ${dashboardName}.`;
 
     setRequests((prev) => {
@@ -83,10 +120,11 @@ export default function IntelligenceWorkspacePage({
         requestType,
         priority,
         description,
+        submittedFormData: { ...formData },
         requestedBy: {
           id: "user-session",
           name: state.formData.name || "John Doe",
-          email: state.formData.email || "user@company.com",
+          email: state.actorEmail || state.formData.email || "user@company.com",
           role: state.formData.role || "Business User",
         },
         status: "submitted",
@@ -108,8 +146,15 @@ export default function IntelligenceWorkspacePage({
       <div className="h-full overflow-y-auto p-6">
         <OverviewTab
           requests={requests}
-          onFilterByType={(type) => {
-            setTypeFilter(type);
+          onOpenRequest={(requestId) => {
+            setFocusRequestId(requestId);
+            navigate("/stage2/intelligence/requests", {
+              replace: true,
+              state: {
+                ...(location.state || {}),
+                marketplace: "digital-intelligence",
+              },
+            });
           }}
         />
       </div>
@@ -121,8 +166,7 @@ export default function IntelligenceWorkspacePage({
       <div className="h-full overflow-y-auto p-6">
         <MyRequestsTab
           requests={requests}
-          initialTypeFilter={typeFilter}
-          onFilterConsumed={() => setTypeFilter("all")}
+          focusRequestId={focusRequestId}
         />
       </div>
     );

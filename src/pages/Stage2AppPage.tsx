@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   LayoutGrid,
@@ -29,28 +29,21 @@ import {
   Award,
   Ticket,
   ClipboardList,
-  ShieldCheck,
-  MessageCircle,
-  Phone,
-  Paperclip
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { applicationPortfolio } from "@/data/portfolio";
 import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { CourseDetailView } from "@/components/learning";
-import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest, KnowledgeArticle, SupportTicket } from "@/data/supportData";
-import { technicalSupport, expertConsultancy } from "@/data/supportServices";
-import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
-import { PriorityBadge, SLATimer } from "@/components/stage2";
-import { Badge } from "@/components/ui/badge";
-import { Tag, Calendar, Clock as ClockIcon, Eye } from "lucide-react";
+import { intelligenceServices } from "@/data/digitalIntelligence/stage2/intelligenceServices";
+import { type ServiceRequest, type SupportTicket } from "@/data/supportData";
+import { useSupportWorkspace } from "@/hooks/useSupportWorkspace";
+import { SupportWorkspaceSidebar } from "@/components/stage2/support/SupportWorkspaceSidebar";
+import { SupportWorkspacePanels } from "@/components/stage2/support/SupportWorkspacePanels";
+import IntelligenceWorkspacePage from "@/pages/stage2/intelligence/IntelligenceWorkspacePage";
 import {
-  buildKnowledgeDetailContent,
   normalizeSupportSubService,
-  supportCategoryOptions,
   supportSubServices as supportSubServiceConfig,
-  type NewSupportRequestForm,
 } from "@/pages/stage2/support/supportWorkspaceConfig";
 
 interface LocationState {
@@ -67,13 +60,25 @@ interface LocationState {
 export default function Stage2AppPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { intelligenceTab, intelligenceItemId } = useParams();
   // Allow both location.state (when coming from Stage 1) and URL query params fallback
   const state = (location.state as LocationState) || {};
   const search = new URLSearchParams(location.search);
   const requestedSupportSubService = normalizeSupportSubService(state.tab || search.get("tab"));
+  const isIntelligenceRoute = location.pathname.startsWith("/stage2/intelligence");
   
+  const marketplaceFromPath = useMemo(() => {
+    if (location.pathname.startsWith("/stage2/intelligence")) return "digital-intelligence";
+    if (location.pathname.startsWith("/stage2/support")) return "support-services";
+    if (location.pathname.startsWith("/stage2/learning-center")) return "learning-center";
+    if (location.pathname.startsWith("/stage2/knowledge")) return "knowledge-center";
+    if (location.pathname.startsWith("/stage2/specs")) return "solution-specs";
+    if (location.pathname.startsWith("/stage2/templates")) return "document-studio";
+    return null;
+  }, [location.pathname]);
+
   const {
-    marketplace = search.get("marketplace") || "support-services",
+    marketplace = search.get("marketplace") || marketplaceFromPath || "support-services",
     cardId = search.get("cardId") || (marketplace === "support-services" ? "" : "portfolio-dashboard"),
     serviceName = search.get("serviceName") || "Support Service",
   } = state;
@@ -90,12 +95,23 @@ export default function Stage2AppPage() {
         return "Portfolio Management";
       case "learning-center":
         return "Learning Center";
+      case "knowledge-center":
+        return "Knowledge Center";
+      case "digital-intelligence":
+        return "Digital Intelligence";
+      case "solution-specs":
+        return "Design Blueprints";
+      case "solution-build":
+        return "Deploy Blueprints";
+      case "lifecycle-management":
+        return "Lifecycle Management";
+      case "document-studio":
+      case "templates":
+        return "AI DocWriter";
       case "support-services":
         return "Support Services";
       case "blueprints":
         return "Design Blueprints";
-      case "templates":
-        return "AI DocWriter";
       default:
         return "Support Services";
     }
@@ -103,68 +119,58 @@ export default function Stage2AppPage() {
   
   const [activeSubService, setActiveSubService] = useState<string | null>(() => {
     // Auto-select the specific service if coming from a portfolio or learning center card
-    if ((marketplace === "portfolio-management" || marketplace === "learning-center") && cardId) {
+    if (
+      (marketplace === "portfolio-management" ||
+        marketplace === "learning-center" ||
+        marketplace === "digital-intelligence") &&
+      cardId
+    ) {
       return cardId;
     }
     if (marketplace === "support-services") {
       if (requestedSupportSubService) return requestedSupportSubService;
       return cardId ? "support-detail" : "support-overview";
     }
+    if (marketplace === "digital-intelligence") {
+      if (intelligenceTab === "overview") return "di-overview";
+      if (intelligenceTab === "requests") return "di-my-requests";
+      if (intelligenceTab === "services" && intelligenceItemId) return intelligenceItemId;
+      if (cardId) return cardId;
+      return "di-overview";
+    }
     // Default to support overview so /stage2 without state still renders
     return "support-overview";
   });
-  const [supportSelectedService, setSupportSelectedService] = useState(() => {
-    if (marketplace === "support-services" && cardId) {
-      return technicalSupport.find((s) => s.id === cardId) || expertConsultancy.find((s) => s.id === cardId) || null;
-    }
-    return null;
+  const {
+    knowledgeArticles,
+    supportSelectedService,
+    setSupportSelectedService,
+    supportAttachments,
+    setSupportAttachments,
+    supportSelectedArticleId,
+    setSupportSelectedArticleId,
+    supportTicketsState,
+    supportSubmitMessage,
+    supportRequestsState,
+    newRequestForm,
+    setNewRequestForm,
+    newRequestAttachments,
+    setNewRequestAttachments,
+    newRequestError,
+    setNewRequestError,
+    newRequestSuccess,
+    setNewRequestSuccess,
+    createTicketFromService,
+    addNewRequestAttachments,
+    removeNewRequestAttachment,
+    submitNewSupportRequest,
+  } = useSupportWorkspace({
+    marketplace,
+    cardId,
+    submittedTicket: state.submittedTicket,
+    submittedRequest: state.submittedRequest,
+    onNavigateToTickets: () => setActiveSubService("support-tickets"),
   });
-  const [supportAttachments, setSupportAttachments] = useState<File[]>([]);
-  const [supportSelectedArticleId, setSupportSelectedArticleId] = useState<string | null>(null);
-  const [supportTicketsState, setSupportTicketsState] = useState<SupportTicket[]>(() => {
-    if (state.submittedTicket) {
-      return [state.submittedTicket, ...supportTickets];
-    }
-    return supportTickets;
-  });
-  const [supportSubmitMessage, setSupportSubmitMessage] = useState<string | null>(null);
-  const [supportRequestsState, setSupportRequestsState] = useState<ServiceRequest[]>(() => {
-    const seeded = technicalSupport.slice(0, 8).map((svc, idx) => ({
-      id: `REQ-SVC-${String(idx + 1).padStart(3, "0")}`,
-      type: "change",
-      title: svc.title,
-      description: svc.description,
-      justification: `Requesting engagement for ${svc.title}`,
-      status: idx % 3 === 0 ? "pending-approval" : idx % 3 === 1 ? "in-progress" : "completed",
-      requester: {
-        id: "user-seeded",
-        name: "Support User",
-        email: "support.user@example.com",
-        department: "IT Operations",
-        manager: "Duty Manager",
-      },
-      approvalWorkflow: [],
-      requestedItems: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      activityLog: [],
-    }));
-    if (state.submittedRequest) {
-      return [state.submittedRequest, ...seeded, ...serviceRequests];
-    }
-    return [...seeded, ...serviceRequests];
-  });
-  const [newRequestForm, setNewRequestForm] = useState<NewSupportRequestForm>({
-    requestType: "incident",
-    category: "Platform/Account",
-    priority: "high",
-    subject: "",
-    description: "",
-    urgency: "important",
-  });
-  const [newRequestAttachments, setNewRequestAttachments] = useState<File[]>([]);
-  const [newRequestError, setNewRequestError] = useState<string | null>(null);
-  const [newRequestSuccess, setNewRequestSuccess] = useState<string | null>(null);
 
   // Collapsible sidebar states
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -192,14 +198,42 @@ export default function Stage2AppPage() {
     progress: course.progress
   }));
 
-  const supportSubServices = [
-    { id: "support-overview", name: "Overview", description: "Dashboards & SLAs", icon: Headphones },
-    { id: "support-tickets", name: "My Tickets", description: "Track incidents", icon: Ticket },
-    { id: "support-requests", name: "Service Requests", description: "Access & changes", icon: ClipboardList },
-    { id: "support-history", name: "Request History", description: "Past and closed requests", icon: Activity },
-    { id: "support-team", name: "Team Dashboard", description: "Manager operations view", icon: Users },
-    { id: "support-analytics", name: "Support Analytics", description: "TO metrics and trends", icon: BarChart3 },
+  const supportSubServices = supportSubServiceConfig.map((service) => ({
+    ...service,
+    icon:
+      service.id === "support-overview"
+        ? Headphones
+        : service.id === "support-tickets"
+          ? Ticket
+          : service.id === "support-requests"
+            ? ClipboardList
+            : service.id === "support-history"
+              ? Activity
+              : service.id === "support-team"
+                ? Users
+                : BarChart3,
+  }));
+
+  const intelligenceSubServices = [
+    {
+      id: "di-overview",
+      name: "Overview",
+      description: "Summary of all your requests",
+      icon: BarChart3,
+    },
+    {
+      id: "di-my-requests",
+      name: "My Requests",
+      description: "Track status, SLAs & handlers",
+      icon: FileText,
+    },
   ];
+
+  const intelligenceServiceById = useMemo(() => {
+    const map = new Map<string, (typeof intelligenceServices)[number]>();
+    intelligenceServices.forEach((service) => map.set(service.id, service));
+    return map;
+  }, []);
 
   // Icon mapping function
   function getIconComponent(iconName: string): React.ComponentType<{ className?: string }> {
@@ -227,6 +261,16 @@ export default function Stage2AppPage() {
   const handleServiceClick = (service: string) => {
     setActiveService(service);
     setActiveSubService(null); // Reset sub-service when switching main service
+    if (service === "Digital Intelligence") {
+      navigate("/stage2/intelligence/overview", {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "digital-intelligence",
+        },
+      });
+      setActiveSubService("di-overview");
+    }
     if (service !== "Support Services") {
       setSupportSelectedService(null);
       setSupportSelectedArticleId(null);
@@ -235,6 +279,36 @@ export default function Stage2AppPage() {
 
   const handleSubServiceClick = (subServiceId: string) => {
     setActiveSubService(subServiceId);
+    if (activeService === "Digital Intelligence") {
+      if (subServiceId === "di-overview") {
+        navigate("/stage2/intelligence/overview", {
+          replace: true,
+          state: {
+            ...state,
+            marketplace: "digital-intelligence",
+          },
+        });
+        return;
+      }
+      if (subServiceId === "di-my-requests") {
+        navigate("/stage2/intelligence/requests", {
+          replace: true,
+          state: {
+            ...state,
+            marketplace: "digital-intelligence",
+          },
+        });
+        return;
+      }
+      navigate(`/stage2/intelligence/services/${subServiceId}`, {
+        replace: true,
+        state: {
+          ...state,
+          marketplace: "digital-intelligence",
+        },
+      });
+      return;
+    }
     if (subServiceId !== "support-detail") {
       // leaving detail view but keep selection for navigation purposes
     }
@@ -243,889 +317,52 @@ export default function Stage2AppPage() {
     }
   };
 
-  const createTicketFromService = () => {
-    if (!supportSelectedService) return;
-    const now = new Date();
-    const id = `TICKET-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
-    const resolutionDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-    const minutesRemaining = Math.max(Math.floor((new Date(resolutionDeadline).getTime() - now.getTime()) / 60000), 0);
-    const priority =
-      supportSelectedService.slaLevel?.toLowerCase().includes("critical")
-        ? "critical"
-        : supportSelectedService.slaLevel?.toLowerCase().includes("high")
-          ? "high"
-          : "medium";
-    const newTicket = {
-      id,
-      subject: supportSelectedService.title,
-      description: supportSelectedService.description,
-      priority,
-      status: "new" as const,
-      category: supportSelectedService.type || "Support",
-      subcategory: supportSelectedService.title,
-      requester: {
-        id: "user-current",
-        name: "You",
-        email: "you@example.com",
-        department: "N/A",
-      },
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-      sla: {
-        responseTimeHours: 4,
-        resolutionTimeHours: 24,
-        responseDeadline: new Date(now.getTime() + 4 * 60 * 60 * 1000).toISOString(),
-        resolutionDeadline,
-        responseBreached: false,
-        resolutionBreached: false,
-        timeRemainingMinutes: minutesRemaining,
-      },
-      conversation: [],
-      attachments: supportAttachments.map((file) => ({
-        id: `att-${file.name}`,
-        filename: file.name,
-        fileSize: `${Math.max(file.size / 1024, 1).toFixed(0)} KB`,
-        fileType: file.type || "file",
-        uploadedBy: "You",
-        uploadedAt: now.toISOString(),
-        downloadUrl: "#",
-      })),
-      relatedKBArticles: [],
-    };
-    setSupportTicketsState((prev) => [newTicket, ...prev]);
-    const newRequest: ServiceRequest = {
-      id: `REQ-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`,
-      type: "change",
-      title: supportSelectedService.title,
-      description: supportSelectedService.description,
-      justification: `Submitted from ${supportSelectedService.title} service`,
-      status: "pending-approval",
-      requester: {
-        id: "user-current",
-        name: "You",
-        email: "you@example.com",
-        department: "N/A",
-        manager: "N/A",
-      },
-      approvalWorkflow: [],
-      requestedItems: [],
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-      activityLog: [],
-    };
-    setSupportRequestsState((prev) => [newRequest, ...prev]);
-    setSupportSubmitMessage("Request submitted and added to My Tickets.");
-    setSupportAttachments([]);
-    setActiveSubService("support-tickets");
-  };
+  useEffect(() => {
+    if (!isIntelligenceRoute) return;
 
-  const addNewRequestAttachments = (fileList: FileList | null) => {
-    if (!fileList || fileList.length === 0) return;
-    const incoming = Array.from(fileList);
-    setNewRequestAttachments((prev) => {
-      const seen = new Set(prev.map((f) => f.name));
-      const deduped = incoming.filter((f) => !seen.has(f.name));
-      return [...prev, ...deduped];
-    });
-  };
-
-  const removeNewRequestAttachment = (name: string) => {
-    setNewRequestAttachments((prev) => prev.filter((f) => f.name !== name));
-  };
-
-  const submitNewSupportRequest = () => {
-    const subject = newRequestForm.subject.trim();
-    const description = newRequestForm.description.trim();
-
-    if (subject.length < 10) {
-      setNewRequestError("Subject must be at least 10 characters.");
+    setActiveService("Digital Intelligence");
+    if (intelligenceTab === "overview") {
+      setActiveSubService("di-overview");
       return;
     }
-    if (description.length < 50) {
-      setNewRequestError("Description must be at least 50 characters.");
+    if (intelligenceTab === "requests") {
+      setActiveSubService("di-my-requests");
       return;
     }
-
-    setNewRequestError(null);
-    const now = new Date();
-    const ticketId = `TICKET-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
-    const slaByPriority: Record<NewSupportRequestForm["priority"], { responseHours: number; resolutionHours: number }> = {
-      critical: { responseHours: 4, resolutionHours: 24 },
-      high: { responseHours: 24, resolutionHours: 72 },
-      medium: { responseHours: 48, resolutionHours: 120 },
-      low: { responseHours: 72, resolutionHours: 240 },
-    };
-    const slaTarget = slaByPriority[newRequestForm.priority];
-    const responseDeadline = new Date(now.getTime() + slaTarget.responseHours * 60 * 60 * 1000).toISOString();
-    const resolutionDeadline = new Date(now.getTime() + slaTarget.resolutionHours * 60 * 60 * 1000).toISOString();
-    const timeRemainingMinutes = Math.max(Math.floor((new Date(resolutionDeadline).getTime() - now.getTime()) / 60000), 0);
-
-    const newTicket = {
-      id: ticketId,
-      subject,
-      description,
-      priority: newRequestForm.priority,
-      status: "new" as const,
-      category: newRequestForm.category,
-      subcategory: newRequestForm.requestType,
-      requester: {
-        id: "user-current",
-        name: "You",
-        email: "you@example.com",
-        department: "N/A",
-      },
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-      sla: {
-        responseTimeHours: slaTarget.responseHours,
-        resolutionTimeHours: slaTarget.resolutionHours,
-        responseDeadline,
-        resolutionDeadline,
-        responseBreached: false,
-        resolutionBreached: false,
-        timeRemainingMinutes,
-      },
-      conversation: [
-        {
-          id: `c-${ticketId}-1`,
-          author: { id: "user-current", name: "You", role: "user" as const, avatar: "YO" },
-          content: description,
-          timestamp: now.toISOString(),
-          type: "comment" as const,
-        },
-      ],
-      attachments: newRequestAttachments.map((file) => ({
-        id: `att-${ticketId}-${file.name}`,
-        filename: file.name,
-        fileSize: `${Math.max(file.size / 1024, 1).toFixed(0)} KB`,
-        fileType: file.type || "file",
-        uploadedBy: "You",
-        uploadedAt: now.toISOString(),
-        downloadUrl: "#",
-      })),
-      relatedKBArticles: [],
-    };
-    setSupportTicketsState((prev) => [newTicket, ...prev]);
-
-    const requestTypeMap: Record<NewSupportRequestForm["requestType"], ServiceRequest["type"]> = {
-      incident: "other",
-      "service-request": "change",
-      question: "other",
-      problem: "other",
-      "change-request": "change",
-    };
-
-    const newRequest: ServiceRequest = {
-      id: `REQ-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`,
-      type: requestTypeMap[newRequestForm.requestType],
-      title: subject,
-      description,
-      justification: `Submitted as ${newRequestForm.requestType}; urgency: ${newRequestForm.urgency}`,
-      status: "pending-approval",
-      requester: {
-        id: "user-current",
-        name: "You",
-        email: "you@example.com",
-        department: "N/A",
-        manager: "N/A",
-      },
-      approvalWorkflow: [],
-      requestedItems: [],
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString(),
-      activityLog: [
-        {
-          id: `log-${ticketId}-1`,
-          timestamp: now.toISOString(),
-          actor: "You",
-          action: "Request Submitted",
-        },
-      ],
-    };
-    setSupportRequestsState((prev) => [newRequest, ...prev]);
-
-    setNewRequestSuccess(`Request ${ticketId} was submitted and added to My Tickets.`);
-    setNewRequestForm({
-      requestType: "incident",
-      category: "Platform/Account",
-      priority: "high",
-      subject: "",
-      description: "",
-      urgency: "important",
-    });
-    setNewRequestAttachments([]);
-  };
-
-  const renderSupportWorkspace = () => {
-    if (!activeSubService || activeService !== "Support Services") return null;
-
-    // If user arrived from Stage 1 card, show that detail first
-    if (activeSubService === "support-detail" && supportSelectedService) {
-      const handleAttachmentAdd = (fileList: FileList | null) => {
-        if (!fileList || fileList.length === 0) return;
-        const newFiles = Array.from(fileList);
-        setSupportAttachments((prev) => {
-          const names = new Set(prev.map((f) => f.name));
-          const deduped = newFiles.filter((f) => !names.has(f.name));
-          return [...prev, ...deduped];
-        });
-      };
-
-      const handleAttachmentRemove = (name: string) => {
-        setSupportAttachments((prev) => prev.filter((f) => f.name !== name));
-      };
-
-      const detail = getSupportServiceDetail(supportSelectedService.id);
-      return (
-        <div className="p-6 space-y-4">
-          <div className="bg-white border border-gray-200 rounded-lg p-5">
-            {supportSubmitMessage && (
-              <div className="mb-3 px-3 py-2 rounded-md bg-green-50 text-green-700 border border-green-200 text-sm">
-                {supportSubmitMessage}
-              </div>
-            )}
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase text-gray-500 mb-1">{supportSelectedService.type}</p>
-                <h2 className="text-2xl font-bold text-gray-900">{supportSelectedService.title}</h2>
-                <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-gray-700">
-                  {supportSelectedService.responseTime && <Badge variant="secondary">{supportSelectedService.responseTime}</Badge>}
-                  {supportSelectedService.deliveryModel && <Badge variant="secondary">{supportSelectedService.deliveryModel}</Badge>}
-                  {supportSelectedService.coverage && <Badge variant="secondary">{supportSelectedService.coverage}</Badge>}
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <PriorityBadge priority={(supportSelectedService.slaLevel?.toLowerCase().includes("critical") ? "critical" : supportSelectedService.slaLevel?.toLowerCase().includes("high") ? "high" : "medium") as any} />
-                <button className="btn-primary" onClick={createTicketFromService}>
-                  Submit Request
-                </button>
-                <p className="text-xs text-gray-600">Provided by Support Operations (24x7)</p>
-              </div>
-            </div>
-
-            <p className="text-sm text-gray-700 mt-3">{supportSelectedService.description}</p>
-
-            {detail && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900">What's Included</h3>
-                  <ul className="text-sm text-gray-700 list-disc ml-4 space-y-1">
-                    {detail.whatsIncluded?.slice(0, 6).map((i, idx) => <li key={idx}>{i}</li>)}
-                  </ul>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Ideal For</h3>
-                  <ul className="text-sm text-gray-700 list-disc ml-4 space-y-1">
-                    {detail.idealFor?.slice(0, 6).map((i, idx) => <li key={idx}>{i}</li>)}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 text-sm text-gray-800">
-              <div className="group relative rounded-lg p-4 bg-gradient-to-br from-orange-50 via-white to-white border border-orange-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-9 h-9 rounded-full bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-700">
-                    <ShieldCheck size={16} />
-                  </span>
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-orange-700 font-semibold">Office / Team</div>
-                    <p className="font-semibold text-gray-900 leading-tight">Support Operations Center</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs text-gray-700">
-                  <span className="px-2 py-1 rounded-full bg-white border border-orange-100">Hours: 24x7</span>
-                  <span className="px-2 py-1 rounded-full bg-white border border-orange-100">TZ: UTC</span>
-                </div>
-                <p className="text-xs text-gray-600">Primary pod for incident coordination and advisory.</p>
-              </div>
-
-              <div className="group relative rounded-lg p-4 bg-gradient-to-br from-blue-50 via-white to-white border border-blue-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700">
-                    <MessageCircle size={16} />
-                  </span>
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-blue-700 font-semibold">Contact Channels</div>
-                    <p className="font-semibold text-gray-900 leading-tight">Ticket, Chat, Bridge</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-700">
-                  <Phone size={12} />
-                  <span>Escalation: Duty Manager</span>
-                </div>
-                <p className="text-xs text-gray-600">Use chat for rapid triage; bridge opens a war room instantly.</p>
-              </div>
-
-              <div className="group relative rounded-lg p-4 bg-gradient-to-br from-amber-50 via-white to-white border border-amber-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-9 h-9 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700">
-                    <Paperclip size={16} />
-                  </span>
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-amber-700 font-semibold">Artifacts to attach</div>
-                    <p className="text-xs text-gray-700">Logs, screenshots, environment details, and business impact.</p>
-                  </div>
-                </div>
-                <label className="flex items-center justify-center gap-2 text-sm font-semibold text-orange-700 cursor-pointer px-3 py-2 rounded-md border-2 border-dashed border-orange-200 bg-orange-50 hover:bg-orange-100 transition">
-                  <Paperclip size={16} />
-                  <input
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => handleAttachmentAdd(e.target.files)}
-                  />
-                  Attach files
-                </label>
-                {supportAttachments.length > 0 && (
-                  <ul className="space-y-1 text-xs text-gray-700">
-                    {supportAttachments.map((file) => (
-                      <li key={file.name} className="flex items-center justify-between gap-2 bg-orange-50 border border-orange-100 rounded px-2 py-1">
-                        <span className="truncate">{file.name}</span>
-                        <button
-                          className="text-orange-700 hover:underline"
-                          onClick={() => handleAttachmentRemove(file.name)}
-                        >
-                          remove
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
+    if (intelligenceTab === "services" && intelligenceItemId) {
+      setActiveSubService(intelligenceItemId);
+      return;
     }
+    setActiveSubService("di-overview");
+  }, [isIntelligenceRoute, intelligenceTab, intelligenceItemId]);
 
-    if (activeSubService === "support-overview") {
-      const metrics = [
-        { label: "Open Tickets", value: supportTicketsState.filter(t => !["resolved", "closed"].includes(t.status)).length },
-        { label: "High / Critical", value: supportTicketsState.filter(t => ["critical", "high"].includes(t.priority as string)).length },
-        { label: "Pending User", value: supportTicketsState.filter(t => t.status === "pending-user").length },
-        { label: "Requests In Progress", value: supportRequestsState.filter(r => r.status === "in-progress").length },
-      ];
-      const topTickets = supportTicketsState.filter(t => !["resolved", "closed"].includes(t.status)).slice(0, 3);
-      const topRequests = supportRequestsState.slice(0, 3);
-
-      return (
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {metrics.map(m => (
-              <div key={m.label} className="bg-white border border-gray-200 rounded-lg p-4">
-                <p className="text-sm text-gray-600">{m.label}</p>
-                <p className="text-2xl font-semibold text-gray-900">{m.value}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">Priority Tickets</h3>
-              </div>
-              <div className="space-y-3">
-                {topTickets.map(t => (
-                  <div key={t.id} className="border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{t.subject}</p>
-                        <p className="text-xs text-gray-600">{t.category} • {t.subcategory}</p>
-                      </div>
-                      <PriorityBadge priority={t.priority} size="small" />
-                    </div>
-                    <div className="mt-2">
-                      <SLATimer
-                        deadline={t.sla.resolutionDeadline}
-                        timeRemainingMinutes={t.sla.timeRemainingMinutes}
-                        breached={t.sla.resolutionBreached}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">Service Requests</h3>
-              </div>
-              <div className="space-y-3">
-                {topRequests.map(r => (
-                  <div key={r.id} className="border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{r.title}</p>
-                        <p className="text-xs text-gray-600 capitalize">{r.type}</p>
-                      </div>
-                      <Badge variant="secondary" className="capitalize">{r.status.replace("-", " ")}</Badge>
-                    </div>
-                    <p className="text-sm text-gray-700 mt-1 line-clamp-2">{r.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-tickets") {
-      const list = supportTicketsState;
-      return (
-        <div className="p-6 space-y-3">
-          <div className="hidden md:grid grid-cols-[1fr_1.6fr_1fr_1fr_2fr] px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg">
-            <div>Ticket ID</div>
-            <div>Subject</div>
-            <div>Priority</div>
-            <div>Status</div>
-            <div className="text-center">SLA</div>
-          </div>
-          <div className="divide-y divide-gray-200 border border-gray-200 rounded-lg bg-white">
-            {list.map(t => (
-              <div
-                key={t.id}
-                className="flex flex-col md:grid md:grid-cols-[1fr_1.6fr_1fr_1fr_2fr] px-4 py-3 gap-3 items-start md:items-center"
-              >
-                <div className="text-sm font-semibold text-gray-900">{t.id}</div>
-                <div className="text-sm text-gray-800 md:pr-4">{t.subject}</div>
-                <div className="md:justify-self-start"><PriorityBadge priority={t.priority} size="small" /></div>
-                <div className="text-sm capitalize text-gray-700">{t.status.replace("-", " ")}</div>
-                <div className="w-full md:w-auto md:justify-self-stretch">
-                  <SLATimer
-                    deadline={t.sla.resolutionDeadline}
-                    timeRemainingMinutes={t.sla.timeRemainingMinutes}
-                    breached={t.sla.resolutionBreached}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-requests") {
-      return (
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {supportRequestsState.map(req => (
-            <div key={req.id} className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{req.title}</p>
-                  <p className="text-xs text-gray-600 capitalize">{req.type}</p>
-                </div>
-                <Badge variant="secondary" className="capitalize">{req.status.replace("-", " ")}</Badge>
-              </div>
-              <p className="text-sm text-gray-700 mt-2 line-clamp-2">{req.description}</p>
-              <p className="text-xs text-gray-500 mt-1">Requester: {req.requester.name}</p>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-new-request") {
-      return (
-        <div className="p-6 space-y-4">
-          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Submit New Support Request</h3>
-              <p className="text-sm text-gray-600 mt-1">Create a support request for incidents, access, questions, and platform help.</p>
-            </div>
-
-            {newRequestError && (
-              <div className="px-3 py-2 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">
-                {newRequestError}
-              </div>
-            )}
-            {newRequestSuccess && (
-              <div className="px-3 py-2 rounded-md bg-green-50 border border-green-200 text-green-700 text-sm flex items-center justify-between gap-3">
-                <span>{newRequestSuccess}</span>
-                <button
-                  className="text-green-800 font-semibold hover:underline"
-                  onClick={() => setActiveSubService("support-tickets")}
-                >
-                  Go to My Tickets
-                </button>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label className="text-sm text-gray-700 space-y-1">
-                <span className="font-semibold">Request Type</span>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                  value={newRequestForm.requestType}
-                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, requestType: e.target.value as NewSupportRequestForm["requestType"] }))}
-                >
-                  <option value="incident">Incident</option>
-                  <option value="service-request">Service Request</option>
-                  <option value="question">Question</option>
-                  <option value="problem">Problem</option>
-                  <option value="change-request">Change Request</option>
-                </select>
-              </label>
-
-              <label className="text-sm text-gray-700 space-y-1">
-                <span className="font-semibold">Category</span>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                  value={newRequestForm.category}
-                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, category: e.target.value }))}
-                >
-                  {supportCategoryOptions.map((category) => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="text-sm text-gray-700 space-y-1">
-                <span className="font-semibold">Priority</span>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                  value={newRequestForm.priority}
-                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, priority: e.target.value as NewSupportRequestForm["priority"] }))}
-                >
-                  <option value="critical">P1 - Critical</option>
-                  <option value="high">P2 - High</option>
-                  <option value="medium">P3 - Medium</option>
-                  <option value="low">P4 - Low</option>
-                </select>
-              </label>
-
-              <label className="text-sm text-gray-700 space-y-1">
-                <span className="font-semibold">Urgency</span>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                  value={newRequestForm.urgency}
-                  onChange={(e) => setNewRequestForm((prev) => ({ ...prev, urgency: e.target.value as NewSupportRequestForm["urgency"] }))}
-                >
-                  <option value="blocking">Blocking my work</option>
-                  <option value="important">Important but I can wait</option>
-                  <option value="not-urgent">Not urgent</option>
-                </select>
-              </label>
-            </div>
-
-            <label className="block text-sm text-gray-700 space-y-1">
-              <span className="font-semibold">Subject</span>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                placeholder="Describe the request in one line"
-                value={newRequestForm.subject}
-                onChange={(e) => setNewRequestForm((prev) => ({ ...prev, subject: e.target.value }))}
-              />
-            </label>
-
-            <label className="block text-sm text-gray-700 space-y-1">
-              <span className="font-semibold">Description</span>
-              <textarea
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-36 focus:outline-none focus:ring-2 focus:ring-orange-200"
-                placeholder="Provide detailed context, observed behavior, and impact."
-                value={newRequestForm.description}
-                onChange={(e) => setNewRequestForm((prev) => ({ ...prev, description: e.target.value }))}
-              />
-            </label>
-
-            <div className="space-y-2">
-              <label className="inline-flex items-center gap-2 text-sm font-semibold text-orange-700 cursor-pointer">
-                <Paperclip size={16} />
-                <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => addNewRequestAttachments(e.target.files)}
-                />
-                Attach files
-              </label>
-              {newRequestAttachments.length > 0 && (
-                <ul className="space-y-1 text-xs text-gray-700">
-                  {newRequestAttachments.map((file) => (
-                    <li key={file.name} className="flex items-center justify-between gap-2 border border-gray-200 rounded-md px-2 py-1">
-                      <span className="truncate">{file.name}</span>
-                      <button className="text-orange-700 hover:underline" onClick={() => removeNewRequestAttachment(file.name)}>
-                        remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button className="btn-primary" onClick={submitNewSupportRequest}>
-                Submit Request
-              </button>
-              <button
-                className="px-4 py-2 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
-                onClick={() => {
-                  setNewRequestForm({
-                    requestType: "incident",
-                    category: "Platform/Account",
-                    priority: "high",
-                    subject: "",
-                    description: "",
-                    urgency: "important",
-                  });
-                  setNewRequestAttachments([]);
-                  setNewRequestError(null);
-                }}
-              >
-                Clear Form
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-history") {
-      const orderedTickets = [...supportTicketsState].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-      const total = orderedTickets.length;
-      const open = orderedTickets.filter((ticket) => !["resolved", "closed"].includes(ticket.status)).length;
-      const resolved = orderedTickets.filter((ticket) => ticket.status === "resolved").length;
-      const closed = orderedTickets.filter((ticket) => ticket.status === "closed").length;
-
-      return (
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Total Tickets</p><p className="text-2xl font-semibold text-gray-900">{total}</p></div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Open</p><p className="text-2xl font-semibold text-gray-900">{open}</p></div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Resolved</p><p className="text-2xl font-semibold text-gray-900">{resolved}</p></div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Closed</p><p className="text-2xl font-semibold text-gray-900">{closed}</p></div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-[1.1fr_2fr_1fr_1fr] px-4 py-3 text-xs font-semibold text-gray-600 bg-gray-50">
-              <div>Ticket</div>
-              <div>Subject</div>
-              <div>Status</div>
-              <div>Updated</div>
-            </div>
-            <div className="divide-y divide-gray-200">
-              {orderedTickets.map((ticket) => (
-                <div key={ticket.id} className="grid grid-cols-[1.1fr_2fr_1fr_1fr] px-4 py-3 text-sm">
-                  <div className="font-semibold text-gray-900">{ticket.id}</div>
-                  <div className="text-gray-700 truncate">{ticket.subject}</div>
-                  <div className="capitalize text-gray-700">{ticket.status.replace("-", " ")}</div>
-                  <div className="text-gray-600">{new Date(ticket.updatedAt).toLocaleDateString()}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-team") {
-      const activeTickets = supportTicketsState.filter((ticket) => !["resolved", "closed"].includes(ticket.status));
-      const assignedTickets = activeTickets.filter((ticket) => !!ticket.assignee);
-      const teamLoad = assignedTickets.reduce<Record<string, number>>((acc, ticket) => {
-        const key = ticket.assignee?.name || "Unassigned";
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-      }, {});
-      const teamRows = Object.entries(teamLoad).sort((a, b) => b[1] - a[1]);
-
-      return (
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Active Tickets</p>
-              <p className="text-2xl font-semibold text-gray-900">{activeTickets.length}</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Assigned Tickets</p>
-              <p className="text-2xl font-semibold text-gray-900">{assignedTickets.length}</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Unassigned Tickets</p>
-              <p className="text-2xl font-semibold text-gray-900">{activeTickets.length - assignedTickets.length}</p>
-            </div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Tickets by Team Member</h3>
-            <div className="space-y-2">
-              {teamRows.length === 0 && <p className="text-sm text-gray-600">No active assignments available.</p>}
-              {teamRows.map(([name, count]) => (
-                <div key={name} className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2">
-                  <span className="text-sm text-gray-800">{name}</span>
-                  <span className="text-sm font-semibold text-gray-900">{count} active</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-analytics") {
-      const total = supportTicketsState.length;
-      const openCount = supportTicketsState.filter((ticket) => ["new", "assigned", "in-progress"].includes(ticket.status)).length;
-      const statusCounts = supportTicketsState.reduce<Record<string, number>>((acc, ticket) => {
-        acc[ticket.status] = (acc[ticket.status] || 0) + 1;
-        return acc;
-      }, {});
-      const priorityCounts = supportTicketsState.reduce<Record<string, number>>((acc, ticket) => {
-        acc[ticket.priority] = (acc[ticket.priority] || 0) + 1;
-        return acc;
-      }, {});
-      const responseMet = supportTicketsState.filter((ticket) => !ticket.sla.responseBreached).length;
-      const resolutionMet = supportTicketsState.filter((ticket) => !ticket.sla.resolutionBreached).length;
-      const responsePercent = total ? Math.round((responseMet / total) * 100) : 0;
-      const resolutionPercent = total ? Math.round((resolutionMet / total) * 100) : 0;
-
-      return (
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Total Tickets</p><p className="text-2xl font-semibold text-gray-900">{total}</p></div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Open Tickets</p><p className="text-2xl font-semibold text-gray-900">{openCount}</p></div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Response SLA Met</p><p className="text-2xl font-semibold text-gray-900">{responsePercent}%</p></div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4"><p className="text-sm text-gray-600">Resolution SLA Met</p><p className="text-2xl font-semibold text-gray-900">{resolutionPercent}%</p></div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Tickets by Status</h3>
-              <div className="space-y-2">
-                {Object.entries(statusCounts).map(([status, count]) => (
-                  <div key={status} className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2">
-                    <span className="text-sm capitalize text-gray-700">{status.replace("-", " ")}</span>
-                    <span className="text-sm font-semibold text-gray-900">{count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Tickets by Priority</h3>
-              <div className="space-y-2">
-                {Object.entries(priorityCounts).map(([priority, count]) => (
-                  <div key={priority} className="flex items-center justify-between border border-gray-200 rounded-md px-3 py-2">
-                    <span className="text-sm capitalize text-gray-700">{priority}</span>
-                    <span className="text-sm font-semibold text-gray-900">{count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-knowledge") {
-      return (
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {knowledgeArticles.slice(0, 12).map(article => (
-            <button
-              key={article.id}
-              onClick={() => {
-                setSupportSelectedArticleId(article.id);
-                setActiveSubService("support-knowledge-detail");
-              }}
-              className="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-orange-200 hover:bg-orange-50/40 transition-colors"
-            >
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <Badge variant="secondary">{article.category}</Badge>
-                <span>{article.difficulty}</span>
-                <span>•</span>
-                <span>{article.estimatedReadTime}</span>
-              </div>
-              <h3 className="text-sm font-semibold text-gray-900 mt-2">{article.title}</h3>
-              <p className="text-sm text-gray-700 mt-1 line-clamp-3">{article.summary}</p>
-              <p className="text-xs text-gray-500 mt-2">{article.views.toLocaleString()} views</p>
-            </button>
-          ))}
-        </div>
-      );
-    }
-
-    if (activeSubService === "support-knowledge-detail" && supportSelectedArticleId) {
-      const article = knowledgeArticles.find(a => a.id === supportSelectedArticleId);
-      if (!article) return null;
-      const detailContent = buildKnowledgeDetailContent(article);
-      return (
-        <div className="p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <button
-              className="text-sm text-orange-700 font-semibold hover:underline"
-              onClick={() => {
-                setActiveSubService("support-knowledge");
-                setSupportSelectedArticleId(null);
-              }}
-            >
-              ← Back to Knowledge Base
-            </button>
-            <Badge variant="secondary">{article.category}</Badge>
-            <span className="text-xs text-gray-600 capitalize">{article.difficulty}</span>
-            <span className="text-xs text-gray-600">{article.estimatedReadTime}</span>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-2">
-            <h2 className="text-xl font-bold text-gray-900">{article.title}</h2>
-            <p className="text-[13px] text-gray-700">{article.summary}</p>
-            <div className="flex gap-4 text-xs text-gray-600">
-              <span className="inline-flex items-center gap-1"><Calendar size={14} /> Updated {new Date(article.updatedAt).toLocaleDateString()}</span>
-              <span className="inline-flex items-center gap-1"><ClockIcon size={14} /> {article.estimatedReadTime}</span>
-              <span className="inline-flex items-center gap-1"><Eye size={14} /> {article.views.toLocaleString()} views</span>
-              <span className="inline-flex items-center gap-1"><CheckCircle size={14} /> {article.helpfulPercentage}% found this helpful</span>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {article.tags.map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                  <Tag size={12} /> {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Step-by-step actions</h3>
-              <ul className="list-disc ml-5 mt-2 text-[13px] text-gray-700 space-y-1">
-                {detailContent.stepByStepActions.map((step, idx) => (
-                  <li key={`${article.id}-step-${idx}`}>{step}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Key takeaways</h3>
-              <ul className="list-disc ml-5 mt-2 text-[13px] text-gray-700 space-y-1">
-                {detailContent.keyTakeaways.map((point, idx) => (
-                  <li key={`${article.id}-takeaway-${idx}`}>{point}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Full guidance</h3>
-              <p className="text-[13px] text-gray-700 mt-2">{detailContent.fullGuidance}</p>
-            </div>
-
-            <div>
-              <h3 className="text-base font-semibold text-gray-900">Why this matters</h3>
-              <p className="text-[13px] text-gray-700 mt-1">{detailContent.whyThisMatters}</p>
-            </div>
-
-            <div>
-              <h3 className="text-base font-semibold text-gray-900">Signals to watch</h3>
-              <p className="text-[13px] text-gray-700 mt-1">{detailContent.signalsToWatch}</p>
-            </div>
-
-            <div>
-              <h3 className="text-base font-semibold text-gray-900">If issues persist</h3>
-              <p className="text-[13px] text-gray-700 mt-1">{detailContent.ifIssuesPersist}</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
-  };
+  const renderSupportWorkspace = () => (
+    <SupportWorkspacePanels
+      activeService={activeService}
+      activeSubService={activeSubService}
+      supportSelectedService={supportSelectedService}
+      supportSubmitMessage={supportSubmitMessage}
+      createTicketFromService={createTicketFromService}
+      supportAttachments={supportAttachments}
+      setSupportAttachments={setSupportAttachments}
+      supportTicketsState={supportTicketsState}
+      supportRequestsState={supportRequestsState}
+      newRequestError={newRequestError}
+      newRequestSuccess={newRequestSuccess}
+      setActiveSubService={setActiveSubService}
+      newRequestForm={newRequestForm}
+      setNewRequestForm={setNewRequestForm}
+      newRequestAttachments={newRequestAttachments}
+      setNewRequestAttachments={setNewRequestAttachments}
+      setNewRequestError={setNewRequestError}
+      addNewRequestAttachments={addNewRequestAttachments}
+      removeNewRequestAttachment={removeNewRequestAttachment}
+      submitNewSupportRequest={submitNewSupportRequest}
+      knowledgeArticles={knowledgeArticles}
+      supportSelectedArticleId={supportSelectedArticleId}
+      setSupportSelectedArticleId={setSupportSelectedArticleId}
+    />
+  );
 
     return (
       <div className="min-h-screen bg-gray-50 flex overflow-hidden h-screen">
@@ -1400,27 +637,27 @@ export default function Stage2AppPage() {
                     </div>
                   </div>
                 </div>
-              ) : activeService === "Support Services" ? (
+              ) : activeService === "Digital Intelligence" ? (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Support Services</h3>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Dashboard</h3>
                     <div className="space-y-2">
-                      {supportSubServices.map((svc) => {
-                        const Icon = svc.icon;
+                      {intelligenceSubServices.map((service) => {
+                        const Icon = service.icon;
                         return (
                           <button
-                            key={svc.id}
-                            onClick={() => handleSubServiceClick(svc.id)}
+                            key={service.id}
+                            onClick={() => handleSubServiceClick(service.id)}
                             className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === svc.id
+                              activeSubService === service.id
                                 ? "bg-orange-50 text-orange-700 border border-orange-200"
                                 : "text-gray-700 hover:bg-gray-50 border border-transparent"
                             }`}
                           >
-                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <div className="text-left">
-                              <div className="font-medium">{svc.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{svc.description}</div>
+                            <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
+                            <div className="text-left flex-1">
+                              <div className="font-medium">{service.name}</div>
+                              <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{service.description}</div>
                             </div>
                           </button>
                         );
@@ -1428,6 +665,12 @@ export default function Stage2AppPage() {
                     </div>
                   </div>
                 </div>
+              ) : activeService === "Support Services" ? (
+                <SupportWorkspaceSidebar
+                  supportSubServices={supportSubServices}
+                  activeSubService={activeSubService}
+                  onSelectSubService={handleSubServiceClick}
+                />
               ) : activeService === "Overview" ? (
                 <div className="space-y-4">
                   <div>
@@ -1489,6 +732,8 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      : activeService === "Digital Intelligence"
+                      ? intelligenceSubServices.find(s => s.id === activeSubService)?.name || intelligenceServiceById.get(activeSubService || "")?.title
                       : activeService === "Support Services"
                       ? supportSubServices.find(s => s.id === activeSubService)?.name
                       : activeService)
@@ -1501,6 +746,8 @@ export default function Stage2AppPage() {
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Learning Center"
                       ? learningSubServices.find(s => s.id === activeSubService)?.description
+                      : activeService === "Digital Intelligence"
+                      ? intelligenceSubServices.find(s => s.id === activeSubService)?.description || intelligenceServiceById.get(activeSubService || "")?.description
                       : activeService === "Support Services"
                       ? supportSubServices.find(s => s.id === activeSubService)?.description
                       : `${activeService} • Service Hub`)
@@ -1631,6 +878,8 @@ export default function Stage2AppPage() {
             <div className="h-full">
               {renderSupportWorkspace()}
             </div>
+          ) : activeService === "Digital Intelligence" ? (
+            <IntelligenceWorkspacePage activeSubService={activeSubService} />
           ) : (
             <div className="p-6">
               <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
