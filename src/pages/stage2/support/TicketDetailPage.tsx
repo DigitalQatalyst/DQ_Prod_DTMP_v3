@@ -26,7 +26,7 @@ export default function TicketDetailPage() {
     <SupportLayout title={ticket.subject} description={ticket.id}>
       <div className="flex items-center gap-3 mb-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/stage2/support/tickets")}
           className="flex items-center gap-2 text-sm text-orange-700 font-semibold"
         >
           <ArrowLeft size={16} /> Back

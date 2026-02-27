@@ -259,6 +259,71 @@ export const libraryItems: LibraryItem[] = [
     datePublished: "February 2024",
     topics: ["Platform Economics", "Strategy"],
     audience: "Executive"
+  },
+  {
+    id: "service-catalog-implementation-guide",
+    title: "Service Catalog Implementation Guide",
+    description: "Guide to designing and rolling out enterprise service catalogs with governance controls",
+    contentType: "Framework Guide",
+    format: "PDF",
+    typeIcon: "BookOpen",
+    author: "Service Architecture Team",
+    length: "Medium (26 pages)",
+    datePublished: "March 2024",
+    topics: ["Operating Models", "Governance Models", "DBP Framework"],
+    audience: "Manager"
+  },
+  {
+    id: "platform-observability-handbook",
+    title: "Platform Observability Handbook",
+    description: "Metrics, tracing, and alerting patterns for platform reliability management",
+    contentType: "Technical Specification",
+    format: "PDF",
+    typeIcon: "Activity",
+    author: "Site Reliability Office",
+    length: "Comprehensive (36 pages)",
+    datePublished: "March 2024",
+    topics: ["Architecture Patterns", "Continuous Improvement", "Maturity Assessment"],
+    audience: "Practitioner"
+  },
+  {
+    id: "digital-workplace-adoption-brief",
+    title: "Digital Workplace Adoption Brief",
+    description: "Practical tactics for adoption planning, communications, and enablement at scale",
+    contentType: "White Paper",
+    format: "PDF",
+    typeIcon: "Users",
+    author: "Workplace Transformation Team",
+    length: "Quick Read (10 pages)",
+    datePublished: "February 2024",
+    topics: ["Change Management", "Customer Experience"],
+    audience: "Manager"
+  },
+  {
+    id: "integration-governance-checklist",
+    title: "Integration Governance Checklist",
+    description: "A reusable checklist for API and integration design reviews across departments",
+    contentType: "Reference Architecture",
+    format: "DOCX",
+    typeIcon: "ListChecks",
+    author: "Integration Governance Team",
+    length: "Quick Read (8 pages)",
+    datePublished: "March 2024",
+    topics: ["Architecture Patterns", "Governance Models", "Capability Mapping"],
+    audience: "Architect"
+  },
+  {
+    id: "executive-briefing-transformation-metrics",
+    title: "Executive Briefing: Transformation Metrics",
+    description: "Presentation-ready guidance on selecting and communicating transformation KPIs",
+    contentType: "Framework Guide",
+    format: "PPTX",
+    typeIcon: "Presentation",
+    author: "Transformation Office",
+    length: "Medium (24 slides)",
+    datePublished: "March 2024",
+    topics: ["ROI Measurement", "Portfolio Management", "Strategy"],
+    audience: "Executive"
   }
 ];
 

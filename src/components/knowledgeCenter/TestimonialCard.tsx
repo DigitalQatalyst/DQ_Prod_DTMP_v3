@@ -1,5 +1,6 @@
 import { BadgeCheck, CheckCircle } from "lucide-react";
 import { Testimonial } from "@/data/knowledgeCenter/testimonials";
+import { mapIndustryToDepartment } from "@/data/knowledgeCenter/departmentMapping";
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
@@ -21,15 +22,15 @@ export function TestimonialCard({ testimonial, onClick }: TestimonialCardProps) 
             <h4 className="text-base font-semibold text-gray-900">
               {testimonial.organization}
             </h4>
-            <p className="text-xs text-gray-600">{testimonial.industry}</p>
+            <p className="text-xs text-gray-600">
+              {mapIndustryToDepartment(testimonial.industry)}
+            </p>
           </div>
         </div>
-        {testimonial.verified && (
-          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-            <BadgeCheck className="w-3 h-3" />
-            Verified
-          </span>
-        )}
+        <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+          <BadgeCheck className="w-3 h-3" />
+          TO Verified
+        </span>
       </div>
 
       <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">

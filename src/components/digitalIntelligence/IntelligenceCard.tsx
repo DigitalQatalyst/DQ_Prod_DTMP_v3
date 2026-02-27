@@ -41,134 +41,115 @@
    High: "bg-red-100 text-red-700",
  };
  
- export function IntelligenceCard({ service, onClick }: IntelligenceCardProps) {
-   const IconComponent = iconMap[service.icon] || Activity;
- 
-   return (
-     <div
-       role="listitem"
-       tabIndex={0}
-       onClick={onClick}
-       onKeyDown={(e) => {
-         if (e.key === "Enter" || e.key === " ") {
-           e.preventDefault();
-           onClick?.();
-         }
-       }}
-       className="bg-white border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-purple-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-     >
-       {/* Header */}
-       <div className="flex justify-between items-start mb-4">
-         {/* Icon */}
-         <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-           <IconComponent className="w-8 h-8 text-purple-600" />
-         </div>
- 
-         {/* Badges */}
-         <div className="flex items-center gap-2">
-           <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold uppercase">
-             {service.analyticsType}
-           </span>
-           {service.aiPowered && (
-             <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-md">
-               <Sparkles className="w-3 h-3" />
-               AI
-             </span>
-           )}
-         </div>
-       </div>
- 
-       {/* Title & Description */}
-       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-         {service.title}
-       </h3>
-       <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-         {service.description}
-       </p>
- 
-       {/* AI Capabilities */}
-       {service.aiCapabilities.length > 0 && (
-         <div className="border-l-4 border-purple-500 bg-purple-50 p-3 rounded-r-lg mb-4">
-           <p className="text-xs font-semibold text-purple-700 uppercase mb-2">
-             AI Capabilities:
-           </p>
-           <div className="flex flex-wrap gap-2">
-             {service.aiCapabilities.slice(0, 2).map((capability) => (
-               <span
-                 key={capability}
-                 className="bg-white border border-purple-200 text-purple-700 px-2 py-1 rounded text-xs font-medium flex items-center gap-1"
-               >
-                 <Sparkles className="w-3 h-3" />
-                 {capability}
-               </span>
-             ))}
-           </div>
-         </div>
-       )}
- 
-       {/* Service Features */}
-       <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2 mb-4">
-         {service.dataSource && (
-           <div className="flex items-center gap-2 text-sm text-gray-700">
-             <Database className="w-4 h-4 text-gray-500" />
-             {service.dataSource}
-           </div>
-         )}
-         {service.updateFrequency && (
-           <div className="flex items-center gap-2 text-sm text-gray-700">
-             <Clock className="w-4 h-4 text-gray-500" />
-             {service.updateFrequency}
-           </div>
-         )}
-         {service.visualizationType && (
-           <div className="flex items-center gap-2 text-sm text-gray-700">
-             <BarChart className="w-4 h-4 text-gray-500" />
-             {service.visualizationType}
-           </div>
-         )}
-         {service.outputFormat && (
-           <div className="flex items-center gap-2 text-sm text-gray-700">
-             <BarChart className="w-4 h-4 text-gray-500" />
-             {service.outputFormat}
-           </div>
-         )}
-       </div>
- 
-       {/* Key Insights */}
-       {service.keyInsights.length > 0 && (
-         <div className="border-t border-gray-200 pt-3 mb-4">
-           <p className="text-xs font-semibold text-gray-700 uppercase mb-2">
-             Key Insights:
-           </p>
-           <div className="flex flex-wrap gap-2">
-             {service.keyInsights.slice(0, 2).map((insight) => (
-               <span
-                 key={insight}
-                 className="bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded text-xs font-medium"
-               >
-                 {insight}
-               </span>
-             ))}
-           </div>
-         </div>
-       )}
- 
-       {/* Footer */}
-       <div className="flex justify-between items-center border-t border-gray-200 pt-4">
-         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${complexityColors[service.complexity]}`}>
-           {service.accuracy}
-         </span>
-         <button
-           className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors"
-           onClick={(e) => {
-             e.stopPropagation();
-             onClick?.();
-           }}
-         >
-           View Analytics
-           <ArrowRight className="w-4 h-4" />
-         </button>
-       </div>
-     </div>
-   );
- }
+export function IntelligenceCard({ service, onClick }: IntelligenceCardProps) {
+  const IconComponent = iconMap[service.icon] || Activity;
+
+  return (
+    <div
+      role="listitem"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      className="bg-white border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-purple-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+    >
+      {/* Header — icon + badges inline */}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center shrink-0">
+          <IconComponent className="w-5 h-5 text-purple-600" />
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase leading-tight">
+            {service.analyticsType}
+          </span>
+          {service.aiPowered && (
+            <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-1.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-0.5 shadow-sm">
+              <Sparkles className="w-2.5 h-2.5" />
+              AI
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Title & Description */}
+      <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-2 leading-snug">
+        {service.title}
+      </h3>
+      <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+        {service.description}
+      </p>
+
+      {/* AI Capabilities — compact inline tags */}
+      {service.aiCapabilities.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          <span className="text-[10px] font-semibold text-purple-600 uppercase">AI:</span>
+          {service.aiCapabilities.slice(0, 2).map((capability) => (
+            <span
+              key={capability}
+              className="bg-purple-50 border border-purple-200 text-purple-700 px-1.5 py-0.5 rounded text-[11px] font-medium"
+            >
+              {capability}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Service Features — condensed single-row items */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+        {service.dataSource && (
+          <span className="flex items-center gap-1">
+            <Database className="w-3 h-3" />
+            {service.dataSource}
+          </span>
+        )}
+        {service.updateFrequency && (
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {service.updateFrequency}
+          </span>
+        )}
+        {(service.visualizationType || service.outputFormat) && (
+          <span className="flex items-center gap-1">
+            <BarChart className="w-3 h-3" />
+            {service.visualizationType || service.outputFormat}
+          </span>
+        )}
+      </div>
+
+      {/* Key Insights — tighter */}
+      {service.keyInsights.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {service.keyInsights.slice(0, 2).map((insight) => (
+            <span
+              key={insight}
+              className="bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded text-[11px] font-medium"
+            >
+              {insight}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="flex justify-between items-center border-t border-gray-100 pt-3">
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${complexityColors[service.complexity]}`}>
+          {service.accuracy}
+        </span>
+        <button
+          className="bg-purple-600 text-white hover:bg-purple-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.();
+          }}
+        >
+          View Details
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}

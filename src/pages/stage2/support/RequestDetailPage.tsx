@@ -19,7 +19,7 @@ export default function RequestDetailPage() {
 
   return (
     <SupportLayout title={request.title} description={request.id}>
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-orange-700 font-semibold mb-4">
+      <button onClick={() => navigate("/stage2/support/requests")} className="flex items-center gap-2 text-sm text-orange-700 font-semibold mb-4">
         <ArrowLeft size={16} /> Back
       </button>
 

@@ -163,22 +163,33 @@
      setDebouncedSearch("");
    }, []);
  
-   // --- Filter handlers -----------------------------------------------------
-   const handleFilterChange = useCallback((group: string, value: string) => {
-     setSelectedFilters((prev) => {
-       const current = prev[group] || [];
-       const next = current.includes(value)
-         ? current.filter((v) => v !== value)
-         : [...current, value];
-       return { ...prev, [group]: next };
-     });
-   }, []);
- 
-   const handleClearFilters = useCallback(() => {
-     setSelectedFilters({});
-     setSearchQuery("");
-     setDebouncedSearch("");
-   }, []);
+  // --- Filter handlers -----------------------------------------------------
+  const handleFilterChange = useCallback((group: string, value: string) => {
+    setSelectedFilters((prev) => {
+      const current = prev[group] || [];
+      const next = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      return { ...prev, [group]: next };
+    });
+  }, []);
+
+  const handleFilterSelect = useCallback((group: string, value: string | null) => {
+    setSelectedFilters((prev) => {
+      if (!value) {
+        const updated = { ...prev };
+        delete updated[group];
+        return updated;
+      }
+      return { ...prev, [group]: [value] };
+    });
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setSelectedFilters({});
+    setSearchQuery("");
+    setDebouncedSearch("");
+  }, []);
  
    // --- Filter logic (memoised) ---------------------------------------------
    const applyFilters = useCallback(
@@ -325,14 +336,16 @@
  
              <div className="flex gap-6">
                {/* ── Filter Panel (sidebar / drawer) ── */}
-               <FilterPanel
-                 filters={currentFilters}
-                 selectedFilters={selectedFilters}
-                 onFilterChange={handleFilterChange}
-                 onClearAll={handleClearFilters}
-                 isOpen={mobileFilterOpen}
-                 onClose={() => setMobileFilterOpen(false)}
-               />
+              <FilterPanel
+                filters={currentFilters}
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+                onFilterSelect={handleFilterSelect}
+                onClearAll={handleClearFilters}
+                isOpen={mobileFilterOpen}
+                onClose={() => setMobileFilterOpen(false)}
+                variant="dropdown"
+              />
  
                {/* ── Main Content ── */}
                <div className="flex-1">
@@ -357,7 +370,7 @@
                  {/* Cards grid */}
                  {filteredServices.length > 0 ? (
                    <div
-                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                     className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"
                      role="list"
                      aria-label="Intelligence service cards"
                    >

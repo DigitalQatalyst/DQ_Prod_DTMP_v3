@@ -1,0 +1,63 @@
+import type { TrackEnrollment } from "./types";
+
+export const trackEnrollments: TrackEnrollment[] = [
+  {
+    id: "te-001",
+    userId: "user-john-doe",
+    trackId: "transformation-leader",
+    status: "in-progress",
+    progress: 58,
+    startedAt: "2026-01-08",
+    lastAccessed: "2026-02-18",
+    linkedCourseIds: [
+      "dt-fundamentals",
+      "4d-model-mastery",
+      "change-leadership",
+      "strategic-roadmap",
+      "stakeholder-engagement",
+      "transformation-roi",
+    ],
+    completedCourseIds: ["dt-fundamentals", "4d-model-mastery", "change-leadership"],
+    nextCourseId: "strategic-roadmap",
+    capstoneCompleted: false,
+  },
+  {
+    id: "te-002",
+    userId: "user-john-doe",
+    trackId: "enterprise-architect",
+    status: "in-progress",
+    progress: 25,
+    startedAt: "2026-02-02",
+    lastAccessed: "2026-02-16",
+    linkedCourseIds: [
+      "dt-fundamentals",
+      "dbp-capability",
+      "enterprise-arch",
+      "cloud-architecture",
+    ],
+    completedCourseIds: ["dt-fundamentals"],
+    nextCourseId: "dbp-capability",
+    capstoneCompleted: false,
+  },
+  {
+    id: "te-003",
+    userId: "user-amina-to",
+    trackId: "portfolio-manager",
+    status: "completed",
+    progress: 100,
+    startedAt: "2025-11-05",
+    completedAt: "2026-01-22",
+    lastAccessed: "2026-01-22",
+    linkedCourseIds: [
+      "dt-fundamentals",
+      "portfolio-mgmt-cert",
+      "lifecycle-best-practices",
+    ],
+    completedCourseIds: [
+      "dt-fundamentals",
+      "portfolio-mgmt-cert",
+      "lifecycle-best-practices",
+    ],
+    capstoneCompleted: true,
+  },
+];

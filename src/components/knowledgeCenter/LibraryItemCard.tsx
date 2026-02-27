@@ -7,6 +7,8 @@ import { LibraryItem } from "@/data/knowledgeCenter/library";
 interface LibraryItemCardProps {
   item: LibraryItem;
   onClick: () => void;
+  showAccessIcon?: boolean;
+  showAccessLabel?: boolean;
 }
 
 const typeIcons: Record<string, React.ElementType> = {
@@ -20,7 +22,12 @@ const typeIcons: Record<string, React.ElementType> = {
   Shield: Shield,
 };
 
-export function LibraryItemCard({ item, onClick }: LibraryItemCardProps) {
+export function LibraryItemCard({
+  item,
+  onClick,
+  showAccessIcon = true,
+  showAccessLabel = true,
+}: LibraryItemCardProps) {
   const TypeIcon = typeIcons[item.typeIcon] || FileText;
   
   return (
@@ -76,10 +83,12 @@ export function LibraryItemCard({ item, onClick }: LibraryItemCardProps) {
         <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-medium">
           {item.audience}
         </span>
-        <span className="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium text-sm">
-          <Download className="w-4 h-4" />
-          Access
-        </span>
+        {showAccessLabel && (
+          <span className="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium text-sm">
+            {showAccessIcon && <Download className="w-4 h-4" />}
+            Access
+          </span>
+        )}
       </div>
     </div>
   );
