@@ -16,6 +16,7 @@ import TemplatesPage from "./pages/TemplatesPage";
 import TemplatesDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
 import { SolutionSpecDetailPage } from "./pages/SolutionSpecDetailPage";
+import SolutionSpecRequestForm from "./pages/SolutionSpecRequestForm";
 import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
 import SupportServicesPage from "./pages/SupportServicesPage";
@@ -35,6 +36,7 @@ import DesignPatternsPage from "./pages/stage2/specs/DesignPatternsPage";
 import PatternDetailPage from "./pages/stage2/specs/PatternDetailPage";
 import MyDesignsPage from "./pages/stage2/specs/MyDesignsPage";
 import DesignDetailPage from "./pages/stage2/specs/DesignDetailPage";
+import MyRequestsPage from "./pages/stage2/specs/MyRequestsPage";
 
 const queryClient = new QueryClient();
 
@@ -55,7 +57,7 @@ const App = () => (
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
-          
+
           {/* Stage 2 - Solutions Specs Routes */}
           <Route path="/stage2/specs" element={<Stage2Layout />}>
             <Route path="overview" element={<SolutionSpecsOverview />} />
@@ -67,6 +69,7 @@ const App = () => (
             <Route path="patterns/:patternId" element={<PatternDetailPage />} />
             <Route path="my-designs" element={<MyDesignsPage />} />
             <Route path="my-designs/:designId" element={<DesignDetailPage />} />
+            <Route path="my-requests" element={<MyRequestsPage />} />
           </Route>
           
           {/* Main platform routes */}
@@ -92,6 +95,7 @@ const App = () => (
           
           {/* Solution Specs marketplace */}
           <Route path="/marketplaces/solution-specs" element={<SolutionSpecsPage />} />
+          <Route path="/marketplaces/solution-specs/request" element={<SolutionSpecRequestForm />} />
           <Route path="/marketplaces/solution-specs/:id" element={<SolutionSpecDetailPage />} />
           
           {/* Solution Build marketplace */}

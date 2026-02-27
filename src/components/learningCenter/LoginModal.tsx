@@ -27,19 +27,18 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Handle solution-specs marketplace - navigate to specific stage 2 routes
-    if (context.marketplace === "solution-specs") {
-      // Determine target route based on cardId
-      if (context.cardId.includes('architecture') || context.cardId.includes('blueprint') || context.cardId.includes('reference')) {
-        navigate(`/stage2/specs/blueprints`, {
-          state: { fromStage1: true, specId: context.cardId },
-        });
-      } else {
-        // Navigate to Stage 2 Solutions Specs overview for context-aware routing
-        navigate(`/stage2/specs/overview`, {
-          state: { fromStage1: true, specId: context.cardId },
-        });
-      }
+    // Handle solution-specs marketplace - after login go to the request form
+    if (context.marketplace === "solution-specs" && context.action === "Make Request") {
+      navigate("/marketplaces/solution-specs/request", {
+        state: {
+          specId: context.cardId,
+          serviceName: context.serviceName,
+        },
+      });
+    } else if (context.marketplace === "solution-specs") {
+      navigate(`/stage2/specs/overview`, {
+        state: { fromStage1: true, specId: context.cardId },
+      });
     } else {
       // Navigate to Stage 2 with context for other marketplaces
       navigate("/stage2", {
@@ -95,8 +94,10 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
         {/* Description */}
         <p className="text-base text-muted-foreground text-center mb-8">
-          {context.marketplace === "solution-specs"
-            ? "Log in to complete your request."
+          {context.marketplace === "solution-specs" && context.action === "Make Request"
+            ? `Log in to submit your request for "${context.serviceName}".`
+            : context.marketplace === "solution-specs"
+            ? "Log in to access this solution specification."
             : "Please log in to continue with your enrollment"}
         </p>
 

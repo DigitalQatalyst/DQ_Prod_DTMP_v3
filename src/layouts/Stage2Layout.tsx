@@ -45,6 +45,7 @@ export default function Stage2Layout() {
     if (location.pathname.includes('/specs/templates')) return 'templates';
     if (location.pathname.includes('/specs/patterns')) return 'patterns';
     if (location.pathname.includes('/specs/my-designs')) return 'my-designs';
+    if (location.pathname.includes('/specs/my-requests')) return 'my-requests';
     if (location.pathname.includes('/specs/overview')) return 'overview';
     return null;
   };
@@ -211,54 +212,19 @@ export default function Stage2Layout() {
                     <LayoutGrid className="w-4 h-4 flex-shrink-0" />
                     Overview
                   </button>
-                  
+
                   <button
-                    onClick={() => navigate('/stage2/specs/blueprints')}
+                    onClick={() => navigate('/stage2/specs/my-requests')}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                      activeSubItem === 'blueprints'
-                        ? 'bg-orange-50 text-orange-700 font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Layers className="w-4 h-4 flex-shrink-0" />
-                    Architecture Library
-                  </button>
-                  
-                  <button
-                    onClick={() => navigate('/stage2/specs/templates')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                      activeSubItem === 'templates'
+                      activeSubItem === 'my-requests'
                         ? 'bg-orange-50 text-orange-700 font-medium'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     <FileText className="w-4 h-4 flex-shrink-0" />
-                    Design Templates
+                    My Requests
                   </button>
                   
-                  <button
-                    onClick={() => navigate('/stage2/specs/patterns')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                      activeSubItem === 'patterns'
-                        ? 'bg-orange-50 text-orange-700 font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <Zap className="w-4 h-4 flex-shrink-0" />
-                    Design Patterns
-                  </button>
-                  
-                  <button
-                    onClick={() => navigate('/stage2/specs/my-designs')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                      activeSubItem === 'my-designs'
-                        ? 'bg-orange-50 text-orange-700 font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <FolderOpen className="w-4 h-4 flex-shrink-0" />
-                    My Designs
-                  </button>
                 </div>
               </nav>
             </>
