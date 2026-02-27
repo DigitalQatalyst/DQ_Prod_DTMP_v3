@@ -33,6 +33,7 @@ import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
+import DigitalIntelligenceDashboardPage from "./pages/DigitalIntelligenceDashboardPage";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,9 @@ const App = () => (
           <Route path="/stage2/support/requests/:requestId" element={<RequestDetailPage />} />
           <Route path="/stage2/support/knowledge" element={<Navigate to="/marketplaces/support-services?tab=knowledge-base" replace />} />
           <Route path="/stage2/support/knowledge/:articleId" element={<SupportKnowledgeLegacyRedirectPage />} />
+          <Route path="/stage2/intelligence" element={<Navigate to="/stage2/intelligence/overview" replace />} />
+          <Route path="/stage2/intelligence/:intelligenceTab" element={<Stage2AppPage />} />
+          <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
@@ -104,6 +108,7 @@ const App = () => (
           {/* Digital Intelligence marketplace */}
           <Route path="/marketplaces/digital-intelligence" element={<DigitalIntelligencePage />} />
           <Route path="/marketplaces/digital-intelligence/:tab/:cardId" element={<DigitalIntelligenceDetailPage />} />
+          <Route path="/marketplaces/digital-intelligence/:tab/:cardId/dashboard" element={<DigitalIntelligenceDashboardPage />} />
           
           {/* Portfolio Management marketplace */}
           <Route path="/marketplaces/portfolio-management" element={<PortfolioManagementPage />} />

@@ -14,6 +14,9 @@ interface LoginModalProps {
     cardId: string;
     serviceName: string;
     action: string;
+    formData?: Record<string, string>;
+    dashboardName?: string;
+    requestDescription?: string;
   };
 }
 
@@ -35,9 +38,28 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
       return;
     }
 
+    // Digital Intelligence request actions should land in Stage 2 -> My Requests.
+    if (
+      context.marketplace === "digital-intelligence" &&
+      context.action &&
+      context.action !== "View Analytics"
+    ) {
+      navigate("/stage2/intelligence/requests", {
+        state: {
+          ...context,
+          actorEmail: email.trim(),
+        },
+      });
+      onClose();
+      return;
+    }
+
     // Navigate to Stage 2 with context
     navigate("/stage2", {
-      state: context,
+      state: {
+        ...context,
+        actorEmail: email.trim(),
+      },
     });
     onClose();
   };
