@@ -1,0 +1,31 @@
+
+> vite_react_shadcn_ts@0.0.0 dev
+> vite --host localhost --port 8080
+
+
+  [32m[1mVITE[22m v5.4.19[39m  [2mready in [0m[1m464[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8080[22m/[39m
+[2m2:17:58 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m2:33:48 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m2:34:05 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m2:34:41 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m2:44:45 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:36:24 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:36:39 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:36:48 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:37:18 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:38:30 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:38:43 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:38:55 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m12:26:46 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m12:26:52 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/learningCenter/LoginModal.tsx, /src/index.css[22m
+[2m12:28:12 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m3:01:47 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportNewRequestPage.tsx, /src/index.css[22m
+[2m3:33:42 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportNewRequestPage.tsx, /src/index.css[22m
+[2m10:54:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesPage.tsx, /src/index.css[22m
+[2m10:54:39 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SupportServicesPage.tsx, /src/index.css[22m
+[2m10:54:52 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m10:55:06 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Stage2AppPage.tsx, /src/index.css[22m
+[2m10:56:43 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m11:12:59 AM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/cards/SupportServiceCard.tsx, /src/index.css[22m

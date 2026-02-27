@@ -1,0 +1,116 @@
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[2m11:40:26 AM[22m [31m[1m[vite][22m[39m [31mInternal server error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:422:1]
+ 419 |                   </ul>
+ 420 |                 )}
+ 421 |               </div>
+ 422 |             </div>/div>
+     :                       ^
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     `----
+  x Unterminated regexp literal
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:425:1]
+ 422 |             </div>/div>
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     :          ^^^^^
+ 426 |       );
+ 427 |     }
+     `----
+
+
+Caused by:
+    Syntax Error[39m
+  Plugin: [35mvite:react-swc[39m
+  File: [36mE:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx[39m
+  
+[2m11:40:26 AM[22m [31m[1m[vite][22m[39m [31mInternal server error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:422:1]
+ 419 |                   </ul>
+ 420 |                 )}
+ 421 |               </div>
+ 422 |             </div>/div>
+     :                       ^
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     `----
+  x Unterminated regexp literal
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:425:1]
+ 422 |             </div>/div>
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     :          ^^^^^
+ 426 |       );
+ 427 |     }
+     `----
+
+
+Caused by:
+    Syntax Error[39m
+  Plugin: [35mvite:react-swc[39m
+  File: [36mE:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx[39m
+  
+[2m11:40:26 AM[22m [31m[1m[vite][22m[39m [31mInternal server error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:422:1]
+ 419 |                   </ul>
+ 420 |                 )}
+ 421 |               </div>
+ 422 |             </div>/div>
+     :                       ^
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     `----
+  x Unterminated regexp literal
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:425:1]
+ 422 |             </div>/div>
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     :          ^^^^^
+ 426 |       );
+ 427 |     }
+     `----
+
+
+Caused by:
+    Syntax Error[39m
+  Plugin: [35mvite:react-swc[39m
+  File: [36mE:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx[39m
+  
+[2m11:40:26 AM[22m [31m[1m[vite][22m[39m [31mInternal server error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:422:1]
+ 419 |                   </ul>
+ 420 |                 )}
+ 421 |               </div>
+ 422 |             </div>/div>
+     :                       ^
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     `----
+  x Unterminated regexp literal
+     ,-[E:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx:425:1]
+ 422 |             </div>/div>
+ 423 |             </div>
+ 424 |           </div>
+ 425 |         </div>
+     :          ^^^^^
+ 426 |       );
+ 427 |     }
+     `----
+
+
+Caused by:
+    Syntax Error[39m
+  Plugin: [35mvite:react-swc[39m
+  File: [36mE:/dqWork/Support Services/transformation-hub/src/pages/Stage2AppPage.tsx[39m
+  
+^C^C
