@@ -17,6 +17,7 @@ import TemplatesPage from "./pages/TemplatesPage";
 import TemplatesDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
 import { SolutionSpecDetailPage } from "./pages/SolutionSpecDetailPage";
+import SolutionSpecRequestForm from "./pages/SolutionSpecRequestForm";
 import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
 import SupportServicesPage from "./pages/SupportServicesPage";
@@ -88,7 +89,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/marketplaces" element={<MarketplacesPage />} />
-          
+
           {/* Learning Center marketplace */}
           <Route path="/marketplaces/learning-center" element={<LearningCenterPage />} />
           <Route path="/marketplaces/learning-center/:tab/:cardId" element={<LearningCenterDetailPage />} />
@@ -150,7 +151,7 @@ const App = () => (
           <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
           <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
           <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
-          
+
           {/* Stage 3 - Transformation Office Operations */}
           <Route path="/stage3" element={<Navigate to="/stage3/dashboard" replace />} />
           <Route path="/stage3/:view" element={<Stage3GuardedRoute />} />
@@ -163,7 +164,7 @@ const App = () => (
           <Route path="/assets" element={<ComingSoonPage pageName="Assets" />} />
           <Route path="/user-groups" element={<ComingSoonPage pageName="User Groups" />} />
           <Route path="/visualization" element={<ComingSoonPage pageName="Visualization Dashboard" />} />
-          
+
           {/* Knowledge Center marketplace */}
           <Route path="/marketplaces/knowledge-center" element={<KnowledgeCenterPage />} />
           <Route path="/marketplaces/knowledge-center/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
@@ -175,34 +176,35 @@ const App = () => (
           {/* Blueprints marketplace - Legacy route with redirect */}
           <Route path="/marketplaces/blueprints" element={<Navigate to="/marketplaces/solution-specs" replace />} />
           <Route path="/marketplaces/blueprints/:tab/:blueprintId" element={<Navigate to="/marketplaces/solution-specs" replace />} />
-          
+
           {/* Solution Specs marketplace */}
           <Route path="/marketplaces/solution-specs" element={<SolutionSpecsPage />} />
+          <Route path="/marketplaces/solution-specs/request" element={<SolutionSpecRequestForm />} />
           <Route path="/marketplaces/solution-specs/:id" element={<SolutionSpecDetailPage />} />
-          
+
           {/* Solution Build marketplace */}
           <Route path="/marketplaces/solution-build" element={<SolutionBuildPage />} />
           <Route path="/marketplaces/solution-build/:id" element={<SolutionBuildDetailPage />} />
-          
+
           {/* Support Services marketplace */}
           <Route path="/marketplaces/support-services" element={<SupportServicesPage />} />
           <Route path="/marketplaces/support-services/knowledge/:articleId" element={<SupportKnowledgeArticlePage />} />
           <Route path="/marketplaces/support-services/:tab/:cardId" element={<SupportServicesDetailPage />} />
           <Route path="/marketplaces/support-services/new-request" element={<SupportNewRequestPage />} />
-          
+
           {/* Digital Intelligence marketplace */}
           <Route path="/marketplaces/digital-intelligence" element={<DigitalIntelligencePage />} />
           <Route path="/marketplaces/digital-intelligence/:tab/:cardId" element={<DigitalIntelligenceDetailPage />} />
           <Route path="/marketplaces/digital-intelligence/:tab/:cardId/dashboard" element={<DigitalIntelligenceDashboardPage />} />
-          
+
           {/* Portfolio Management marketplace */}
           <Route path="/marketplaces/portfolio-management" element={<PortfolioManagementPage />} />
           <Route path="/marketplaces/portfolio-management/:tab/:cardId" element={<PortfolioDetailPage />} />
-          
+
           {/* Lifecycle Management marketplace */}
           <Route path="/marketplaces/lifecycle-management" element={<LifecycleManagementPage />} />
           <Route path="/marketplaces/lifecycle-management/:tab/:cardId" element={<LifecycleDetailPage />} />
-          
+
           {/* Resource routes */}
           <Route path="/best-practices" element={<ComingSoonPage pageName="Best Practices" />} />
           <Route path="/standards" element={<ComingSoonPage pageName="Architecture Standards" />} />
@@ -213,7 +215,7 @@ const App = () => (
           <Route path="/contact" element={<ComingSoonPage pageName="Contact Us" />} />
           <Route path="/privacy" element={<ComingSoonPage pageName="Privacy Policy" />} />
           <Route path="/terms" element={<ComingSoonPage pageName="Terms of Service" />} />
-          
+
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>

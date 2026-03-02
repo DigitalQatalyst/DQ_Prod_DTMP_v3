@@ -46,6 +46,25 @@ export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginMo
       return;
     }
 
+    // Solution Specs — "Make Request" action goes to the request form
+    if (context.marketplace === "solution-specs" && context.action === "Make Request") {
+      navigate("/marketplaces/solution-specs/request", {
+        state: {
+          specId: context.cardId,
+          serviceName: context.serviceName,
+        },
+      });
+      return;
+    }
+
+    // Solution Specs — other actions go to Stage 2 specs overview
+    if (context.marketplace === "solution-specs") {
+      navigate(`/stage2/specs/overview`, {
+        state: { fromStage1: true, specId: context.cardId },
+      });
+      return;
+    }
+
     // Digital Intelligence request actions should land in Stage 2 -> My Requests.
     if (
       context.marketplace === "digital-intelligence" &&
@@ -115,7 +134,11 @@ export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginMo
 
         {/* Description */}
         <p className="text-base text-muted-foreground text-center mb-8">
-          Please log in to continue with your enrollment
+          {context.marketplace === "solution-specs" && context.action === "Make Request"
+            ? `Log in to submit your request for "${context.serviceName}".`
+            : context.marketplace === "solution-specs"
+              ? "Log in to access this solution specification."
+              : "Please log in to continue with your enrollment"}
         </p>
 
         {/* Form */}

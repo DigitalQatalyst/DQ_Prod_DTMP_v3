@@ -108,6 +108,15 @@ import {
   PortfolioWorkspaceMain,
   PortfolioWorkspaceSidebar,
 } from "@/components/stage2/portfolio/PortfolioWorkspacePanels";
+import {
+  SpecsWorkspaceMain,
+  SpecsWorkspaceSidebar,
+  type SpecsWorkspaceTab,
+} from "@/components/stage2/specs/SpecsWorkspacePanels";
+import {
+  BuildWorkspaceMain,
+  BuildWorkspaceSidebar,
+} from "@/components/stage2/build/BuildWorkspacePanels";
 import { CourseDetailView } from "@/components/learning";
 import LifecycleOverview from "./lifecycle/LifecycleOverview";
 import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
@@ -117,7 +126,6 @@ import ApplicationsPage from "./lifecycle/ApplicationsPage";
 import { buildRequests, type BuildRequest, deliveryTeams } from "@/data/solutionBuild";
 import { Progress } from "@/components/ui/progress";
 import IntelligenceWorkspacePage from "@/pages/stage2/intelligence/IntelligenceWorkspacePage";
-import SolutionBuildWorkspacePage from "@/pages/stage2/solutionBuild/SolutionBuildWorkspacePage";
 import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest } from "@/data/supportData";
 import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
@@ -133,17 +141,8 @@ import TemplatesOverview from "@/pages/stage2/templates/TemplatesOverview";
 import TemplateLibraryPage from "@/pages/stage2/templates/TemplateLibraryPage";
 import TemplateDetailPage from "@/pages/stage2/templates/TemplateDetailPage";
 import NewRequestPage from "@/pages/stage2/templates/NewRequestPage";
-import MyRequestsPage from "@/pages/stage2/templates/MyRequestsPage";
+import TemplatesMyRequestsPage from "@/pages/stage2/templates/MyRequestsPage";
 import TemplatesRequestDetailPage from "@/pages/stage2/templates/RequestDetailPage";
-import SolutionSpecsOverview from "@/pages/stage2/specs/SolutionSpecsOverview";
-import ArchitectureLibraryPage from "@/pages/stage2/specs/ArchitectureLibraryPage";
-import BlueprintDetailPage from "@/pages/stage2/specs/BlueprintDetailPage";
-import DesignTemplatesPage from "@/pages/stage2/specs/DesignTemplatesPage";
-import SpecTemplateDetailPage from "@/pages/stage2/specs/TemplateDetailPage";
-import DesignPatternsPage from "@/pages/stage2/specs/DesignPatternsPage";
-import PatternDetailPage from "@/pages/stage2/specs/PatternDetailPage";
-import MyDesignsPage from "@/pages/stage2/specs/MyDesignsPage";
-import DesignDetailPage from "@/pages/stage2/specs/DesignDetailPage";
 
 interface LocationState {
   marketplace?: string;
@@ -163,7 +162,6 @@ type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
 type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
-type SpecsWorkspaceTab = "overview" | "blueprints" | "templates" | "patterns" | "my-designs";
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
@@ -400,7 +398,7 @@ export default function Stage2AppPage() {
     : undefined;
   const resolvedLearningCourseId =
     matchedLearningCourse?.id || fallbackLearningCourseId;
-  
+
   const {
     marketplace: stateMarketplace = "portfolio-management",
     cardId: stateCardId = "portfolio-dashboard",
@@ -413,13 +411,13 @@ export default function Stage2AppPage() {
       ? "knowledge-center"
       : isTemplatesRoute
         ? "templates"
-      : isSolutionSpecsRoute
-        ? "solution-specs"
-      : isIntelligenceRoute
-        ? "digital-intelligence"
-      : isPortfolioCenterRoute
-        ? "portfolio-management"
-      : stateMarketplace;
+        : isSolutionSpecsRoute
+          ? "solution-specs"
+          : isIntelligenceRoute
+            ? "digital-intelligence"
+            : isPortfolioCenterRoute
+              ? "portfolio-management"
+              : stateMarketplace;
   const cardId = isLearningCenterRoute ? resolvedLearningCourseId : stateCardId;
   const serviceName = isLearningCenterRoute
     ? (matchedLearningCourse?.courseName ?? "Learning Course")
@@ -503,15 +501,18 @@ export default function Stage2AppPage() {
     getTemplatesTabFromPath()
   );
   const getSpecsTabFromPath = (): SpecsWorkspaceTab => {
-    if (location.pathname.startsWith("/stage2/specs/blueprints")) return "blueprints";
-    if (location.pathname.startsWith("/stage2/specs/templates")) return "templates";
-    if (location.pathname.startsWith("/stage2/specs/patterns")) return "patterns";
-    if (location.pathname.startsWith("/stage2/specs/my-designs")) return "my-designs";
+    if (location.pathname.startsWith("/stage2/specs/my-requests")) return "my-requests";
     return "overview";
   };
   const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
     getSpecsTabFromPath()
   );
+
+  // Solution Build States
+  const [sbSearchQuery, setSbSearchQuery] = useState("");
+  const [activeBuildRequestId, setActiveBuildRequestId] = useState<string | null>(null);
+  const [sbStatusFilter, setSbStatusFilter] = useState("all");
+  const [sbPriorityFilter, setSbPriorityFilter] = useState("all");
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
   const [knowledgeHistory, setKnowledgeHistory] = useState<KnowledgeHistoryEntry[]>([]);
@@ -648,8 +649,8 @@ export default function Stage2AppPage() {
       title: isOutdated
         ? `Knowledge Outdated Section: ${resourceTitle}`
         : isClarification
-        ? `Knowledge Clarification: ${resourceTitle}`
-        : `Knowledge Collaboration Follow-up: ${resourceTitle}`,
+          ? `Knowledge Clarification: ${resourceTitle}`
+          : `Knowledge Collaboration Follow-up: ${resourceTitle}`,
       description: isOutdated
         ? `Escalated from Stage 2 Knowledge action. Outdated-section report for "${resourceTitle}". User message: "${userMessage}"`
         : isClarification
@@ -732,7 +733,7 @@ export default function Stage2AppPage() {
     setActiveLearningUserTab("overview");
     setActiveLearningAdminTab("overview");
   }, [activeSubService, viewMode]);
-  
+
   const {
     knowledgeArticles: supportKnowledgeArticles,
     supportSelectedService,
@@ -900,10 +901,10 @@ export default function Stage2AppPage() {
     () =>
       activeTrackSnapshot
         ? trackEnrollments.find(
-            (enrollment) =>
-              enrollment.userId === "user-john-doe" &&
-              enrollment.trackId === activeTrackSnapshot.trackId
-          )
+          (enrollment) =>
+            enrollment.userId === "user-john-doe" &&
+            enrollment.trackId === activeTrackSnapshot.trackId
+        )
         : undefined,
     [activeTrackSnapshot]
   );
@@ -1076,10 +1077,7 @@ export default function Stage2AppPage() {
     setActiveSpecsTab(tabId);
     const pathByTab: Record<SpecsWorkspaceTab, string> = {
       overview: "/stage2/specs/overview",
-      blueprints: "/stage2/specs/blueprints",
-      templates: "/stage2/specs/templates",
-      patterns: "/stage2/specs/patterns",
-      "my-designs": "/stage2/specs/my-designs",
+      "my-requests": "/stage2/specs/my-requests",
     };
     navigate(pathByTab[tabId], {
       replace: true,
@@ -1089,6 +1087,30 @@ export default function Stage2AppPage() {
       },
     });
   };
+
+  const filteredBuildRequests = useMemo(() => {
+    let filtered = buildRequests.filter(
+      (r) => r.requestedBy === "Sarah Johnson" || r.requestedBy === "Current User"
+    );
+    if (sbSearchQuery) {
+      const q = sbSearchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (r) =>
+          r.name.toLowerCase().includes(q) ||
+          r.id.toLowerCase().includes(q) ||
+          r.department.toLowerCase().includes(q)
+      );
+    }
+    if (sbStatusFilter !== "all") filtered = filtered.filter((r) => r.status === sbStatusFilter);
+    if (sbPriorityFilter !== "all") filtered = filtered.filter((r) => r.priority === sbPriorityFilter);
+
+    return filtered;
+  }, [sbSearchQuery, sbStatusFilter, sbPriorityFilter]);
+
+  const selectedBuildRequest = useMemo(() =>
+    buildRequests.find(r => r.id === activeBuildRequestId) || null
+    , [activeBuildRequestId]);
+
   const handleKnowledgeNotificationClick = (notification: MentionNotification) => {
     markMentionNotificationRead(notification.id);
     const [sourceTab, sourceId] = notification.itemId.split(":");
@@ -1344,9 +1366,8 @@ export default function Stage2AppPage() {
       courseName: selectedLearningCourse.courseName,
       requesterName: "Amina TO",
       requesterRole: "Admin",
-      message: `Review requested for ${selectedLearningCourse.courseName}: ${diffs.length} field change(s)${
-        deleteRequested ? " and delete request" : ""
-      }.`,
+      message: `Review requested for ${selectedLearningCourse.courseName}: ${diffs.length} field change(s)${deleteRequested ? " and delete request" : ""
+        }.`,
     });
 
     const created = createStage3Request({
@@ -1387,8 +1408,7 @@ export default function Stage2AppPage() {
       },
     });
     setLearningEscalationMessage(
-      `Submitted ${diffs.length} change(s)${
-        deleteRequested ? " + delete request" : ""
+      `Submitted ${diffs.length} change(s)${deleteRequested ? " + delete request" : ""
       } to TO Ops.`
     );
   };
@@ -1462,10 +1482,10 @@ export default function Stage2AppPage() {
         }
       );
     }
-    if (subServiceId !== "support-detail") {
+    if (activeSubService !== "support-detail") {
       // leaving detail view but keep selection for navigation purposes
     }
-    if (subServiceId !== "support-knowledge-detail") {
+    if (activeSubService !== "support-knowledge-detail") {
       setSupportSelectedArticleId(null);
     }
   };
@@ -1531,7 +1551,7 @@ export default function Stage2AppPage() {
         {/* Navigation */}
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-1">
-            <button 
+            <button
               onClick={() => handleServiceClick("Overview")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isOverviewActive()}`}
               title="Overview"
@@ -1539,7 +1559,7 @@ export default function Stage2AppPage() {
               <Home className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Overview"}
             </button>
-            
+
             {/* Service Categories */}
             {!leftSidebarCollapsed && (
               <div className="pt-4">
@@ -1548,8 +1568,8 @@ export default function Stage2AppPage() {
                 </p>
               </div>
             )}
-            
-            <button 
+
+            <button
               onClick={() => handleServiceClick("AI DocWriter")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("AI DocWriter")}`}
               title="AI DocWriter"
@@ -1557,8 +1577,8 @@ export default function Stage2AppPage() {
               <PenTool className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "AI DocWriter"}
             </button>
-            
-            <button 
+
+            <button
               onClick={() => {
                 setActiveService("Solutions Specs");
                 navigate('/stage2/specs/overview');
@@ -1570,7 +1590,7 @@ export default function Stage2AppPage() {
               {!leftSidebarCollapsed && "Solutions Specs"}
             </button>
 
-            <button 
+            <button
               onClick={() => handleServiceClick("Learning Center")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Learning Center")}`}
               title="Learning Center"
@@ -1579,7 +1599,7 @@ export default function Stage2AppPage() {
               {!leftSidebarCollapsed && "Learning Center"}
             </button>
 
-            <button 
+            <button
               onClick={() => handleServiceClick("Knowledge Center")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Knowledge Center")}`}
               title="Knowledge Center"
@@ -1587,8 +1607,8 @@ export default function Stage2AppPage() {
               <BookOpen className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Knowledge Center"}
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleServiceClick("Solution Build")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Solution Build")}`}
               title="Solution Build"
@@ -1596,8 +1616,8 @@ export default function Stage2AppPage() {
               <Hammer className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Solution Build"}
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleServiceClick("Lifecycle Management")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Lifecycle Management")}`}
               title="Lifecycle Management"
@@ -1605,8 +1625,8 @@ export default function Stage2AppPage() {
               <RefreshCw className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Lifecycle Management"}
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleServiceClick("Portfolio Management")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Portfolio Management")}`}
               title="Portfolio Management"
@@ -1623,8 +1643,8 @@ export default function Stage2AppPage() {
               <Brain className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Digital Intelligence"}
             </button>
-            
-            <button 
+
+            <button
               onClick={() => {
                 handleServiceClick("Support Services");
                 setActiveSubService("support-overview");
@@ -1635,7 +1655,7 @@ export default function Stage2AppPage() {
               <Headphones className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Support Services"}
             </button>
-            
+
             {/* Analytics Section */}
             {!leftSidebarCollapsed && (
               <div className="pt-4">
@@ -1644,16 +1664,16 @@ export default function Stage2AppPage() {
                 </p>
               </div>
             )}
-            
-            <button 
+
+            <button
               className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-50"
               title="Dashboards"
             >
               <BarChart3 className="w-4 h-4 flex-shrink-0" />
               {!leftSidebarCollapsed && "Dashboards"}
             </button>
-            
-            <button 
+
+            <button
               className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-50"
               title="Reports"
             >
@@ -1689,18 +1709,16 @@ export default function Stage2AppPage() {
               <button
                 type="button"
                 onClick={() => handleProfileSwitch("user")}
-                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${
-                  viewMode === "user" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
-                }`}
+                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${viewMode === "user" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
+                  }`}
               >
                 Amina TO - Learner View
               </button>
               <button
                 type="button"
                 onClick={() => handleProfileSwitch("admin")}
-                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${
-                  viewMode === "admin" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
-                }`}
+                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${viewMode === "admin" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
+                  }`}
               >
                 Amina TO - Admin View
               </button>
@@ -1710,8 +1728,8 @@ export default function Stage2AppPage() {
       </div>
 
       {/* Middle Column - Context & Controls */}
-      <div className={`${rightSidebarCollapsed || activeService === "Solution Build" ? 'w-0' : 'w-80'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 overflow-hidden flex-shrink-0 h-full`}>
-        {!rightSidebarCollapsed && activeService !== "Solution Build" && (
+      <div className={`${rightSidebarCollapsed ? 'w-0' : 'w-80'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 overflow-hidden flex-shrink-0 h-full`}>
+        {!rightSidebarCollapsed && (
           <>
             {/* Header */}
             <div className="p-4 border-b border-gray-200 flex-shrink-0">
@@ -1770,11 +1788,10 @@ export default function Stage2AppPage() {
                 <div className="space-y-2">
                   <button
                     onClick={() => handleTemplatesTabClick("overview")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "overview"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeTemplatesTab === "overview"
+                      ? "bg-orange-50 text-orange-700 border border-orange-200"
+                      : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                      }`}
                   >
                     <div className="text-left">
                       <div className="font-medium">Overview</div>
@@ -1783,11 +1800,10 @@ export default function Stage2AppPage() {
                   </button>
                   <button
                     onClick={() => handleTemplatesTabClick("library")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "library"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeTemplatesTab === "library"
+                      ? "bg-orange-50 text-orange-700 border border-orange-200"
+                      : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                      }`}
                   >
                     <div className="text-left">
                       <div className="font-medium">Template Library</div>
@@ -1796,11 +1812,10 @@ export default function Stage2AppPage() {
                   </button>
                   <button
                     onClick={() => handleTemplatesTabClick("new-request")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "new-request"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeTemplatesTab === "new-request"
+                      ? "bg-orange-50 text-orange-700 border border-orange-200"
+                      : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                      }`}
                   >
                     <div className="text-left">
                       <div className="font-medium">New Request</div>
@@ -1809,11 +1824,10 @@ export default function Stage2AppPage() {
                   </button>
                   <button
                     onClick={() => handleTemplatesTabClick("my-requests")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "my-requests"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeTemplatesTab === "my-requests"
+                      ? "bg-orange-50 text-orange-700 border border-orange-200"
+                      : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                      }`}
                   >
                     <div className="text-left">
                       <div className="font-medium">My Requests</div>
@@ -1822,73 +1836,22 @@ export default function Stage2AppPage() {
                   </button>
                 </div>
               ) : activeService === "Solutions Specs" ? (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleSpecsTabClick("overview")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "overview"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Overview</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Solutions specs workspace summary</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("blueprints")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "blueprints"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Architecture Library</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Browse architecture blueprints</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("templates")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "templates"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Design Templates</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Reusable design templates</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("patterns")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "patterns"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Design Patterns</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Pattern library and standards</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("my-designs")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "my-designs"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">My Designs</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Saved and in-progress designs</div>
-                    </div>
-                  </button>
-                </div>
+                <SpecsWorkspaceSidebar
+                  activeTab={activeSpecsTab}
+                  onTabChange={handleSpecsTabClick}
+                />
+              ) : activeService === "Solution Build" ? (
+                <BuildWorkspaceSidebar
+                  requests={filteredBuildRequests}
+                  activeRequestId={activeBuildRequestId}
+                  onSelectRequest={setActiveBuildRequestId}
+                  searchQuery={sbSearchQuery}
+                  setSearchQuery={setSbSearchQuery}
+                  statusFilter={sbStatusFilter}
+                  setStatusFilter={setSbStatusFilter}
+                  priorityFilter={sbPriorityFilter}
+                  setPriorityFilter={setSbPriorityFilter}
+                />
               ) : activeService === "Lifecycle Management" ? (
                 <div className="space-y-4">
                   <div>
@@ -1896,11 +1859,10 @@ export default function Stage2AppPage() {
                     <div className="space-y-2">
                       <button
                         onClick={() => handleSubServiceClick('overview')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'overview' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === 'overview'
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                          }`}
                       >
                         <div className="text-left">
                           <div className="font-medium">Overview Dashboard</div>
@@ -1909,11 +1871,10 @@ export default function Stage2AppPage() {
                       </button>
                       <button
                         onClick={() => handleSubServiceClick('projects')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'projects' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === 'projects'
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                          }`}
                       >
                         <div className="text-left">
                           <div className="font-medium">Projects</div>
@@ -1922,11 +1883,10 @@ export default function Stage2AppPage() {
                       </button>
                       <button
                         onClick={() => handleSubServiceClick('applications')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'applications' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === 'applications'
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                          }`}
                       >
                         <div className="text-left">
                           <div className="font-medium">Applications</div>
@@ -1935,11 +1895,10 @@ export default function Stage2AppPage() {
                       </button>
                       <button
                         onClick={() => handleSubServiceClick('templates')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'templates' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === 'templates'
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                          }`}
                       >
                         <div className="text-left">
                           <div className="font-medium">Templates Library</div>
@@ -1948,11 +1907,10 @@ export default function Stage2AppPage() {
                       </button>
                       <button
                         onClick={() => handleSubServiceClick('approvals')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'approvals' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === 'approvals'
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                          }`}
                       >
                         <div className="text-left">
                           <div className="font-medium">Pending Approvals</div>
@@ -1969,17 +1927,16 @@ export default function Stage2AppPage() {
                     <div className="space-y-2">
                       {learningSubServices.map((course) => {
                         const Icon = course.icon;
-                        const statusColor = course.status === 'completed' ? 'text-green-600' : 
-                                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
+                        const statusColor = course.status === 'completed' ? 'text-green-600' :
+                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
                         return (
                           <button
                             key={course.id}
                             onClick={() => handleSubServiceClick(course.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === course.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
+                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === course.id
+                              ? "bg-orange-50 text-orange-700 border border-orange-200"
+                              : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                              }`}
                           >
                             <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
                             <div className="text-left flex-1">
@@ -1988,8 +1945,8 @@ export default function Stage2AppPage() {
                               {course.progress > 0 && (
                                 <div className="mt-2">
                                   <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div 
-                                      className="bg-orange-600 h-1.5 rounded-full" 
+                                    <div
+                                      className="bg-orange-600 h-1.5 rounded-full"
                                       style={{ width: `${course.progress}%` }}
                                     />
                                   </div>
@@ -2013,11 +1970,10 @@ export default function Stage2AppPage() {
                           <button
                             key={service.id}
                             onClick={() => handleSubServiceClick(service.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === service.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
+                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === service.id
+                              ? "bg-orange-50 text-orange-700 border border-orange-200"
+                              : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                              }`}
                           >
                             <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
                             <div className="text-left flex-1">
@@ -2099,32 +2055,32 @@ export default function Stage2AppPage() {
               )}
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {activeSubService ? 
-                    (activeService === "Portfolio Management" 
-                      ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
+                  {activeSubService ?
+                    (activeService === "Portfolio Management"
+                      ? portfolioSubServices.find(s => s.id === activeSubService)?.name
                       : activeService === "Learning Center"
-                      ? learningSubServices.find(s => s.id === activeSubService)?.name
-                      : activeService === "Lifecycle Management"
-                      ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
-                      : activeService === "Digital Intelligence"
-                      ? intelligenceSubServices.find(s => s.id === activeSubService)?.name
-                      : activeService === "Support Services"
-                      ? supportSubServices.find(s => s.id === activeSubService)?.name
-                      : activeService)
+                        ? learningSubServices.find(s => s.id === activeSubService)?.name
+                        : activeService === "Lifecycle Management"
+                          ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
+                          : activeService === "Digital Intelligence"
+                            ? intelligenceSubServices.find(s => s.id === activeSubService)?.name
+                            : activeService === "Support Services"
+                              ? supportSubServices.find(s => s.id === activeSubService)?.name
+                              : activeService)
                     : activeService
                   }
                 </h2>
                 <p className="text-sm text-gray-500">
-                  {activeSubService ? 
+                  {activeSubService ?
                     (activeService === "Portfolio Management"
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Learning Center"
-                      ? learningSubServices.find(s => s.id === activeSubService)?.description
-                      : activeService === "Digital Intelligence"
-                      ? intelligenceSubServices.find(s => s.id === activeSubService)?.description
-                      : activeService === "Support Services"
-                      ? supportSubServices.find(s => s.id === activeSubService)?.description
-                      : `${activeService} â€¢ Service Hub`)
+                        ? learningSubServices.find(s => s.id === activeSubService)?.description
+                        : activeService === "Digital Intelligence"
+                          ? intelligenceSubServices.find(s => s.id === activeSubService)?.description
+                          : activeService === "Support Services"
+                            ? supportSubServices.find(s => s.id === activeSubService)?.description
+                            : `${activeService} â€¢ Service Hub`)
                     : `${activeService} â€¢ Service Hub`
                   }
                 </p>
@@ -2199,23 +2155,15 @@ export default function Stage2AppPage() {
               {activeTemplatesTab === "library" && !routeTemplateId && <TemplateLibraryPage />}
               {activeTemplatesTab === "library" && !!routeTemplateId && <TemplateDetailPage />}
               {activeTemplatesTab === "new-request" && <NewRequestPage />}
-              {activeTemplatesTab === "my-requests" && !routeRequestId && <MyRequestsPage />}
+              {activeTemplatesTab === "my-requests" && !routeRequestId && <TemplatesMyRequestsPage />}
               {activeTemplatesTab === "my-requests" && !!routeRequestId && (
                 <TemplatesRequestDetailPage />
               )}
             </div>
           ) : activeService === "Solutions Specs" ? (
-            <div className="h-full">
-              {activeSpecsTab === "overview" && <SolutionSpecsOverview />}
-              {activeSpecsTab === "blueprints" && !routeBlueprintId && <ArchitectureLibraryPage />}
-              {activeSpecsTab === "blueprints" && !!routeBlueprintId && <BlueprintDetailPage />}
-              {activeSpecsTab === "templates" && !routeSpecTemplateId && <DesignTemplatesPage />}
-              {activeSpecsTab === "templates" && !!routeSpecTemplateId && <SpecTemplateDetailPage />}
-              {activeSpecsTab === "patterns" && !routePatternId && <DesignPatternsPage />}
-              {activeSpecsTab === "patterns" && !!routePatternId && <PatternDetailPage />}
-              {activeSpecsTab === "my-designs" && !routeDesignId && <MyDesignsPage />}
-              {activeSpecsTab === "my-designs" && !!routeDesignId && <DesignDetailPage />}
-            </div>
+            <SpecsWorkspaceMain
+              activeTab={activeSpecsTab}
+            />
           ) : activeService === "Lifecycle Management" && activeSubService ? (
             <div className="h-full">
               {activeSubService === 'overview' && <LifecycleOverview />}
@@ -2329,12 +2277,14 @@ export default function Stage2AppPage() {
               {(() => {
                 const course = enrolledCourses.find(c => c.id === activeSubService);
                 if (!course) return null;
-                
+
                 return <CourseDetailView course={course} />;
               })()}
             </div>
           ) : activeService === "Solution Build" ? (
-            <SolutionBuildWorkspacePage />
+            <BuildWorkspaceMain
+              selectedRequest={selectedBuildRequest}
+            />
           ) : activeService === "Digital Intelligence" ? (
             <IntelligenceWorkspacePage activeSubService={activeSubService} />
           ) : activeService === "Support Services" && activeSubService ? (
@@ -2352,19 +2302,19 @@ export default function Stage2AppPage() {
                     {activeService} Interface
                   </h3>
                   <p className="text-gray-500 mb-4">
-                    {activeService === "Overview" ? 
+                    {activeService === "Overview" ?
                       "Welcome to the DTMP Service Hub" :
                       activeService === "Learning Center" ?
-                      (viewMode === "admin"
-                        ? "Select a course from the sidebar to monitor course analytics and progress"
-                        : "Select a course from the sidebar to view details and continue learning") :
-                      activeService === "Lifecycle Management" ?
-                      "Select a lifecycle service from the sidebar to get started" :
-                      activeService === "Digital Intelligence" ?
-                      "Select an intelligence service from the sidebar to view AI-powered dashboards" :
-                      activeService === "Support Services" ?
-                      "Select a support service from the sidebar to get started" :
-                      `${activeService} tools and interfaces would be displayed here`
+                        (viewMode === "admin"
+                          ? "Select a course from the sidebar to monitor course analytics and progress"
+                          : "Select a course from the sidebar to view details and continue learning") :
+                        activeService === "Lifecycle Management" ?
+                          "Select a lifecycle service from the sidebar to get started" :
+                          activeService === "Digital Intelligence" ?
+                            "Select an intelligence service from the sidebar to view AI-powered dashboards" :
+                            activeService === "Support Services" ?
+                              "Select a support service from the sidebar to get started" :
+                              `${activeService} tools and interfaces would be displayed here`
                     }
                   </p>
                   {activeService === "Portfolio Management" && (

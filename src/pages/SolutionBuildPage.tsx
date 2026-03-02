@@ -34,7 +34,7 @@ export function SolutionBuildPage() {
   const [selectedSolutionId, setSelectedSolutionId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
-  
+
   // Wizard state
   const [wizardStep, setWizardStep] = useState<WizardStep>(1);
   const [wizardFormData, setWizardFormData] = useState({
@@ -49,7 +49,7 @@ export function SolutionBuildPage() {
     priority: '' as BuildPriority | '',
   });
   const [wizardErrors, setWizardErrors] = useState<Record<string, string>>({});
-  
+
   // Pre-built solution form state
   const [prebuiltFormData, setPrebuiltFormData] = useState({
     department: '',
@@ -77,11 +77,11 @@ export function SolutionBuildPage() {
       const matchesSearch =
         solution.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         solution.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       // Category filter
       const categoryFilters = selectedFilters.category || [];
       const matchesCategory = categoryFilters.length === 0 || categoryFilters.includes(solution.category);
-      
+
       // Timeline filter
       const timelineFilters = selectedFilters.timeline || [];
       const matchesTimeline = timelineFilters.length === 0 || timelineFilters.some(filter => {
@@ -90,7 +90,7 @@ export function SolutionBuildPage() {
         if (filter === 'Long (>8 weeks)') return solution.timelineMax > 8;
         return false;
       });
-      
+
       // Complexity filter
       const complexityFilters = selectedFilters.complexity || [];
       const matchesComplexity = complexityFilters.length === 0 || complexityFilters.some(filter => {
@@ -100,7 +100,7 @@ export function SolutionBuildPage() {
         if (filter === 'High') return optionCount > 3;
         return false;
       });
-      
+
       // Popularity filter
       const popularityFilters = selectedFilters.popularity || [];
       const matchesPopularity = popularityFilters.length === 0 || popularityFilters.some(filter => {
@@ -159,33 +159,33 @@ export function SolutionBuildPage() {
     const errors: Record<string, string> = {};
     if (!prebuiltFormData.department) errors.department = 'Required';
     if (!prebuiltFormData.priority) errors.priority = 'Required';
-    
+
     if (Object.keys(errors).length > 0) {
       setPrebuiltErrors(errors);
       return;
     }
-    
+
     setShowLogin(true);
   };
 
   const handleWizardSubmit = () => {
     const errors: Record<string, string> = {};
     if (!wizardFormData.priority) errors.priority = 'Required';
-    
+
     if (Object.keys(errors).length > 0) {
       setWizardErrors(errors);
       return;
     }
-    
+
     setShowLogin(true);
   };
 
   const handleLoginSuccess = () => {
-    navigate('/stage2', { 
-      state: { 
+    navigate('/stage2', {
+      state: {
         marketplace: 'solution-build',
-        autoSelectMyRequests: true 
-      } 
+        autoSelectMyRequests: true
+      }
     });
   };
 
@@ -214,201 +214,200 @@ export function SolutionBuildPage() {
 
       {viewMode === 'catalog' && (
         <>
-      <div className="bg-gradient-to-br from-orange-50 to-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Solution Build Service</h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-3xl">
-            Deploy pre-built solutions or request custom builds from our expert delivery teams.
-            Browse our catalog of 24 pre-configured solutions or submit a custom build request.
-          </p>
+          <div className="bg-gradient-to-br from-orange-50 to-white border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 py-12">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">Solution Build Service</h1>
+              <p className="text-lg text-gray-600 mb-8 max-w-3xl">
+                Deploy pre-built solutions or request custom builds from our expert delivery teams.
+                Browse our catalog of 24 pre-configured solutions or submit a custom build request.
+              </p>
 
-          {/* CTA Buttons */}
-          <div className="flex gap-4 mb-8">
-            <Button
-              size="lg"
-              style={{ backgroundColor: '#ea580c', color: 'white', cursor: 'pointer' }}
-              onClick={handleCustomBuildClick}
-            >
-              New Request
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={handleCustomBuildClick}
-            >
-              Request Custom Build
-            </Button>
-          </div>
-
-          {/* Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-orange-600" />
-                <p className="text-sm text-gray-500">Pre-Built Solutions</p>
-              </div>
-              <p className="text-3xl font-bold text-gray-900">24</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-orange-600" />
-                <p className="text-sm text-gray-500">Delivery Teams</p>
-              </div>
-              <p className="text-3xl font-bold text-gray-900">4</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-5 h-5 text-orange-600" />
-                <p className="text-sm text-gray-500">Avg Delivery</p>
-              </div>
-              <p className="text-3xl font-bold text-gray-900">8 wks</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-5 h-5 text-orange-600" />
-                <p className="text-sm text-gray-500">On-Time Rate</p>
-              </div>
-              <p className="text-3xl font-bold text-gray-900">92%</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Delivery Capacity Section */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Delivery Capacity & Wait Times</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {deliveryTeams.map((team) => (
-              <div key={team.id} className="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900">Team {team.name}</h3>
-                  <Badge variant={team.utilization >= 100 ? "destructive" : "secondary"}>
-                    {team.utilization}%
-                  </Badge>
-                </div>
-                <div className="mb-3">
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-                    <span>Capacity</span>
-                    <span>{team.currentLoad} / {team.capacity}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${
-                        team.utilization >= 100 ? 'bg-red-600' :
-                        team.utilization >= 80 ? 'bg-orange-600' :
-                        'bg-green-600'
-                      }`}
-                      style={{ width: `${Math.min(team.utilization, 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Next available: {team.nextAvailableDate}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Pre-Built Solutions Catalog */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              placeholder="Search solutions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto flex">
-        {/* Filter Panel */}
-        <FilterPanel
-          filters={solutionBuildFilters}
-          selectedFilters={selectedFilters}
-          onFilterChange={handleFilterChange}
-          onClearAll={clearAllFilters}
-          isOpen={filterOpen}
-          onClose={() => setFilterOpen(false)}
-        />
-
-        {/* Content Area */}
-        <div className="flex-1 min-w-0">
-          {/* Result Count */}
-          <div className="bg-gray-50 border-b border-gray-200 px-4 lg:px-8 py-3">
-            <p className="text-sm text-muted-foreground">
-              Showing <span className="font-semibold text-foreground">{filteredSolutions.length}</span> of {preBuiltSolutions.length} solutions
-            </p>
-          </div>
-
-          {/* Solutions Grid */}
-          <div className="px-4 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredSolutions.map((solution) => (
-            <div
-              key={solution.id}
-              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => handleSolutionClick(solution.id)}
-            >
-              <div className="mb-4">
-                <Badge className={getSolutionTypeColor(solution.category)}>{solution.category}</Badge>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{solution.name}</h3>
-              <p className="text-sm text-gray-600 mb-4 line-clamp-2">{solution.description}</p>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <Clock className="w-4 h-4 mr-2" />
-                  {solution.timelineMin}-{solution.timelineMax} weeks
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Wrench className="w-4 h-4 mr-2" />
-                  {solution.customizationOptions.length > 3 ? 'High' : solution.customizationOptions.length > 1 ? 'Medium' : 'Low'} customization
-                </div>
-              </div>
-
-              <Button
-                className="w-full"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/marketplaces/solution-build/${solution.id}`);
-                }}
-              >
-                View Details
-              </Button>
-            </div>
-          ))}
-            </div>
-
-            {/* Empty State */}
-            {filteredSolutions.length === 0 && (
-              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                <p className="text-gray-500">No solutions found matching your criteria.</p>
+              {/* CTA Buttons */}
+              <div className="flex gap-4 mb-8">
                 <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => {
-                    setSearchQuery("");
-                    clearAllFilters();
-                  }}
+                  size="lg"
+                  style={{ backgroundColor: '#ea580c', color: 'white', cursor: 'pointer' }}
+                  onClick={handleCustomBuildClick}
                 >
-                  Clear Filters
+                  New Request
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleCustomBuildClick}
+                >
+                  Request Custom Build
                 </Button>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
 
-      {/* Mobile Filter Button */}
-      <MobileFilterButton onClick={() => setFilterOpen(true)} />
+              {/* Statistics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-5 h-5 text-orange-600" />
+                    <p className="text-sm text-gray-500">Pre-Built Solutions</p>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900">24</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-5 h-5 text-orange-600" />
+                    <p className="text-sm text-gray-500">Delivery Teams</p>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900">4</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-5 h-5 text-orange-600" />
+                    <p className="text-sm text-gray-500">Avg Delivery</p>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900">8 wks</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-5 h-5 text-orange-600" />
+                    <p className="text-sm text-gray-500">On-Time Rate</p>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900">92%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Delivery Capacity Section */}
+          <div className="bg-white border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 py-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Delivery Capacity & Wait Times</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {deliveryTeams.map((team) => (
+                  <div key={team.id} className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">Team {team.name}</h3>
+                      <Badge variant={team.utilization >= 100 ? "destructive" : "secondary"}>
+                        {team.utilization}%
+                      </Badge>
+                    </div>
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                        <span>Capacity</span>
+                        <span>{team.currentLoad} / {team.capacity}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${team.utilization >= 100 ? 'bg-red-600' :
+                              team.utilization >= 80 ? 'bg-orange-600' :
+                                'bg-green-600'
+                            }`}
+                          style={{ width: `${Math.min(team.utilization, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Next available: {team.nextAvailableDate}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Pre-Built Solutions Catalog */}
+          <div className="bg-white border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 py-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Search solutions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto flex">
+            {/* Filter Panel */}
+            <FilterPanel
+              filters={solutionBuildFilters}
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              onClearAll={clearAllFilters}
+              isOpen={filterOpen}
+              onClose={() => setFilterOpen(false)}
+            />
+
+            {/* Content Area */}
+            <div className="flex-1 min-w-0">
+              {/* Result Count */}
+              <div className="bg-gray-50 border-b border-gray-200 px-4 lg:px-8 py-3">
+                <p className="text-sm text-muted-foreground">
+                  Showing <span className="font-semibold text-foreground">{filteredSolutions.length}</span> of {preBuiltSolutions.length} solutions
+                </p>
+              </div>
+
+              {/* Solutions Grid */}
+              <div className="px-4 lg:px-8 py-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredSolutions.map((solution) => (
+                    <div
+                      key={solution.id}
+                      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => handleSolutionClick(solution.id)}
+                    >
+                      <div className="mb-4">
+                        <Badge className={getSolutionTypeColor(solution.category)}>{solution.category}</Badge>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{solution.name}</h3>
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{solution.description}</p>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="w-4 h-4 mr-2" />
+                          {solution.timelineMin}-{solution.timelineMax} weeks
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Wrench className="w-4 h-4 mr-2" />
+                          {solution.customizationOptions.length > 3 ? 'High' : solution.customizationOptions.length > 1 ? 'Medium' : 'Low'} customization
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/marketplaces/solution-build/${solution.id}`);
+                        }}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Empty State */}
+                {filteredSolutions.length === 0 && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                    <p className="text-gray-500">No solutions found matching your criteria.</p>
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => {
+                        setSearchQuery("");
+                        clearAllFilters();
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Filter Button */}
+          <MobileFilterButton onClick={() => setFilterOpen(true)} />
         </>
       )}
 
@@ -420,7 +419,7 @@ export function SolutionBuildPage() {
           </Button>
 
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-            <Badge className={getSolutionTypeColor(selectedSolution.category)} className="mb-4">
+            <Badge className={`${getSolutionTypeColor(selectedSolution.category)} mb-4`}>
               {selectedSolution.category}
             </Badge>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{selectedSolution.name}</h1>
@@ -449,7 +448,7 @@ export function SolutionBuildPage() {
             <div className="space-y-4">
               <div>
                 <Label>Department *</Label>
-                <Select value={prebuiltFormData.department} onValueChange={(v) => { setPrebuiltFormData({...prebuiltFormData, department: v}); setPrebuiltErrors({...prebuiltErrors, department: ''}); }}>
+                <Select value={prebuiltFormData.department} onValueChange={(v) => { setPrebuiltFormData({ ...prebuiltFormData, department: v }); setPrebuiltErrors({ ...prebuiltErrors, department: '' }); }}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Select department" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Marketing">Marketing</SelectItem>
@@ -464,7 +463,7 @@ export function SolutionBuildPage() {
 
               <div>
                 <Label>Priority *</Label>
-                <RadioGroup value={prebuiltFormData.priority} onValueChange={(v) => { setPrebuiltFormData({...prebuiltFormData, priority: v as BuildPriority}); setPrebuiltErrors({...prebuiltErrors, priority: ''}); }} className="mt-2 space-y-2">
+                <RadioGroup value={prebuiltFormData.priority} onValueChange={(v) => { setPrebuiltFormData({ ...prebuiltFormData, priority: v as BuildPriority }); setPrebuiltErrors({ ...prebuiltErrors, priority: '' }); }} className="mt-2 space-y-2">
                   <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
                     <RadioGroupItem value="critical" id="pb-critical" />
                     <Label htmlFor="pb-critical" className="flex-1 cursor-pointer">
@@ -487,9 +486,9 @@ export function SolutionBuildPage() {
                 {prebuiltErrors.priority && <p className="text-sm text-red-600 mt-1">{prebuiltErrors.priority}</p>}
               </div>
 
-              <Button 
-                onClick={handlePrebuiltSubmit} 
-                className="w-full" 
+              <Button
+                onClick={handlePrebuiltSubmit}
+                className="w-full"
                 style={{ backgroundColor: '#16a34a', color: 'white' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15803d'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#16a34a'}
@@ -540,18 +539,16 @@ export function SolutionBuildPage() {
               {[{ num: 1, title: 'Type & Name' }, { num: 2, title: 'Business Need' }, { num: 3, title: 'Requirements' }, { num: 4, title: 'Timeline & Budget' }].map((step, index) => (
                 <div key={step.num} className="flex items-center flex-1">
                   <div className="flex flex-col items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${
-                      wizardStep > step.num ? 'bg-green-600 text-white' :
-                      wizardStep === step.num ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-600'
-                    }`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${wizardStep > step.num ? 'bg-green-600 text-white' :
+                        wizardStep === step.num ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-600'
+                      }`}>
                       {wizardStep > step.num ? <CheckCircle className="w-5 h-5" /> : step.num}
                     </div>
                     <p className="text-xs mt-1 text-gray-600">{step.title}</p>
                   </div>
                   {index < 3 && (
-                    <div className={`flex-1 h-1 mx-4 ${
-                      wizardStep > step.num ? 'bg-green-600' : 'bg-gray-200'
-                    }`} />
+                    <div className={`flex-1 h-1 mx-4 ${wizardStep > step.num ? 'bg-green-600' : 'bg-gray-200'
+                      }`} />
                   )}
                 </div>
               ))}
@@ -563,7 +560,7 @@ export function SolutionBuildPage() {
               <div className="space-y-4">
                 <div>
                   <Label>Request Type *</Label>
-                  <RadioGroup value={wizardFormData.type} onValueChange={(v) => setWizardFormData({...wizardFormData, type: v as BuildRequestType})} className="mt-2 space-y-2">
+                  <RadioGroup value={wizardFormData.type} onValueChange={(v) => setWizardFormData({ ...wizardFormData, type: v as BuildRequestType })} className="mt-2 space-y-2">
                     <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
                       <RadioGroupItem value="custom" id="w-custom" />
                       <Label htmlFor="w-custom" className="flex-1 cursor-pointer">
@@ -587,17 +584,17 @@ export function SolutionBuildPage() {
                     </div>
                   </RadioGroup>
                 </div>
-                
+
                 {wizardFormData.type && (
                   <>
                     <div>
                       <Label htmlFor="w-name">What do you want to build? *</Label>
-                      <Input id="w-name" value={wizardFormData.name} onChange={(e) => setWizardFormData({...wizardFormData, name: e.target.value})} placeholder="e.g., Customer Analytics Dashboard, Inventory Management System" className="mt-1" />
+                      <Input id="w-name" value={wizardFormData.name} onChange={(e) => setWizardFormData({ ...wizardFormData, name: e.target.value })} placeholder="e.g., Customer Analytics Dashboard, Inventory Management System" className="mt-1" />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="w-dept">Department *</Label>
-                      <Select value={wizardFormData.department} onValueChange={(v) => setWizardFormData({...wizardFormData, department: v})}>
+                      <Select value={wizardFormData.department} onValueChange={(v) => setWizardFormData({ ...wizardFormData, department: v })}>
                         <SelectTrigger className="mt-1"><SelectValue placeholder="Select department" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Marketing">Marketing</SelectItem>
@@ -617,7 +614,7 @@ export function SolutionBuildPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="w-need">What problem are you solving? *</Label>
-                  <Textarea id="w-need" value={wizardFormData.businessNeed} onChange={(e) => setWizardFormData({...wizardFormData, businessNeed: e.target.value})} placeholder="Describe the business problem or opportunity:\n- What challenge are you facing?\n- Who will use this solution?\n- What outcomes do you expect?" rows={4} className="mt-1" />
+                  <Textarea id="w-need" value={wizardFormData.businessNeed} onChange={(e) => setWizardFormData({ ...wizardFormData, businessNeed: e.target.value })} placeholder="Describe the business problem or opportunity:\n- What challenge are you facing?\n- Who will use this solution?\n- What outcomes do you expect?" rows={4} className="mt-1" />
                 </div>
               </div>
             )}
@@ -626,11 +623,11 @@ export function SolutionBuildPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="w-req">Solution Requirements *</Label>
-                  <Textarea id="w-req" value={wizardFormData.requirements} onChange={(e) => setWizardFormData({...wizardFormData, requirements: e.target.value})} placeholder="Describe what you want to build:\n- Key features and capabilities\n- User workflows and interactions\n- Data requirements\n- Integration needs" rows={6} className="mt-1" />
+                  <Textarea id="w-req" value={wizardFormData.requirements} onChange={(e) => setWizardFormData({ ...wizardFormData, requirements: e.target.value })} placeholder="Describe what you want to build:\n- Key features and capabilities\n- User workflows and interactions\n- Data requirements\n- Integration needs" rows={6} className="mt-1" />
                 </div>
                 <div>
                   <Label htmlFor="w-tech">Preferred Technology Stack (Optional)</Label>
-                  <Input id="w-tech" value={wizardFormData.technologyStack} onChange={(e) => setWizardFormData({...wizardFormData, technologyStack: e.target.value})} placeholder="e.g., React, Python, AWS, PostgreSQL - or leave blank for team recommendation" className="mt-1" />
+                  <Input id="w-tech" value={wizardFormData.technologyStack} onChange={(e) => setWizardFormData({ ...wizardFormData, technologyStack: e.target.value })} placeholder="e.g., React, Python, AWS, PostgreSQL - or leave blank for team recommendation" className="mt-1" />
                   <p className="text-xs text-gray-500 mt-1">Our delivery teams will recommend the best stack if not specified</p>
                 </div>
               </div>
@@ -640,15 +637,15 @@ export function SolutionBuildPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="w-date">Target Completion Date (Optional)</Label>
-                  <Input id="w-date" type="date" value={wizardFormData.targetDate} onChange={(e) => setWizardFormData({...wizardFormData, targetDate: e.target.value})} className="mt-1" />
+                  <Input id="w-date" type="date" value={wizardFormData.targetDate} onChange={(e) => setWizardFormData({ ...wizardFormData, targetDate: e.target.value })} className="mt-1" />
                 </div>
                 <div>
                   <Label htmlFor="w-budget">Budget Estimate (Optional)</Label>
-                  <Input id="w-budget" type="number" value={wizardFormData.budgetEstimate} onChange={(e) => setWizardFormData({...wizardFormData, budgetEstimate: e.target.value})} placeholder="e.g., 150000" className="mt-1" />
+                  <Input id="w-budget" type="number" value={wizardFormData.budgetEstimate} onChange={(e) => setWizardFormData({ ...wizardFormData, budgetEstimate: e.target.value })} placeholder="e.g., 150000" className="mt-1" />
                 </div>
                 <div>
                   <Label>Priority *</Label>
-                  <RadioGroup value={wizardFormData.priority} onValueChange={(v) => { setWizardFormData({...wizardFormData, priority: v as BuildPriority}); setWizardErrors({...wizardErrors, priority: ''}); }} className="mt-2 space-y-2">
+                  <RadioGroup value={wizardFormData.priority} onValueChange={(v) => { setWizardFormData({ ...wizardFormData, priority: v as BuildPriority }); setWizardErrors({ ...wizardErrors, priority: '' }); }} className="mt-2 space-y-2">
                     <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
                       <RadioGroupItem value="critical" id="w-critical" />
                       <Label htmlFor="w-critical" className="flex-1 cursor-pointer">
@@ -680,7 +677,7 @@ export function SolutionBuildPage() {
             </Button>
             <p className="text-sm text-gray-500">Step {wizardStep} of 4</p>
             {wizardStep === 4 ? (
-              <Button 
+              <Button
                 onClick={handleWizardSubmit}
                 style={{ backgroundColor: '#16a34a', color: 'white' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#15803d'}
@@ -689,7 +686,7 @@ export function SolutionBuildPage() {
                 <CheckCircle className="w-4 h-4 mr-2" />Submit Request
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={() => setWizardStep(Math.min(4, wizardStep + 1) as WizardStep)}
                 style={{ backgroundColor: '#ea580c', color: 'white' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c2410c'}
