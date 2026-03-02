@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
@@ -33,6 +33,8 @@ import KnowledgeBasePage from "./pages/stage2/support/KnowledgeBasePage";
 import ArticleDetailPage from "./pages/stage2/support/ArticleDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
+import LifecycleManagementPage from "./pages/LifecycleManagementPage";
+import LifecycleDetailPage from "./pages/LifecycleDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
@@ -41,12 +43,39 @@ import { isUserAuthenticated } from "./data/sessionAuth";
 import { getSessionRole, isTOStage3Role } from "./data/sessionRole";
 
 /** Allows only authenticated to-ops / to-admin users to reach Stage 3. */
-function Stage3GuardedRoute() {
-  if (isUserAuthenticated() && isTOStage3Role(getSessionRole())) {
-    return <Stage3AppPage />;
+const Stage3GuardedRoute = () => {
+  const location = useLocation();
+  const authenticated = isUserAuthenticated();
+  const role = getSessionRole();
+  const hasStage3Access = isTOStage3Role(role);
+
+  if (!authenticated) {
+    return (
+      <Navigate
+        to="/marketplaces"
+        replace
+        state={{ reason: "stage3-auth-required", from: location.pathname }}
+      />
+    );
   }
-  return <Navigate to="/" replace />;
-}
+
+  if (!hasStage3Access) {
+    return (
+      <Navigate
+        to="/stage2"
+        replace
+        state={{
+          reason: "stage3-to-role-required",
+          from: location.pathname,
+          marketplace: "portfolio-management",
+          serviceName: "Service Hub",
+        }}
+      />
+    );
+  }
+
+  return <Stage3AppPage />;
+};
 
 const queryClient = new QueryClient();
 
@@ -170,8 +199,9 @@ const App = () => (
           <Route path="/marketplaces/portfolio-management" element={<PortfolioManagementPage />} />
           <Route path="/marketplaces/portfolio-management/:tab/:cardId" element={<PortfolioDetailPage />} />
           
-          {/* Other marketplace routes */}
-          <Route path="/marketplaces/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
+          {/* Lifecycle Management marketplace */}
+          <Route path="/marketplaces/lifecycle-management" element={<LifecycleManagementPage />} />
+          <Route path="/marketplaces/lifecycle-management/:tab/:cardId" element={<LifecycleDetailPage />} />
           
           {/* Resource routes */}
           <Route path="/best-practices" element={<ComingSoonPage pageName="Best Practices" />} />
