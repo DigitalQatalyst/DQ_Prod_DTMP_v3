@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { LoginModal } from "@/components/learningCenter/LoginModal";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { createSolutionSpecStage3Intake } from "@/data/stage3/intake";
 
 const SOLUTION_TYPE_COLORS: Record<SolutionType, { bg: string; text: string; border: string }> = {
   DBP: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
@@ -92,6 +93,15 @@ export function SolutionSpecDetailPage() {
   };
 
   const handleMakeRequest = () => {
+    // Create the Stage 3 intake record before showing login modal
+    createSolutionSpecStage3Intake({
+      specId: spec.id,
+      specTitle: spec.title,
+      requesterName: "Current User",
+      requesterEmail: "user@dtmp.local",
+      requesterRole: "Platform User",
+      message: `Access request for solution specification: ${spec.title}`,
+    });
     // Show login modal before navigating to Stage 2
     setShowLoginModal(true);
   };

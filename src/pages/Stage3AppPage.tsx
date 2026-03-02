@@ -59,6 +59,7 @@ const requestTypeLabel: Record<Stage3Request["type"], string> = {
   "solution-specs": "Solution Specs",
   "solution-build": "Solution Build",
   "support-services": "Support Services",
+  "digital-intelligence": "Digital Intelligence",
 };
 
 function getStatusBadgeClass(status: Stage3Request["status"]) {

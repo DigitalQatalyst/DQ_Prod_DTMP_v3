@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { LoginModal } from "@/components/learningCenter/LoginModal";
+import { createTemplateStage3Intake } from "@/data/stage3/intake";
 
 import { applicationProfiles, assessments } from "@/data/templates";
 
@@ -75,6 +76,16 @@ export default function DocumentStudioDetailPage() {
     (icons[template.icon as keyof typeof icons] as LucideIcon) || FileText;
 
   const handleRequestServiceClick = () => {
+    // Create the Stage 3 intake record before showing login modal
+    createTemplateStage3Intake({
+      templateId: cardId || "",
+      templateTitle: template.title,
+      tab: (tab as "application-profiles" | "assessments") || "application-profiles",
+      requesterName: "Current User",
+      requesterEmail: "user@dtmp.local",
+      requesterRole: "Platform User",
+      message: `Document service request for: ${template.title}`,
+    });
     setShowLoginModal(true);
   };
 

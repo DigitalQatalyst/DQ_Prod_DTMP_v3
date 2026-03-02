@@ -1,29 +1,29 @@
 import { makeLocalStorageStore } from "@/data/shared/localStorageUtils";
 
-export type LearningTORequestStatus = "Open" | "In Review" | "Resolved";
-export type LearningTORequestType = "admin-escalation";
+export type DIRequestStatus = "Open" | "In Review" | "Resolved";
+export type DIServiceTab = "systems-portfolio" | "digital-maturity" | "projects-portfolio";
 
-export interface LearningTORequest {
+export interface DITORequest {
   id: string;
-  courseId: string;
-  courseName: string;
+  serviceId: string;
+  serviceTitle: string;
+  tab: DIServiceTab;
   requesterName: string;
   requesterRole: string;
-  type: LearningTORequestType;
   message: string;
-  status: LearningTORequestStatus;
+  status: DIRequestStatus;
   createdAt: string;
   updatedAt: string;
   stage3RequestId?: string;
 }
 
-const REQUESTS_KEY = "dtmp.learning.toRequests";
-const store = makeLocalStorageStore<LearningTORequest>(REQUESTS_KEY, 300);
+const REQUESTS_KEY = "dtmp.di.toRequests";
+const store = makeLocalStorageStore<DITORequest>(REQUESTS_KEY, 300);
 
-const readRequests = (): LearningTORequest[] => store.read();
-const writeRequests = (requests: LearningTORequest[]): void => store.write(requests);
+const readRequests = (): DITORequest[] => store.read();
+const writeRequests = (requests: DITORequest[]): void => store.write(requests);
 
-export const getLearningTORequests = (requesterName?: string): LearningTORequest[] => {
+export const getDITORequests = (requesterName?: string): DITORequest[] => {
   const requests = readRequests().sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -33,30 +33,32 @@ export const getLearningTORequests = (requesterName?: string): LearningTORequest
   );
 };
 
-export const addLearningTORequest = ({
-  courseId,
-  courseName,
+export const addDITORequest = ({
+  serviceId,
+  serviceTitle,
+  tab,
   requesterName,
   requesterRole,
   message,
 }: {
-  courseId: string;
-  courseName: string;
+  serviceId: string;
+  serviceTitle: string;
+  tab: DIServiceTab;
   requesterName: string;
   requesterRole: string;
   message: string;
-}): LearningTORequest | null => {
+}): DITORequest | null => {
   const trimmedMessage = message.trim();
   if (!trimmedMessage) return null;
 
   const now = new Date().toISOString();
-  const request: LearningTORequest = {
-    id: `learning-to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    courseId,
-    courseName,
+  const request: DITORequest = {
+    id: `di-to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    serviceId,
+    serviceTitle,
+    tab,
     requesterName,
     requesterRole,
-    type: "admin-escalation",
     message: trimmedMessage,
     status: "Open",
     createdAt: now,
@@ -68,12 +70,12 @@ export const addLearningTORequest = ({
   return request;
 };
 
-export const updateLearningTORequestStatus = (
+export const updateDITORequestStatus = (
   requestId: string,
-  status: LearningTORequestStatus
-): LearningTORequest | null => {
+  status: DIRequestStatus
+): DITORequest | null => {
   const requests = readRequests();
-  let updated: LearningTORequest | null = null;
+  let updated: DITORequest | null = null;
   const next = requests.map((request) => {
     if (request.id !== requestId) return request;
     updated = {
@@ -87,12 +89,12 @@ export const updateLearningTORequestStatus = (
   return updated;
 };
 
-export const linkLearningTORequestToStage3 = (
+export const linkDITORequestToStage3 = (
   requestId: string,
   stage3RequestId: string
-): LearningTORequest | null => {
+): DITORequest | null => {
   const requests = readRequests();
-  let updated: LearningTORequest | null = null;
+  let updated: DITORequest | null = null;
   const next = requests.map((request) => {
     if (request.id !== requestId) return request;
     updated = {

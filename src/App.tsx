@@ -12,6 +12,7 @@ import KnowledgeCenterPage from "./pages/KnowledgeCenterPage";
 import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
 import Stage2AppPage from "./pages/Stage2AppPage";
+import Stage3AppPage from "./pages/Stage3AppPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import TemplatesDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
@@ -27,13 +28,25 @@ import SupportServicesOverview from "./pages/stage2/support/SupportServicesOverv
 import MyTicketsPage from "./pages/stage2/support/MyTicketsPage";
 import TicketDetailPage from "./pages/stage2/support/TicketDetailPage";
 import ServiceRequestsPage from "./pages/stage2/support/ServiceRequestsPage";
-import RequestDetailPage from "./pages/stage2/support/RequestDetailPage";
+import { default as SupportRequestDetailPage } from "./pages/stage2/support/RequestDetailPage";
+import KnowledgeBasePage from "./pages/stage2/support/KnowledgeBasePage";
+import ArticleDetailPage from "./pages/stage2/support/ArticleDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
 import DigitalIntelligenceDashboardPage from "./pages/DigitalIntelligenceDashboardPage";
+import { isUserAuthenticated } from "./data/sessionAuth";
+import { getSessionRole, isTOStage3Role } from "./data/sessionRole";
+
+/** Allows only authenticated to-ops / to-admin users to reach Stage 3. */
+function Stage3GuardedRoute() {
+  if (isUserAuthenticated() && isTOStage3Role(getSessionRole())) {
+    return <Stage3AppPage />;
+  }
+  return <Navigate to="/" replace />;
+}
 
 const queryClient = new QueryClient();
 
@@ -54,6 +67,48 @@ const App = () => (
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
+
+          {/* Stage 2 — Learning Center */}
+          <Route path="/stage2/learning-center/course/:courseId/:view" element={<Stage2AppPage />} />
+
+          {/* Stage 2 — Knowledge Center */}
+          <Route path="/stage2/knowledge" element={<Navigate to="/stage2/knowledge/overview" replace />} />
+          <Route path="/stage2/knowledge/:tab" element={<Stage2AppPage />} />
+          <Route path="/stage2/knowledge/:tab/:cardId" element={<KnowledgeCenterDetailPage />} />
+
+          {/* Stage 2 — Portfolio Management */}
+          <Route path="/stage2/portfolio-management" element={<Stage2AppPage />} />
+
+          {/* Stage 2 — Solution Specs */}
+          <Route path="/stage2/specs" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/overview" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/blueprints" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/blueprints/:blueprintId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/templates" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/templates/:specTemplateId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/patterns" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/patterns/:patternId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/my-designs" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/my-designs/:designId" element={<Stage2AppPage />} />
+
+          {/* Stage 2 — Templates / AI DocWriter */}
+          <Route path="/stage2/templates" element={<Navigate to="/stage2/templates/overview" replace />} />
+          <Route path="/stage2/templates/overview" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/library" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/library/:templateId" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/new-request" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/my-requests" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates/my-requests/:requestId" element={<Stage2AppPage />} />
+
+          {/* Stage 2 — Digital Intelligence */}
+          <Route path="/stage2/intelligence" element={<Navigate to="/stage2/intelligence/overview" replace />} />
+          <Route path="/stage2/intelligence/:intelligenceTab" element={<Stage2AppPage />} />
+          <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
+
+          {/* Stage 2 — Lifecycle Management */}
+          <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
+
+          {/* Stage 2 — Support Services */}
           <Route path="/stage2/support" element={<Navigate to="/stage2?marketplace=support-services&tab=support-overview" replace />} />
           <Route path="/stage2/support/new-request" element={<Navigate to="/marketplaces/support-services/new-request" replace />} />
           <Route path="/stage2/support/history" element={<Navigate to="/stage2?marketplace=support-services&tab=support-history" replace />} />
@@ -63,13 +118,14 @@ const App = () => (
           <Route path="/stage2/support/tickets" element={<MyTicketsPage />} />
           <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
           <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
-          <Route path="/stage2/support/requests/:requestId" element={<RequestDetailPage />} />
-          <Route path="/stage2/support/knowledge" element={<Navigate to="/marketplaces/support-services?tab=knowledge-base" replace />} />
-          <Route path="/stage2/support/knowledge/:articleId" element={<SupportKnowledgeLegacyRedirectPage />} />
-          <Route path="/stage2/intelligence" element={<Navigate to="/stage2/intelligence/overview" replace />} />
-          <Route path="/stage2/intelligence/:intelligenceTab" element={<Stage2AppPage />} />
-          <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
+          <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
+          <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
+          <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
           
+          {/* Stage 3 - Transformation Office Operations */}
+          <Route path="/stage3" element={<Navigate to="/stage3/dashboard" replace />} />
+          <Route path="/stage3/:view" element={<Stage3GuardedRoute />} />
+
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
           <Route path="/4d-model" element={<ComingSoonPage pageName="4D Model" />} />

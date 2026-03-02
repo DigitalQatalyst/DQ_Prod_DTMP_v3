@@ -1,29 +1,29 @@
 import { makeLocalStorageStore } from "@/data/shared/localStorageUtils";
 
-export type LearningTORequestStatus = "Open" | "In Review" | "Resolved";
-export type LearningTORequestType = "admin-escalation";
+export type BlueprintRequestStatus = "Open" | "In Review" | "Resolved";
+export type BlueprintMarketplace = "solution-specs" | "solution-build";
 
-export interface LearningTORequest {
+export interface BlueprintTORequest {
   id: string;
-  courseId: string;
-  courseName: string;
+  itemId: string;
+  itemTitle: string;
+  marketplace: BlueprintMarketplace;
   requesterName: string;
   requesterRole: string;
-  type: LearningTORequestType;
   message: string;
-  status: LearningTORequestStatus;
+  status: BlueprintRequestStatus;
   createdAt: string;
   updatedAt: string;
   stage3RequestId?: string;
 }
 
-const REQUESTS_KEY = "dtmp.learning.toRequests";
-const store = makeLocalStorageStore<LearningTORequest>(REQUESTS_KEY, 300);
+const REQUESTS_KEY = "dtmp.blueprints.toRequests";
+const store = makeLocalStorageStore<BlueprintTORequest>(REQUESTS_KEY, 300);
 
-const readRequests = (): LearningTORequest[] => store.read();
-const writeRequests = (requests: LearningTORequest[]): void => store.write(requests);
+const readRequests = (): BlueprintTORequest[] => store.read();
+const writeRequests = (requests: BlueprintTORequest[]): void => store.write(requests);
 
-export const getLearningTORequests = (requesterName?: string): LearningTORequest[] => {
+export const getBlueprintTORequests = (requesterName?: string): BlueprintTORequest[] => {
   const requests = readRequests().sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
@@ -33,30 +33,32 @@ export const getLearningTORequests = (requesterName?: string): LearningTORequest
   );
 };
 
-export const addLearningTORequest = ({
-  courseId,
-  courseName,
+export const addBlueprintTORequest = ({
+  itemId,
+  itemTitle,
+  marketplace,
   requesterName,
   requesterRole,
   message,
 }: {
-  courseId: string;
-  courseName: string;
+  itemId: string;
+  itemTitle: string;
+  marketplace: BlueprintMarketplace;
   requesterName: string;
   requesterRole: string;
   message: string;
-}): LearningTORequest | null => {
+}): BlueprintTORequest | null => {
   const trimmedMessage = message.trim();
   if (!trimmedMessage) return null;
 
   const now = new Date().toISOString();
-  const request: LearningTORequest = {
-    id: `learning-to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    courseId,
-    courseName,
+  const request: BlueprintTORequest = {
+    id: `blueprint-to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    itemId,
+    itemTitle,
+    marketplace,
     requesterName,
     requesterRole,
-    type: "admin-escalation",
     message: trimmedMessage,
     status: "Open",
     createdAt: now,
@@ -68,12 +70,12 @@ export const addLearningTORequest = ({
   return request;
 };
 
-export const updateLearningTORequestStatus = (
+export const updateBlueprintTORequestStatus = (
   requestId: string,
-  status: LearningTORequestStatus
-): LearningTORequest | null => {
+  status: BlueprintRequestStatus
+): BlueprintTORequest | null => {
   const requests = readRequests();
-  let updated: LearningTORequest | null = null;
+  let updated: BlueprintTORequest | null = null;
   const next = requests.map((request) => {
     if (request.id !== requestId) return request;
     updated = {
@@ -87,12 +89,12 @@ export const updateLearningTORequestStatus = (
   return updated;
 };
 
-export const linkLearningTORequestToStage3 = (
+export const linkBlueprintTORequestToStage3 = (
   requestId: string,
   stage3RequestId: string
-): LearningTORequest | null => {
+): BlueprintTORequest | null => {
   const requests = readRequests();
-  let updated: LearningTORequest | null = null;
+  let updated: BlueprintTORequest | null = null;
   const next = requests.map((request) => {
     if (request.id !== requestId) return request;
     updated = {
