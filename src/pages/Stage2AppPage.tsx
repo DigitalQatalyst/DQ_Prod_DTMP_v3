@@ -45,7 +45,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { applicationPortfolio } from "@/data/portfolio";
+import { applicationPortfolio, projectPortfolio } from "@/data/portfolio";
+import PortfolioHealthDashboard from "@/components/portfolio/PortfolioHealthDashboard";
 import { enrolledCourses } from "@/data/learning";
 import { learningTracks, trackEnrollments } from "@/data/learningCenter";
 import {
@@ -107,6 +108,7 @@ import {
 import {
   PortfolioWorkspaceMain,
   PortfolioWorkspaceSidebar,
+  type PortfolioWorkspaceTab,
 } from "@/components/stage2/portfolio/PortfolioWorkspacePanels";
 import {
   SpecsWorkspaceMain,
@@ -143,6 +145,7 @@ import TemplateDetailPage from "@/pages/stage2/templates/TemplateDetailPage";
 import NewRequestPage from "@/pages/stage2/templates/NewRequestPage";
 import TemplatesMyRequestsPage from "@/pages/stage2/templates/MyRequestsPage";
 import TemplatesRequestDetailPage from "@/pages/stage2/templates/RequestDetailPage";
+import { getUserRequests, seedDemoRequests } from "@/data/requests/mockRequests";
 
 interface LocationState {
   marketplace?: string;
@@ -162,6 +165,8 @@ type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
 type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
+const isPortfolioWorkspaceTab = (value: string | undefined): value is PortfolioWorkspaceTab =>
+  value === "overview" || value === "my-requests" || value === "my-assets";
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
@@ -507,6 +512,10 @@ export default function Stage2AppPage() {
   const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
     getSpecsTabFromPath()
   );
+  const [activePortfolioTab, setActivePortfolioTab] = useState<PortfolioWorkspaceTab>(
+    isPortfolioWorkspaceTab(state.tab) ? state.tab : "overview"
+  );
+  const [portfolioUserRequests, setPortfolioUserRequests] = useState<ServiceRequest[]>([]);
 
   // Solution Build States
   const [sbSearchQuery, setSbSearchQuery] = useState("");
@@ -725,6 +734,12 @@ export default function Stage2AppPage() {
   }, [isIntelligenceRoute, routeIntelligenceTab, routeIntelligenceItemId]);
 
   useEffect(() => {
+    if (marketplace !== "portfolio-management") return;
+    if (!isPortfolioWorkspaceTab(state.tab)) return;
+    setActivePortfolioTab(state.tab);
+  }, [marketplace, state.tab]);
+
+  useEffect(() => {
     if (activeService !== "Knowledge Center") return;
     refreshKnowledgeState();
   }, [activeService, activeKnowledgeTab]);
@@ -733,6 +748,18 @@ export default function Stage2AppPage() {
     setActiveLearningUserTab("overview");
     setActiveLearningAdminTab("overview");
   }, [activeSubService, viewMode]);
+
+  useEffect(() => {
+    // Seed demo data for portfolio if empty
+    const userId = 'user-123';
+    const requests = getUserRequests(userId);
+    if (requests.length === 0) {
+      seedDemoRequests(userId);
+      setPortfolioUserRequests(getUserRequests(userId));
+    } else {
+      setPortfolioUserRequests(requests);
+    }
+  }, []);
 
   const {
     knowledgeArticles: supportKnowledgeArticles,
@@ -796,6 +823,17 @@ export default function Stage2AppPage() {
 
   const scopedLearningCourses =
     viewMode === "admin" ? enrolledCourses : learnerScopedCourses;
+
+  // Project Portfolio sub-services
+  const projectSubServices = projectPortfolio.map(service => ({
+    id: service.id,
+    name: service.title,
+    description: service.description,
+    icon: getIconComponent(service.iconName),
+    category: service.category,
+    realtime: service.realtime,
+    complexity: service.complexity
+  }));
 
   // Learning Center sub-services - Role-scoped courses
   const learningSubServices = scopedLearningCourses.map(course => ({
@@ -1084,6 +1122,17 @@ export default function Stage2AppPage() {
       state: {
         ...state,
         marketplace: "solution-specs",
+      },
+    });
+  };
+  const handlePortfolioTabClick = (tabId: PortfolioWorkspaceTab) => {
+    setActivePortfolioTab(tabId);
+    navigate("/stage2/portfolio-management", {
+      replace: true,
+      state: {
+        ...state,
+        marketplace: "portfolio-management",
+        tab: tabId,
       },
     });
   };
@@ -1766,9 +1815,8 @@ export default function Stage2AppPage() {
             <div className="flex-1 p-4 overflow-y-auto">
               {activeService === "Portfolio Management" ? (
                 <PortfolioWorkspaceSidebar
-                  portfolioSubServices={portfolioSubServices}
-                  activeSubService={activeSubService}
-                  onSelectSubService={handleSubServiceClick}
+                  activeTab={activePortfolioTab}
+                  onTabChange={handlePortfolioTabClick}
                 />
               ) : activeService === "Learning Center" ? (
                 <LearningWorkspaceSidebar
@@ -1920,45 +1968,6 @@ export default function Stage2AppPage() {
                     </div>
                   </div>
                 </div>
-              ) : activeService === "Learning Center" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">My Courses</h3>
-                    <div className="space-y-2">
-                      {learningSubServices.map((course) => {
-                        const Icon = course.icon;
-                        const statusColor = course.status === 'completed' ? 'text-green-600' :
-                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
-                        return (
-                          <button
-                            key={course.id}
-                            onClick={() => handleSubServiceClick(course.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${activeSubService === course.id
-                              ? "bg-orange-50 text-orange-700 border border-orange-200"
-                              : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                              }`}
-                          >
-                            <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
-                            <div className="text-left flex-1">
-                              <div className="font-medium">{course.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{course.description}</div>
-                              {course.progress > 0 && (
-                                <div className="mt-2">
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div
-                                      className="bg-orange-600 h-1.5 rounded-full"
-                                      style={{ width: `${course.progress}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
               ) : activeService === "Digital Intelligence" ? (
                 <div className="space-y-4">
                   <div>
@@ -1979,13 +1988,6 @@ export default function Stage2AppPage() {
                             <div className="text-left flex-1">
                               <div className="font-medium">{service.name}</div>
                               <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{service.description}</div>
-                              {service.accuracy.trim() && service.updateFrequency.trim() && (
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span className="text-xs text-purple-600">{service.accuracy}</span>
-                                  <span className="text-xs text-gray-400">•</span>
-                                  <span className="text-xs text-gray-500 capitalize">{service.updateFrequency}</span>
-                                </div>
-                              )}
                             </div>
                           </button>
                         );
@@ -2055,33 +2057,43 @@ export default function Stage2AppPage() {
               )}
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {activeSubService ?
-                    (activeService === "Portfolio Management"
-                      ? portfolioSubServices.find(s => s.id === activeSubService)?.name
-                      : activeService === "Learning Center"
-                        ? learningSubServices.find(s => s.id === activeSubService)?.name
-                        : activeService === "Lifecycle Management"
-                          ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
-                          : activeService === "Digital Intelligence"
-                            ? intelligenceSubServices.find(s => s.id === activeSubService)?.name
-                            : activeService === "Support Services"
-                              ? supportSubServices.find(s => s.id === activeSubService)?.name
-                              : activeService)
-                    : activeService
+                  {activeService === "Portfolio Management" && activePortfolioTab === "my-requests"
+                    ? "My Assessment Requests"
+                    : activeService === "Portfolio Management" && activePortfolioTab === "my-assets"
+                      ? "My Managed Assets"
+                      : activeSubService ?
+                        (activeService === "Portfolio Management"
+                          ? (portfolioSubServices.find(s => s.id === activeSubService)?.name ||
+                            projectSubServices.find(s => s.id === activeSubService)?.name)
+                          : activeService === "Learning Center"
+                            ? learningSubServices.find(s => s.id === activeSubService)?.name
+                            : activeService === "Lifecycle Management"
+                              ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
+                              : activeService === "Digital Intelligence"
+                                ? intelligenceSubServices.find(s => s.id === activeSubService)?.name
+                                : activeService === "Support Services"
+                                  ? supportSubServices.find(s => s.id === activeSubService)?.name
+                                  : activeService)
+                        : activeService
                   }
                 </h2>
                 <p className="text-sm text-gray-500">
-                  {activeSubService ?
-                    (activeService === "Portfolio Management"
-                      ? portfolioSubServices.find(s => s.id === activeSubService)?.description
-                      : activeService === "Learning Center"
-                        ? learningSubServices.find(s => s.id === activeSubService)?.description
-                        : activeService === "Digital Intelligence"
-                          ? intelligenceSubServices.find(s => s.id === activeSubService)?.description
-                          : activeService === "Support Services"
-                            ? supportSubServices.find(s => s.id === activeSubService)?.description
-                            : `${activeService} â€¢ Service Hub`)
-                    : `${activeService} â€¢ Service Hub`
+                  {activeService === "Portfolio Management" && activePortfolioTab === "my-requests"
+                    ? "Track and review requests submitted from Stage 1."
+                    : activeService === "Portfolio Management" && activePortfolioTab === "my-assets"
+                      ? "Applications and projects under your direct responsibility."
+                      : activeSubService ?
+                        (activeService === "Portfolio Management"
+                          ? (portfolioSubServices.find(s => s.id === activeSubService)?.description ||
+                            projectSubServices.find(s => s.id === activeSubService)?.description)
+                          : activeService === "Learning Center"
+                            ? learningSubServices.find(s => s.id === activeSubService)?.description
+                            : activeService === "Digital Intelligence"
+                              ? intelligenceSubServices.find(s => s.id === activeSubService)?.description
+                              : activeService === "Support Services"
+                                ? supportSubServices.find(s => s.id === activeSubService)?.description
+                                : `${activeService} • Service Hub`)
+                        : `${activeService} • Service Hub`
                   }
                 </p>
               </div>
@@ -2102,10 +2114,13 @@ export default function Stage2AppPage() {
 
         {/* Main Content */}
         <div className="flex-1 bg-gray-50 overflow-y-auto">
-          {activeService === "Portfolio Management" && activeSubService ? (
+          {activeService === "Portfolio Management" ? (
             <PortfolioWorkspaceMain
-              activeSubService={activeSubService}
+              activeTab={activePortfolioTab}
+              activeSubService={activeSubService || "portfolio-health-dashboard"}
               portfolioSubServices={portfolioSubServices}
+              userRequests={portfolioUserRequests}
+              onTabChange={handlePortfolioTabClick}
             />
           ) : activeService === "Learning Center" && activeSubService ? (
             <LearningWorkspaceMain
@@ -2171,105 +2186,6 @@ export default function Stage2AppPage() {
               {activeSubService === 'applications' && <ApplicationsPage />}
               {activeSubService === 'templates' && <TemplatesLibrary />}
               {activeSubService === 'approvals' && <ApprovalsPage />}
-            </div>
-          ) : activeService === "Portfolio Management" && activeSubService ? (
-            <div className="h-full">
-              {activeSubService === "portfolio-health-dashboard" && (
-                <PortfolioHealthDashboard className="h-full" />
-              )}
-
-              {activeSubService === "application-rationalization" && (
-                <div className="p-6">
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <div className="bg-red-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Activity className="w-5 h-5 text-red-600" />
-                          <h3 className="font-semibold text-red-900">Redundant Apps</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-red-900">23</p>
-                        <p className="text-sm text-red-700">Candidates for retirement</p>
-                      </div>
-                      <div className="bg-orange-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <DollarSign className="w-5 h-5 text-orange-600" />
-                          <h3 className="font-semibold text-orange-900">Potential Savings</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-orange-900">$1.2M</p>
-                        <p className="text-sm text-orange-700">Annual cost reduction</p>
-                      </div>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <TrendingUp className="w-5 h-5 text-green-600" />
-                          <h3 className="font-semibold text-green-900">Rationalization Score</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-green-900">78%</p>
-                        <p className="text-sm text-green-700">Portfolio efficiency</p>
-                      </div>
-                    </div>
-                    <div className="text-center py-12">
-                      <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Application Rationalization Assessment</h3>
-                      <p className="text-gray-500">Comprehensive analysis and recommendations would be displayed here</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeSubService === "tco-optimization" && (
-                <div className="p-6">
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <DollarSign className="w-5 h-5 text-blue-600" />
-                          <h3 className="font-semibold text-blue-900">Total TCO</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-blue-900">$2.4M</p>
-                        <p className="text-sm text-blue-700">Annual portfolio cost</p>
-                      </div>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <TrendingUp className="w-5 h-5 text-green-600" />
-                          <h3 className="font-semibold text-green-900">Cost per User</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-green-900">$1,200</p>
-                        <p className="text-sm text-green-700">Per user annually</p>
-                      </div>
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Target className="w-5 h-5 text-purple-600" />
-                          <h3 className="font-semibold text-purple-900">Savings Potential</h3>
-                        </div>
-                        <p className="text-2xl font-bold text-purple-900">$480K</p>
-                        <p className="text-sm text-purple-700">License optimization</p>
-                      </div>
-                    </div>
-                    <div className="text-center py-12">
-                      <DollarSign className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">TCO Optimization</h3>
-                      <p className="text-gray-500">Cost analysis and optimization tools would be displayed here</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Other sub-services with placeholder content */}
-              {!["portfolio-health-dashboard", "application-rationalization", "tco-optimization"].includes(activeSubService) && (
-                <div className="p-6">
-                  <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <div className="text-center py-12">
-                      <Activity className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {portfolioSubServices.find(s => s.id === activeSubService)?.name}
-                      </h3>
-                      <p className="text-gray-500">
-                        {portfolioSubServices.find(s => s.id === activeSubService)?.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ) : activeService === "Learning Center" && activeSubService ? (
             <div className="h-full">
@@ -2348,10 +2264,10 @@ export default function Stage2AppPage() {
               </div>
             </div>
           )}
-        </div>
-      </div>
+        </div >
+      </div >
 
-    </div>
+    </div >
   );
 }
 

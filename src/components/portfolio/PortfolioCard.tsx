@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Clock, Zap, Target } from "lucide-react";
+import { Clock, Zap, Target, TrendingUp, Shield, Activity, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // Icon mapping for string-based icon names
@@ -8,6 +8,11 @@ const iconMap = {
   LayoutDashboard: "📋", 
   Users: "👥",
   DollarSign: "💰",
+  Shield: "🛡️",
+  TrendingUp: "📈",
+  Cloud: "☁️",
+  AlertCircle: "⚠️",
+  Briefcase: "💼",
   // Add more icon emojis as needed
 };
 
@@ -60,6 +65,8 @@ export function PortfolioCard({ service }: PortfolioCardProps) {
     const marketplace = pathParts[2] || 'portfolio-management';
     navigate(`/marketplaces/${marketplace}/${service.tab}/${service.id}`);
   };
+
+
 
   return (
     <div

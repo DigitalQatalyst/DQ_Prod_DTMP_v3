@@ -6,7 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PortfolioCard } from "@/components/portfolio/PortfolioCard";
 import { FilterPanel } from "@/components/learningCenter/FilterPanel";
-import { SearchBar } from "@/components/learningCenter/SearchBar";
+import { EnhancedSearchBar } from "@/components/portfolio/EnhancedSearchBar";
 import { applicationPortfolio, projectPortfolio, portfolioFilters, portfolioStats } from "@/data/portfolio";
 
 type TabType = "application-portfolio" | "project-portfolio";
@@ -31,6 +31,7 @@ export default function PortfolioManagementPage() {
     setActiveTab(tab);
     setSearchParams({ tab });
     setSelectedFilters({});
+    setSearchQuery("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -116,12 +117,13 @@ export default function PortfolioManagementPage() {
 
           {/* Title & Description */}
           <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy mb-3">
-            DTMP Portfolio Management
+            Portfolio Management
           </h1>
           <p className="text-base lg:text-lg text-muted-foreground max-w-3xl mb-4">
-            Strategic oversight and optimization of application and project portfolios. 
-            Gain visibility into portfolio health, rationalize applications, optimize 
-            TCO, track project delivery, and make data-driven investment decisions.
+            A single source of truth for your applications, enabling strategic decision-making, 
+            cost optimization, and lifecycle management. Centralized application inventory with 
+            real-time visibility into portfolio health, rationalization opportunities, and 
+            transformation initiatives.
           </p>
 
           {/* Stats */}
@@ -138,7 +140,7 @@ export default function PortfolioManagementPage() {
         </div>
       </section>
 
-      {/* Feature Tabs */}
+      {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="bg-white border-b-2 border-gray-200">
           <div className="max-w-7xl mx-auto">
@@ -154,6 +156,7 @@ export default function PortfolioManagementPage() {
                   {portfolioStats.applicationServices}
                 </span>
               </TabsTrigger>
+
               <TabsTrigger
                 value="project-portfolio"
                 className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy data-[state=active]:shadow-none bg-transparent"
@@ -171,55 +174,37 @@ export default function PortfolioManagementPage() {
 
         {/* Content Area */}
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filter Panel */}
-            <FilterPanel
-              filters={currentFilters}
-              selectedFilters={selectedFilters}
-              onFilterChange={handleFilterChange}
-              onClearAll={clearAllFilters}
-              isOpen={filterOpen}
-              onToggle={() => setFilterOpen(!filterOpen)}
-            />
-
-            {/* Main Content */}
-            <div className="flex-1">
-              {/* Results Count */}
-              <div className="mb-4 text-sm text-muted-foreground">
-                Showing {filteredServices.length} of {currentServices.length} {getResultLabel()}
-                {searchQuery && ` for "${searchQuery}"`}
-              </div>
-
-              {/* Search Bar */}
-              <SearchBar
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                placeholder={tabPlaceholders[activeTab]}
+          {/* Applications Tab */}
+          <TabsContent value="application-portfolio" className="mt-0">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Filter Panel */}
+              <FilterPanel
+                filters={currentFilters}
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+                onClearAll={clearAllFilters}
+                isOpen={filterOpen}
+                onToggle={() => setFilterOpen(!filterOpen)}
               />
 
-              {/* Tab Content */}
-              <TabsContent value="application-portfolio" className="mt-0">
-                {filteredServices.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredServices.map((service) => (
-                      <PortfolioCard key={service.id} service={service} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="max-w-md mx-auto">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        No services found
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        Try adjusting your search or filters to find what you're looking for.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
+              {/* Main Content */}
+              <div className="flex-1">
+                {/* Results Count */}
+                <div className="mb-4 text-sm text-muted-foreground">
+                  Showing {filteredServices.length} of {applicationPortfolio.length} application services
+                  {searchQuery && ` for "${searchQuery}"`}
+                </div>
 
-              <TabsContent value="project-portfolio" className="mt-0">
+                {/* Search Bar */}
+                <EnhancedSearchBar
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  placeholder={tabPlaceholders["application-portfolio"]}
+                  selectedFilters={selectedFilters}
+                  onFilterChange={handleFilterChange}
+                />
+
+                {/* Cards Grid */}
                 {filteredServices.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredServices.map((service) => (
@@ -238,9 +223,62 @@ export default function PortfolioManagementPage() {
                     </div>
                   </div>
                 )}
-              </TabsContent>
+              </div>
             </div>
-          </div>
+          </TabsContent>
+
+          {/* Projects Tab */}
+          <TabsContent value="project-portfolio" className="mt-0">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Filter Panel */}
+              <FilterPanel
+                filters={currentFilters}
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+                onClearAll={clearAllFilters}
+                isOpen={filterOpen}
+                onToggle={() => setFilterOpen(!filterOpen)}
+              />
+
+              {/* Main Content */}
+              <div className="flex-1">
+                {/* Results Count */}
+                <div className="mb-4 text-sm text-muted-foreground">
+                  Showing {filteredServices.length} of {projectPortfolio.length} project services
+                  {searchQuery && ` for "${searchQuery}"`}
+                </div>
+
+                {/* Search Bar */}
+                <EnhancedSearchBar
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  placeholder={tabPlaceholders["project-portfolio"]}
+                  selectedFilters={selectedFilters}
+                  onFilterChange={handleFilterChange}
+                />
+
+                {/* Cards Grid */}
+                {filteredServices.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredServices.map((service) => (
+                      <PortfolioCard key={service.id} service={service} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="max-w-md mx-auto">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        No services found
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Try adjusting your search or filters to find what you're looking for.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
         </div>
       </Tabs>
 

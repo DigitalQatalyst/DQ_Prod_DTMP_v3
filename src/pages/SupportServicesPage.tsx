@@ -23,7 +23,7 @@ type TabValue = "technical-support" | "expert-consultancy" | "knowledge-base";
 export default function SupportServicesPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Get active tab from URL or default to technical-support
   const tabParam = searchParams.get("tab");
   const activeTab: TabValue =
@@ -32,27 +32,27 @@ export default function SupportServicesPage() {
       : tabParam === "knowledge-base"
         ? "knowledge-base"
         : "technical-support";
-  
+
   // State management
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // Debounce search query with 300ms delay
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     // Clear existing timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
-    
+
     // Set new timer
     debounceTimerRef.current = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
     }, 300);
-    
+
     // Cleanup on unmount
     return () => {
       if (debounceTimerRef.current) {
@@ -86,7 +86,7 @@ export default function SupportServicesPage() {
     setSelectedFilters((prev) => {
       const groupFilters = prev[group] || [];
       const isSelected = groupFilters.includes(value);
-      
+
       return {
         ...prev,
         [group]: isSelected
@@ -108,7 +108,7 @@ export default function SupportServicesPage() {
     filters: Record<string, string[]>
   ) => {
     let filtered = results;
-    
+
     Object.entries(filters).forEach(([group, values]) => {
       if (values.length > 0) {
         filtered = filtered.filter((service: TechnicalSupport | ExpertConsultancy) => {
@@ -136,7 +136,7 @@ export default function SupportServicesPage() {
           }
           if (group === "expertiseArea") {
             // Map expertise areas to service types/titles
-            return values.some(v => 
+            return values.some(v =>
               service.title.toLowerCase().includes(v.toLowerCase()) ||
               service.description.toLowerCase().includes(v.toLowerCase())
             );
@@ -157,7 +157,7 @@ export default function SupportServicesPage() {
         });
       }
     });
-    
+
     return filtered;
   }, []);
 
@@ -226,7 +226,7 @@ export default function SupportServicesPage() {
         <div className="max-w-7xl mx-auto px-4 py-12">
           {/* Tabs Navigation */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-            <TabsList 
+            <TabsList
               className="w-full justify-start bg-white border border-gray-200 rounded-lg p-1 h-auto"
               aria-label="Support service categories"
             >
@@ -337,7 +337,7 @@ export default function SupportServicesPage() {
                     onFilterChange={handleFilterChange}
                     onClearAll={handleClearFilters}
                     isOpen={isFilterOpen}
-                    onClose={() => setIsFilterOpen(false)}
+                    onToggle={() => setIsFilterOpen(!isFilterOpen)}
                   />
 
                   {/* Main Content */}
@@ -360,7 +360,7 @@ export default function SupportServicesPage() {
 
                     {/* Services Grid */}
                     {filteredServices.length > 0 ? (
-                      <div 
+                      <div
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         role="list"
                         aria-label="Support service cards"
@@ -374,7 +374,7 @@ export default function SupportServicesPage() {
                         ))}
                       </div>
                     ) : (
-                      <div 
+                      <div
                         className="bg-white border-2 border-gray-200 rounded-xl p-12 text-center"
                         role="status"
                         aria-live="polite"
