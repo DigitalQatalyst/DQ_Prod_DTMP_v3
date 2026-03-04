@@ -176,8 +176,171 @@ export const dashboardRequests: DashboardUpdateRequest[] = [
     },
     status: 'submitted',
     submittedDate: '2026-02-11T08:00:00Z',
+    sla: '5 business days',
     messages: [],
     notifyEmail: false,
+    notifyInApp: true
+  },
+  {
+    id: 'REQ-INT-2026-006',
+    dashboardId: 'system-health-analytics',
+    dashboardName: 'System Health Analytics',
+    requestType: 'schedule-report',
+    priority: 'medium',
+    description: 'Weekly system health report sent every Monday at 8 AM to the IT Operations team.',
+    requestedBy: {
+      id: 'user-042',
+      name: 'Sarah Chen',
+      email: 'sarah.chen@company.com',
+      role: 'Project Manager'
+    },
+    status: 'completed',
+    submittedDate: '2026-02-12T09:00:00Z',
+    actualCompletionDate: '2026-02-12T09:05:00Z',
+    sla: 'Instant',
+    assignedTo: { id: 'auto', name: 'Automated System', role: 'Platform Automation' },
+    messages: [],
+    resolution: 'Scheduled report configured — weekly delivery every Monday at 8:00 AM.',
+    notifyEmail: true,
+    notifyInApp: true
+  },
+  {
+    id: 'REQ-INT-2026-007',
+    dashboardId: 'performance-trend-analysis',
+    dashboardName: 'Performance Trend Analysis',
+    requestType: 'set-alert',
+    priority: 'high',
+    description: 'Alert when response time goes above 200ms. Critical for our SLA monitoring.',
+    requestedBy: {
+      id: 'user-089',
+      name: 'Michael Torres',
+      email: 'michael.torres@company.com',
+      role: 'Engineering Manager'
+    },
+    status: 'completed',
+    submittedDate: '2026-02-13T14:30:00Z',
+    actualCompletionDate: '2026-02-13T14:32:00Z',
+    sla: 'Instant',
+    assignedTo: { id: 'auto', name: 'Automated System', role: 'Platform Automation' },
+    messages: [],
+    resolution: 'Threshold alert configured — notify when response time exceeds 200ms.',
+    notifyEmail: true,
+    notifyInApp: true
+  },
+  {
+    id: 'REQ-INT-2026-008',
+    dashboardId: 'cost-analytics-optimization',
+    dashboardName: 'System Cost Analytics & Optimization',
+    requestType: 'share-dashboard',
+    priority: 'medium',
+    description: 'Shared dashboard access with Finance team lead for Q2 budget review collaboration.',
+    requestedBy: {
+      id: 'user-203',
+      name: 'Robert Chang',
+      email: 'robert.chang@company.com',
+      role: 'Enterprise Architect'
+    },
+    status: 'in-progress',
+    submittedDate: '2026-02-14T10:15:00Z',
+    expectedCompletionDate: '2026-02-16T00:00:00Z',
+    sla: '2 business days',
+    assignedTo: { id: 'staff-020', name: 'Priya Sharma', role: 'Access Control Administrator' },
+    messages: [
+      {
+        id: 'msg-801',
+        from: { name: 'Priya Sharma', role: 'transformation-office' },
+        to: 'Robert Chang',
+        message: 'Hi Robert, I\'m setting up viewer access for your colleague. Waiting on their email verification.',
+        timestamp: '2026-02-14T15:00:00Z'
+      }
+    ],
+    notifyEmail: true,
+    notifyInApp: true
+  },
+  {
+    id: 'REQ-INT-2026-009',
+    dashboardId: 'delivery-velocity-analytics',
+    dashboardName: 'Delivery Velocity Analytics',
+    requestType: 'request-audit',
+    priority: 'high',
+    description: 'Full data audit for Q1 delivery metrics — needed for quarterly compliance review.',
+    requestedBy: {
+      id: 'user-156',
+      name: 'Amanda Rodriguez',
+      email: 'amanda.rodriguez@company.com',
+      role: 'Director of IT Operations'
+    },
+    status: 'under-review',
+    submittedDate: '2026-02-15T11:00:00Z',
+    expectedCompletionDate: '2026-02-22T00:00:00Z',
+    sla: '5 business days',
+    assignedTo: { id: 'staff-015', name: 'Lisa Thompson', role: 'Data Quality Analyst' },
+    messages: [
+      {
+        id: 'msg-901',
+        from: { name: 'Lisa Thompson', role: 'transformation-office' },
+        to: 'Amanda Rodriguez',
+        message: 'Starting the full audit trail. I\'ll need read access to the Jira source — could you approve the access request I just sent?',
+        timestamp: '2026-02-16T09:30:00Z'
+      }
+    ],
+    notifyEmail: true,
+    notifyInApp: true
+  },
+  {
+    id: 'REQ-INT-2026-010',
+    dashboardId: 'system-usage-analytics',
+    dashboardName: 'System Usage Analytics',
+    requestType: 'request-api',
+    priority: 'medium',
+    description: 'Need API access to pull system usage metrics into our internal Grafana dashboards. Expected ~500 calls/day.',
+    requestedBy: {
+      id: 'user-089',
+      name: 'Michael Torres',
+      email: 'michael.torres@company.com',
+      role: 'Engineering Manager'
+    },
+    status: 'submitted',
+    submittedDate: '2026-02-18T16:45:00Z',
+    sla: '3 business days',
+    messages: [],
+    notifyEmail: true,
+    notifyInApp: true
+  },
+  {
+    id: 'REQ-INT-2026-011',
+    dashboardId: 'capability-maturity-tracking',
+    dashboardName: 'Capability Maturity Tracking',
+    requestType: 'new-data-source',
+    priority: 'medium',
+    description: 'Integrate with ServiceNow CMDB to correlate maturity scores with actual service catalog data.',
+    requestedDataSource: {
+      name: 'ServiceNow',
+      instanceUrl: 'https://company.service-now.com',
+      justification: 'Need CMDB data to validate capability maturity levels against actual service configurations.',
+      estimatedUsers: 'department'
+    },
+    requestedBy: {
+      id: 'user-156',
+      name: 'Amanda Rodriguez',
+      email: 'amanda.rodriguez@company.com',
+      role: 'Director of IT Operations'
+    },
+    status: 'in-progress',
+    submittedDate: '2026-02-19T08:30:00Z',
+    expectedCompletionDate: '2026-02-28T00:00:00Z',
+    sla: '7 business days',
+    assignedTo: { id: 'staff-012', name: 'Jennifer Park', role: 'Integration Engineer' },
+    messages: [
+      {
+        id: 'msg-1101',
+        from: { name: 'Jennifer Park', role: 'transformation-office' },
+        to: 'Amanda Rodriguez',
+        message: 'ServiceNow integration is feasible via their Table API. I\'ve started building the connector — will need your instance credentials for testing.',
+        timestamp: '2026-02-20T10:00:00Z'
+      }
+    ],
+    notifyEmail: true,
     notifyInApp: true
   }
 ];

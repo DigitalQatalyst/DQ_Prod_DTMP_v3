@@ -5,6 +5,22 @@ import {
   type LearningTORequestStatus,
 } from "@/data/learningCenter/requestState";
 import { updateLearningChangeSetStatus } from "@/data/learningCenter/changeReviewState";
+import {
+  updateSupportTORequestStatus,
+  type SupportRequestStatus,
+} from "@/data/supportServices/requestState";
+import {
+  updateBlueprintTORequestStatus,
+  type BlueprintRequestStatus,
+} from "@/data/blueprints/requestState";
+import {
+  updateTemplateTORequestStatus,
+  type TemplateRequestStatus,
+} from "@/data/templates/requestState";
+import {
+  updateDITORequestStatus,
+  type DIRequestStatus,
+} from "@/data/digitalIntelligence/requestState";
 
 const mapStage3ToMarketplaceStatus = (
   status: Stage3RequestStatus
@@ -41,6 +57,26 @@ export const syncMarketplaceRequestStatusFromStage3 = (request: Stage3Request) =
       } else {
         updateLearningChangeSetStatus(changeId, "in-review");
       }
+    }
+    if (asset.startsWith("support-request:")) {
+      const requestId = asset.replace("support-request:", "").trim();
+      if (requestId) updateSupportTORequestStatus(requestId, mappedStatus as SupportRequestStatus);
+    }
+    if (asset.startsWith("solution-spec-request:")) {
+      const requestId = asset.replace("solution-spec-request:", "").trim();
+      if (requestId) updateBlueprintTORequestStatus(requestId, mappedStatus as BlueprintRequestStatus);
+    }
+    if (asset.startsWith("solution-build-request:")) {
+      const requestId = asset.replace("solution-build-request:", "").trim();
+      if (requestId) updateBlueprintTORequestStatus(requestId, mappedStatus as BlueprintRequestStatus);
+    }
+    if (asset.startsWith("template-request:")) {
+      const requestId = asset.replace("template-request:", "").trim();
+      if (requestId) updateTemplateTORequestStatus(requestId, mappedStatus as TemplateRequestStatus);
+    }
+    if (asset.startsWith("di-request:")) {
+      const requestId = asset.replace("di-request:", "").trim();
+      if (requestId) updateDITORequestStatus(requestId, mappedStatus as DIRequestStatus);
     }
   }
 };

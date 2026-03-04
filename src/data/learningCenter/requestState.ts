@@ -1,3 +1,5 @@
+import { makeLocalStorageStore } from "@/data/shared/localStorageUtils";
+
 export type LearningTORequestStatus = "Open" | "In Review" | "Resolved";
 export type LearningTORequestType = "admin-escalation";
 
@@ -12,28 +14,14 @@ export interface LearningTORequest {
   status: LearningTORequestStatus;
   createdAt: string;
   updatedAt: string;
+  stage3RequestId?: string;
 }
 
 const REQUESTS_KEY = "dtmp.learning.toRequests";
-const isBrowser = typeof window !== "undefined";
+const store = makeLocalStorageStore<LearningTORequest>(REQUESTS_KEY, 300);
 
-const parseJson = <T>(raw: string | null, fallback: T): T => {
-  try {
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-};
-
-const readRequests = (): LearningTORequest[] => {
-  if (!isBrowser) return [];
-  return parseJson<LearningTORequest[]>(window.localStorage.getItem(REQUESTS_KEY), []);
-};
-
-const writeRequests = (requests: LearningTORequest[]) => {
-  if (!isBrowser) return;
-  window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests.slice(0, 300)));
-};
+const readRequests = (): LearningTORequest[] => store.read();
+const writeRequests = (requests: LearningTORequest[]): void => store.write(requests);
 
 export const getLearningTORequests = (requesterName?: string): LearningTORequest[] => {
   const requests = readRequests().sort(
@@ -91,6 +79,25 @@ export const updateLearningTORequestStatus = (
     updated = {
       ...request,
       status,
+      updatedAt: new Date().toISOString(),
+    };
+    return updated;
+  });
+  writeRequests(next);
+  return updated;
+};
+
+export const linkLearningTORequestToStage3 = (
+  requestId: string,
+  stage3RequestId: string
+): LearningTORequest | null => {
+  const requests = readRequests();
+  let updated: LearningTORequest | null = null;
+  const next = requests.map((request) => {
+    if (request.id !== requestId) return request;
+    updated = {
+      ...request,
+      stage3RequestId,
       updatedAt: new Date().toISOString(),
     };
     return updated;

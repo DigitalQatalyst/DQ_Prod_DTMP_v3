@@ -197,7 +197,7 @@ export default function DocumentStudioPage() {
             onFilterChange={handleFilterChange}
             onClearAll={handleClearFilters}
             isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
+            onToggle={() => setIsFilterOpen(!isFilterOpen)}
           />
 
           <div className="flex-1 flex flex-col">

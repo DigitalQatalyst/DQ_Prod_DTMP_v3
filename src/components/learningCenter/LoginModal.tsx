@@ -4,13 +4,15 @@ import { X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { enrolledCourses } from "@/data/learning";
 import { setUserAuthenticated } from "@/data/sessionAuth";
-import {
-  isTOStage3Role,
-  setSessionRole,
-  type SessionRole,
-} from "@/data/sessionRole";
+import { setSessionRole, isTOStage3Role, type SessionRole } from "@/data/sessionRole";
+
+const resolveRoleFromEmail = (email: string): SessionRole => {
+  const lower = email.toLowerCase().trim();
+  if (lower === "admin@to.dtmp.com") return "to-admin";
+  if (lower.endsWith("@to.dtmp.com")) return "to-ops";
+  return "business-user";
+};
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -21,50 +23,46 @@ interface LoginModalProps {
     cardId: string;
     serviceName: string;
     action: string;
-    commentText?: string;
-    requestMessage?: string;
-    sectionRef?: string;
-    requestType?: string;
+    formData?: Record<string, string>;
+    dashboardName?: string;
+    requestDescription?: string;
   };
+  onLoginSuccess?: () => void;
 }
 
-const learningStage1ToStage2CourseMap: Record<string, string> = {
-  "dt-fundamentals": "digital-transformation-fundamentals",
-  "dbp-capability": "dbp-framework-essentials",
-  "4d-model-mastery": "agile-transformation-leadership",
-  "enterprise-arch": "enterprise-architecture-patterns",
-  "change-leadership": "change-management-excellence",
-  "data-driven-decisions": "data-driven-decision-making",
-  "agile-transformation": "agile-transformation-leadership",
-  "cloud-architecture": "cloud-migration-strategies",
-  "transformation-roi": "data-driven-decision-making",
-  "transformation-leadership": "agile-transformation-leadership",
-};
-
-export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginModalProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const resolveLearningRole = (value: string): "learner" | "admin" => {
-    const normalized = value.trim().toLowerCase();
-    return normalized.includes("admin") ? "admin" : "learner";
-  };
-  const resolveSessionRole = (value: string): SessionRole => {
-    const normalized = value.trim().toLowerCase();
-    if (normalized.includes("to") || normalized.includes("transformation")) {
-      return "to-ops";
-    }
-    if (normalized.includes("admin")) {
-      return "to-admin";
-    }
-    return "business-user";
-  };
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    onClose();
+
+    // Persist auth state and role derived from email
+    const role = resolveRoleFromEmail(email);
+    setUserAuthenticated(true);
+    setSessionRole(role);
+
+    // Use custom callback if provided
+    if (onLoginSuccess) {
+      onLoginSuccess();
+      return;
+    }
+
+    // TO roles go straight to Stage 3
+    if (isTOStage3Role(role)) {
+      navigate("/stage3/dashboard");
+      return;
+    }
+
+    // Support Services uses a Stage 1 request form before entering Stage 2.
+    if (context.marketplace === "support-services" && context.action === "request-service") {
+      navigate("/marketplaces/support-services/new-request", {
+        state: context,
+      });
     setUserAuthenticated(true);
     const sessionRole = resolveSessionRole(email);
     setSessionRole(sessionRole);
@@ -77,6 +75,9 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
       return;
     }
 
+    // Solution Specs — "Make Request" action goes to the request form
+    if (context.marketplace === "solution-specs" && context.action === "Make Request") {
+      navigate("/marketplaces/solution-specs/request", {
     if (context.marketplace === "learning-center") {
       const fallbackCourseId = enrolledCourses[0]?.id ?? "digital-transformation-fundamentals";
       const mappedCourseId =
@@ -89,10 +90,43 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
       navigate(`/stage2/learning-center/course/${mappedCourseId}/${targetView}`, {
         state: {
-          ...context,
-          learningRole,
+          specId: context.cardId,
+          serviceName: context.serviceName,
         },
       });
+      return;
+    }
+
+    // Solution Specs — other actions go to Stage 2 specs overview
+    if (context.marketplace === "solution-specs") {
+      navigate(`/stage2/specs/overview`, {
+        state: { fromStage1: true, specId: context.cardId },
+      });
+      return;
+    }
+
+    // Digital Intelligence request actions should land in Stage 2 -> My Requests.
+    if (
+      context.marketplace === "digital-intelligence" &&
+      context.action &&
+      context.action !== "View Analytics"
+    ) {
+      navigate("/stage2/intelligence/requests", {
+        state: {
+          ...context,
+          actorEmail: email.trim(),
+        },
+      });
+      return;
+    }
+
+    // Default: navigate to Stage 2 with context
+    navigate("/stage2", {
+      state: {
+        ...context,
+        actorEmail: email.trim(),
+      },
+    });
     } else if (context.marketplace === "knowledge-center") {
       const targetTab = context.action === "save-to-workspace" ? "saved" : "overview";
       navigate(`/stage2/knowledge/${targetTab}`, {
@@ -180,13 +214,11 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
 
         {/* Description */}
         <p className="text-base text-muted-foreground text-center mb-8">
-          {context.marketplace === "digital-intelligence"
-            ? `Please log in to access the ${context.serviceName} dashboard`
+          {context.marketplace === "solution-specs" && context.action === "Make Request"
+            ? `Log in to submit your request for "${context.serviceName}".`
             : context.marketplace === "solution-specs"
-            ? "Log in to complete your request."
-            : context.action === "access-platform"
-            ? "Log in to access internal platform workspace."
-            : "Please log in to continue with your enrollment"}
+              ? "Log in to access this solution specification."
+              : "Please log in to continue with your enrollment"}
         </p>
 
         {/* Form */}
@@ -236,6 +268,17 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
             Sign up
           </button>
         </p>
+
+        {/* Demo credential hints */}
+        <div className="mt-5 border-t pt-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Demo credentials</p>
+          <div className="space-y-1 text-xs text-gray-500">
+            <p><span className="font-medium text-gray-700">TO Ops:</span> any@to.dtmp.com</p>
+            <p><span className="font-medium text-gray-700">TO Admin:</span> admin@to.dtmp.com</p>
+            <p><span className="font-medium text-gray-700">Business User:</span> any other email</p>
+            <p className="text-gray-400 mt-1">Password: any value</p>
+          </div>
+        </div>
       </div>
     </div>
   );

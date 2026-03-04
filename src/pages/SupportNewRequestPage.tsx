@@ -4,6 +4,7 @@ import { ArrowLeft, Paperclip } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ServiceRequest, SupportTicket } from "@/data/supportData";
+import { createSupportStage3Intake } from "@/data/stage3/intake";
 
 type RequestType = "incident" | "service-request" | "question" | "problem" | "change-request";
 type RequestPriority = "critical" | "high" | "medium" | "low";
@@ -197,6 +198,20 @@ export default function SupportNewRequestPage() {
         },
       ],
     };
+
+    // Create the Stage 3 intake record atomically alongside the marketplace records
+    createSupportStage3Intake({
+      serviceId: requestContext.cardId || "support-general",
+      serviceName: requestContext.serviceName || "Support Services",
+      requesterName: "John Doe",
+      requesterEmail: "john.doe@company.com",
+      requesterRole: "Support Services",
+      type: form.requestType,
+      priority: form.priority,
+      subject,
+      description,
+      category: form.category,
+    });
 
     navigate("/stage2", {
       state: {

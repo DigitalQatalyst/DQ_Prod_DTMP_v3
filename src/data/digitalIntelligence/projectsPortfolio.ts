@@ -161,19 +161,19 @@
      keyInsights: ["Dependency chains", "Impact radius", "Critical path risks"]
    },
    {
-     id: "lessons-learned-intelligence",
-     title: "Lessons Learned Intelligence",
-     description: "AI-powered extraction and application of lessons learned from past projects",
-     icon: "BookOpen",
-     analyticsType: "Success Prediction",
-     projectType: "All Projects",
-     aiPowered: true,
-     aiCapabilities: ["Pattern Recognition", "Recommendation Engine"],
-     dataSource: "Project Management Tools",
-     updateFrequency: "On-demand",
-     visualizationType: "Dashboard",
-     complexity: "Medium",
-     accuracy: "High Accuracy",
+    id: "lessons-learned-intelligence",
+    title: "Lessons Learned Intelligence",
+    description: "AI-powered extraction and application of lessons learned from past projects",
+    icon: "BookOpen",
+    analyticsType: "Success Prediction",
+    projectType: "All Projects",
+    aiPowered: true,
+    aiCapabilities: ["Pattern Recognition", "Recommendation Engine"],
+    dataSource: "Project Management Tools",
+    updateFrequency: "On-demand",
+    visualizationType: "Dashboard",
+    complexity: "Medium",
+    accuracy: "84% Accuracy",
      keyInsights: ["Relevant lessons", "Success patterns", "Failure prevention"]
    }
  ];
