@@ -3,7 +3,7 @@ import {
   BarChart3, Clock, CheckCircle, AlertCircle, Loader2, FileText,
   Mail, BellRing, Share2, ShieldCheck, Zap, Database, Edit, Eye,
   ChevronDown, ChevronUp, MessageSquare, User, Calendar, ArrowUpRight,
-  PieChart, TrendingUp, Filter
+  PieChart, TrendingUp, Filter, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -60,31 +60,39 @@ function getStepIndex(status: string) {
 }
 
 export function OverviewTab({ requests, onFilterByType }: { requests: DashboardUpdateRequest[]; onFilterByType?: (type: string) => void }) {
+  const [activeType, setActiveType] = useState<string | null>(null);
+
+  const typeDistribution = useMemo(() =>
+    requests.reduce((acc, r) => {
+      acc[r.requestType] = (acc[r.requestType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+  [requests]);
+
+  const filtered = useMemo(() =>
+    activeType ? requests.filter(r => r.requestType === activeType) : requests,
+  [requests, activeType]);
+
   const stats = useMemo(() => {
-    const total = requests.length;
+    const total = filtered.length;
     const byStatus = {
-      submitted: requests.filter(r => r.status === 'submitted').length,
-      underReview: requests.filter(r => r.status === 'under-review').length,
-      inProgress: requests.filter(r => r.status === 'in-progress').length,
-      completed: requests.filter(r => r.status === 'completed').length,
-      declined: requests.filter(r => r.status === 'declined').length,
+      submitted: filtered.filter(r => r.status === 'submitted').length,
+      underReview: filtered.filter(r => r.status === 'under-review').length,
+      inProgress: filtered.filter(r => r.status === 'in-progress').length,
+      completed: filtered.filter(r => r.status === 'completed').length,
+      declined: filtered.filter(r => r.status === 'declined').length,
     };
     const active = byStatus.submitted + byStatus.underReview + byStatus.inProgress;
-    const avgSlaHours = requests.filter(r => r.status === 'completed' && r.actualCompletionDate).reduce((sum, r) => {
+    const avgSlaHours = filtered.filter(r => r.status === 'completed' && r.actualCompletionDate).reduce((sum, r) => {
       const diff = new Date(r.actualCompletionDate!).getTime() - new Date(r.submittedDate).getTime();
       return sum + diff / 3600000;
     }, 0);
-    const completedCount = requests.filter(r => r.status === 'completed' && r.actualCompletionDate).length;
+    const completedCount = filtered.filter(r => r.status === 'completed' && r.actualCompletionDate).length;
     const avgResolution = completedCount > 0 ? avgSlaHours / completedCount : 0;
-
-    const typeDistribution = requests.reduce((acc, r) => {
-      acc[r.requestType] = (acc[r.requestType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
 
     type ActivityEvent = { key: string; timestamp: string; label: string; dashboardName: string; requestType: string; status: string };
     const events: ActivityEvent[] = [];
-    requests.forEach(req => {
+    filtered.forEach(req => {
       const typeLbl = requestTypeLabels[req.requestType]?.label || req.requestType;
       events.push({
         key: `${req.id}-submit`,
@@ -117,11 +125,24 @@ export function OverviewTab({ requests, onFilterByType }: { requests: DashboardU
     });
     const recentEvents = events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 7);
 
-    return { total, byStatus, active, recentEvents, typeDistribution, avgResolution, completedCount };
-  }, [requests]);
+    return { total, byStatus, active, recentEvents, avgResolution, completedCount };
+  }, [filtered]);
 
   return (
     <div className="space-y-6">
+      {/* Active filter indicator */}
+      {activeType && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg text-sm">
+          <Filter className="w-4 h-4 text-orange-500" />
+          <span className="text-gray-600">Filtering by</span>
+          <span className="font-semibold text-orange-700">{requestTypeLabels[activeType]?.label || activeType}</span>
+          <span className="text-gray-500">({filtered.length} of {requests.length} requests)</span>
+          <button onClick={() => setActiveType(null)} className="ml-auto text-orange-500 hover:text-orange-700 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4 hover:shadow-md transition-shadow">
@@ -252,22 +273,39 @@ export function OverviewTab({ requests, onFilterByType }: { requests: DashboardU
         </Card>
       </div>
 
-      {/* Request Types Distribution — responsive wrap */}
+      {/* Request Types Distribution — clickable filter pills */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-gray-400" /> Requests by Type
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-gray-400" /> Requests by Type
+          </h3>
+          {activeType && (
+            <button
+              onClick={() => setActiveType(null)}
+              className="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 transition-colors"
+            >
+              <X className="w-3 h-3" /> Clear filter
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2">
-          {Object.entries(stats.typeDistribution)
+          {Object.entries(typeDistribution)
             .sort(([, a], [, b]) => b - a)
             .map(([type, count]) => {
               const cfg = requestTypeLabels[type];
               const Icon = cfg?.icon || FileText;
+              const isActive = activeType === type;
               return (
                 <button
                   key={type}
-                  onClick={() => onFilterByType?.(type)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all hover:shadow-md hover:scale-105 cursor-pointer ${cfg?.color || 'bg-gray-100 text-gray-700'}`}
+                  onClick={() => setActiveType(isActive ? null : type)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? 'ring-2 ring-offset-1 ring-orange-500 shadow-md scale-105'
+                      : activeType
+                        ? 'opacity-50 hover:opacity-80'
+                        : 'hover:shadow-md hover:scale-105'
+                  } ${cfg?.color || 'bg-gray-100 text-gray-700'}`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {cfg?.label || type}
