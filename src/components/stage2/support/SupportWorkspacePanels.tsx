@@ -1,21 +1,15 @@
 import type { Dispatch, SetStateAction } from "react";
 import {
-  Calendar,
-  CheckCircle,
-  Clock as ClockIcon,
-  Eye,
   MessageCircle,
   Paperclip,
   Phone,
   ShieldCheck,
-  Tag,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PriorityBadge } from "@/components/stage2";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
-import type { KnowledgeArticle, ServiceRequest, SupportTicket } from "@/data/supportData";
+import type { ServiceRequest, SupportTicket } from "@/data/supportData";
 import {
-  buildKnowledgeDetailContent,
   supportCategoryOptions,
   type NewSupportRequestForm,
 } from "@/pages/stage2/support/supportWorkspaceConfig";
@@ -42,9 +36,6 @@ interface SupportWorkspacePanelsProps {
   addNewRequestAttachments: (fileList: FileList | null) => void;
   removeNewRequestAttachment: (name: string) => void;
   submitNewSupportRequest: () => void;
-  knowledgeArticles: KnowledgeArticle[];
-  supportSelectedArticleId: string | null;
-  setSupportSelectedArticleId: Dispatch<SetStateAction<string | null>>;
 }
 
 export function SupportWorkspacePanels({
@@ -68,9 +59,6 @@ export function SupportWorkspacePanels({
   addNewRequestAttachments,
   removeNewRequestAttachment,
   submitNewSupportRequest,
-  knowledgeArticles,
-  supportSelectedArticleId,
-  setSupportSelectedArticleId,
 }: SupportWorkspacePanelsProps) {
   if (!activeSubService || activeService !== "Support Services") return null;
 
@@ -366,109 +354,6 @@ export function SupportWorkspacePanels({
     );
   }
 
-  if (activeSubService === "support-knowledge") {
-    return (
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {knowledgeArticles.slice(0, 12).map((article) => (
-          <button
-            key={article.id}
-            onClick={() => {
-              setSupportSelectedArticleId(article.id);
-              setActiveSubService("support-knowledge-detail");
-            }}
-            className="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-orange-200 hover:bg-orange-50/40 transition-colors"
-          >
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Badge variant="secondary">{article.category}</Badge>
-              <span>{article.difficulty}</span>
-              <span>•</span>
-              <span>{article.estimatedReadTime}</span>
-            </div>
-            <h3 className="text-sm font-semibold text-gray-900 mt-2">{article.title}</h3>
-            <p className="text-sm text-gray-700 mt-1 line-clamp-3">{article.summary}</p>
-            <p className="text-xs text-gray-500 mt-2">{article.views.toLocaleString()} views</p>
-          </button>
-        ))}
-      </div>
-    );
-  }
-
-  if (activeSubService === "support-knowledge-detail" && supportSelectedArticleId) {
-    const article = knowledgeArticles.find((a) => a.id === supportSelectedArticleId);
-    if (!article) return null;
-    const detailContent = buildKnowledgeDetailContent(article);
-    return (
-      <div className="p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <button
-            className="text-sm text-orange-700 font-semibold hover:underline"
-            onClick={() => {
-              setActiveSubService("support-knowledge");
-              setSupportSelectedArticleId(null);
-            }}
-          >
-            ← Back to Knowledge Base
-          </button>
-          <Badge variant="secondary">{article.category}</Badge>
-          <span className="text-xs text-gray-600 capitalize">{article.difficulty}</span>
-          <span className="text-xs text-gray-600">{article.estimatedReadTime}</span>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-2">
-          <h2 className="text-xl font-bold text-gray-900">{article.title}</h2>
-          <p className="text-[13px] text-gray-700">{article.summary}</p>
-          <div className="flex gap-4 text-xs text-gray-600">
-            <span className="inline-flex items-center gap-1"><Calendar size={14} /> Updated {new Date(article.updatedAt).toLocaleDateString()}</span>
-            <span className="inline-flex items-center gap-1"><ClockIcon size={14} /> {article.estimatedReadTime}</span>
-            <span className="inline-flex items-center gap-1"><Eye size={14} /> {article.views.toLocaleString()} views</span>
-            <span className="inline-flex items-center gap-1"><CheckCircle size={14} /> {article.helpfulPercentage}% found this helpful</span>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {article.tags.map((tag) => (
-              <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                <Tag size={12} /> {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Step-by-step actions</h3>
-            <ul className="list-disc ml-5 mt-2 text-[13px] text-gray-700 space-y-1">
-              {detailContent.stepByStepActions.map((step, idx) => (
-                <li key={`${article.id}-step-${idx}`}>{step}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Key takeaways</h3>
-            <ul className="list-disc ml-5 mt-2 text-[13px] text-gray-700 space-y-1">
-              {detailContent.keyTakeaways.map((point, idx) => (
-                <li key={`${article.id}-takeaway-${idx}`}>{point}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Full guidance</h3>
-            <p className="text-[13px] text-gray-700 mt-2">{detailContent.fullGuidance}</p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-gray-900">Why this matters</h3>
-            <p className="text-[13px] text-gray-700 mt-1">{detailContent.whyThisMatters}</p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-gray-900">Signals to watch</h3>
-            <p className="text-[13px] text-gray-700 mt-1">{detailContent.signalsToWatch}</p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-gray-900">If issues persist</h3>
-            <p className="text-[13px] text-gray-700 mt-1">{detailContent.ifIssuesPersist}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return null;
 }
+

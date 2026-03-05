@@ -128,7 +128,7 @@ import ApplicationsPage from "./lifecycle/ApplicationsPage";
 import { buildRequests, type BuildRequest, deliveryTeams } from "@/data/solutionBuild";
 import { Progress } from "@/components/ui/progress";
 import IntelligenceWorkspacePage from "@/pages/stage2/intelligence/IntelligenceWorkspacePage";
-import { supportTickets, serviceRequests, knowledgeArticles, ServiceRequest } from "@/data/supportData";
+import { type ServiceRequest, type SupportTicket } from "@/data/supportData";
 import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
@@ -146,6 +146,7 @@ import NewRequestPage from "@/pages/stage2/templates/NewRequestPage";
 import TemplatesMyRequestsPage from "@/pages/stage2/templates/MyRequestsPage";
 import TemplatesRequestDetailPage from "@/pages/stage2/templates/RequestDetailPage";
 import { getUserRequests, seedDemoRequests } from "@/data/requests/mockRequests";
+import { normalizeSupportSubService } from "@/pages/stage2/support/supportWorkspaceConfig";
 
 interface LocationState {
   marketplace?: string;
@@ -158,6 +159,8 @@ interface LocationState {
   requestMessage?: string;
   sectionRef?: string;
   requestType?: string;
+  submittedTicket?: SupportTicket;
+  submittedRequest?: ServiceRequest;
 }
 const EMPTY_LOCATION_STATE: LocationState = {};
 
@@ -406,9 +409,11 @@ export default function Stage2AppPage() {
 
   const {
     marketplace: stateMarketplace = "portfolio-management",
-    cardId: stateCardId = "portfolio-dashboard",
+    cardId: rawStateCardId,
     serviceName: stateServiceName = "Portfolio Service",
   } = state;
+  const stateCardId =
+    rawStateCardId ?? (stateMarketplace === "portfolio-management" ? "portfolio-dashboard" : "");
 
   const marketplace = isLearningCenterRoute
     ? "learning-center"
@@ -476,6 +481,8 @@ export default function Stage2AppPage() {
       return "di-overview";
     }
     if (marketplace === "support-services") {
+      const requestedSupportSubService = normalizeSupportSubService(state.tab);
+      if (requestedSupportSubService) return requestedSupportSubService;
       return cardId ? "support-detail" : "support-overview";
     }
     return null;
@@ -545,13 +552,27 @@ export default function Stage2AppPage() {
       return;
     }
 
+    if (marketplace === "support-services") {
+      const requestedSupportSubService = normalizeSupportSubService(state.tab);
+      if (requestedSupportSubService) {
+        setActiveSubService(requestedSupportSubService);
+        return;
+      }
+      if (state.submittedTicket || state.submittedRequest) {
+        setActiveSubService("support-tickets");
+        return;
+      }
+      setActiveSubService(cardId ? "support-detail" : "support-overview");
+      return;
+    }
+
     if (marketplace === "digital-intelligence" && !cardId) {
       setActiveSubService("di-overview");
       return;
     }
 
     setActiveSubService(null);
-  }, [marketplace, cardId]);
+  }, [marketplace, cardId, state.tab, state.submittedTicket, state.submittedRequest]);
 
   useEffect(() => {
     if (
@@ -762,13 +783,10 @@ export default function Stage2AppPage() {
   }, []);
 
   const {
-    knowledgeArticles: supportKnowledgeArticles,
     supportSelectedService,
     setSupportSelectedService,
     supportAttachments,
     setSupportAttachments,
-    supportSelectedArticleId,
-    setSupportSelectedArticleId,
     supportTicketsState,
     supportSubmitMessage,
     supportRequestsState,
@@ -787,8 +805,8 @@ export default function Stage2AppPage() {
   } = useSupportWorkspace({
     marketplace,
     cardId,
-    submittedTicket: (location.state as { submittedTicket?: Parameters<typeof useSupportWorkspace>[0]["submittedTicket"] })?.submittedTicket,
-    submittedRequest: (location.state as { submittedRequest?: Parameters<typeof useSupportWorkspace>[0]["submittedRequest"] })?.submittedRequest,
+    submittedTicket: state.submittedTicket,
+    submittedRequest: state.submittedRequest,
     onNavigateToTickets: () => setActiveSubService("support-tickets"),
   });
 
@@ -1244,7 +1262,6 @@ export default function Stage2AppPage() {
     { id: "support-overview", name: "Overview", description: "Dashboards & SLAs", icon: Headphones },
     { id: "support-tickets", name: "My Tickets", description: "Track incidents", icon: Ticket },
     { id: "support-requests", name: "Service Requests", description: "Access & changes", icon: ClipboardList },
-    { id: "support-knowledge", name: "Knowledge Base", description: "Articles and guides", icon: BookOpen }
   ];
   // Icon mapping function
   function getIconComponent(iconName: string): React.ComponentType<{ className?: string }> {
@@ -1319,7 +1336,6 @@ export default function Stage2AppPage() {
     }
     if (service !== "Support Services") {
       setSupportSelectedService(null);
-      setSupportSelectedArticleId(null);
     }
   };
 
@@ -1534,9 +1550,6 @@ export default function Stage2AppPage() {
     if (activeSubService !== "support-detail") {
       // leaving detail view but keep selection for navigation purposes
     }
-    if (activeSubService !== "support-knowledge-detail") {
-      setSupportSelectedArticleId(null);
-    }
   };
 
   const renderSupportWorkspace = () => (
@@ -1561,9 +1574,6 @@ export default function Stage2AppPage() {
       addNewRequestAttachments={addNewRequestAttachments}
       removeNewRequestAttachment={removeNewRequestAttachment}
       submitNewSupportRequest={submitNewSupportRequest}
-      knowledgeArticles={supportKnowledgeArticles}
-      supportSelectedArticleId={supportSelectedArticleId}
-      setSupportSelectedArticleId={setSupportSelectedArticleId}
     />
   );
 

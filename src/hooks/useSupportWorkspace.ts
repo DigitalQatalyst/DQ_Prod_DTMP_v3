@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  knowledgeArticles,
   serviceRequests,
   supportTickets,
   type ServiceRequest,
@@ -35,7 +34,6 @@ export function useSupportWorkspace({
     return null;
   });
   const [supportAttachments, setSupportAttachments] = useState<File[]>([]);
-  const [supportSelectedArticleId, setSupportSelectedArticleId] = useState<string | null>(null);
   const [supportTicketsState, setSupportTicketsState] = useState<SupportTicket[]>(() => {
     if (submittedTicket) {
       return [submittedTicket, ...supportTickets];
@@ -307,13 +305,10 @@ export function useSupportWorkspace({
   };
 
   return {
-    knowledgeArticles,
     supportSelectedService,
     setSupportSelectedService,
     supportAttachments,
     setSupportAttachments,
-    supportSelectedArticleId,
-    setSupportSelectedArticleId,
     supportTicketsState,
     setSupportTicketsState,
     supportSubmitMessage,

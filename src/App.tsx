@@ -31,8 +31,6 @@ import MyTicketsPage from "./pages/stage2/support/MyTicketsPage";
 import TicketDetailPage from "./pages/stage2/support/TicketDetailPage";
 import ServiceRequestsPage from "./pages/stage2/support/ServiceRequestsPage";
 import { default as SupportRequestDetailPage } from "./pages/stage2/support/RequestDetailPage";
-import KnowledgeBasePage from "./pages/stage2/support/KnowledgeBasePage";
-import ArticleDetailPage from "./pages/stage2/support/ArticleDetailPage";
 import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import LifecycleManagementPage from "./pages/LifecycleManagementPage";
@@ -151,8 +149,8 @@ const App = () => (
             <Route path="/stage2/support/tickets/:ticketId" element={<TicketDetailPage />} />
             <Route path="/stage2/support/requests" element={<ServiceRequestsPage />} />
             <Route path="/stage2/support/requests/:requestId" element={<SupportRequestDetailPage />} />
-            <Route path="/stage2/support/knowledge" element={<KnowledgeBasePage />} />
-            <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
+            <Route path="/stage2/support/knowledge" element={<SupportKnowledgeLegacyRedirectPage />} />
+            <Route path="/stage2/support/knowledge/:articleId" element={<SupportKnowledgeLegacyRedirectPage />} />
 
             {/* Stage 3 - Transformation Office Operations */}
             <Route path="/stage3" element={<Navigate to="/stage3/dashboard" replace />} />
