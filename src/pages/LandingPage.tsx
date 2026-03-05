@@ -4,6 +4,8 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { DBPOverview } from "@/components/sections/DBPOverview";
 import { GovernanceModel } from "@/components/sections/GovernanceModel";
 import { ExecutionStreams } from "@/components/sections/ExecutionStreams";
+import { StrategicPriorities } from "@/components/sections/StrategicPriorities";
+import { DivisionPivot } from "@/components/sections/DivisionPivot";
 import { ResourceMarketplaces } from "@/components/sections/ResourceMarketplaces";
 import { TOValue } from "@/components/sections/TOValue";
 import { Contributors } from "@/components/sections/Contributors";
@@ -23,6 +25,12 @@ const LandingPage = () => {
         </section>
         <section id="execution-streams">
           <ExecutionStreams />
+        </section>
+        <section id="strategic-priorities">
+          <StrategicPriorities />
+        </section>
+        <section id="division-pivot">
+          <DivisionPivot />
         </section>
         <section id="marketplaces">
           <ResourceMarketplaces />

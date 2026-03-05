@@ -9,10 +9,10 @@ import { getSessionRole, isTOStage3Role } from "@/data/sessionRole";
 const navLinks = [
   { name: "DBP", sectionId: "dbp-overview" },
   { name: "4D Model", sectionId: "governance-model" },
-  { name: "Streams", sectionId: "execution-streams" },
-  { name: "TO", sectionId: "to-value" },
-  { name: "Assets", sectionId: "marketplaces" },
-  { name: "Contributors", sectionId: "contributors" },
+  { name: "Digital DEWA", sectionId: "execution-streams" },
+  { name: "Divisions", sectionId: "division-pivot" },
+  { name: "Marketplaces", sectionId: "marketplaces" },
+  { name: "EA Office", sectionId: "to-value" },
 ];
 
 export function Header() {
@@ -64,11 +64,11 @@ export function Header() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-blue-accent flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">D</span>
+            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+              <img src="/dewa-logo.webp" alt="DEWA logo" className="w-10 h-10 object-contain" />
             </div>
             <span className="text-xl lg:text-2xl font-bold text-primary-foreground">
-              DTMP
+              DEWA
             </span>
           </Link>
 
@@ -88,14 +88,14 @@ export function Header() {
           {/* Right Side - Desktop */}
           <div className="hidden lg:flex items-center gap-4">
             <span className="text-xs text-primary-foreground/50">
-              Internal Platform
+              DEWA Enterprise Architecture Office
             </span>
             <Button
               variant="default"
               onClick={handleAccessPlatform}
               className="bg-accent hover:bg-orange-hover text-accent-foreground px-6 py-2.5 rounded-lg font-semibold inline-flex items-center gap-2"
             >
-              Access Platform
+              Enter the Platform
               <ArrowRight size={16} />
             </Button>
             <button
@@ -137,11 +137,11 @@ export function Header() {
                 className="flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <div className="w-9 h-9 rounded-full bg-blue-accent flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">D</span>
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                  <img src="/dewa-logo.webp" alt="DEWA logo" className="w-10 h-10 object-contain" />
                 </div>
                 <span className="text-xl font-bold text-primary-foreground">
-                  DTMP
+                  DEWA
                 </span>
               </Link>
               <button
@@ -189,7 +189,7 @@ export function Header() {
           marketplace: "platform",
           tab: "overview",
           cardId: "access-platform",
-          serviceName: "Internal Platform",
+          serviceName: "DEWA EA Platform",
           action: "access-platform",
         }}
       />

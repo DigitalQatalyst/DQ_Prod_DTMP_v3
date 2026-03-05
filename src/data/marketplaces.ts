@@ -30,9 +30,9 @@ export const marketplaces: Marketplace[] = [
     id: "learning-center",
     phase: "Discern",
     icon: GraduationCap,
-    name: "DTMP Learning Center",
+    name: "DTMP Learning Centre",
     description:
-      "Develop transformation expertise through structured learning programs - DT 2.0 mastery and certification",
+      "Structured pathways for EA literacy, digital transformation fundamentals, and DEWA architecture standards across all divisions.",
     features: ["Courses & Curricula", "Learning Tracks", "Reviews"],
     serviceCount: 25,
     route: "/marketplaces/learning-center",
@@ -41,9 +41,9 @@ export const marketplaces: Marketplace[] = [
     id: "knowledge-center",
     phase: "Discern",
     icon: BookOpen,
-    name: "DTMP Knowledge Center",
+    name: "DTMP Knowledge Centre",
     description:
-      "Access proven practices, transformation playbooks, and expert insights",
+      "EA frameworks, architecture policies, governance standards, and corporate artefact library accessible enterprise-wide.",
     features: ["Best Practices", "Testimonials", "Industry Playbooks", "Library"],
     serviceCount: 40,
     route: "/marketplaces/knowledge-center",
@@ -56,7 +56,7 @@ export const marketplaces: Marketplace[] = [
     icon: FileText,
     name: "DTMP Document Studio",
     description:
-      "Generate context-specific documents on demand using AI. Submit a request with your organisational context and the Transformation Office will use AI DocWriter 4.0 to generate a tailored document ready for your review and use.",
+      "AI-powered document generation fulfilled by the Corporate EA Office with defined SLAs for all DEWA divisions.",
     features: [
       "Application Profiles",
       "Assessments",
@@ -70,7 +70,7 @@ export const marketplaces: Marketplace[] = [
     icon: Layout,
     name: "DTMP Solution Specs",
     description:
-      "Blueprint-led solution specifications for DBP, DXP, DWS, DIA, and SecDevOps solutions",
+      "Standardised architecture blueprints and solution specifications applicable across all DEWA divisions.",
     features: ["Solution Specifications", "Architecture Diagrams", "Component Details"],
     serviceCount: 30,
     route: "/marketplaces/solution-specs",
@@ -83,7 +83,7 @@ export const marketplaces: Marketplace[] = [
     icon: Hammer,
     name: "DTMP Solution Build",
     description:
-      "Ready-to-deploy solutions with application integration patterns and production-ready implementations",
+      "Build resources, delivery capacity, and implementation support for projects across all DEWA divisions.",
     features: ["Implementation Resources", "Code Samples", "Integration Patterns"],
     serviceCount: 14,
     route: "/marketplaces/solution-build",
@@ -96,7 +96,7 @@ export const marketplaces: Marketplace[] = [
     icon: RefreshCw,
     name: "DTMP Lifecycle Management",
     description:
-      "Application, project, and portfolio lifecycle tracking and optimization",
+      "Govern initiatives through stage gates, compliance checkpoints, and architecture reviews across enterprise programmes.",
     features: ["Application Lifecycle", "Project Lifecycle", "Compliance Tracking"],
     serviceCount: 12,
     route: "/marketplaces/lifecycle-management",

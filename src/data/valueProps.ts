@@ -11,35 +11,35 @@ export interface ValueProp {
 export const valueProps: ValueProp[] = [
   {
     id: "accelerate",
-    name: "Accelerate Transformation",
+    name: "Accelerate",
     icon: Zap,
-    color: "text-orange",
+    color: "text-phase-design",
     description:
-      "80% of requirements ready with pre-built templates, blueprints, and governance frameworks",
+      "60% of requested resources delivered through pre-approved frameworks and reusable architecture assets.",
   },
   {
     id: "control",
-    name: "Control Investment",
+    name: "Control",
     icon: DollarSign,
     color: "text-green",
     description:
-      "Reduce non-value applications and uncontrolled delivery through enterprise-wide portfolio oversight",
+      "Visibility across active technology initiatives enables smarter prioritisation, reduced duplication, and accountable spend.",
   },
   {
     id: "quality",
-    name: "Ensure Quality Outcomes",
+    name: "Quality",
     icon: CheckCircle,
     color: "text-blue-accent",
     description:
-      "Consolidated patterns and structured contributions ensure consistency and compliance",
+      "Resources, blueprints, and documents are validated by the EA Office before delivery for compliance and quality assurance.",
   },
   {
     id: "visibility",
-    name: "Enterprise-Wide Visibility",
+    name: "Visibility",
     icon: Eye,
-    color: "text-purple",
+    color: "text-phase-drive",
     description:
-      "Track every initiative, project, and team across DBP evolution in real-time",
+      "Real-time portfolio views across initiatives, artefacts, lifecycle stages, and team progress support confident decision-making.",
   },
 ];
 
@@ -51,14 +51,9 @@ export interface Stat {
 
 export const stats: Stat[] = [
   {
-    value: "80%",
-    label: "Requirements Ready",
-    note: "Through self-serve templates",
-  },
-  {
     value: "4D",
     label: "Governance Model",
-    note: "Discern → Design → Deploy → Drive",
+    note: "Discern, Design, Deploy, Drive",
   },
   {
     value: "4",
@@ -66,8 +61,18 @@ export const stats: Stat[] = [
     note: "DXP, DWS, DIA, SDO",
   },
   {
+    value: "6",
+    label: "Integrated Marketplaces",
+    note: "Governed service entry points",
+  },
+  {
+    value: "7",
+    label: "DEWA Divisions Served",
+    note: "All major business domains",
+  },
+  {
     value: "1",
-    label: "Digital Business Platform",
-    note: "Unified target state",
+    label: "Enterprise Architecture Platform",
+    note: "One architecture direction",
   },
 ];

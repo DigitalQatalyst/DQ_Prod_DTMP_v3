@@ -32,6 +32,7 @@ import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import LifecycleManagementPage from "./pages/LifecycleManagementPage";
 import LifecycleDetailPage from "./pages/LifecycleDetailPage";
+import DivisionalLandingPage from "./pages/DivisionalLandingPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
 import DigitalIntelligenceDetailPage from "./pages/DigitalIntelligenceDetailPage";
@@ -171,6 +172,7 @@ const App = () => (
           {/* Lifecycle Management marketplace */}
           <Route path="/marketplaces/lifecycle-management" element={<LifecycleManagementPage />} />
           <Route path="/marketplaces/lifecycle-management/:tab/:cardId" element={<LifecycleDetailPage />} />
+          <Route path="/divisions/:divisionId" element={<DivisionalLandingPage />} />
           
           {/* Resource routes */}
           <Route path="/best-practices" element={<ComingSoonPage pageName="Best Practices" />} />

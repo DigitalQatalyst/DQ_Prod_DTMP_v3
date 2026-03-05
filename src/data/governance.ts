@@ -6,7 +6,10 @@ export interface GovernancePhase {
   icon: LucideIcon;
   color: string;
   bgColor: string;
+  subtitle: string;
   description: string;
+  deliverables: string[];
+  ctaLabel: string;
   route: string;
 }
 
@@ -17,19 +20,35 @@ export const governancePhases: GovernancePhase[] = [
     icon: Search,
     color: "text-blue-accent",
     bgColor: "bg-phase-discern-bg",
+    subtitle: "Understand & Assess",
     description:
-      "Assess current state, identify gaps, and build change journey across Business and Technology alignment.",
-    route: "/4d-model",
+      "Build intelligence on current capabilities, technology landscape, maturity, and transformation gaps across all divisions.",
+    deliverables: [
+      "EA maturity assessments per division",
+      "Technology portfolio reviews",
+      "Capability gap analysis",
+      "Digital DEWA programme intelligence",
+    ],
+    ctaLabel: "View Discern Marketplaces",
+    route: "/marketplaces",
   },
   {
     id: "design",
     name: "Design",
     icon: PenTool,
-    color: "text-purple",
+    color: "text-phase-design",
     bgColor: "bg-phase-design-bg",
+    subtitle: "Define & Architect",
     description:
-      "Architect operating models with blueprints and specifications. Contribute to Solution Blueprints and Architecture Governance.",
-    route: "/4d-model",
+      "Define target-state capabilities, cross-division standards, and architecture blueprints aligned to 2030 and Net-Zero 2050.",
+    deliverables: [
+      "Enterprise Business Capabilities Canvas",
+      "Cross-division architecture standards",
+      "Digital DEWA solution blueprints",
+      "Operating model design",
+    ],
+    ctaLabel: "View Design Marketplaces",
+    route: "/marketplaces",
   },
   {
     id: "deploy",
@@ -37,18 +56,34 @@ export const governancePhases: GovernancePhase[] = [
     icon: Rocket,
     color: "text-green",
     bgColor: "bg-phase-deploy-bg",
+    subtitle: "Build & Activate",
     description:
-      "Execute transformation initiatives with structured governance. Contribute to built DBP, Project Execution, and Change Enablement.",
-    route: "/4d-model",
+      "Operationalise architecture by deploying solutions and capabilities division by division with governed delivery.",
+    deliverables: [
+      "Platform deployments per division",
+      "Initiative delivery governance",
+      "Smart Grid activation tracking",
+      "AI and automation readiness",
+    ],
+    ctaLabel: "View Deploy Marketplaces",
+    route: "/marketplaces",
   },
   {
     id: "drive",
     name: "Drive",
     icon: TrendingUp,
-    color: "text-orange",
+    color: "text-phase-drive",
     bgColor: "bg-phase-drive-bg",
+    subtitle: "Govern & Optimise",
     description:
-      "Optimize and ensure continuous improvement through Lifecycle Management and unified configuration.",
-    route: "/4d-model",
+      "Drive adoption across divisions, enforce standards, and measure investment outcomes against strategic targets.",
+    deliverables: [
+      "Enterprise EA compliance monitoring",
+      "Cross-division governance",
+      "Net-Zero 2050 progress tracking",
+      "Investment performance measurement",
+    ],
+    ctaLabel: "View Drive Marketplaces",
+    route: "/marketplaces",
   },
 ];

@@ -24,28 +24,33 @@ export function MarketplaceCard({
     marketplace;
   const colors = phaseColors[phase];
   const [isOpen, setIsOpen] = useState(false);
+  const accent =
+    phase === "Discern"
+      ? "#0EA5E9"
+      : phase === "Design"
+        ? "#F97316"
+        : phase === "Deploy"
+          ? "#16A34A"
+          : "#DC2626";
 
   if (variant === "simple") {
     return (
       <>
         <div 
           onClick={() => setIsOpen(true)}
-          className="card-marketplace group cursor-pointer"
+          className="group cursor-pointer bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all hover:shadow-lg"
+          style={{ borderTop: `4px solid ${accent}` }}
         >
-          <div className="icon-gradient w-16 h-16 rounded-lg flex items-center justify-center mb-4">
-            <Icon size={32} className="text-purple" />
+          <p className="text-[12px] font-bold uppercase tracking-[0.08em] mb-3" style={{ color: accent }}>
+            {phase}
+          </p>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${accent}1A` }}>
+            <Icon size={20} style={{ color: accent }} />
           </div>
-
-          <h3 className="text-lg font-bold text-foreground mb-2">{name}</h3>
-          <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">
+          <h3 className="text-lg font-bold text-[#0F172A] mb-2">{name}</h3>
+          <p className="text-[15px] leading-relaxed text-[#334155] mb-4 min-h-[40px]">
             {description}
           </p>
-
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase ${colors.badge}`}
-          >
-            {phase}
-          </span>
         </div>
 
         {/* Popup Dialog */}
@@ -116,23 +121,22 @@ export function MarketplaceCard({
     <>
       <div 
         onClick={() => setIsOpen(true)}
-        className="card-marketplace group cursor-pointer"
+        className="group cursor-pointer bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all hover:shadow-lg"
+        style={{ borderTop: `4px solid ${accent}` }}
       >
+        <p className="text-[12px] font-bold uppercase tracking-[0.08em] mb-3" style={{ color: accent }}>
+          {phase}
+        </p>
         <div className="flex justify-between items-start mb-4">
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase ${colors.badge}`}
-          >
-            {phase}
-          </span>
-          <div className="icon-gradient w-16 h-16 rounded-lg flex items-center justify-center">
-            <Icon size={32} className="text-purple" />
+          <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: `${accent}1A` }}>
+            <Icon size={20} style={{ color: accent }} />
           </div>
         </div>
 
-        <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-3">
+        <h3 className="text-xl lg:text-2xl font-bold text-[#0F172A] mb-3">
           {name}
         </h3>
-        <p className="text-sm text-muted-foreground mb-4 min-h-[60px]">
+        <p className="text-[15px] leading-relaxed text-[#334155] mb-4 min-h-[60px]">
           {description}
         </p>
 
@@ -140,25 +144,25 @@ export function MarketplaceCard({
           {features.slice(0, 3).map((feature) => (
             <span
               key={feature}
-              className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs"
+              className="bg-[#F8FAFC] text-[#334155] px-2 py-1 rounded text-xs"
             >
               {feature}
             </span>
           ))}
           {features.length > 3 && (
-            <span className="bg-phase-discern-bg text-phase-discern px-2 py-1 rounded text-xs font-medium">
+            <span className="bg-[#F8FAFC] px-2 py-1 rounded text-xs font-medium" style={{ color: accent }}>
               +{features.length - 3} more
             </span>
           )}
         </div>
 
-        <div className="flex justify-between items-center pt-4 border-t border-border">
-          <span className="text-sm text-muted-foreground flex items-center gap-1">
+        <div className="flex justify-between items-center pt-4 border-t border-[#E2E8F0]">
+          <span className="text-sm text-[#64748B] flex items-center gap-1">
             <Grid3x3 size={16} />
             {serviceCount} services
           </span>
-          <span className="text-accent group-hover:text-orange-hover font-semibold flex items-center gap-1 transition-colors">
-            Explore
+          <span className="font-semibold flex items-center gap-1 transition-colors" style={{ color: accent }}>
+            → Explore
             <ArrowRight size={16} />
           </span>
         </div>

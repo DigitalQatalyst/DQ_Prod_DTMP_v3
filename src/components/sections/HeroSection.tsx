@@ -1,79 +1,70 @@
 import { Link } from "react-router-dom";
-import { Target, Layers, LayoutGrid, Building2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[500px] lg:min-h-[600px] flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary via-primary to-navy-light overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-accent rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent rounded-full blur-3xl" />
-      </div>
+    <section className="relative min-h-[620px] lg:min-h-[720px] flex items-center justify-center text-center overflow-hidden bg-primary">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom, rgba(6,25,39,0.76), rgba(6,25,39,0.72)), url('https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1800&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(14,165,233,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(14,165,233,0.18)_1px,transparent_1px)] [background-size:26px_26px]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-        {/* Target State Badge */}
-        <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-primary-foreground mb-4">
-          <Target size={16} className="text-accent" />
-          Target State
-        </div>
-
-        {/* Label */}
-        <p className="text-sm text-blue-accent uppercase tracking-wide mb-4">
-          Internal Platform
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+        <p className="text-sm uppercase tracking-[0.2em] text-blue-accent mb-4">
+          DEWA Corporate EA & Transformation Office
         </p>
-
-        {/* Heading */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6 max-w-4xl mx-auto leading-tight">
-          Orchestrating Our Digital Business Platform
+        <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+          One Platform. One Direction. Governing All of DEWA&apos;s Digital Transformation.
         </h1>
-
-        {/* Subheading */}
-        <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/80 mb-10 max-w-3xl mx-auto leading-relaxed">
-          The unified architecture layer—designed, deployed, and evolved to grow
-          our Digital Business Platform through incrementally structured
-          enterprise-wide transformation.
+        <p className="text-base sm:text-lg text-slate-100/90 mb-8 max-w-3xl mx-auto">
+          The enterprise architecture platform designed, deployed, and governed by DEWA&apos;s
+          Corporate EA Office, accelerating every division&apos;s journey to a Digital-First,
+          Net-Zero utility.
         </p>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-12">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-center justify-center mb-8">
           <Link to="/marketplaces">
-            <Button className="bg-accent hover:bg-orange-hover text-accent-foreground px-8 py-4 h-auto text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2">
-              Access Platform
+            <Button className="cta-primary inline-flex items-center gap-2">
+              Enter the Platform
               <ArrowRight size={18} />
             </Button>
           </Link>
+          <Button
+            variant="outline"
+            onClick={() => document.getElementById("division-pivot")?.scrollIntoView({ behavior: "smooth" })}
+            className="cta-secondary"
+          >
+            Find Your Division
+          </Button>
+          <button
+            onClick={() => document.getElementById("marketplaces")?.scrollIntoView({ behavior: "smooth" })}
+            className="cta-tertiary text-white hover:text-blue-accent"
+          >
+            → Explore Marketplaces
+          </button>
         </div>
 
-        {/* Quick Links */}
-        <div className="flex flex-wrap gap-6 items-center justify-center">
-          <button
-            onClick={() => document.getElementById('governance-model')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
-          >
-            <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
-              <LayoutGrid size={24} />
-            </div>
-            <span className="text-sm font-medium">4D Model</span>
-          </button>
-          <button
-            onClick={() => document.getElementById('to-value')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
-          >
-            <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
-              <Building2 size={24} />
-            </div>
-            <span className="text-sm font-medium">TO</span>
-          </button>
-          <button
-            onClick={() => document.getElementById('marketplaces')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors group"
-          >
-            <div className="bg-blue-accent/20 p-3 rounded-full group-hover:bg-blue-accent/30 transition-colors">
-              <Layers size={24} />
-            </div>
-            <span className="text-sm font-medium">Assets</span>
-          </button>
+        <div className="flex flex-wrap gap-3 justify-center">
+          {[
+            "4D Governance Model",
+            "EA 4.0 Corporate Practice",
+            "Digital DEWA Aligned",
+            "Net-Zero 2050 Vision",
+          ].map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center rounded-full border-[1.5px] border-white/40 px-4 py-2 text-[13px] font-medium text-white"
+            >
+              {item}
+            </span>
+          ))}
         </div>
       </div>
     </section>

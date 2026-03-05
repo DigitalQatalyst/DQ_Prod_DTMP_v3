@@ -2,74 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DTMP v3 Design System - Internal Platform Theme */
+/* DTMP v3 DEWA Design System */
 
 @layer base {
   :root {
-    /* Core colors - Navy-based internal platform */
+    /* Core colors */
     --background: 0 0% 100%;
-    --foreground: 210 29% 13%;
+    --foreground: 210 35% 11%;
     
-    /* Navy primary - headers, footers, titles */
-    --primary: 210 100% 12%;
+    /* Black Pearl primary */
+    --primary: 210 62% 7%;
     --primary-foreground: 0 0% 100%;
     
-    /* Light blue for cards and sections */
-    --secondary: 210 100% 95%;
-    --secondary-foreground: 210 29% 13%;
+    --secondary: 210 43% 96%;
+    --secondary-foreground: 210 35% 11%;
     
     --muted: 210 40% 96%;
     --muted-foreground: 210 11% 40%;
     
-    /* Orange accent for CTAs */
-    --accent: 24 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Tacao accent */
+    --accent: 24 68% 72%;
+    --accent-foreground: 210 62% 7%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
     --card: 0 0% 100%;
-    --card-foreground: 210 29% 13%;
+    --card-foreground: 210 35% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 210 29% 13%;
+    --popover-foreground: 210 35% 11%;
     
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 210 100% 12%;
+    --border: 211 37% 87%;
+    --input: 211 37% 87%;
+    --ring: 201 75% 61%;
     
     --radius: 0.75rem;
     
-    /* DTMP Custom Colors */
-    --navy: 210 100% 12%;
-    --navy-light: 210 100% 20%;
-    --blue-accent: 210 100% 40%;
-    --light-blue: 210 100% 95%;
-    --orange: 24 100% 50%;
-    --orange-hover: 24 100% 45%;
-    --purple: 258 90% 66%;
-    --pink: 330 81% 60%;
-    --green: 160 84% 39%;
+    /* DEWA custom colors */
+    --navy: 210 62% 7%;
+    --navy-light: 210 55% 16%;
+    --blue-accent: 199 89% 48%;
+    --light-blue: 207 68% 95%;
+    --orange: 24 94% 53%;
+    --orange-hover: 27 100% 46%;
+    --purple: 24 68% 72%;
+    --pink: 7 56% 47%;
+    --green: 144 61% 26%;
     
     /* Phase colors */
-    --phase-discern: 210 100% 40%;
-    --phase-discern-bg: 210 100% 95%;
-    --phase-design: 258 90% 66%;
-    --phase-design-bg: 258 90% 95%;
-    --phase-deploy: 160 84% 39%;
-    --phase-deploy-bg: 160 84% 95%;
-    --phase-drive: 24 100% 50%;
-    --phase-drive-bg: 24 100% 95%;
+    --phase-discern: 199 89% 48%;
+    --phase-discern-bg: 199 89% 48%;
+    --phase-design: 24 94% 53%;
+    --phase-design-bg: 24 94% 53%;
+    --phase-deploy: 142 72% 38%;
+    --phase-deploy-bg: 142 72% 38%;
+    --phase-drive: 0 73% 52%;
+    --phase-drive-bg: 0 73% 52%;
     
     /* Sidebar */
-    --sidebar-background: 210 100% 12%;
+    --sidebar-background: 210 62% 7%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 24 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 100% 20%;
+    --sidebar-primary: 24 68% 72%;
+    --sidebar-primary-foreground: 210 62% 7%;
+    --sidebar-accent: 210 55% 16%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 100% 20%;
-    --sidebar-ring: 24 100% 50%;
+    --sidebar-border: 210 55% 16%;
+    --sidebar-ring: 24 68% 72%;
   }
 
   .dark {
@@ -119,7 +118,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: "Dubai", Arial, "Segoe UI", sans-serif;
   }
 }
 
@@ -142,21 +141,59 @@
     @apply bg-gradient-to-b from-secondary to-background;
   }
   
-  /* Phase badges */
+  /* Section utilities */
+  .section-alt {
+    @apply bg-[#F0F7FF];
+  }
+
+  .section-band {
+    @apply text-center py-10 px-4;
+  }
+
+  .section-tag {
+    @apply text-[13px] uppercase tracking-[0.08em] font-bold text-white/85 mb-2;
+  }
+
+  .section-band-title {
+    @apply text-white text-[36px] font-bold leading-tight;
+  }
+
+  .section-subheading {
+    @apply text-[#0369A1] italic text-[17px];
+  }
+
+  /* Phase bars */
+  .phase-bar {
+    @apply h-12 w-full flex items-center px-4 text-white text-[14px] tracking-[0.08em] uppercase font-bold;
+  }
+  .phase-bar-discern {
+    @apply bg-[#0EA5E9];
+  }
+  .phase-bar-design {
+    @apply bg-[#F97316];
+  }
+  .phase-bar-deploy {
+    @apply bg-[#16A34A];
+  }
+  .phase-bar-drive {
+    @apply bg-[#DC2626];
+  }
+
+  /* Badge fallback */
   .badge-discern {
-    @apply bg-[hsl(var(--phase-discern-bg))] text-[hsl(var(--phase-discern))];
+    @apply bg-[#0EA5E9] text-white;
   }
   
   .badge-design {
-    @apply bg-[hsl(var(--phase-design-bg))] text-[hsl(var(--phase-design))];
+    @apply bg-[#F97316] text-white;
   }
   
   .badge-deploy {
-    @apply bg-[hsl(var(--phase-deploy-bg))] text-[hsl(var(--phase-deploy))];
+    @apply bg-[#16A34A] text-white;
   }
   
   .badge-drive {
-    @apply bg-[hsl(var(--phase-drive-bg))] text-[hsl(var(--phase-drive))];
+    @apply bg-[#DC2626] text-white;
   }
   
   /* Icon backgrounds */
@@ -173,12 +210,16 @@
     @apply bg-[hsl(var(--navy))];
   }
   
-  /* DTMP Buttons */
-  .btn-primary {
-    @apply bg-[hsl(var(--orange))] text-white hover:bg-[hsl(var(--orange-hover))] rounded-lg px-4 py-2 font-semibold transition-all duration-300 hover:shadow-lg min-h-[44px];
+  /* CTA Buttons */
+  .cta-primary {
+    @apply bg-[#F97316] text-white font-bold text-[16px] rounded-md px-8 py-[14px] hover:bg-[#EA6800] transition-colors;
   }
   
-  .btn-secondary {
-    @apply border-2 border-[hsl(var(--orange))] text-[hsl(var(--orange))] hover:bg-[hsl(var(--orange)/0.05)] rounded-lg px-4 py-2 font-semibold transition-all duration-300 min-h-[44px];
+  .cta-secondary {
+    @apply bg-transparent border-2 border-[#0EA5E9] text-[#0EA5E9] font-bold rounded-md px-8 py-[12px] hover:bg-[#0EA5E9] hover:text-white transition-colors;
+  }
+
+  .cta-tertiary {
+    @apply text-[#0369A1] font-semibold hover:text-[#075985] transition-colors;
   }
 }

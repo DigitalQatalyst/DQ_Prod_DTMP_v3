@@ -1,4 +1,12 @@
-import { Building2, Crown, PenTool, Users, RefreshCw, Shield, LucideIcon } from "lucide-react";
+import {
+  Building2,
+  Crown,
+  PenTool,
+  Bot,
+  Users,
+  Shield,
+  LucideIcon,
+} from "lucide-react";
 
 export interface Contributor {
   id: string;
@@ -8,82 +16,111 @@ export interface Contributor {
   role: string;
   description: string;
   contributions: string[];
+  ctaLabel: string;
+  ctaRoute: string;
 }
 
 export const contributors: Contributor[] = [
   {
-    id: "to",
-    name: "Transformation Office",
+    id: "corporate-ea",
+    name: "Corporate EA Office",
     icon: Building2,
-    color: "text-orange",
-    role: "Enterprise TO Director",
+    color: "text-phase-design",
+    role: "Enterprise Governance Owner",
     description:
-      "Drive strategic alignment and ensure DBP governance across all initiatives",
+      "Own and govern the enterprise platform, standards, and KPI tracking across all DEWA divisions.",
     contributions: [
-      "Enterprise Alignment",
-      "DBP Tracking & Oversight",
-      "Compliance Enforcement",
+      "Set and enforce enterprise EA standards",
+      "Manage cross-division architecture repository",
+      "Track transformation KPIs enterprise-wide",
+      "Report Net-Zero architecture alignment",
     ],
+    ctaLabel: "Enter Corporate EA Dashboard",
+    ctaRoute: "/stage3/dashboard",
   },
   {
-    id: "strategy",
-    name: "Strategy & Executive Leadership",
+    id: "executive",
+    name: "Executive & Strategy Leadership",
     icon: Crown,
-    color: "text-purple",
-    role: "CEO & Executive Leadership",
-    description:
-      "Drive enterprise transformation strategy and portfolio decisions",
-    contributions: [
-      "Strategic Visibility",
-      "Portfolio Oversight",
-      "Investment Decisions",
-    ],
-  },
-  {
-    id: "architects",
-    name: "Business & Technology Architects",
-    icon: PenTool,
     color: "text-blue-accent",
-    role: "Enterprise & Solution Architects",
+    role: "CEO, CDO, CIO, CTO, Strategy Office",
     description:
-      "Design and govern platform blueprints and architecture standards",
+      "Drive DEWA 2030 and Net-Zero 2050 through informed architecture investment and transformation oversight.",
     contributions: [
-      "Architecture Governance",
-      "Blueprint Design",
-      "Standards Contribution",
+      "Enterprise portfolio governance",
+      "Cross-division investment prioritisation",
+      "Digital DEWA programme oversight",
+      "Net-Zero milestone tracking",
     ],
+    ctaLabel: "View Executive Intelligence",
+    ctaRoute: "/stage2/intelligence/overview",
   },
   {
-    id: "project-teams",
-    name: "Project & Product Teams",
-    icon: Users,
+    id: "division-architects",
+    name: "Division EA & Architecture Leads",
+    icon: PenTool,
     color: "text-green",
-    role: "Program Managers, Product Owners",
-    description: "Deliver measurable assets and capabilities into DBP",
-    contributions: ["Project Execution", "Asset Delivery", "Milestone Tracking"],
-  },
-  {
-    id: "lifecycle-ops",
-    name: "Lifecycle Operations Teams",
-    icon: RefreshCw,
-    color: "text-pink",
-    role: "Operations, Insights, ADM",
+    role: "EA Leads and Solution Architects",
     description:
-      "Contribute continuous improvements and operational feedback",
+      "Apply corporate standards locally, contribute blueprints, and align divisional initiatives to enterprise architecture.",
     contributions: [
-      "Operational Feedback",
-      "Continuous Improvement",
-      "Performance Insights",
+      "Apply enterprise standards divisionally",
+      "Contribute to shared blueprint library",
+      "Review divisional solutions",
+      "Escalate cross-division dependencies",
     ],
+    ctaLabel: "Access Architecture Workspace",
+    ctaRoute: "/stage2/specs/overview",
   },
   {
-    id: "secdevops",
-    name: "Security DevOps Enablement",
-    icon: Shield,
-    color: "text-indigo-600",
-    role: "SecDevOps, Support Teams",
+    id: "digital-ai",
+    name: "Digital DEWA & AI Teams",
+    icon: Bot,
+    color: "text-phase-drive",
+    role: "Moro Hub, Rammas, Virtual Engineer",
     description:
-      "Ensure security, delivery automation, and user enablement",
-    contributions: ["Security Policies", "Delivery Automation", "User Enablement"],
+      "Govern AI architecture and cognitive services while aligning data and automation models to enterprise standards.",
+    contributions: [
+      "AI architecture governance",
+      "Virtual Engineer deployment oversight",
+      "Cognitive service integration standards",
+      "Data and analytics architecture alignment",
+    ],
+    ctaLabel: "Access AI & Digital Architecture",
+    ctaRoute: "/marketplaces/digital-intelligence",
+  },
+  {
+    id: "project-delivery",
+    name: "Project & Delivery Teams",
+    icon: Users,
+    color: "text-blue-accent",
+    role: "Programme and Delivery Teams",
+    description:
+      "Access resources, submit architecture requests, and deliver initiatives aligned to enterprise EA requirements.",
+    contributions: [
+      "Request solution specs and blueprints",
+      "Submit document generation requests",
+      "Track initiative progress vs standards",
+      "Access build and delivery resources",
+    ],
+    ctaLabel: "Access Project Workspace",
+    ctaRoute: "/stage2/templates/overview",
+  },
+  {
+    id: "ops-security",
+    name: "Operations & Security Teams",
+    icon: Shield,
+    color: "text-phase-drive",
+    role: "IT/OT, SecDevOps, Lifecycle Ops",
+    description:
+      "Govern secure delivery, automation fitness, and IT/OT convergence architecture across operational technology.",
+    contributions: [
+      "IT/OT convergence governance",
+      "Automation fitness assessments",
+      "Security architecture compliance",
+      "Operational technology lifecycle",
+    ],
+    ctaLabel: "Access Operations Console",
+    ctaRoute: "/marketplaces/support-services",
   },
 ];

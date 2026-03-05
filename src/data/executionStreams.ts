@@ -1,4 +1,4 @@
-import { Monitor, Laptop, Brain, Shield, LucideIcon } from "lucide-react";
+import { Sun, BatteryCharging, Bot, Building2, LucideIcon } from "lucide-react";
 
 export interface ExecutionStream {
   id: string;
@@ -7,58 +7,78 @@ export interface ExecutionStream {
   icon: LucideIcon;
   color: string;
   description: string;
-  features: string[];
   outcomes: string[];
+  ctaLabel: string;
+  route: string;
 }
 
 export const executionStreams: ExecutionStream[] = [
   {
-    id: "dxp",
-    name: "Digital Experience Platform",
-    acronym: "DXP",
-    icon: Monitor,
+    id: "solar",
+    name: "Solar Power & Clean Energy",
+    acronym: "PILLAR 01",
+    icon: Sun,
     color: "text-blue-accent",
-    description: "Orchestrate delivery across all digital touchpoints",
-    features: [
-      "Unified customer journeys",
-      "Experience management and personalization",
+    description:
+      "Govern architecture enabling clean-energy infrastructure, smart metering, grid integration, and monitoring aligned to DEWA's 2030 clean energy targets.",
+    outcomes: [
+      "Energy asset lifecycle governance",
+      "IT/OT integration for solar assets",
+      "Clean energy analytics architecture",
+      "Net-Zero 2050 measurement frameworks",
     ],
-    outcomes: ["Secure Foundations", "Customer Engagement", "Omnichannel Delivery"],
+    ctaLabel: "View Solar & Energy Architecture",
+    route: "/marketplaces/digital-intelligence",
   },
   {
-    id: "dws",
-    name: "Digital Workspace Solutions",
-    acronym: "DWS",
-    icon: Laptop,
-    color: "text-purple",
-    description: "Measurable productivity across the organization",
-    features: [
-      "Employee experience and collaboration",
-      "Knowledge management systems",
+    id: "storage",
+    name: "Energy Storage & Grid Resilience",
+    acronym: "PILLAR 02",
+    icon: BatteryCharging,
+    color: "text-phase-design",
+    description:
+      "Govern architecture for energy storage systems, Smart Grid infrastructure, and resilience operations across Dubai.",
+    outcomes: [
+      "Smart Grid architecture governance",
+      "Storage integration blueprints",
+      "Grid automation standards",
+      "Transmission-distribution alignment",
     ],
-    outcomes: ["Productivity Gains", "Employee Satisfaction", "Collaboration Efficiency"],
+    ctaLabel: "View Grid & Storage Architecture",
+    route: "/marketplaces/lifecycle-management",
   },
   {
-    id: "dia",
-    name: "Data, AI & Analytics",
-    acronym: "DIA",
-    icon: Brain,
-    color: "text-pink",
-    description: "Data pipelines, ML models, and analytics services",
-    features: ["AI-driven insights and automation", "Unified data governance"],
-    outcomes: ["AI/ML Capabilities", "Data Maturity", "Predictive Insights"],
-  },
-  {
-    id: "sdo",
-    name: "Secure DevOps Operations",
-    acronym: "SDO",
-    icon: Shield,
+    id: "ai",
+    name: "AI, Automation & Cognitive Services",
+    acronym: "PILLAR 03",
+    icon: Bot,
     color: "text-green",
-    description: "Safe, fast delivery through the enterprise",
-    features: [
-      "Security controls and compliance",
-      "Infrastructure patterns and automation",
+    description:
+      "Govern AI architecture behind Rammas, Virtual Engineer, and next-generation automation for cognitive utility operations.",
+    outcomes: [
+      "AI platform architecture governance",
+      "Virtual Engineer deployment architecture",
+      "Conversational AI blueprints",
+      "Cognitive integration standards",
     ],
-    outcomes: ["CI/CD Maturity", "Security Posture", "Deployment Velocity"],
+    ctaLabel: "View AI Architecture Governance",
+    route: "/marketplaces/digital-intelligence",
+  },
+  {
+    id: "moro",
+    name: "Digital Services & Moro Hub",
+    acronym: "PILLAR 04",
+    icon: Building2,
+    color: "text-phase-drive",
+    description:
+      "Govern digital-services architecture enabling Services 360, smart-city integration, and Moro Hub data-centre alignment.",
+    outcomes: [
+      "Digital services platform architecture",
+      "Services 360 integration governance",
+      "Moro Hub architecture alignment",
+      "Smart city interface standards",
+    ],
+    ctaLabel: "View Digital Services Architecture",
+    route: "/marketplaces/support-services",
   },
 ];
