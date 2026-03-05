@@ -46,12 +46,21 @@ const PortfolioDetailPage = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<DetailTab>("about");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Debug login modal state
+  useEffect(() => {
+    console.log('Login modal state changed:', showLoginModal);
+  }, [showLoginModal]);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [selectedRequestCard, setSelectedRequestCard] = useState<RequestCard | null>(null);
   const [pendingRequestData, setPendingRequestData] = useState<RequestFormData | null>(null);
 
   // Check if we should show insights view
   const showInsights = searchParams.get('view') === 'insights';
+  
+  // Check if request was just submitted
+  const requestSubmitted = searchParams.get('submitted') === 'true';
+  const submittedRequestId = searchParams.get('requestId');
 
   // Auto-submit request after login
   useEffect(() => {
@@ -60,6 +69,13 @@ const PortfolioDetailPage = () => {
       setPendingRequestData(null);
     }
   }, [isAuthenticated, pendingRequestData]);
+
+  // Handle navigation to Stage 2 (always show login first)
+  const handleTrackRequest = () => {
+    console.log('Track request clicked, showing login modal');
+    // Always show login modal before going to Stage 2
+    setShowLoginModal(true);
+  };
 
   // Find the service
   const service = allPortfolioServices.find(s => s.id === cardId && s.tab === tab);
@@ -106,20 +122,16 @@ const PortfolioDetailPage = () => {
     // Show success toast
     toast({
       title: "Request Submitted Successfully",
-      description: `Your ${formData.requestType} request has been submitted. You can track its progress in your dashboard.`,
-      duration: 5000,
+      description: `Your ${formData.requestType} request has been submitted. View insights and track progress.`,
+      duration: 3000,
     });
 
-    // Navigate to Stage 2 -> Portfolio My Requests
-    navigate('/stage2/portfolio-management', {
+    // Navigate to insights page with submission info
+    // Navigate to insights page with submission info
+    navigate(`/marketplaces/portfolio-management/${tab}/${cardId}?view=insights&submitted=true&requestId=${request.id}`, {
       state: {
-        marketplace: 'portfolio-management',
-        tab: 'my-requests',
-        cardId: request.serviceId,
-        serviceName: request.serviceName,
-        action: 'request-service',
-        submittedRequestId: request.id,
-      },
+        submittedRequest: request
+      }
     });
   };
 
@@ -199,6 +211,33 @@ const PortfolioDetailPage = () => {
               </div>
             </div>
           </section>
+          
+          {/* Success Banner for Submitted Requests */}
+          {requestSubmitted && (
+            <div className="bg-green-50 border-b border-green-200">
+              <div className="max-w-7xl mx-auto px-4 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-900">Request Submitted Successfully!</h3>
+                      <p className="text-green-700">Your request has been submitted and is being processed. Click below to track your request progress.</p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      console.log('Track My Request button clicked');
+                      handleTrackRequest();
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 text-lg font-semibold"
+                  >
+                    Track My Request
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="max-w-7xl mx-auto px-4 py-8">
             {isHealth && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -468,6 +507,33 @@ const PortfolioDetailPage = () => {
             </div>
           </div>
         </section>
+        
+        {/* Success Banner for Submitted Requests */}
+        {requestSubmitted && (
+          <div className="bg-green-50 border-b border-green-200">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-900">Request Submitted Successfully!</h3>
+                    <p className="text-green-700">Your request has been submitted and is being processed. Click below to track your request progress.</p>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => {
+                    console.log('Track My Request button clicked (general insights)');
+                    handleTrackRequest();
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 text-lg font-semibold"
+                >
+                  Track My Request
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div className="border-b border-gray-200 px-6 py-4">
@@ -920,7 +986,7 @@ const PortfolioDetailPage = () => {
           tab: tab || "",
           cardId: cardId || "",
           serviceName: service.title,
-          action: "access service"
+          action: requestSubmitted ? "track your request" : "access service"
         }}
         onLoginSuccess={() => {
           if (pendingRequestData) {
@@ -928,6 +994,23 @@ const PortfolioDetailPage = () => {
             setPendingRequestData(null);
             return;
           }
+          
+          // If coming from request submission, go to Stage 2 My Requests
+          if (requestSubmitted && submittedRequestId) {
+            navigate('/stage2/portfolio-management', {
+              state: {
+                marketplace: 'portfolio-management',
+                tab: 'my-requests',
+                cardId: cardId,
+                serviceName: service.title,
+                action: 'request-service',
+                submittedRequestId: submittedRequestId,
+              },
+            });
+            return;
+          }
+          
+          // Default behavior - go to Stage 2 overview
           navigate('/stage2/portfolio-management', {
             state: {
               marketplace: 'portfolio-management',

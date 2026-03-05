@@ -35,6 +35,8 @@ export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginMo
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  console.log('LoginModal render - isOpen:', isOpen);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
