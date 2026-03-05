@@ -1,5 +1,12 @@
 export { PortfolioCard } from './PortfolioCard';
-export { MarketplaceHeader } from './MarketplaceHeader';
-export { FilterPanel } from './FilterPanel';
 export { default as PortfolioHealthDashboard } from './PortfolioHealthDashboard';
 export { default as ApplicationDetailModal } from './ApplicationDetailModal';
+export { PortfolioPurposeSection } from './PortfolioPurposeSection';
+export { DynamicHealthDashboard } from './DynamicHealthDashboard';
+export { ComplianceAlerts } from './ComplianceAlerts';
+export { DependencyVisualization } from './DependencyVisualization';
+export { EnhancedSearchBar } from './EnhancedSearchBar';
+export { RequestCard } from './RequestCard';
+export { RequestCardsSection } from './RequestCardsSection';
+export { RequestFormModal } from './RequestFormModal';
+export { RequestDetailModal } from './RequestDetailModal';

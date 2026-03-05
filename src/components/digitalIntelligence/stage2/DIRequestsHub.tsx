@@ -3,7 +3,7 @@ import {
   BarChart3, Clock, CheckCircle, AlertCircle, Loader2, FileText,
   Mail, BellRing, Share2, ShieldCheck, Zap, Database, Edit, Eye,
   ChevronDown, ChevronUp, MessageSquare, User, Calendar, ArrowUpRight,
-  PieChart, TrendingUp, Filter, X
+  PieChart, TrendingUp, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -39,6 +39,12 @@ const priorityConfig: Record<string, { label: string; color: string }> = {
   'urgent': { label: 'Urgent', color: 'text-red-600' },
 };
 
+const activityCategoryConfig: Record<'status' | 'comment' | 'resolution', { label: string; color: string }> = {
+  status: { label: 'Status', color: 'bg-blue-100 text-blue-700' },
+  comment: { label: 'Comment', color: 'bg-purple-100 text-purple-700' },
+  resolution: { label: 'Resolution', color: 'bg-green-100 text-green-700' },
+};
+
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -53,96 +59,134 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(days / 30)} months ago`;
 }
 
+function formatFieldLabel(key: string) {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 const statusSteps = ['submitted', 'under-review', 'in-progress', 'completed'] as const;
 function getStepIndex(status: string) {
   const idx = statusSteps.indexOf(status as typeof statusSteps[number]);
   return idx >= 0 ? idx : (status === 'declined' ? -1 : 0);
 }
 
-export function OverviewTab({ requests, onFilterByType }: { requests: DashboardUpdateRequest[]; onFilterByType?: (type: string) => void }) {
-  const [activeType, setActiveType] = useState<string | null>(null);
+export function OverviewTab({
+  requests,
+  onOpenRequest,
+}: {
+  requests: DashboardUpdateRequest[];
+  onOpenRequest?: (requestId: string) => void;
+}) {
+  const [selectedType, setSelectedType] = useState<string>('all');
 
-  const typeDistribution = useMemo(() =>
-    requests.reduce((acc, r) => {
-      acc[r.requestType] = (acc[r.requestType] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>),
-  [requests]);
-
-  const filtered = useMemo(() =>
-    activeType ? requests.filter(r => r.requestType === activeType) : requests,
-  [requests, activeType]);
+  const scopedRequests = useMemo(
+    () => (selectedType === 'all' ? requests : requests.filter((r) => r.requestType === selectedType)),
+    [requests, selectedType]
+  );
 
   const stats = useMemo(() => {
-    const total = filtered.length;
+    const total = scopedRequests.length;
     const byStatus = {
-      submitted: filtered.filter(r => r.status === 'submitted').length,
-      underReview: filtered.filter(r => r.status === 'under-review').length,
-      inProgress: filtered.filter(r => r.status === 'in-progress').length,
-      completed: filtered.filter(r => r.status === 'completed').length,
-      declined: filtered.filter(r => r.status === 'declined').length,
+      submitted: scopedRequests.filter(r => r.status === 'submitted').length,
+      underReview: scopedRequests.filter(r => r.status === 'under-review').length,
+      inProgress: scopedRequests.filter(r => r.status === 'in-progress').length,
+      completed: scopedRequests.filter(r => r.status === 'completed').length,
+      declined: scopedRequests.filter(r => r.status === 'declined').length,
     };
     const active = byStatus.submitted + byStatus.underReview + byStatus.inProgress;
-    const avgSlaHours = filtered.filter(r => r.status === 'completed' && r.actualCompletionDate).reduce((sum, r) => {
+    const avgSlaHours = scopedRequests.filter(r => r.status === 'completed' && r.actualCompletionDate).reduce((sum, r) => {
       const diff = new Date(r.actualCompletionDate!).getTime() - new Date(r.submittedDate).getTime();
       return sum + diff / 3600000;
     }, 0);
-    const completedCount = filtered.filter(r => r.status === 'completed' && r.actualCompletionDate).length;
+    const completedCount = scopedRequests.filter(r => r.status === 'completed' && r.actualCompletionDate).length;
     const avgResolution = completedCount > 0 ? avgSlaHours / completedCount : 0;
 
-    type ActivityEvent = { key: string; timestamp: string; label: string; dashboardName: string; requestType: string; status: string };
+    const typeDistribution = requests.reduce((acc, r) => {
+      acc[r.requestType] = (acc[r.requestType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    type ActivityEvent = {
+      key: string;
+      requestId: string;
+      timestamp: string;
+      label: string;
+      dashboardName: string;
+      requestType: string;
+      status: string;
+      category: 'status' | 'comment' | 'resolution';
+    };
     const events: ActivityEvent[] = [];
-    filtered.forEach(req => {
+    scopedRequests.forEach(req => {
       const typeLbl = requestTypeLabels[req.requestType]?.label || req.requestType;
+      const latestTOMessage = [...req.messages]
+        .filter((msg) => msg.from.role === 'transformation-office')
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+      const statusEventTimestamp =
+        req.actualCompletionDate ||
+        latestTOMessage?.timestamp ||
+        req.submittedDate;
+
+      const statusLabel =
+        req.status === 'submitted'
+          ? `Request submitted for ${typeLbl}`
+          : `Status updated to ${statusConfig[req.status]?.label || req.status} for ${typeLbl}`;
+
       events.push({
-        key: `${req.id}-submit`,
-        timestamp: req.submittedDate,
-        label: `${req.requestedBy.name} submitted ${typeLbl}`,
+        key: `${req.id}-status`,
+        requestId: req.id,
+        timestamp: statusEventTimestamp,
+        label: statusLabel,
         dashboardName: req.dashboardName,
         requestType: req.requestType,
         status: req.status,
+        category: 'status',
       });
-      if (req.actualCompletionDate) {
-        events.push({
-          key: `${req.id}-complete`,
-          timestamp: req.actualCompletionDate,
-          label: `${typeLbl} completed`,
-          dashboardName: req.dashboardName,
-          requestType: req.requestType,
-          status: 'completed',
+
+      req.messages
+        .filter((msg) => msg.from.role === 'transformation-office')
+        .forEach((msg) => {
+          events.push({
+            key: msg.id,
+            requestId: req.id,
+            timestamp: msg.timestamp,
+            label: `TO commented on ${typeLbl}`,
+            dashboardName: req.dashboardName,
+            requestType: req.requestType,
+            status: req.status,
+            category: 'comment',
+          });
         });
-      }
-      req.messages.forEach(msg => {
+
+      if (req.resolution) {
         events.push({
-          key: msg.id,
-          timestamp: msg.timestamp,
-          label: `${msg.from.name} replied on ${typeLbl}`,
+          key: `${req.id}-resolution`,
+          requestId: req.id,
+          timestamp: req.actualCompletionDate || req.submittedDate,
+          label: `Resolution posted for ${typeLbl}`,
           dashboardName: req.dashboardName,
           requestType: req.requestType,
           status: req.status,
+          category: 'resolution',
         });
-      });
+      }
     });
     const recentEvents = events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 7);
 
-    return { total, byStatus, active, recentEvents, avgResolution, completedCount };
-  }, [filtered]);
+    return { total, byStatus, active, recentEvents, typeDistribution, avgResolution, completedCount };
+  }, [requests, scopedRequests]);
+
+  const typeEntries = useMemo(
+    () => Object.entries(stats.typeDistribution).sort(([, a], [, b]) => b - a),
+    [stats.typeDistribution]
+  );
 
   return (
     <div className="space-y-6">
-      {/* Active filter indicator */}
-      {activeType && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg text-sm">
-          <Filter className="w-4 h-4 text-orange-500" />
-          <span className="text-gray-600">Filtering by</span>
-          <span className="font-semibold text-orange-700">{requestTypeLabels[activeType]?.label || activeType}</span>
-          <span className="text-gray-500">({filtered.length} of {requests.length} requests)</span>
-          <button onClick={() => setActiveType(null)} className="ml-auto text-orange-500 hover:text-orange-700 transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4 hover:shadow-md transition-shadow">
@@ -192,6 +236,33 @@ export function OverviewTab({ requests, onFilterByType }: { requests: DashboardU
           </div>
         </Card>
       </div>
+
+      {/* Request Type Scope */}
+      <Card className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 min-w-[120px]">
+            <BarChart3 className="w-4 h-4 text-gray-400" />
+            <h3 className="text-sm font-semibold text-gray-900">Type Scope</h3>
+          </div>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="h-9 min-w-[220px] border border-gray-300 rounded-lg px-3 text-sm font-medium bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option value="all">All Types ({requests.length})</option>
+            {typeEntries.map(([type, count]) => (
+              <option key={type} value={type}>
+                {(requestTypeLabels[type]?.label || type)} ({count})
+              </option>
+            ))}
+          </select>
+        </div>
+        {selectedType !== 'all' && (
+          <p className="text-xs text-gray-500 mt-2">
+            Scoped to: {requestTypeLabels[selectedType]?.label || selectedType}
+          </p>
+        )}
+      </Card>
 
       {/* Status Breakdown + Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -247,11 +318,12 @@ export function OverviewTab({ requests, onFilterByType }: { requests: DashboardU
               const typeCfg = requestTypeLabels[evt.requestType];
               const TypeIcon = typeCfg?.icon || FileText;
               const stCfg = statusConfig[evt.status];
+              const catCfg = activityCategoryConfig[evt.category];
               return (
                 <button
                   key={evt.key}
-                  onClick={() => onFilterByType?.(evt.requestType)}
-                  className="w-full flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer text-left"
+                  onClick={() => onOpenRequest?.(evt.requestId)}
+                  className="w-full flex items-start gap-3 p-2 -m-2 rounded-lg text-left hover:bg-gray-50 transition-colors"
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${typeCfg?.color || 'bg-gray-100 text-gray-600'}`}>
                     <TypeIcon className="w-4 h-4" />
@@ -261,6 +333,11 @@ export function OverviewTab({ requests, onFilterByType }: { requests: DashboardU
                     <p className="text-xs text-gray-500 truncate">{evt.dashboardName}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
+                    <div className="flex items-center justify-end gap-1.5 mb-1">
+                      <Badge className={`text-[10px] ${catCfg.color}`}>
+                        {catCfg.label}
+                      </Badge>
+                    </div>
                     <Badge className={`text-xs ${stCfg?.color || ''}`}>
                       {stCfg?.label || evt.status}
                     </Badge>
@@ -273,54 +350,24 @@ export function OverviewTab({ requests, onFilterByType }: { requests: DashboardU
         </Card>
       </div>
 
-      {/* Request Types Distribution — clickable filter pills */}
-      <Card className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-gray-400" /> Requests by Type
-          </h3>
-          {activeType && (
-            <button
-              onClick={() => setActiveType(null)}
-              className="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 transition-colors"
-            >
-              <X className="w-3 h-3" /> Clear filter
-            </button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(typeDistribution)
-            .sort(([, a], [, b]) => b - a)
-            .map(([type, count]) => {
-              const cfg = requestTypeLabels[type];
-              const Icon = cfg?.icon || FileText;
-              const isActive = activeType === type;
-              return (
-                <button
-                  key={type}
-                  onClick={() => setActiveType(isActive ? null : type)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
-                      ? 'ring-2 ring-offset-1 ring-orange-500 shadow-md scale-105'
-                      : activeType
-                        ? 'opacity-50 hover:opacity-80'
-                        : 'hover:shadow-md hover:scale-105'
-                  } ${cfg?.color || 'bg-gray-100 text-gray-700'}`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {cfg?.label || type}
-                  <span className="bg-white/50 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ml-0.5">{count}</span>
-                </button>
-              );
-            })}
-        </div>
-      </Card>
     </div>
   );
 }
 
-function RequestRow({ request }: { request: DashboardUpdateRequest }) {
-  const [expanded, setExpanded] = useState(false);
+function RequestRow({
+  request,
+  forceExpanded,
+}: {
+  request: DashboardUpdateRequest;
+  forceExpanded?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(Boolean(forceExpanded));
+
+  useEffect(() => {
+    if (forceExpanded) {
+      setExpanded(true);
+    }
+  }, [forceExpanded]);
   const typeCfg = requestTypeLabels[request.requestType];
   const TypeIcon = typeCfg?.icon || FileText;
   const stCfg = statusConfig[request.status];
@@ -362,6 +409,21 @@ function RequestRow({ request }: { request: DashboardUpdateRequest }) {
                 <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Description</h4>
                 <p className="text-sm text-gray-700">{request.description}</p>
               </div>
+              {request.submittedFormData && Object.keys(request.submittedFormData).length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Submitted Details</h4>
+                  <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-100">
+                    {Object.entries(request.submittedFormData)
+                      .filter(([, value]) => typeof value === 'string' && value.trim().length > 0)
+                      .map(([key, value]) => (
+                        <div key={key} className="px-3 py-2.5 grid grid-cols-[150px_1fr] gap-3">
+                          <span className="text-xs font-medium text-gray-500">{formatFieldLabel(key)}</span>
+                          <span className="text-sm text-gray-800 break-words">{value}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
               {request.resolution && (
                 <div>
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Resolution</h4>
@@ -441,7 +503,17 @@ function RequestRow({ request }: { request: DashboardUpdateRequest }) {
   );
 }
 
-export function MyRequestsTab({ requests, initialTypeFilter, onFilterConsumed }: { requests: DashboardUpdateRequest[]; initialTypeFilter?: string; onFilterConsumed?: () => void }) {
+export function MyRequestsTab({
+  requests,
+  initialTypeFilter,
+  onFilterConsumed,
+  focusRequestId,
+}: {
+  requests: DashboardUpdateRequest[];
+  initialTypeFilter?: string;
+  onFilterConsumed?: () => void;
+  focusRequestId?: string | null;
+}) {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>(initialTypeFilter || 'all');
 
@@ -494,7 +566,13 @@ export function MyRequestsTab({ requests, initialTypeFilter, onFilterConsumed }:
       {/* Request List */}
       <div className="space-y-3">
         {filtered.length > 0 ? (
-          filtered.map(req => <RequestRow key={req.id} request={req} />)
+          filtered.map(req => (
+            <RequestRow
+              key={req.id}
+              request={req}
+              forceExpanded={focusRequestId === req.id}
+            />
+          ))
         ) : (
           <Card className="p-12 text-center">
             <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />

@@ -1,0 +1,21 @@
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[2m12:26:46 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "./pages/SupportNewRequestPage" from "src/App.tsx". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mE:/dqWork/Support Services/transformation-hub/src/App.tsx[39m:23:34
+[33m  41 |  import SupportServicesPage from "./pages/SupportServicesPage";
+  42 |  import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
+  43 |  import SupportNewRequestPage from "./pages/SupportNewRequestPage";
+     |                                     ^
+  44 |  import SupportServicesOverview from "./pages/stage2/support/SupportServicesOverview";
+  45 |  import MyTicketsPage from "./pages/stage2/support/MyTicketsPage";[39m
+      at TransformPluginContext._formatError (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49258:41)
+      at TransformPluginContext.error (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49253:16)
+      at normalizeUrl (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64291:23)
+      at async file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64423:39
+      at async Promise.all (index 25)
+      at async TransformPluginContext.transform (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64350:7)
+      at async PluginContainer.transform (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49099:18)
+      at async loadAndTransform (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:51977:27)
+      at async viteTransformMiddleware (file:///E:/dqWork/Support%20Services/transformation-hub/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:62105:24)

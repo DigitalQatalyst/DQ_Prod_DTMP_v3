@@ -48,6 +48,8 @@ import {
   type DigitalMaturityService,
   type ProjectsPortfolioService,
 } from "@/data/digitalIntelligence";
+import { createDIStage3Intake } from "@/data/stage3/intake";
+import type { DIServiceTab } from "@/data/digitalIntelligence/requestState";
 
 const iconMap: Record<string, LucideIcon> = {
   Activity, AlertTriangle, TrendingUp, RefreshCw, DollarSign, Shield,
@@ -136,6 +138,16 @@ export default function DigitalIntelligenceDetailPage() {
   };
 
   const handleAccessClick = () => {
+    // Create the Stage 3 intake record for the analytics access request
+    createDIStage3Intake({
+      serviceId: service!.id,
+      serviceTitle: service!.title,
+      tab: (tab as DIServiceTab) || "systems-portfolio",
+      requesterName: "Current User",
+      requesterEmail: "user@dtmp.local",
+      requesterRole: "Platform User",
+      message: `Analytics access request for: ${service!.title}`,
+    });
     navigate(`/marketplaces/digital-intelligence/${tab}/${service!.id}/dashboard`);
   };
 

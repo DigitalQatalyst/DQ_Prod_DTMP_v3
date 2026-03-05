@@ -112,6 +112,7 @@ export interface DashboardUpdateRequest {
     | 'schedule-report' | 'set-alert' | 'share-dashboard' | 'request-audit' | 'request-api';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   description: string;
+  submittedFormData?: Record<string, string>;
   requestedDataSource?: {
     name: string;
     instanceUrl?: string;
