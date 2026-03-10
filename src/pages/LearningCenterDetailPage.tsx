@@ -36,6 +36,13 @@ const levelColors: Record<string, string> = {
   Executive: "bg-orange-100 text-orange-700",
 };
 
+const phaseColors: Record<string, string> = {
+  Discern: "bg-sky-100 text-sky-700",
+  Design: "bg-violet-100 text-violet-700",
+  Deploy: "bg-emerald-100 text-emerald-700",
+  Drive: "bg-amber-100 text-amber-700",
+};
+
 const gradientColors = [
   "from-blue-400 to-purple-500",
   "from-green-400 to-blue-500",
@@ -65,7 +72,7 @@ export default function LearningCenterDetailPage() {
         <div className="max-w-7xl mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Item not found</h1>
           <Button onClick={() => navigate("/marketplaces/learning-center")}>
-            Back to Learning Center
+            Back to Learning Centre
           </Button>
         </div>
         <Footer />
@@ -137,7 +144,7 @@ export default function LearningCenterDetailPage() {
             </Link>
             <ChevronRight className="w-4 h-4 mx-2" />
             <Link to="/marketplaces/learning-center" className="hover:text-foreground transition-colors">
-              Learning Center
+              Learning Centre
             </Link>
             <ChevronRight className="w-4 h-4 mx-2" />
             <Link to={`/marketplaces/learning-center?tab=${tab}`} className="hover:text-foreground transition-colors capitalize">
@@ -162,6 +169,36 @@ export default function LearningCenterDetailPage() {
 
           {/* Title */}
           <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy mb-4">{title}</h1>
+
+          {((isCourse && course) || (isTrack && track)) && (
+            <div className="mb-4 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {(isCourse ? course?.divisionTags : track?.divisionTags)?.map((division) => (
+                  <Badge
+                    key={`division-${division}`}
+                    className="border border-orange-300 bg-white text-orange-700"
+                  >
+                    {division}
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(isCourse ? course?.phaseAlignment : track?.phaseAlignment)?.map((phase) => (
+                  <Badge key={`phase-${phase}`} className={`${phaseColors[phase]} border-0`}>
+                    {phase}
+                  </Badge>
+                ))}
+                {(isCourse ? course?.connectedProgrammes : track?.connectedProgrammes)?.map((programme) => (
+                  <Badge
+                    key={`programme-${programme}`}
+                    className="bg-slate-100 text-slate-700 border-0"
+                  >
+                    {programme}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-4">

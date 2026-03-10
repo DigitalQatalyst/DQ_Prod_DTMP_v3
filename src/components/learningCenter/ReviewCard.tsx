@@ -1,5 +1,6 @@
 import { Star, BookOpen, ThumbsUp, CheckCircle } from "lucide-react";
 import { Review } from "@/data/learningCenter/reviews";
+import { Link } from "react-router-dom";
 
 interface ReviewCardProps {
   review: Review;
@@ -36,7 +37,12 @@ export function ReviewCard({ review }: ReviewCardProps) {
       {/* Course Reference */}
       <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
         <BookOpen className="w-3 h-3" />
-        {review.courseName}
+        <Link
+          to={`/marketplaces/learning-center/courses/${review.courseId}`}
+          className="hover:text-orange-600"
+        >
+          {review.courseName}
+        </Link>
       </div>
 
       {/* Review Content */}

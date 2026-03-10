@@ -14,7 +14,7 @@ interface FilterPanelProps {
 }
 
 const filterLabels: Record<string, string> = {
-  department: "Department",
+  department: "Division",
   departmentApplicability: "Department Applicability",
   category: "Category",
   provider: "Provider",
@@ -28,6 +28,7 @@ const filterLabels: Record<string, string> = {
   includesCertification: "Certification",
   prerequisites: "Prerequisites",
   contentType: "Content Type",
+  division: "Division",
   verifiedLearner: "Verified Learner",
   completionStatus: "Completion Status",
   date: "Date",
