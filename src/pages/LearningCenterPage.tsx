@@ -96,6 +96,22 @@ const getRatingThreshold = (ratingFilter: string) => {
   }
 };
 
+const getPaginationItems = (currentPage: number, totalPages: number) => {
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (currentPage <= 3) {
+    return [1, 2, 3, 4, "ellipsis-end", totalPages] as const;
+  }
+
+  if (currentPage >= totalPages - 2) {
+    return [1, "ellipsis-start", totalPages - 3, totalPages - 2, totalPages - 1, totalPages] as const;
+  }
+
+  return [1, "ellipsis-start", currentPage - 1, currentPage, currentPage + 1, "ellipsis-end", totalPages] as const;
+};
+
 export default function LearningCenterPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -146,6 +162,7 @@ export default function LearningCenterPage() {
           course.description,
           course.category,
           course.department,
+          course.divisionTags.join(" "),
           course.level,
           course.provider?.name ?? "",
         ]
@@ -156,8 +173,13 @@ export default function LearningCenterPage() {
       if (!matchesSearch) return false;
 
       const departmentFilter = activeFilters.department ?? [];
-      if (departmentFilter.length > 0 && !departmentFilter.includes(course.department)) {
-        return false;
+      if (departmentFilter.length > 0) {
+        const matchesDivision = departmentFilter.some(
+          (division) =>
+            course.divisionTags.includes(division) ||
+            (division !== "All Divisions" && course.divisionTags.includes("All Divisions"))
+        );
+        if (!matchesDivision) return false;
       }
 
       const categoryFilter = activeFilters.category ?? [];
@@ -202,7 +224,7 @@ export default function LearningCenterPage() {
     return learningTracks.filter((track) => {
       const matchesSearch =
         !normalizedQuery ||
-        [track.title, track.description, track.role, track.focusArea]
+        [track.title, track.description, track.role, track.focusArea, track.divisionTags?.join(" ") ?? ""]
           .join(" ")
           .toLowerCase()
           .includes(normalizedQuery);
@@ -232,7 +254,10 @@ export default function LearningCenterPage() {
       }
 
       const prerequisitesFilter = activeFilters.prerequisites ?? [];
-      if (prerequisitesFilter.length > 0 && !prerequisitesFilter.includes(track.prerequisites)) {
+      if (
+        prerequisitesFilter.length > 0 &&
+        !prerequisitesFilter.includes(track.prerequisiteLevel ?? "None")
+      ) {
         return false;
       }
 
@@ -248,6 +273,8 @@ export default function LearningCenterPage() {
         [
           review.courseName,
           review.reviewer.name,
+          review.reviewer.role,
+          review.division,
           review.title ?? "",
           review.text,
         ]
@@ -257,11 +284,9 @@ export default function LearningCenterPage() {
 
       if (!matchesSearch) return false;
 
-      const contentTypeFilter = activeFilters.contentType ?? [];
-      if (contentTypeFilter.length > 0) {
-        const isTrackReview = learningTracks.some((track) => track.id === review.courseId);
-        const reviewType = isTrackReview ? "Learning Tracks" : "Courses";
-        if (!contentTypeFilter.includes(reviewType)) return false;
+      const divisionFilter = activeFilters.division ?? [];
+      if (divisionFilter.length > 0 && !divisionFilter.includes(review.division)) {
+        return false;
       }
 
       return true;
@@ -329,6 +354,7 @@ export default function LearningCenterPage() {
 
   const totalPages = Math.max(1, Math.ceil(getActiveSortedCount() / ITEMS_PER_PAGE));
   const page = Math.min(currentPage, totalPages);
+  const paginationItems = getPaginationItems(page, totalPages);
 
   const pagedCourses = useMemo(
     () => sortedCourses.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE),
@@ -425,7 +451,7 @@ export default function LearningCenterPage() {
               Marketplaces
             </Link>
             <ChevronRight className="w-4 h-4 mx-2" />
-            <span className="font-medium text-foreground">Learning Center</span>
+            <span className="font-medium text-foreground">Learning Centre</span>
           </nav>
 
           {/* Phase Badge */}
@@ -435,17 +461,17 @@ export default function LearningCenterPage() {
 
           {/* Title & Description */}
           <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy mb-3">
-            DTMP Learning Center
+            DTMP Learning Centre
           </h1>
           <p className="text-base lg:text-lg text-muted-foreground max-w-3xl mb-4">
-            Develop transformation expertise through structured learning programs. Master DT 2.0 concepts, DBP frameworks, and enterprise transformation practices through courses, learning tracks, and peer reviews.
+            Develop enterprise architecture and digital transformation expertise tailored for DEWA's organisational context. Master the 4D Governance Model, DEWA's Digital Business Platform streams, Smart Grid Strategy, and Net-Zero 2050 architecture principles - through courses, learning tracks, and peer reviews.
           </p>
 
           {/* Stats */}
           <div className="flex gap-6 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
-              25 Total Resources
+              47 Total Resources
             </span>
             <span className="flex items-center gap-2">
               <Users className="w-4 h-4" />
@@ -622,26 +648,29 @@ export default function LearningCenterPage() {
                     >
                       Prev
                     </button>
-                    {Array.from({ length: totalPages }, (_, index) => index + 1)
-                      .filter((pageNumber) =>
-                        pageNumber === 1 ||
-                        pageNumber === totalPages ||
-                        Math.abs(pageNumber - page) <= 1
-                      )
-                      .map((pageNumber) => (
+                    {paginationItems.map((item) =>
+                      typeof item === "string" ? (
+                        <span
+                          key={item}
+                          className="px-2 py-1.5 text-sm text-muted-foreground"
+                        >
+                          ...
+                        </span>
+                      ) : (
                         <button
-                          key={pageNumber}
+                          key={item}
                           type="button"
-                          onClick={() => setCurrentPage(pageNumber)}
+                          onClick={() => setCurrentPage(item)}
                           className={`px-3 py-1.5 text-sm border rounded-md ${
-                            pageNumber === page
+                            item === page
                               ? "border-orange-600 bg-orange-600 text-white"
                               : "border-gray-300 bg-white"
                           }`}
                         >
-                          {pageNumber}
+                          {item}
                         </button>
-                      ))}
+                      )
+                    )}
                     <button
                       type="button"
                       disabled={page === totalPages}

@@ -33,6 +33,10 @@ export interface LearningTrack {
   focusArea: string;
   certification: boolean;
   prerequisites: string;
+  prerequisiteLevel?: "None" | "Basic" | "Intermediate";
+  divisionTags?: string[];
+  phaseAlignment?: ("Discern" | "Design" | "Deploy" | "Drive")[];
+  connectedProgrammes?: string[];
   introduction?: string;
   highlights?: string[];
   learningOutcomes?: string[];
