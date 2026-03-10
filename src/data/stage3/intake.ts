@@ -509,8 +509,8 @@ export const createDIStage3Intake = (input: {
     },
     priority: input.priority ?? "medium",
     estimatedHours: 5,
-    tags: ["digital-intelligence", input.tab, input.serviceId],
-    relatedAssets: [`di-request:${request.id}`],
+    tags: ["digital-intelligence", input.tab, input.serviceId, `service-id:${input.serviceId}`],
+    relatedAssets: [`di-request:${request.id}`, `di-dashboard:${input.serviceId}`],
     notes: [
       `Digital Intelligence access request submitted by ${input.requesterName}.`,
       `Service: ${input.serviceTitle} (${tabLabel}).`,

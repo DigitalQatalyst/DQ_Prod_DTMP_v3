@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { OverviewTab, MyRequestsTab } from "@/components/digitalIntelligence/stage2/DIRequestsHub";
-import { dashboardRequests } from "@/data/digitalIntelligence/stage2";
+import {
+  dashboardRequests,
+  addDashboardRequest,
+} from "@/data/digitalIntelligence/stage2";
 import type { DashboardUpdateRequest } from "@/data/digitalIntelligence/stage2";
+import { createStage3Request } from "@/data/stage3";
+import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
 import ServiceDashboardPage from "./ServiceDashboardPage";
 
 interface IntelligenceWorkspacePageProps {
@@ -19,12 +24,23 @@ export default function IntelligenceWorkspacePage({
   const [focusRequestId, setFocusRequestId] = useState<string | null>(null);
 
   useEffect(() => {
+    setRequests([...dashboardRequests]);
+  }, []);
+
+  useEffect(() => {
+    const onFocus = () => setRequests([...dashboardRequests]);
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
+
+  useEffect(() => {
     const state = (location.state || {}) as {
       marketplace?: string;
       action?: string;
       formData?: Record<string, string>;
       dashboardName?: string;
       serviceName?: string;
+      cardId?: string;
       requestDescription?: string;
       actorEmail?: string;
     };
@@ -53,8 +69,7 @@ export default function IntelligenceWorkspacePage({
       "request-datasource": "new-data-source",
     };
 
-    const requestType =
-      actionToRequestType[action] || "modify-chart";
+    const requestType = actionToRequestType[action] || "modify-chart";
     const requestPriority = state.formData.priority;
     const priority: DashboardUpdateRequest["priority"] =
       requestPriority === "low" ||
@@ -108,33 +123,102 @@ export default function IntelligenceWorkspacePage({
       descriptionFromAnyMeaningfulField ||
       `Request submitted for ${dashboardName}.`;
 
-    setRequests((prev) => {
-      const year = new Date().getFullYear();
-      const nextOrdinal = prev.length + 1;
-      const id = `REQ-INT-${year}-${String(nextOrdinal).padStart(3, "0")}`;
+    const requesterName = state.formData.name || "John Doe";
+    const requesterEmail = state.actorEmail || state.formData.email || "user@company.com";
+    const requesterRole = state.formData.role || "Business User";
 
-      const newRequest: DashboardUpdateRequest = {
-        id,
-        dashboardId: dashboardName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-        dashboardName,
-        requestType,
-        priority,
-        description,
-        submittedFormData: { ...formData },
-        requestedBy: {
-          id: "user-session",
-          name: state.formData.name || "John Doe",
-          email: state.actorEmail || state.formData.email || "user@company.com",
-          role: state.formData.role || "Business User",
-        },
-        status: "submitted",
-        submittedDate: new Date().toISOString(),
-        messages: [],
-        notifyEmail: true,
-        notifyInApp: true,
-      };
+    const serviceId =
+      state.cardId ||
+      intelligenceServices.find(
+        (s) => s.title.toLowerCase() === dashboardName.toLowerCase(),
+      )?.id ||
+      dashboardName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-      return [newRequest, ...prev];
+    const year = new Date().getFullYear();
+    const nextOrdinal = dashboardRequests.length + 1;
+    const id = `REQ-INT-${year}-${String(nextOrdinal).padStart(3, "0")}`;
+
+    const newRequest: DashboardUpdateRequest = {
+      id,
+      dashboardId: serviceId,
+      dashboardName,
+      requestType,
+      priority,
+      description,
+      submittedFormData: { ...formData },
+      requestedBy: {
+        id: "user-session",
+        name: requesterName,
+        email: requesterEmail,
+        role: requesterRole,
+      },
+      status: "submitted",
+      submittedDate: new Date().toISOString(),
+      messages: [],
+      notifyEmail: true,
+      notifyInApp: true,
+    };
+
+    addDashboardRequest(newRequest);
+    setRequests([...dashboardRequests]);
+    setFocusRequestId(id);
+
+    const actionLabels: Record<string, string> = {
+      "schedule-report": "Schedule Email Report",
+      "set-alert": "Set Threshold Alert",
+      "share-dashboard": "Share with Team",
+      "request-audit": "Request Data Audit",
+      "request-api": "Request API Access",
+      "request-update": "Request Dashboard Update",
+      "request-datasource": "Request Data Source",
+      "modify-chart": "Chart Modification",
+      "add-visualization": "New Visualization",
+      "fix-data": "Data Fix",
+      "new-data-source": "New Data Source",
+      "change-layout": "Layout Change",
+    };
+
+    const stage3Priority: "low" | "medium" | "high" | "critical" =
+      priority === "urgent" ? "critical" : priority;
+
+    const stage3EstimatedHours: Record<string, number> = {
+      "schedule-report": 2,
+      "set-alert": 3,
+      "share-dashboard": 1,
+      "request-audit": 16,
+      "request-api": 8,
+      "request-update": 6,
+      "request-datasource": 12,
+      "modify-chart": 6,
+      "add-visualization": 8,
+      "fix-data": 4,
+      "new-data-source": 12,
+      "change-layout": 4,
+    };
+
+    createStage3Request({
+      type: "digital-intelligence",
+      title: `Digital Intelligence — ${dashboardName}`,
+      description: `${actionLabels[action] || action} — ${description}`,
+      requester: {
+        name: requesterName,
+        email: requesterEmail,
+        department: requesterRole,
+        organization: "DTMP",
+      },
+      priority: stage3Priority,
+      estimatedHours: stage3EstimatedHours[action] || 4,
+      tags: [
+        "digital-intelligence",
+        action,
+        dashboardName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        `service-id:${serviceId}`,
+      ],
+      relatedAssets: [
+        `di-request:${id}`,
+        `di-dashboard:${serviceId}`,
+      ],
+      notes: [`Auto-created from Digital Intelligence marketplace form submission (${actionLabels[action] || action}).`],
     });
 
     const { formData: _f, action: _a, ...rest } = state;

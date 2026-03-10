@@ -214,9 +214,213 @@ const defaultStage3Requests: Stage3Request[] = [
     ],
     slaStatus: "on-track",
   },
+  {
+    id: "req-stage3-007",
+    requestNumber: "REQ-2026-007",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — System Health Analytics Dashboard",
+    description:
+      "Schedule Email Report request for the System Health Analytics dashboard. Frequency: weekly. Priority: medium. Recipient: ops-lead@company.com.",
+    requester: {
+      name: "Current User",
+      email: "current.user@company.com",
+      department: "IT Operations",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "medium",
+    createdAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 3 * day).toISOString(),
+    estimatedHours: 2,
+    tags: ["digital-intelligence", "schedule-report", "system-health"],
+    relatedAssets: ["di-dashboard:system-health-analytics"],
+    notes: ["Auto-created from Digital Intelligence marketplace form submission."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Schedule Email Report request received from Digital Intelligence marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-008",
+    requestNumber: "REQ-2026-008",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Predictive Maintenance Intelligence",
+    description:
+      "Set Threshold Alert request for Predictive Maintenance Intelligence dashboard. Metric: Equipment Failure Rate. Alert when value goes above 5%. Priority: high.",
+    requester: {
+      name: "Current User",
+      email: "current.user@company.com",
+      department: "Facilities Engineering",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "high",
+    createdAt: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 2 * day).toISOString(),
+    estimatedHours: 3,
+    tags: ["digital-intelligence", "set-alert", "predictive-maintenance"],
+    relatedAssets: ["di-dashboard:predictive-maintenance"],
+    notes: ["Threshold alert configuration — requires platform integration."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Set Threshold Alert request received from Digital Intelligence marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-009",
+    requestNumber: "REQ-2026-009",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Delivery Velocity Analytics",
+    description:
+      "Request API Access for Delivery Velocity Analytics dashboard. Use case: Integrate dashboard metrics into internal Slack bot for sprint standups. Expected volume: Medium (100–1,000 calls/day). Priority: medium.",
+    requester: {
+      name: "James Park",
+      email: "j.park@dtmp.local",
+      department: "Engineering",
+      organization: "DTMP",
+    },
+    status: "assigned",
+    priority: "medium",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 2 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 18 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 3 * day).toISOString(),
+    estimatedHours: 8,
+    actualHours: 2,
+    tags: ["digital-intelligence", "request-api", "delivery-velocity"],
+    relatedAssets: ["di-dashboard:delivery-velocity-analytics"],
+    notes: ["API credential provisioning in progress.", "Slack webhook integration documented."],
+    activityLog: [
+      createActivityEntry("created", "API Access request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to assigned."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-010",
+    requestNumber: "REQ-2026-010",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Resource Allocation Optimizer",
+    description:
+      "Share with Team request for Resource Allocation Optimizer dashboard. Shared with: sarah.chen@company.com (Editor access). Message: Please review the resource bottleneck analysis before our Monday planning session.",
+    requester: {
+      name: "Emily Torres",
+      email: "e.torres@dtmp.local",
+      department: "PMO",
+      organization: "DTMP",
+    },
+    status: "in-progress",
+    priority: "low",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 3 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - day).toISOString(),
+    dueDate: new Date(now.getTime() + day).toISOString(),
+    estimatedHours: 1,
+    actualHours: 0.5,
+    tags: ["digital-intelligence", "share-dashboard", "resource-allocation"],
+    relatedAssets: ["di-dashboard:resource-optimization-ai"],
+    notes: ["Dashboard sharing permissions being configured."],
+    activityLog: [
+      createActivityEntry("created", "Share Dashboard request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-011",
+    requestNumber: "REQ-2026-011",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Digital Maturity Scoring Engine",
+    description:
+      "Request Data Audit for Digital Maturity Scoring Engine. Audit Scope: Full Audit — all data sources and transformations. Reason: Quarterly compliance review — maturity scores are feeding executive KPIs and need verified accuracy. Priority: high.",
+    requester: {
+      name: "Rachel Kim",
+      email: "r.kim@dtmp.local",
+      department: "Compliance",
+      organization: "DTMP",
+    },
+    status: "pending-review",
+    priority: "high",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 5 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + day).toISOString(),
+    estimatedHours: 16,
+    actualHours: 14,
+    tags: ["digital-intelligence", "request-audit", "maturity-scoring", "compliance"],
+    relatedAssets: ["di-dashboard:dbp-maturity-assessment"],
+    notes: ["Full data lineage trace completed.", "Awaiting compliance sign-off on transformation logic audit."],
+    activityLog: [
+      createActivityEntry("created", "Data Audit request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+      createActivityEntry("note-added", "Data lineage trace completed for all 3 source systems."),
+      createActivityEntry("status-changed", "Status moved to pending-review."),
+    ],
+    slaStatus: "at-risk",
+  },
+  {
+    id: "req-stage3-012",
+    requestNumber: "REQ-2026-012",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Portfolio Risk Analyzer",
+    description:
+      "Request Dashboard Update for Portfolio Risk Analyzer. Improvement: Add a heatmap visualization showing risk exposure by department and project phase, and include a trend line for the risk mitigation velocity metric. Priority: medium.",
+    requester: {
+      name: "David Okafor",
+      email: "d.okafor@dtmp.local",
+      department: "Strategy",
+      organization: "DTMP",
+    },
+    status: "completed",
+    priority: "medium",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 10 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 4 * day).toISOString(),
+    completedAt: new Date(now.getTime() - 4 * day).toISOString(),
+    dueDate: new Date(now.getTime() - 5 * day).toISOString(),
+    estimatedHours: 12,
+    actualHours: 10,
+    tags: ["digital-intelligence", "modify-chart", "portfolio-risk", "heatmap"],
+    relatedAssets: ["di-dashboard:risk-prediction-engine"],
+    notes: ["Heatmap and trend line delivered.", "Customer confirmed satisfaction."],
+    activityLog: [
+      createActivityEntry("created", "Dashboard Update request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+      createActivityEntry("note-added", "Heatmap prototype shared with requester for feedback."),
+      createActivityEntry("status-changed", "Status moved to completed."),
+    ],
+    slaStatus: "on-track",
+    customerSatisfaction: 5,
+  },
 ];
 
+const STAGE3_DATA_VERSION = 3;
+
 const loadStage3Requests = (): Stage3Request[] => {
+  const storedVersion = localStorage.getItem('stage3RequestsVersion');
+  if (storedVersion !== String(STAGE3_DATA_VERSION)) {
+    localStorage.removeItem('stage3Requests');
+    localStorage.setItem('stage3RequestsVersion', String(STAGE3_DATA_VERSION));
+    return [...defaultStage3Requests];
+  }
   const stored = localStorage.getItem('stage3Requests');
   if (stored) {
     try {
@@ -261,6 +465,15 @@ export const stage3TeamMembers: Stage3TeamMember[] = [
     capacityHours: 40,
     allocatedHours: 31,
     skills: ["incident-response", "support-services", "consulting"],
+  },
+  {
+    id: "to-004",
+    name: "Alex Rivera",
+    role: "Intelligence Platform Engineer",
+    team: "Intelligence Platform",
+    capacityHours: 40,
+    allocatedHours: 26,
+    skills: ["digital-intelligence", "data-engineering", "api-provisioning", "dashboard-ops", "alert-configuration"],
   },
 ];
 

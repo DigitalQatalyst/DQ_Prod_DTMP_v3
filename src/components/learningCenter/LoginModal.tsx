@@ -209,7 +209,9 @@ export function LoginModal({
             ? `Log in to submit your request for "${context.serviceName}".`
             : context.marketplace === "solution-specs"
               ? "Log in to access this solution specification."
-              : "Please log in to continue with your enrollment"}
+              : context.marketplace === "digital-intelligence"
+                ? `Log in to submit your request for "${context.dashboardName || context.serviceName || "Digital Intelligence"}".`
+                : "Please log in to continue with your enrollment"}
         </p>
 
         {/* Form */}

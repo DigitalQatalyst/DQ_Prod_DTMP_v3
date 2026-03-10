@@ -1,6 +1,10 @@
 import { DashboardUpdateRequest } from './types';
 
-export const dashboardRequests: DashboardUpdateRequest[] = [
+const DI_REQUESTS_KEY = 'dtmp.di.dashboardRequests';
+const DI_REQUESTS_VERSION_KEY = 'dtmp.di.dashboardRequests.version';
+const DI_REQUESTS_VERSION = 3;
+
+const defaultDashboardRequests: DashboardUpdateRequest[] = [
   {
     id: 'REQ-INT-2026-001',
     dashboardId: 'delivery-velocity-analytics',
@@ -344,3 +348,52 @@ export const dashboardRequests: DashboardUpdateRequest[] = [
     notifyInApp: true
   }
 ];
+
+function loadDashboardRequests(): DashboardUpdateRequest[] {
+  const storedVersion = localStorage.getItem(DI_REQUESTS_VERSION_KEY);
+  if (storedVersion !== String(DI_REQUESTS_VERSION)) {
+    localStorage.removeItem(DI_REQUESTS_KEY);
+    localStorage.setItem(DI_REQUESTS_VERSION_KEY, String(DI_REQUESTS_VERSION));
+    return [...defaultDashboardRequests];
+  }
+  const stored = localStorage.getItem(DI_REQUESTS_KEY);
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return [...defaultDashboardRequests];
+    }
+  }
+  return [...defaultDashboardRequests];
+}
+
+function saveDashboardRequests(): void {
+  localStorage.setItem(DI_REQUESTS_KEY, JSON.stringify(dashboardRequests));
+}
+
+export const dashboardRequests: DashboardUpdateRequest[] = loadDashboardRequests();
+
+export function addDashboardRequest(request: DashboardUpdateRequest): void {
+  dashboardRequests.unshift(request);
+  saveDashboardRequests();
+}
+
+export function updateDashboardRequestStatus(
+  requestId: string,
+  status: DashboardUpdateRequest['status'],
+): DashboardUpdateRequest | null {
+  const req = dashboardRequests.find(r => r.id === requestId);
+  if (!req) return null;
+  req.status = status;
+  if (status === 'completed') {
+    req.actualCompletionDate = new Date().toISOString();
+  }
+  saveDashboardRequests();
+  return req;
+}
+
+export function getDashboardRequestById(
+  requestId: string,
+): DashboardUpdateRequest | null {
+  return dashboardRequests.find(r => r.id === requestId) ?? null;
+}
