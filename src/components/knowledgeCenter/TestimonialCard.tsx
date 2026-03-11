@@ -1,7 +1,5 @@
 import { BadgeCheck, CheckCircle } from "lucide-react";
 import { Testimonial } from "@/data/knowledgeCenter/testimonials";
-import { mapIndustryToDepartment } from "@/data/knowledgeCenter/departmentMapping";
-
 interface TestimonialCardProps {
   testimonial: Testimonial;
   onClick: () => void;
@@ -23,13 +21,19 @@ export function TestimonialCard({ testimonial, onClick }: TestimonialCardProps) 
               {testimonial.organization}
             </h4>
             <p className="text-xs text-gray-600">
-              {mapIndustryToDepartment(testimonial.industry)}
+              {testimonial.department}
             </p>
           </div>
         </div>
         <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
           <BadgeCheck className="w-3 h-3" />
           TO Verified
+        </span>
+      </div>
+
+      <div className="mb-4">
+        <span className="inline-flex rounded-full border border-purple-300 bg-white/80 px-2 py-1 text-xs font-semibold text-purple-700">
+          {testimonial.sectorTag}
         </span>
       </div>
 

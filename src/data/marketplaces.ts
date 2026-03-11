@@ -43,9 +43,9 @@ export const marketplaces: Marketplace[] = [
     icon: BookOpen,
     name: "DTMP Knowledge Centre",
     description:
-      "EA frameworks, architecture policies, governance standards, and corporate artefact library accessible enterprise-wide.",
-    features: ["Best Practices", "Testimonials", "Industry Playbooks", "Library"],
-    serviceCount: 40,
+      "DEWA-specific architecture knowledge, governance references, strategy documents, standards, and published design outputs accessible enterprise-wide.",
+    features: ["Best Practices", "Design Reports", "Architecture Standards", "Governance Frameworks"],
+    serviceCount: 89,
     route: "/marketplaces/knowledge-center",
   },
 
