@@ -26,10 +26,14 @@ import {
   updateDITORequestStatus,
   type DIRequestStatus,
 } from "@/data/digitalIntelligence/requestState";
+import {
+  updatePortfolioRequestStatus,
+  type PortfolioRequestStatus,
+} from "@/data/portfolio/requestState";
 
 const mapStage3ToMarketplaceStatus = (
   status: Stage3RequestStatus
-): TORequestStatus | LearningTORequestStatus => {
+): TORequestStatus | LearningTORequestStatus | PortfolioRequestStatus => {
   if (status === "completed") return "Resolved";
   if (status === "pending-review" || status === "in-progress" || status === "assigned") {
     return "In Review";
@@ -106,6 +110,10 @@ export const syncMarketplaceRequestStatusFromStage3 = (request: Stage3Request) =
     if (asset.startsWith("di-request:")) {
       const requestId = asset.replace("di-request:", "").trim();
       if (requestId) updateDITORequestStatus(requestId, mappedStatus as DIRequestStatus);
+    }
+    if (asset.startsWith("portfolio-request:")) {
+      const requestId = asset.replace("portfolio-request:", "").trim();
+      if (requestId) updatePortfolioRequestStatus(requestId, mappedStatus as PortfolioRequestStatus);
     }
   }
 

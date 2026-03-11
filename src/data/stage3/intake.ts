@@ -526,3 +526,80 @@ export const createDIStage3Intake = (input: {
 
   return { request, stage3 };
 };
+
+// ─── Portfolio Management ──────────────────────────────────────────────────────
+
+import {
+  addPortfolioRequest,
+  linkPortfolioRequestToStage3,
+  type PortfolioRequestType,
+} from "@/data/portfolio/requestState";
+
+const portfolioTitleMap: Record<PortfolioRequestType, string> = {
+  assessment: "Portfolio Assessment Request",
+  analysis: "Portfolio Analysis Request",
+  optimization: "Portfolio Optimization Request",
+  dashboard: "Portfolio Dashboard Request",
+  consultation: "Portfolio Consultation Request",
+};
+
+/**
+ * Creates a Portfolio Management TO request and a linked Stage 3 request in one
+ * atomic operation. Returns both records, or null if the message is empty.
+ */
+export const createPortfolioStage3Intake = (input: {
+  serviceId: string;
+  serviceTitle: string;
+  requesterName: string;
+  requesterEmail: string;
+  requesterRole: string;
+  type: PortfolioRequestType;
+  message: string;
+  portfolioScope?: string;
+  priority?: Stage3Priority;
+  requestTitle?: string;
+}): { request: ReturnType<typeof addPortfolioRequest>; stage3: ReturnType<typeof createStage3Request> } | null => {
+  // 1. Create the marketplace request
+  const request = addPortfolioRequest({
+    serviceId: input.serviceId,
+    requesterName: input.requesterName,
+    requesterRole: input.requesterRole,
+    type: input.type,
+    message: input.message,
+    portfolioScope: input.portfolioScope,
+    requestTitle: input.requestTitle,
+    priority: input.priority === "critical" ? "High" : input.priority === "high" ? "High" : input.priority === "low" ? "Low" : "Medium",
+  });
+  if (!request) return null;
+
+  // 2. Create the Stage 3 request
+  const stage3 = createStage3Request({
+    type: "portfolio-management",
+    title: `${portfolioTitleMap[input.type]} — ${input.serviceTitle}`,
+    description: input.portfolioScope
+      ? `[Scope: ${input.portfolioScope}] ${input.message}`
+      : input.message,
+    requester: {
+      name: input.requesterName,
+      email: input.requesterEmail,
+      department: input.requesterRole,
+      organization: "DTMP",
+    },
+    priority: input.priority ?? "medium",
+    estimatedHours: input.type === "assessment" ? 16 : input.type === "dashboard" ? 8 : 12,
+    tags: ["portfolio-management", input.type, input.serviceId],
+    relatedAssets: [`portfolio-request:${request.id}`],
+    notes: [
+      `Portfolio Management request submitted by ${input.requesterName}.`,
+      `Service: ${input.serviceTitle}.`,
+      `Request type: ${input.type}.`,
+      ...(input.portfolioScope ? [`Portfolio scope: ${input.portfolioScope}.`] : []),
+      ...(input.requestTitle ? [`Request title: ${input.requestTitle}.`] : []),
+    ],
+  });
+
+  // 3. Write the back-link onto the marketplace record
+  linkPortfolioRequestToStage3(request.id, stage3.id);
+
+  return { request, stage3 };
+};

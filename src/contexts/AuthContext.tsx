@@ -17,13 +17,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // For demo purposes, start with a logged-in user
+  // Start with no user (unauthenticated state)
   // In production, this would check for stored auth tokens
-  const [user, setUser] = useState<User | null>({
-    id: 'user-123',
-    name: 'John Doe',
-    email: 'john.doe@company.com'
-  });
+  const [user, setUser] = useState<User | null>(null);
 
   // Seed demo data on mount if user is logged in and has no requests
   useEffect(() => {

@@ -372,3 +372,9 @@ export const portfolioStats = {
   projectServices: projectPortfolio.length,
   realtimeServices: allPortfolioServices.filter(service => service.realtime).length
 };
+
+// Export request state management
+export * from "./requestState";
+
+// Export data alignment utilities
+export * from "./dataAlignment";
