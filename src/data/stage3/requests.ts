@@ -217,6 +217,176 @@ const defaultStage3Requests: Stage3Request[] = [
   {
     id: "req-stage3-007",
     requestNumber: "REQ-2026-007",
+    type: "portfolio-management",
+    title: "Application Portfolio Health Assessment",
+    description:
+      "Comprehensive health assessment of the enterprise application portfolio with risk analysis and optimization recommendations.",
+    requester: {
+      name: "David Chen",
+      email: "david.chen@dtmp.local",
+      department: "Enterprise Architecture",
+      organization: "DTMP",
+    },
+    status: "assigned",
+    priority: "high",
+    assignedTo: "Lisa Wang",
+    assignedTeam: "Portfolio Analytics",
+    createdAt: new Date(now.getTime() - 5 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 2 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 7 * day).toISOString(),
+    estimatedHours: 32,
+    actualHours: 8,
+    tags: ["portfolio", "assessment", "health-monitoring"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709423456789-mno90"],
+    notes: ["Initial data collection completed.", "Stakeholder interviews scheduled."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request received from Portfolio Management marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Lisa Wang (Portfolio Analytics)."),
+      createActivityEntry("status-changed", "Status moved to assigned."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-008",
+    requestNumber: "REQ-2026-008",
+    type: "portfolio-management",
+    title: "Project Portfolio Risk Dashboard Setup",
+    description:
+      "Configure and deploy real-time risk monitoring dashboard for the transformation project portfolio.",
+    requester: {
+      name: "Maria Rodriguez",
+      email: "maria.rodriguez@dtmp.local",
+      department: "PMO",
+      organization: "DTMP",
+    },
+    status: "in-progress",
+    priority: "medium",
+    assignedTo: "Michael Chen",
+    assignedTeam: "Portfolio Analytics",
+    createdAt: new Date(now.getTime() - 8 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 5 * day).toISOString(),
+    estimatedHours: 16,
+    actualHours: 12,
+    tags: ["portfolio", "dashboard", "risk-management"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709023456789-def34"],
+    notes: ["Dashboard framework configured.", "Data integration in progress."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request submitted from Portfolio Management services.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Michael Chen (Portfolio Analytics)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-009",
+    requestNumber: "REQ-2026-009",
+    type: "portfolio-management",
+    title: "Application Dependency Impact Analysis",
+    description:
+      "Comprehensive dependency mapping for application portfolio to support rationalization decisions.",
+    requester: {
+      name: "David Chen",
+      email: "david.chen@dtmp.local",
+      department: "Enterprise Architecture",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "medium",
+    createdAt: new Date(now.getTime() - 4 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 4 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 8 * day).toISOString(),
+    estimatedHours: 12,
+    tags: ["portfolio", "analysis", "dependencies"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709123456789-abc12"],
+    notes: ["Request received from Stage 2 Portfolio Management."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request received from Portfolio Management marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-010",
+    requestNumber: "REQ-2026-010",
+    type: "portfolio-management",
+    title: "Portfolio Health Remediation Action Plan",
+    description:
+      "Develop remediation action plan for applications showing health concerns with specific actions and timelines.",
+    requester: {
+      name: "Sarah Johnson",
+      email: "sarah.johnson@dtmp.local",
+      department: "Application Owner",
+      organization: "DTMP",
+    },
+    status: "pending-review",
+    priority: "medium",
+    assignedTo: "Lisa Wang",
+    assignedTeam: "Portfolio Analytics",
+    createdAt: new Date(now.getTime() - 6 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 2 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 14 * day).toISOString(),
+    estimatedHours: 8,
+    actualHours: 6,
+    tags: ["portfolio", "consultation", "health-review"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709223456789-ghi56"],
+    notes: ["Initial analysis completed.", "Awaiting stakeholder review."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request submitted from Portfolio Management services.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Lisa Wang (Portfolio Analytics)."),
+      createActivityEntry("status-changed", "Status moved to pending-review."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-011",
+    requestNumber: "REQ-2026-011",
+    type: "portfolio-management",
+    title: "Portfolio Health Review Workshop",
+    description:
+      "Facilitate health review workshop to align stakeholders on improvement strategies and priorities.",
+    requester: {
+      name: "Michael Thompson",
+      email: "michael.thompson@dtmp.local",
+      department: "Portfolio Manager",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "low",
+    createdAt: new Date(now.getTime() - 1 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 1 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 21 * day).toISOString(),
+    estimatedHours: 4,
+    tags: ["portfolio", "consultation", "workshop"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709323456789-jkl78"],
+    notes: ["Workshop request received.", "Scheduling coordination needed."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request received from Portfolio Management marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-012",
+    requestNumber: "REQ-2026-012",
     type: "digital-intelligence",
     title: "Digital Intelligence — System Health Analytics Dashboard",
     description:
@@ -246,8 +416,8 @@ const defaultStage3Requests: Stage3Request[] = [
     slaStatus: "on-track",
   },
   {
-    id: "req-stage3-008",
-    requestNumber: "REQ-2026-008",
+    id: "req-stage3-013",
+    requestNumber: "REQ-2026-013",
     type: "digital-intelligence",
     title: "Digital Intelligence — Predictive Maintenance Intelligence",
     description:
@@ -277,8 +447,8 @@ const defaultStage3Requests: Stage3Request[] = [
     slaStatus: "on-track",
   },
   {
-    id: "req-stage3-009",
-    requestNumber: "REQ-2026-009",
+    id: "req-stage3-014",
+    requestNumber: "REQ-2026-014",
     type: "digital-intelligence",
     title: "Digital Intelligence — Delivery Velocity Analytics",
     description:
@@ -309,8 +479,8 @@ const defaultStage3Requests: Stage3Request[] = [
     slaStatus: "on-track",
   },
   {
-    id: "req-stage3-010",
-    requestNumber: "REQ-2026-010",
+    id: "req-stage3-015",
+    requestNumber: "REQ-2026-015",
     type: "digital-intelligence",
     title: "Digital Intelligence — Resource Allocation Optimizer",
     description:
@@ -341,8 +511,8 @@ const defaultStage3Requests: Stage3Request[] = [
     slaStatus: "on-track",
   },
   {
-    id: "req-stage3-011",
-    requestNumber: "REQ-2026-011",
+    id: "req-stage3-016",
+    requestNumber: "REQ-2026-016",
     type: "digital-intelligence",
     title: "Digital Intelligence — Digital Maturity Scoring Engine",
     description:
@@ -375,8 +545,8 @@ const defaultStage3Requests: Stage3Request[] = [
     slaStatus: "at-risk",
   },
   {
-    id: "req-stage3-012",
-    requestNumber: "REQ-2026-012",
+    id: "req-stage3-017",
+    requestNumber: "REQ-2026-017",
     type: "digital-intelligence",
     title: "Digital Intelligence — Portfolio Risk Analyzer",
     description:
@@ -412,7 +582,7 @@ const defaultStage3Requests: Stage3Request[] = [
   },
 ];
 
-const STAGE3_DATA_VERSION = 3;
+const STAGE3_DATA_VERSION = 4;
 
 const loadStage3Requests = (): Stage3Request[] => {
   const storedVersion = localStorage.getItem('stage3RequestsVersion');

@@ -13,6 +13,8 @@ export interface SupportTORequest {
   id: string;
   serviceId: string;
   serviceName: string;
+  supportTicketId?: string;
+  supportServiceRequestId?: string;
   requesterName: string;
   requesterRole: string;
   type: SupportRequestType;
@@ -45,6 +47,8 @@ export const getSupportTORequests = (requesterName?: string): SupportTORequest[]
 export const addSupportTORequest = ({
   serviceId,
   serviceName,
+  supportTicketId,
+  supportServiceRequestId,
   requesterName,
   requesterRole,
   type,
@@ -55,6 +59,8 @@ export const addSupportTORequest = ({
 }: {
   serviceId: string;
   serviceName: string;
+  supportTicketId?: string;
+  supportServiceRequestId?: string;
   requesterName: string;
   requesterRole: string;
   type: SupportRequestType;
@@ -72,6 +78,8 @@ export const addSupportTORequest = ({
     id: `support-to-request-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     serviceId,
     serviceName,
+    supportTicketId,
+    supportServiceRequestId,
     requesterName,
     requesterRole,
     type,
@@ -87,6 +95,11 @@ export const addSupportTORequest = ({
   const requests = readRequests();
   writeRequests([request, ...requests]);
   return request;
+};
+
+export const getSupportTORequestById = (requestId: string): SupportTORequest | null => {
+  const request = readRequests().find((entry) => entry.id === requestId);
+  return request ?? null;
 };
 
 export const updateSupportTORequestStatus = (

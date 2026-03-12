@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Layers, FileText, Zap, ClipboardList, CheckCircle, Clock, AlertCircle, Eye, Download, BookOpen, ArrowRight } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertCircle, Eye, Download, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { solutionSpecs } from '@/data/blueprints/solutionSpecs';
 
@@ -358,31 +358,6 @@ export default function SolutionSpecsOverview() {
         </div>
       </div>
 
-      {/* ── Quick Links ──────────────────────────────────────────────────── */}
-      <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Quick Access</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            { icon: Layers, label: 'Architecture Library', desc: 'Browse blueprints', color: 'bg-blue-50 text-blue-600', path: '/stage2/specs/blueprints' },
-            { icon: FileText, label: 'Design Templates', desc: 'Document templates', color: 'bg-purple-50 text-purple-600', path: '/stage2/specs/templates' },
-            { icon: Zap, label: 'Design Patterns', desc: 'Reference patterns', color: 'bg-orange-50 text-orange-600', path: '/stage2/specs/patterns' },
-          ].map((item) => (
-            <button
-              key={item.label}
-              onClick={() => navigate(item.path)}
-              className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-sm transition-all text-left"
-            >
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${item.color}`}>
-                <item.icon className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{item.label}</p>
-                <p className="text-xs text-gray-400">{item.desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

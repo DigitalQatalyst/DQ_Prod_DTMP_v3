@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   serviceRequests,
   supportTickets,
@@ -8,6 +8,13 @@ import {
 import { expertConsultancy, technicalSupport } from "@/data/supportServices";
 import { createSupportStage3Intake } from "@/data/stage3/intake";
 import type { NewSupportRequestForm } from "@/pages/stage2/support/supportWorkspaceConfig";
+import {
+  getStoredSupportRequests,
+  getStoredSupportTickets,
+  mergeRecordsById,
+  upsertStoredSupportRequest,
+  upsertStoredSupportTicket,
+} from "@/data/supportServices/userSupportState";
 
 interface UseSupportWorkspaceParams {
   marketplace: string;
@@ -36,10 +43,11 @@ export function useSupportWorkspace({
   });
   const [supportAttachments, setSupportAttachments] = useState<File[]>([]);
   const [supportTicketsState, setSupportTicketsState] = useState<SupportTicket[]>(() => {
-    if (submittedTicket) {
-      return [submittedTicket, ...supportTickets];
-    }
-    return supportTickets;
+    return mergeRecordsById([
+      ...(submittedTicket ? [submittedTicket] : []),
+      ...getStoredSupportTickets(),
+      ...supportTickets,
+    ]);
   });
   const [supportSubmitMessage, setSupportSubmitMessage] = useState<string | null>(null);
   const [supportRequestsState, setSupportRequestsState] = useState<ServiceRequest[]>(() => {
@@ -63,10 +71,12 @@ export function useSupportWorkspace({
       updatedAt: new Date().toISOString(),
       activityLog: [],
     }));
-    if (submittedRequest) {
-      return [submittedRequest, ...seeded, ...serviceRequests];
-    }
-    return [...seeded, ...serviceRequests];
+    return mergeRecordsById([
+      ...(submittedRequest ? [submittedRequest] : []),
+      ...getStoredSupportRequests(),
+      ...seeded,
+      ...serviceRequests,
+    ]);
   });
   const [newRequestForm, setNewRequestForm] = useState<NewSupportRequestForm>({
     requestType: "incident",
@@ -79,6 +89,18 @@ export function useSupportWorkspace({
   const [newRequestAttachments, setNewRequestAttachments] = useState<File[]>([]);
   const [newRequestError, setNewRequestError] = useState<string | null>(null);
   const [newRequestSuccess, setNewRequestSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!submittedTicket) return;
+    setSupportTicketsState((prev) => mergeRecordsById([submittedTicket, ...prev]));
+    upsertStoredSupportTicket(submittedTicket);
+  }, [submittedTicket]);
+
+  useEffect(() => {
+    if (!submittedRequest) return;
+    setSupportRequestsState((prev) => mergeRecordsById([submittedRequest, ...prev]));
+    upsertStoredSupportRequest(submittedRequest);
+  }, [submittedRequest]);
 
   const createTicketFromService = () => {
     if (!supportSelectedService) return;
@@ -131,7 +153,8 @@ export function useSupportWorkspace({
       })),
       relatedKBArticles: [],
     };
-    setSupportTicketsState((prev) => [newTicket, ...prev]);
+    upsertStoredSupportTicket(newTicket);
+    setSupportTicketsState((prev) => mergeRecordsById([newTicket, ...prev]));
     const newRequest: ServiceRequest = {
       id: `REQ-${now.getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`,
       type: "change",
@@ -152,10 +175,13 @@ export function useSupportWorkspace({
       updatedAt: now.toISOString(),
       activityLog: [],
     };
-    setSupportRequestsState((prev) => [newRequest, ...prev]);
+    upsertStoredSupportRequest(newRequest);
+    setSupportRequestsState((prev) => mergeRecordsById([newRequest, ...prev]));
     const intake = createSupportStage3Intake({
       serviceId: supportSelectedService.id,
       serviceName: supportSelectedService.title,
+      supportTicketId: newTicket.id,
+      supportServiceRequestId: newRequest.id,
       requesterName: "You",
       requesterEmail: "you@example.com",
       requesterRole: "Support Services",
@@ -270,7 +296,8 @@ export function useSupportWorkspace({
       })),
       relatedKBArticles: [],
     };
-    setSupportTicketsState((prev) => [newTicket, ...prev]);
+    upsertStoredSupportTicket(newTicket);
+    setSupportTicketsState((prev) => mergeRecordsById([newTicket, ...prev]));
 
     const requestTypeMap: Record<NewSupportRequestForm["requestType"], ServiceRequest["type"]> = {
       incident: "other",
@@ -307,11 +334,14 @@ export function useSupportWorkspace({
         },
       ],
     };
-    setSupportRequestsState((prev) => [newRequest, ...prev]);
+    upsertStoredSupportRequest(newRequest);
+    setSupportRequestsState((prev) => mergeRecordsById([newRequest, ...prev]));
 
     const intake = createSupportStage3Intake({
       serviceId: supportSelectedService?.id || cardId || "support-general",
       serviceName: supportSelectedService?.title || "Support Services",
+      supportTicketId: newTicket.id,
+      supportServiceRequestId: newRequest.id,
       requesterName: "You",
       requesterEmail: "you@example.com",
       requesterRole: "Support Services",

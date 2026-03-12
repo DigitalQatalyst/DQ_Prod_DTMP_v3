@@ -4,6 +4,11 @@ import { useSupportWorkspace } from "@/hooks/useSupportWorkspace";
 import { technicalSupport } from "@/data/supportServices";
 import { stage3Requests } from "@/data/stage3/requests";
 import { getSupportTORequests } from "@/data/supportServices/requestState";
+import { serviceRequests, supportTickets } from "@/data/supportData";
+import {
+  upsertStoredSupportRequest,
+  upsertStoredSupportTicket,
+} from "@/data/supportServices/userSupportState";
 
 describe("useSupportWorkspace stage3 linking", () => {
   beforeEach(() => {
@@ -66,5 +71,49 @@ describe("useSupportWorkspace stage3 linking", () => {
     expect(linkedRequests).toHaveLength(1);
     expect(linkedRequests[0].stage3RequestId).toBe(stage3Requests[0].id);
     expect(result.current.newRequestSuccess).toContain(stage3Requests[0].requestNumber);
+  });
+
+  it("keeps previously stored submissions when a new submission is received", () => {
+    const persistedTicket = {
+      ...supportTickets[0],
+      id: "TICKET-2026-99001",
+      subject: "Persisted support ticket",
+    };
+    const persistedRequest = {
+      ...serviceRequests[0],
+      id: "REQ-2026-99001",
+      title: "Persisted support request",
+    };
+    const latestTicket = {
+      ...supportTickets[1],
+      id: "TICKET-2026-99002",
+      subject: "Latest support ticket",
+    };
+    const latestRequest = {
+      ...serviceRequests[1],
+      id: "REQ-2026-99002",
+      title: "Latest support request",
+    };
+
+    upsertStoredSupportTicket(persistedTicket);
+    upsertStoredSupportRequest(persistedRequest);
+
+    const { result } = renderHook(() =>
+      useSupportWorkspace({
+        marketplace: "support-services",
+        cardId: "",
+        submittedTicket: latestTicket,
+        submittedRequest: latestRequest,
+        onNavigateToTickets: () => undefined,
+      })
+    );
+
+    expect(result.current.supportTicketsState.some((t) => t.id === persistedTicket.id)).toBe(true);
+    expect(result.current.supportTicketsState.some((t) => t.id === latestTicket.id)).toBe(true);
+    expect(result.current.supportTicketsState.filter((t) => t.id === latestTicket.id)).toHaveLength(1);
+
+    expect(result.current.supportRequestsState.some((r) => r.id === persistedRequest.id)).toBe(true);
+    expect(result.current.supportRequestsState.some((r) => r.id === latestRequest.id)).toBe(true);
+    expect(result.current.supportRequestsState.filter((r) => r.id === latestRequest.id)).toHaveLength(1);
   });
 });

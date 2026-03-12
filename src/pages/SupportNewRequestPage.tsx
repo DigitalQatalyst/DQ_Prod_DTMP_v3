@@ -5,6 +5,10 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ServiceRequest, SupportTicket } from "@/data/supportData";
 import { createSupportStage3Intake } from "@/data/stage3/intake";
+import {
+  upsertStoredSupportRequest,
+  upsertStoredSupportTicket,
+} from "@/data/supportServices/userSupportState";
 
 type RequestType = "incident" | "service-request" | "question" | "problem" | "change-request";
 type RequestPriority = "critical" | "high" | "medium" | "low";
@@ -199,10 +203,15 @@ export default function SupportNewRequestPage() {
       ],
     };
 
+    upsertStoredSupportTicket(createdTicket);
+    upsertStoredSupportRequest(createdRequest);
+
     // Create the Stage 3 intake record atomically alongside the marketplace records
     createSupportStage3Intake({
       serviceId: requestContext.cardId || "support-general",
       serviceName: requestContext.serviceName || "Support Services",
+      supportTicketId: createdTicket.id,
+      supportServiceRequestId: createdRequest.id,
       requesterName: "John Doe",
       requesterEmail: "john.doe@company.com",
       requesterRole: "Support Services",

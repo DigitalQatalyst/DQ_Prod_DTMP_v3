@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -2317,6 +2317,7 @@ export default function Stage2AppPage() {
           ) : activeService === "Solutions Specs" ? (
             <SpecsWorkspaceMain
               activeTab={activeSpecsTab}
+              requestId={routeRequestId}
             />
           ) : activeService === "Lifecycle Management" && activeSubService ? (
             <div className="h-full">

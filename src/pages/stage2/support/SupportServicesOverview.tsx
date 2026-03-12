@@ -1,17 +1,45 @@
 import { SupportLayout } from "./SupportLayout";
-import { supportStats, supportTickets, serviceRequests } from "@/data/supportData";
+import { useMemo } from "react";
 import { SLATimer, PriorityBadge } from "@/components/stage2";
 import { Ticket, ClipboardList, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import {
+  getSupportRequestsWithStored,
+  getSupportTicketsWithStored,
+} from "@/data/supportServices/userSupportState";
 
 export default function SupportServicesOverview() {
-  const openTickets = supportTickets.filter((t) => !["resolved", "closed"].includes(t.status)).slice(0, 4);
-  const inProgressRequests = serviceRequests.filter((r) => ["in-progress", "pending-approval", "approved"].includes(r.status)).slice(0, 4);
+  const tickets = useMemo(() => getSupportTicketsWithStored(), []);
+  const requests = useMemo(() => getSupportRequestsWithStored(), []);
+  const openTickets = tickets.filter((t) => !["resolved", "closed"].includes(t.status)).slice(0, 4);
+  const inProgressRequests = requests
+    .filter((r) => ["in-progress", "pending-approval", "approved"].includes(r.status))
+    .slice(0, 4);
 
   const metrics = [
-    { label: "Open Tickets", value: supportStats.openTickets, icon: Ticket, color: "text-orange-700 bg-orange-50" },
-    { label: "High / Critical", value: supportStats.highPriority, icon: AlertTriangle, color: "text-red-700 bg-red-50" },
-    { label: "Pending User", value: supportStats.pendingUser, icon: Clock, color: "text-amber-700 bg-amber-50" },
-    { label: "Requests In Progress", value: supportStats.requestsInProgress, icon: ClipboardList, color: "text-blue-700 bg-blue-50" },
+    {
+      label: "Open Tickets",
+      value: tickets.filter((t) => !["resolved", "closed"].includes(t.status)).length,
+      icon: Ticket,
+      color: "text-orange-700 bg-orange-50",
+    },
+    {
+      label: "High / Critical",
+      value: tickets.filter((t) => t.priority === "critical" || t.priority === "high").length,
+      icon: AlertTriangle,
+      color: "text-red-700 bg-red-50",
+    },
+    {
+      label: "Pending User",
+      value: tickets.filter((t) => t.status === "pending-user").length,
+      icon: Clock,
+      color: "text-amber-700 bg-amber-50",
+    },
+    {
+      label: "Requests In Progress",
+      value: requests.filter((r) => r.status === "in-progress").length,
+      icon: ClipboardList,
+      color: "text-blue-700 bg-blue-50",
+    },
   ];
 
   return (

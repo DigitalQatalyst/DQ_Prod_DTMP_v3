@@ -12,6 +12,13 @@ import { getSupportTORequests } from "@/data/supportServices/requestState";
 import { getBlueprintTORequests } from "@/data/blueprints/requestState";
 import { getTemplateTORequests } from "@/data/templates/requestState";
 import { getDITORequests } from "@/data/digitalIntelligence/requestState";
+import { serviceRequests, supportTickets } from "@/data/supportData";
+import {
+  getSupportRequestsWithStored,
+  getSupportTicketsWithStored,
+  upsertStoredSupportRequest,
+  upsertStoredSupportTicket,
+} from "@/data/supportServices/userSupportState";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -54,6 +61,17 @@ describe("createSupportStage3Intake", () => {
     const result = createSupportStage3Intake(base)!;
     const stored = getSupportTORequests("Alice Ops");
     expect(stored[0].stage3RequestId).toBe(result.stage3.id);
+  });
+
+  it("stores linked Stage 2 ticket/request ids when provided", () => {
+    createSupportStage3Intake({
+      ...base,
+      supportTicketId: "TICKET-2026-90123",
+      supportServiceRequestId: "REQ-2026-90123",
+    });
+    const stored = getSupportTORequests("Alice Ops");
+    expect(stored[0].supportTicketId).toBe("TICKET-2026-90123");
+    expect(stored[0].supportServiceRequestId).toBe("REQ-2026-90123");
   });
 
   it("adds the stage3 request to the in-memory array", () => {
@@ -143,6 +161,80 @@ describe("syncMarketplaceRequestStatusFromStage3 — support-services", () => {
     stage3.status = "on-hold";
     syncMarketplaceRequestStatusFromStage3(stage3);
     expect(getSupportTORequests("Bob Analyst")[0].status).toBe("Open");
+  });
+
+  it("syncs linked Stage 2 ticket assignee and status from Stage 3", () => {
+    const syncedTicketId = "TICKET-2026-99031";
+    const syncedRequestId = "REQ-2026-99031";
+
+    upsertStoredSupportTicket({
+      ...supportTickets[0],
+      id: syncedTicketId,
+      status: "new",
+      assignee: undefined,
+    });
+    upsertStoredSupportRequest({
+      ...serviceRequests[0],
+      id: syncedRequestId,
+      status: "pending-approval",
+    });
+
+    const { stage3 } = createSupportStage3Intake({
+      ...base,
+      requesterName: "Bob Analyst",
+      supportTicketId: syncedTicketId,
+      supportServiceRequestId: syncedRequestId,
+    })!;
+
+    stage3.status = "in-progress";
+    stage3.assignedTo = "Sarah Miller";
+    stage3.assignedTeam = "Support Operations";
+    syncMarketplaceRequestStatusFromStage3(stage3);
+
+    const activeTicket = getSupportTicketsWithStored().find((ticket) => ticket.id === syncedTicketId);
+    const activeRequest = getSupportRequestsWithStored().find((request) => request.id === syncedRequestId);
+
+    expect(activeTicket?.status).toBe("in-progress");
+    expect(activeTicket?.assignee?.name).toBe("Sarah Miller");
+    expect(activeTicket?.assignee?.team).toBe("Support Operations");
+    expect(activeRequest?.status).toBe("in-progress");
+
+    stage3.status = "completed";
+    syncMarketplaceRequestStatusFromStage3(stage3);
+
+    const completedTicket = getSupportTicketsWithStored().find((ticket) => ticket.id === syncedTicketId);
+    const completedRequest = getSupportRequestsWithStored().find((request) => request.id === syncedRequestId);
+
+    expect(completedTicket?.status).toBe("resolved");
+    expect(completedRequest?.status).toBe("completed");
+  });
+
+  it("syncs Stage 2 service request status for legacy links without stored ids", () => {
+    const legacyTitle = "Need architecture review";
+    const legacyDescription =
+      "Requesting an expert architecture review for our new platform.";
+    const legacyRequestId = "REQ-2026-99055";
+
+    upsertStoredSupportRequest({
+      ...serviceRequests[0],
+      id: legacyRequestId,
+      title: legacyTitle,
+      description: legacyDescription,
+      status: "in-progress",
+    });
+
+    const { stage3 } = createSupportStage3Intake({
+      ...base,
+      subject: legacyTitle,
+      description: legacyDescription,
+      requesterName: "Legacy Sync User",
+    })!;
+
+    stage3.status = "cancelled";
+    syncMarketplaceRequestStatusFromStage3(stage3);
+
+    const updated = getSupportRequestsWithStored().find((request) => request.id === legacyRequestId);
+    expect(updated?.status).toBe("cancelled");
   });
 });
 

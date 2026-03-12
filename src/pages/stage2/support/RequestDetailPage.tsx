@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import SupportLayout from "./SupportLayout";
-import { serviceRequests } from "@/data/supportData";
 import { ApprovalWorkflow } from "@/components/stage2";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import { getSupportRequestsWithStored } from "@/data/supportServices/userSupportState";
 
 export default function RequestDetailPage() {
   const { requestId } = useParams();
   const navigate = useNavigate();
-  const request = serviceRequests.find((r) => r.id === requestId);
+  const request = getSupportRequestsWithStored().find((r) => r.id === requestId);
 
   if (!request) {
     return (

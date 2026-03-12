@@ -9,6 +9,7 @@ import PatternDetailPage from "@/pages/stage2/specs/PatternDetailPage";
 import MyDesignsPage from "@/pages/stage2/specs/MyDesignsPage";
 import DesignDetailPage from "@/pages/stage2/specs/DesignDetailPage";
 import SpecsMyRequestsPage from "@/pages/stage2/specs/MyRequestsPage";
+import SpecsRequestDetailPage from "@/pages/stage2/specs/SpecsRequestDetailPage";
 
 export type SpecsWorkspaceTab = "overview" | "my-requests";
 
@@ -53,15 +54,18 @@ export const SpecsWorkspaceSidebar: React.FC<SpecsWorkspaceSidebarProps> = ({
 
 interface SpecsWorkspaceMainProps {
     activeTab: SpecsWorkspaceTab;
+    requestId?: string;
 }
 
 export const SpecsWorkspaceMain: React.FC<SpecsWorkspaceMainProps> = ({
     activeTab,
+    requestId,
 }) => {
     return (
         <div className="h-full">
             {activeTab === "overview" && <SolutionSpecsOverview />}
-            {activeTab === "my-requests" && <SpecsMyRequestsPage />}
+            {activeTab === "my-requests" && !requestId && <SpecsMyRequestsPage />}
+            {activeTab === "my-requests" && !!requestId && <SpecsRequestDetailPage />}
         </div>
     );
 };

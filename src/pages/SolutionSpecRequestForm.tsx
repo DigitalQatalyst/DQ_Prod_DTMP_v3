@@ -71,7 +71,6 @@ export default function SolutionSpecRequestForm() {
   const state = (location.state as LocationState) || {};
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     requestType: "",
     solutionName: state.serviceName || "",
@@ -103,10 +102,6 @@ export default function SolutionSpecRequestForm() {
   };
 
   const handleSubmit = () => {
-    setSubmitted(true);
-  };
-
-  const handleGoToStage2 = () => {
     navigate("/stage2/specs/overview", {
       state: {
         fromRequest: true,
@@ -116,112 +111,6 @@ export default function SolutionSpecRequestForm() {
       },
     });
   };
-
-  // ── Success Screen ──────────────────────────────────────────────────
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header />
-
-        {/* Hero band */}
-        <div className="bg-gradient-to-br from-orange-600 via-orange-500 to-amber-400 py-16 px-4 text-center text-white">
-          {/* Animated check */}
-          <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
-            <div className="relative w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl">
-              <CheckCircle className="w-12 h-12 text-orange-600" />
-            </div>
-          </div>
-
-          <h1 className="text-4xl font-extrabold mb-3 tracking-tight">Your Build Journey Begins!</h1>
-          <p className="text-orange-100 text-lg max-w-xl mx-auto leading-relaxed">
-            <span className="font-semibold text-white">{formData.solutionName}</span> has been queued for review.
-            Our architects are already on it.
-          </p>
-        </div>
-
-        {/* What happens next */}
-        <div className="max-w-3xl mx-auto px-4 py-12">
-          <h2 className="text-xl font-bold text-gray-900 mb-8 text-center">What happens next?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {[
-              {
-                step: "01",
-                icon: "🔍",
-                title: "Review",
-                desc: "Our solution architects review your requirements within 1–2 business days.",
-              },
-              {
-                step: "02",
-                icon: "📐",
-                title: "Scoping",
-                desc: "We map your needs to the right blueprint and prepare a tailored proposal.",
-              },
-              {
-                step: "03",
-                icon: "🚀",
-                title: "Kick-off",
-                desc: "You're invited into your dedicated workspace to begin the build.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="relative bg-gray-50 border border-gray-200 rounded-xl p-6 text-center hover:border-orange-300 hover:shadow-md transition-all">
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  Step {item.step}
-                </span>
-                <div className="text-4xl mb-3 mt-2">{item.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Summary card */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6 mb-10 shadow-sm">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <ClipboardList className="w-5 h-5 text-orange-600" />
-              </div>
-              <h3 className="font-bold text-gray-900">Request Summary</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-              <div>
-                <p className="text-gray-400 text-xs uppercase font-semibold mb-0.5">Solution</p>
-                <p className="font-semibold text-gray-900">{formData.solutionName}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-xs uppercase font-semibold mb-0.5">Request Type</p>
-                <p className="font-semibold text-gray-900 capitalize">{formData.requestType.replace("-", " ")}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-xs uppercase font-semibold mb-0.5">Timeline</p>
-                <p className="font-semibold text-gray-900">{formData.timeline}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              onClick={handleGoToStage2}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 h-auto text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
-            >
-              Open My Workspace
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/marketplaces/solution-specs")}
-              className="text-gray-500 hover:text-gray-700 w-full sm:w-auto"
-            >
-              Back to Solution Specs
-            </Button>
-          </div>
-        </div>
-
-        <Footer />
-      </div>
-    );
-  }
 
   // ── Form ────────────────────────────────────────────────────────────
   return (

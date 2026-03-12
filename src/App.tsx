@@ -118,6 +118,8 @@ const App = () => (
             <Route path="/stage2/specs/templates/:specTemplateId" element={<Stage2AppPage />} />
             <Route path="/stage2/specs/patterns" element={<Stage2AppPage />} />
             <Route path="/stage2/specs/patterns/:patternId" element={<Stage2AppPage />} />
+            <Route path="/stage2/specs/my-requests" element={<Stage2AppPage />} />
+            <Route path="/stage2/specs/my-requests/:requestId" element={<Stage2AppPage />} />
             <Route path="/stage2/specs/my-designs" element={<Stage2AppPage />} />
             <Route path="/stage2/specs/my-designs/:designId" element={<Stage2AppPage />} />
 
