@@ -34,6 +34,19 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  approveDesignReportRequest,
+  documentStudioTabMeta,
+  getDocumentStudioSla,
+  getDocumentStudioRequest,
+  listDocumentStudioRequests,
+  listDocumentStudioRevisions,
+  requestDocumentStudioRevision,
+  type DocumentStudioRequest,
+  type DocumentStudioRequestStatus,
+  type DocumentStudioTab as DSTab,
+} from "@/data/documentStudio";
 import { applicationPortfolio } from "@/data/portfolio";
 import { enrolledCourses } from "@/data/learning";
 import { learningTracks, trackEnrollments } from "@/data/learningCenter";
@@ -120,12 +133,6 @@ import { getSupportServiceDetail } from "@/data/supportServices/detailsSupport";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
 import { Tag, Calendar, Clock as ClockIcon, Eye } from "lucide-react";
 import { createStage3Request } from "@/data/stage3";
-import TemplatesOverview from "@/pages/stage2/templates/TemplatesOverview";
-import TemplateLibraryPage from "@/pages/stage2/templates/TemplateLibraryPage";
-import TemplateDetailPage from "@/pages/stage2/templates/TemplateDetailPage";
-import NewRequestPage from "@/pages/stage2/templates/NewRequestPage";
-import MyRequestsPage from "@/pages/stage2/templates/MyRequestsPage";
-import TemplatesRequestDetailPage from "@/pages/stage2/templates/RequestDetailPage";
 import SolutionSpecsOverview from "@/pages/stage2/specs/SolutionSpecsOverview";
 import ArchitectureLibraryPage from "@/pages/stage2/specs/ArchitectureLibraryPage";
 import BlueprintDetailPage from "@/pages/stage2/specs/BlueprintDetailPage";
@@ -153,9 +160,32 @@ const EMPTY_LOCATION_STATE: LocationState = {};
 type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
-type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
 type SpecsWorkspaceTab = "overview" | "blueprints" | "templates" | "patterns" | "my-designs";
 type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
+type DocumentStudioView = "overview" | "my-requests" | "my-documents" | "revisions";
+const dsViews: DocumentStudioView[] = ["overview", "my-requests", "my-documents", "revisions"];
+const dsViewLabels: Record<DocumentStudioView, string> = {
+  overview: "Overview",
+  "my-requests": "My Requests",
+  "my-documents": "My Documents",
+  revisions: "Revisions",
+};
+const dsViewSubLabels: Record<DocumentStudioView, string> = {
+  overview: "Workspace summary and active requests",
+  "my-requests": "Track submitted document requests",
+  "my-documents": "View completed and delivered documents",
+  revisions: "Raised revision history",
+};
+const getDsStatusClass = (status: DocumentStudioRequestStatus) => {
+  if (status === "published-to-kc") return "bg-green-700 text-white";
+  if (status === "approved") return "bg-green-100 text-green-700";
+  if (status === "completed") return "bg-green-100 text-green-700";
+  if (status === "awaiting-approval") return "bg-amber-100 text-amber-700";
+  if (status === "in-progress") return "bg-blue-100 text-blue-700";
+  if (status === "assigned") return "bg-sky-100 text-sky-700";
+  if (status === "revision-requested") return "bg-red-100 text-red-700";
+  return "bg-gray-100 text-gray-700";
+};
 
 const getSeedFromCourseId = (courseId: string) =>
   courseId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
@@ -380,9 +410,9 @@ export default function Stage2AppPage() {
     !!routeCourseId && (routeView === "user" || routeView === "admin");
   const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
   const isPortfolioCenterRoute = location.pathname.startsWith("/stage2/portfolio-management");
-  const isTemplatesRoute = location.pathname.startsWith("/stage2/templates");
   const isSolutionSpecsRoute = location.pathname.startsWith("/stage2/specs");
   const isIntelligenceRoute = location.pathname.startsWith("/stage2/intelligence");
+  const isDocumentStudioRoute = location.pathname.startsWith("/stage2/document-studio");
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
   const canAccessAdminView = learningRole === "admin";
 
@@ -403,12 +433,12 @@ export default function Stage2AppPage() {
     ? "learning-center"
     : isKnowledgeCenterRoute
       ? "knowledge-center"
-      : isTemplatesRoute
-        ? "templates"
       : isSolutionSpecsRoute
         ? "solution-specs"
       : isIntelligenceRoute
         ? "digital-intelligence"
+      : isDocumentStudioRoute
+        ? "document-studio"
       : isPortfolioCenterRoute
         ? "portfolio-management"
       : stateMarketplace;
@@ -430,7 +460,7 @@ export default function Stage2AppPage() {
       case "blueprints":
         return "Solutions Specs";
       case "templates":
-        return "AI DocWriter";
+        return "Document Studio";
       case "lifecycle-management":
         return "Lifecycle Management";
       case "solution-build":
@@ -439,6 +469,8 @@ export default function Stage2AppPage() {
         return "Digital Intelligence";
       case "solution-specs":
         return "Solutions Specs";
+      case "document-studio":
+        return "Document Studio";
       default:
         return "Overview";
     }
@@ -483,15 +515,6 @@ export default function Stage2AppPage() {
         ? state.tab
         : "overview"
   );
-  const getTemplatesTabFromPath = (): TemplatesWorkspaceTab => {
-    if (location.pathname.startsWith("/stage2/templates/library")) return "library";
-    if (location.pathname.startsWith("/stage2/templates/new-request")) return "new-request";
-    if (location.pathname.startsWith("/stage2/templates/my-requests")) return "my-requests";
-    return "overview";
-  };
-  const [activeTemplatesTab, setActiveTemplatesTab] = useState<TemplatesWorkspaceTab>(
-    getTemplatesTabFromPath()
-  );
   const getSpecsTabFromPath = (): SpecsWorkspaceTab => {
     if (location.pathname.startsWith("/stage2/specs/blueprints")) return "blueprints";
     if (location.pathname.startsWith("/stage2/specs/templates")) return "templates";
@@ -511,6 +534,11 @@ export default function Stage2AppPage() {
   const [activeIntelligenceTab, setActiveIntelligenceTab] = useState<IntelligenceWorkspaceTab>(
     getIntelligenceTabFromPath()
   );
+  const [dsRequests, setDsRequests] = useState<DocumentStudioRequest[]>([]);
+  const [dsRevisionNote, setDsRevisionNote] = useState("");
+  const [dsRevisionOpenId, setDsRevisionOpenId] = useState<string | null>(null);
+  const [dsStatusFilter, setDsStatusFilter] = useState<"all" | DocumentStudioRequestStatus>("all");
+  const [dsTabFilter, setDsTabFilter] = useState<"all" | DSTab>("all");
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
   const [knowledgeHistory, setKnowledgeHistory] = useState<KnowledgeHistoryEntry[]>([]);
@@ -521,6 +549,33 @@ export default function Stage2AppPage() {
     Array<(typeof knowledgeItems)[number] & { views: number; staleFlags: number; helpfulVotes: number }>
   >([]);
   const knowledgeCurrentUserName = "John Doe";
+
+  // Document Studio derived state
+  const activeDocumentStudioView: DocumentStudioView = (dsViews as string[]).includes(routeView ?? "")
+    ? (routeView as DocumentStudioView)
+    : "overview";
+  const dsSelectedRequest = routeRequestId ? getDocumentStudioRequest(routeRequestId) ?? null : null;
+  const dsSavedRevisions = listDocumentStudioRevisions();
+  const dsActiveRequests = dsRequests.filter((r) =>
+    ["submitted", "assigned", "in-progress", "awaiting-approval", "approved"].includes(r.status)
+  );
+  const dsCompletedDocuments = dsRequests.filter((r) =>
+    ["completed", "approved", "published-to-kc"].includes(r.status)
+  );
+  const dsFilteredRequests =
+    dsStatusFilter === "all" ? dsRequests : dsRequests.filter((r) => r.status === dsStatusFilter);
+  const dsFullyFilteredRequests =
+    dsTabFilter === "all" ? dsFilteredRequests : dsFilteredRequests.filter((r) => r.tab === dsTabFilter);
+  const dsMetrics = useMemo(
+    () => ({
+      availableDocumentTypes: 8,
+      activeRequests: dsActiveRequests.length,
+      completedDocuments: dsCompletedDocuments.length,
+      avgDelivery: "4.2 days",
+    }),
+    [dsActiveRequests.length, dsCompletedDocuments.length]
+  );
+  const refreshDsRequests = () => setDsRequests(listDocumentStudioRequests());
 
   useEffect(() => {
     setActiveService(getDefaultActiveService(marketplace));
@@ -686,11 +741,6 @@ export default function Stage2AppPage() {
   }, [isKnowledgeCenterRoute, state, navigate, location.pathname]);
 
   useEffect(() => {
-    if (!isTemplatesRoute) return;
-    setActiveTemplatesTab(getTemplatesTabFromPath());
-  }, [isTemplatesRoute, location.pathname]);
-
-  useEffect(() => {
     if (!isSolutionSpecsRoute) return;
     setActiveSpecsTab(getSpecsTabFromPath());
   }, [isSolutionSpecsRoute, location.pathname]);
@@ -718,6 +768,11 @@ export default function Stage2AppPage() {
       setActiveSubService(null);
     }
   }, [isIntelligenceRoute, routeIntelligenceTab, routeIntelligenceItemId]);
+
+  useEffect(() => {
+    if (!isDocumentStudioRoute) return;
+    setDsRequests(listDocumentStudioRequests());
+  }, [isDocumentStudioRoute, location.key]);
 
   useEffect(() => {
     if (activeService !== "Knowledge Center") return;
@@ -1055,22 +1110,6 @@ export default function Stage2AppPage() {
     toggleSavedKnowledgeItem(sourceTab, sourceId);
     refreshKnowledgeState();
   };
-  const handleTemplatesTabClick = (tabId: TemplatesWorkspaceTab) => {
-    setActiveTemplatesTab(tabId);
-    const pathByTab: Record<TemplatesWorkspaceTab, string> = {
-      overview: "/stage2/templates/overview",
-      library: "/stage2/templates/library",
-      "new-request": "/stage2/templates/new-request",
-      "my-requests": "/stage2/templates/my-requests",
-    };
-    navigate(pathByTab[tabId], {
-      replace: true,
-      state: {
-        ...state,
-        marketplace: "templates",
-      },
-    });
-  };
   const handleSpecsTabClick = (tabId: SpecsWorkspaceTab) => {
     setActiveSpecsTab(tabId);
     const pathByTab: Record<SpecsWorkspaceTab, string> = {
@@ -1102,6 +1141,12 @@ export default function Stage2AppPage() {
         ...state,
         marketplace: "digital-intelligence",
       },
+    });
+  };
+  const handleDocumentStudioViewClick = (view: DocumentStudioView) => {
+    navigate(`/stage2/document-studio/${view}`, {
+      replace: true,
+      state: { ...state, marketplace: "document-studio" },
     });
   };
   const handleKnowledgeNotificationClick = (notification: MentionNotification) => {
@@ -1238,12 +1283,12 @@ export default function Stage2AppPage() {
         },
       });
     }
-    if (service === "AI DocWriter") {
-      navigate("/stage2/templates/overview", {
+    if (service === "Document Studio") {
+      navigate("/stage2/document-studio/overview", {
         replace: true,
         state: {
           ...state,
-          marketplace: "templates",
+          marketplace: "document-studio",
         },
       });
     }
@@ -1907,12 +1952,12 @@ export default function Stage2AppPage() {
             )}
             
             <button 
-              onClick={() => handleServiceClick("AI DocWriter")}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("AI DocWriter")}`}
-              title="AI DocWriter"
+              onClick={() => handleServiceClick("Document Studio")}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService("Document Studio")}`}
+              title="Document Studio"
             >
               <PenTool className="w-4 h-4 flex-shrink-0" />
-              {!leftSidebarCollapsed && "AI DocWriter"}
+              {!leftSidebarCollapsed && "Document Studio"}
             </button>
             
             <button 
@@ -2123,60 +2168,24 @@ export default function Stage2AppPage() {
                   onSearchChange={setKnowledgeSearchQuery}
                   onTabChange={handleKnowledgeTabClick}
                 />
-              ) : activeService === "AI DocWriter" ? (
+              ) : activeService === "Document Studio" ? (
                 <div className="space-y-2">
-                  <button
-                    onClick={() => handleTemplatesTabClick("overview")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "overview"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Overview</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Template workspace summary</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleTemplatesTabClick("library")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "library"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Template Library</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Browse and open templates</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleTemplatesTabClick("new-request")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "new-request"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">New Request</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Generate a new document</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleTemplatesTabClick("my-requests")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "my-requests"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">My Requests</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Track request status</div>
-                    </div>
-                  </button>
+                  {dsViews.map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => handleDocumentStudioViewClick(v)}
+                      className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                        activeDocumentStudioView === v
+                          ? "bg-orange-50 text-orange-700 border border-orange-200"
+                          : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                      }`}
+                    >
+                      <div className="text-left">
+                        <div className="font-medium">{dsViewLabels[v]}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">{dsViewSubLabels[v]}</div>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               ) : activeService === "Solutions Specs" ? (
                 <div className="space-y-2">
@@ -2607,15 +2616,280 @@ export default function Stage2AppPage() {
               }
               onToggleSave={handleKnowledgeToggleSave}
             />
-          ) : activeService === "AI DocWriter" ? (
-            <div className="h-full">
-              {activeTemplatesTab === "overview" && <TemplatesOverview />}
-              {activeTemplatesTab === "library" && !routeTemplateId && <TemplateLibraryPage />}
-              {activeTemplatesTab === "library" && !!routeTemplateId && <TemplateDetailPage />}
-              {activeTemplatesTab === "new-request" && <NewRequestPage />}
-              {activeTemplatesTab === "my-requests" && !routeRequestId && <MyRequestsPage />}
-              {activeTemplatesTab === "my-requests" && !!routeRequestId && (
-                <TemplatesRequestDetailPage />
+          ) : activeService === "Document Studio" ? (
+            <div className="h-full p-6 space-y-6">
+              {activeDocumentStudioView === "overview" && (
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <DsMetricCard label="Available Document Types" value={String(dsMetrics.availableDocumentTypes)} />
+                    <DsMetricCard label="Active Requests" value={String(dsMetrics.activeRequests)} />
+                    <DsMetricCard label="Completed Documents" value={String(dsMetrics.completedDocuments)} />
+                    <DsMetricCard label="Avg. Delivery Time" value={dsMetrics.avgDelivery} />
+                  </div>
+                  <section className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-semibold text-gray-900">My Active Requests</h2>
+                      <Button variant="outline" onClick={() => handleDocumentStudioViewClick("my-requests")}>
+                        View All
+                      </Button>
+                    </div>
+                    <div className="space-y-3">
+                      {dsActiveRequests.slice(0, 3).map((req) => (
+                        <DsRequestListRow
+                          key={req.id}
+                          request={req}
+                          getStatusClass={getDsStatusClass}
+                          onClick={() => navigate(`/stage2/document-studio/my-requests/${req.id}`)}
+                        />
+                      ))}
+                      {dsActiveRequests.length === 0 && (
+                        <p className="text-sm text-gray-500">No active requests.</p>
+                      )}
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {activeDocumentStudioView === "my-requests" && (
+                <div className="space-y-6">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-wrap gap-3 items-center">
+                    <select
+                      value={dsStatusFilter}
+                      onChange={(e) => setDsStatusFilter(e.target.value as "all" | DocumentStudioRequestStatus)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    >
+                      <option value="all">All Statuses</option>
+                      {(["submitted","assigned","in-progress","awaiting-approval","approved","completed","revision-requested","published-to-kc"] as DocumentStudioRequestStatus[]).map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={dsTabFilter}
+                      onChange={(e) => setDsTabFilter(e.target.value as "all" | DSTab)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    >
+                      <option value="all">All Document Types</option>
+                      <option value="assessments">Assessments</option>
+                      <option value="application-profiles">Application Profiles</option>
+                      <option value="design-reports">Design Reports</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-3">
+                    {dsFullyFilteredRequests.map((req) => (
+                      <DsRequestListRow
+                        key={req.id}
+                        request={req}
+                        getStatusClass={getDsStatusClass}
+                        onClick={() => navigate(`/stage2/document-studio/my-requests/${req.id}`)}
+                      />
+                    ))}
+                    {dsFullyFilteredRequests.length === 0 && (
+                      <p className="text-sm text-gray-500">No requests match the current filters.</p>
+                    )}
+                  </div>
+
+                  {dsSelectedRequest && (
+                    <section className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h2 className="text-xl font-semibold text-gray-900">{dsSelectedRequest.title}</h2>
+                          <p className="text-sm text-gray-500">{dsSelectedRequest.id}</p>
+                        </div>
+                        <Badge className={getDsStatusClass(dsSelectedRequest.status)}>
+                          {dsSelectedRequest.status}
+                        </Badge>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div className="rounded-lg border border-gray-200 p-4">
+                          <p className="text-gray-500 mb-1">Document Type</p>
+                          <p className="font-medium text-gray-900">{dsSelectedRequest.documentTypeName}</p>
+                        </div>
+                        <div className="rounded-lg border border-gray-200 p-4">
+                          <p className="text-gray-500 mb-1">Tab / Category</p>
+                          <p className="font-medium text-gray-900">{documentStudioTabMeta[dsSelectedRequest.tab].label}</p>
+                        </div>
+                        <div className="rounded-lg border border-gray-200 p-4">
+                          <p className="text-gray-500 mb-1">Assigned To</p>
+                          <p className="font-medium text-gray-900">{dsSelectedRequest.assignedTo ?? "Pending assignment"}</p>
+                        </div>
+                        <div className="rounded-lg border border-gray-200 p-4">
+                          <p className="text-gray-500 mb-1">SLA 1 - Time to Assign</p>
+                          <DsSlaPill request={dsSelectedRequest} phase="assign" />
+                        </div>
+                        <div className="rounded-lg border border-gray-200 p-4">
+                          <p className="text-gray-500 mb-1">SLA 2 - Time to Complete</p>
+                          <DsSlaPill request={dsSelectedRequest} phase="complete" />
+                        </div>
+                      </div>
+
+                      <div className="rounded-lg border border-gray-200 p-4">
+                        <p className="text-sm font-semibold text-gray-900 mb-3">Submitted Context</p>
+                        <div className="grid md:grid-cols-2 gap-3 text-sm">
+                          {Object.entries(dsSelectedRequest.formData)
+                            .filter(([, v]) => v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0))
+                            .map(([key, value]) => (
+                              <div key={key}>
+                                <span className="text-gray-500">{toDsLabel(key)}:</span>{" "}
+                                <span className="text-gray-900">
+                                  {Array.isArray(value)
+                                    ? value.join(", ")
+                                    : typeof value === "boolean"
+                                      ? value ? "Yes" : "No"
+                                      : String(value)}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+
+                      {dsSelectedRequest.generatedDocument && (
+                        <div className="rounded-lg border border-gray-200 p-4">
+                          <p className="text-sm font-semibold text-gray-900 mb-1">Delivered Document</p>
+                          <p className="text-sm text-gray-600 mb-3">{dsSelectedRequest.generatedDocument.fileName}</p>
+                          <div className="flex gap-3">
+                            <Button variant="outline" onClick={() => window.open(dsSelectedRequest.generatedDocument?.fileUrl, "_blank")}>
+                              View Document
+                            </Button>
+                            <Button variant="outline" onClick={() => window.open(dsSelectedRequest.generatedDocument?.fileUrl, "_blank")}>
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {dsSelectedRequest.revisionIds.length > 0 && (
+                        <div className="rounded-lg border border-red-100 bg-red-50 p-4">
+                          <p className="text-sm font-semibold text-red-900 mb-2">Revision History</p>
+                          <div className="space-y-2">
+                            {dsSavedRevisions
+                              .filter((rev) => dsSelectedRequest.revisionIds.includes(rev.id))
+                              .map((rev) => (
+                                <div key={rev.id} className="rounded-lg border border-red-100 bg-white p-3">
+                                  <p className="text-sm font-medium text-red-900">{rev.id}</p>
+                                  <p className="text-sm text-red-800 mt-1">{rev.note}</p>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {dsSelectedRequest.status === "awaiting-approval" && (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
+                          <p className="text-sm text-amber-800">
+                            Your document is ready for review. Approve to mark it as complete.
+                          </p>
+                          <Button
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => { approveDesignReportRequest(dsSelectedRequest.id); refreshDsRequests(); }}
+                          >
+                            Approve Document
+                          </Button>
+                        </div>
+                      )}
+
+                      {dsSelectedRequest.status === "published-to-kc" && dsSelectedRequest.knowledgeCenterDocumentId && (
+                        <Button
+                          variant="outline"
+                          onClick={() => navigate(`/marketplaces/knowledge-center/design-reports/${dsSelectedRequest.knowledgeCenterDocumentId}`)}
+                        >
+                          Open Published KC Card
+                        </Button>
+                      )}
+                    </section>
+                  )}
+                </div>
+              )}
+
+              {activeDocumentStudioView === "my-documents" && (
+                <div className="space-y-3">
+                  {dsCompletedDocuments.map((req) => (
+                    <div key={req.id} className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <p className="font-semibold text-gray-900">{req.title}</p>
+                          <p className="text-sm text-gray-500">
+                            {req.documentTypeName} · {req.generatedDocument?.format ?? "PDF"} ·{" "}
+                            {req.completedDate
+                              ? new Date(req.completedDate).toLocaleDateString()
+                              : req.generatedDocument?.generatedDate
+                                ? new Date(req.generatedDocument.generatedDate).toLocaleDateString()
+                                : "Not delivered"}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">{req.id}</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {req.isPublishedToKnowledgeCenter && (
+                            <Badge className="bg-green-100 text-green-700">Published to KC</Badge>
+                          )}
+                          <Button variant="outline" onClick={() => window.open(req.generatedDocument?.fileUrl ?? "#", "_blank")}>Preview</Button>
+                          <Button variant="outline" onClick={() => window.open(req.generatedDocument?.fileUrl ?? "#", "_blank")}>Download</Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setDsRevisionOpenId(dsRevisionOpenId === req.id ? null : req.id);
+                              setDsRevisionNote("");
+                            }}
+                          >
+                            {dsRevisionOpenId === req.id ? "Cancel" : "Request Revision"}
+                          </Button>
+                        </div>
+                      </div>
+                      {dsRevisionOpenId === req.id && (
+                        <div className="border-t border-gray-100 pt-4 space-y-3">
+                          <p className="text-sm font-medium text-gray-700">Describe what needs to be revised</p>
+                          <Textarea
+                            value={dsRevisionNote}
+                            onChange={(e) => setDsRevisionNote(e.target.value)}
+                            placeholder="Please describe what you would like revised..."
+                            className="min-h-[80px]"
+                          />
+                          <div className="flex gap-3">
+                            <Button
+                              disabled={!dsRevisionNote.trim()}
+                              onClick={() => {
+                                requestDocumentStudioRevision(req.id, dsRevisionNote);
+                                setDsRevisionNote("");
+                                setDsRevisionOpenId(null);
+                                refreshDsRequests();
+                              }}
+                            >
+                              Submit to TO Office
+                            </Button>
+                            <Button variant="outline" onClick={() => { setDsRevisionOpenId(null); setDsRevisionNote(""); }}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {dsCompletedDocuments.length === 0 && (
+                    <p className="text-sm text-gray-500">No completed documents are available yet.</p>
+                  )}
+                </div>
+              )}
+
+              {activeDocumentStudioView === "revisions" && (
+                <div className="space-y-3">
+                  {dsSavedRevisions.map((rev) => (
+                    <div key={rev.id} className="bg-white border border-gray-200 rounded-xl p-5">
+                      <p className="font-semibold text-gray-900">{rev.id}</p>
+                      <p className="text-sm text-gray-500 mb-2">Linked Request: {rev.requestId}</p>
+                      <p className="text-sm text-gray-700">{rev.note}</p>
+                      <div className="mt-3 flex gap-3">
+                        <Badge className={getDsStatusClass(rev.status)}>{rev.status}</Badge>
+                        <Button variant="outline" onClick={() => navigate(`/stage2/document-studio/my-requests/${rev.requestId}`)}>
+                          Open Original Request
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {dsSavedRevisions.length === 0 && (
+                    <p className="text-sm text-gray-500">No revisions raised yet.</p>
+                  )}
+                </div>
               )}
             </div>
           ) : activeService === "Solutions Specs" ? (
@@ -4142,4 +4416,75 @@ export default function Stage2AppPage() {
 
     </div>
   );
+}
+
+function DsMetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-3xl font-semibold text-gray-900 mt-2">{value}</p>
+    </div>
+  );
+}
+
+function DsRequestListRow({
+  request,
+  getStatusClass,
+  onClick,
+}: {
+  request: DocumentStudioRequest;
+  getStatusClass: (status: DocumentStudioRequestStatus) => string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full bg-white border border-gray-200 rounded-xl p-5 flex items-center justify-between gap-4 text-left"
+    >
+      <div>
+        <p className="font-semibold text-gray-900">{request.title}</p>
+        <p className="text-sm text-gray-500">
+          {request.documentTypeName} · {new Date(request.submittedDate).toLocaleDateString()}
+        </p>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <div className="text-xs text-gray-500">Assign SLA</div>
+          <DsSlaPill request={request} phase="assign" compact />
+        </div>
+        <Badge className={getStatusClass(request.status)}>{request.status}</Badge>
+      </div>
+    </button>
+  );
+}
+
+function DsSlaPill({
+  request,
+  phase,
+  compact = false,
+}: {
+  request: DocumentStudioRequest;
+  phase: "assign" | "complete";
+  compact?: boolean;
+}) {
+  const sla = getDocumentStudioSla(request, phase);
+  const className =
+    sla.health === "breached"
+      ? "bg-red-100 text-red-700"
+      : sla.health === "warning"
+        ? "bg-amber-100 text-amber-700"
+        : "bg-green-100 text-green-700";
+  return (
+    <span className={`inline-flex rounded-full px-2 py-1 ${compact ? "text-[11px]" : "text-xs"} font-medium ${className}`}>
+      {sla.label}
+    </span>
+  );
+}
+
+function toDsLabel(raw: string) {
+  return raw
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }

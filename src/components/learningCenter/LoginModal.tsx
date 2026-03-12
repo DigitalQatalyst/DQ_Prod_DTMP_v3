@@ -26,6 +26,7 @@ interface LoginModalProps {
     sectionRef?: string;
     requestType?: string;
   };
+  onLoginSuccess?: () => void;
 }
 
 const learningStage1ToStage2CourseMap: Record<string, string> = {
@@ -41,7 +42,7 @@ const learningStage1ToStage2CourseMap: Record<string, string> = {
   "transformation-leadership": "agile-transformation-leadership",
 };
 
-export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginModalProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,6 +69,12 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
     setUserAuthenticated(true);
     const sessionRole = resolveSessionRole(email);
     setSessionRole(sessionRole);
+
+    if (onLoginSuccess) {
+      onLoginSuccess();
+      onClose();
+      return;
+    }
 
     if (context.action === "access-platform") {
       if (isTOStage3Role(sessionRole)) {
@@ -118,12 +125,8 @@ export function LoginModal({ isOpen, onClose, context }: LoginModalProps) {
         context.marketplace === "templates" ||
         context.marketplace === "document-studio"
       ) {
-        // For document studio, go directly to new request page with template pre-selected
-        navigate("/stage2/templates/new-request", {
-          state: {
-            templateId: context.cardId,
-            ...context,
-          },
+        navigate(`/marketplaces/document-studio/request/${context.tab}/${context.cardId}`, {
+          state: context,
         });
       } else {
         navigate("/stage2", {

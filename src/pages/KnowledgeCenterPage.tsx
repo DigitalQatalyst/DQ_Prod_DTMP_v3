@@ -17,9 +17,9 @@ import { playbooks, playbooksFilters } from "@/data/knowledgeCenter/playbooks";
 import {
   architectureStandards,
   architectureStandardsFilters,
-  designReports,
   designReportsFilters,
   executiveSummaries,
+  getDesignReports,
   governanceFrameworks,
   governanceFrameworksFilters,
   policiesProcedures,
@@ -98,6 +98,7 @@ export default function KnowledgeCenterPage() {
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [currentPage, setCurrentPage] = useState(1);
 
+  const designReports = useMemo(() => getDesignReports(), []);
   const totalResourceCount =
     bestPractices.length +
     testimonials.length +

@@ -1,224 +1,262 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  FileText,
-  Sparkles,
-  Download,
-  AppWindow,
+  ChevronRight,
   ClipboardCheck,
+  Layers,
+  LayoutGrid,
+  Sparkles,
+  icons,
   LucideIcon,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchBar } from "@/components/learningCenter/SearchBar";
 import { FilterPanel, MobileFilterButton } from "@/components/learningCenter/FilterPanel";
-import { TemplateCard } from "@/components/templates/TemplateCard";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-
 import {
-  applicationProfiles,
-  applicationProfilesFilters,
-  assessments,
-  assessmentsFilters,
-} from "@/data/templates";
+  documentStudioFilters,
+  documentStudioTabMeta,
+  listDocumentStudioCards,
+  type DocumentStudioTab,
+} from "@/data/documentStudio";
 
-type TabType = "application-profiles" | "assessments";
-
-const tabConfig: Record<
-  TabType,
-  {
-    icon: LucideIcon;
-    label: string;
-    shortLabel: string;
-    placeholder: string;
-    count: number;
-  }
-> = {
-  "application-profiles": {
-    icon: AppWindow,
-    label: "Application Profiles",
-    shortLabel: "Profiles",
-    placeholder: "Search application types or domains...",
-    count: applicationProfiles.length,
-  },
-  assessments: {
-    icon: ClipboardCheck,
-    label: "Assessments",
-    shortLabel: "Assess",
-    placeholder: "Search assessment types or frameworks...",
-    count: assessments.length,
-  },
+const tabIcons: Record<DocumentStudioTab, LucideIcon> = {
+  assessments: ClipboardCheck,
+  "application-profiles": LayoutGrid,
+  "design-reports": Layers,
 };
 
-const getFiltersForTab = (tab: TabType) => {
-  switch (tab) {
-    case "application-profiles":
-      return applicationProfilesFilters;
-    case "assessments":
-      return assessmentsFilters;
-    default:
-      return {};
-  }
+const validTabs: DocumentStudioTab[] = [
+  "assessments",
+  "application-profiles",
+  "design-reports",
+];
+
+const tabPlaceholders: Record<DocumentStudioTab, string> = {
+  assessments: "Search assessments, frameworks, or scope...",
+  "application-profiles": "Search application profiles, domains, or deployment models...",
+  "design-reports": "Search design reports, streams, or divisions...",
 };
 
-const getDataForTab = (tab: TabType) => {
-  switch (tab) {
-    case "application-profiles":
-      return applicationProfiles;
-    case "assessments":
-      return assessments;
-    default:
-      return [];
-  }
-};
-
-const getTabLabel = (tab: TabType): string => {
-  switch (tab) {
-    case "application-profiles":
-      return "application profiles";
-    case "assessments":
-      return "assessments";
-    default:
-      return "documents";
-  }
-};
+type SortOption = "recommended" | "title-asc" | "usage-desc";
 
 export default function DocumentStudioPage() {
-  const [activeTab, setActiveTab] = useState<TabType>("application-profiles");
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = validTabs.includes(searchParams.get("tab") as DocumentStudioTab)
+    ? (searchParams.get("tab") as DocumentStudioTab)
+    : "assessments";
+
+  const [activeTab, setActiveTab] = useState<DocumentStudioTab>(initialTab);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("recommended");
 
   const handleFilterChange = (group: string, value: string) => {
     setSelectedFilters((prev) => {
-      const current = prev[group] || [];
-      const updated = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value];
-      return { ...prev, [group]: updated };
+      const current = prev[group] ?? [];
+      return {
+        ...prev,
+        [group]: current.includes(value)
+          ? current.filter((entry) => entry !== value)
+          : [...current, value],
+      };
     });
   };
 
-  const handleClearFilters = () => {
-    setSelectedFilters({});
-  };
+  const filteredCards = useMemo(() => {
+    const cards = listDocumentStudioCards(activeTab);
+    const q = searchQuery.trim().toLowerCase();
+    const matches = cards.filter((card) => {
+      const matchesSearch =
+        !q ||
+        card.title.toLowerCase().includes(q) ||
+        card.description.toLowerCase().includes(q) ||
+        Object.values(card.filters).some((value) => value.toLowerCase().includes(q));
+      if (!matchesSearch) return false;
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value as TabType);
-    setSelectedFilters({});
-  };
+      return Object.entries(selectedFilters).every(([group, values]) => {
+        if (values.length === 0) return true;
+        return values.includes(card.filters[group] ?? "");
+      });
+    });
 
-  const currentFilters = getFiltersForTab(activeTab);
-  const currentData = getDataForTab(activeTab);
-  const currentConfig = tabConfig[activeTab];
+    if (sortBy === "title-asc") {
+      return [...matches].sort((a, b) => a.title.localeCompare(b.title));
+    }
 
-  const totalDocuments = Object.values(tabConfig).reduce((sum, tab) => sum + tab.count, 0);
+    if (sortBy === "usage-desc") {
+      return [...matches].sort((a, b) => b.usageCount - a.usageCount);
+    }
+
+    return matches;
+  }, [activeTab, searchQuery, selectedFilters, sortBy]);
+
+  const totalDocumentTypes = validTabs.reduce(
+    (sum, tab) => sum + listDocumentStudioCards(tab).length,
+    0
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background">
       <Header />
 
-      <section className="bg-gradient-to-b from-purple-50 to-white py-8 lg:py-12 border-b border-gray-200">
+      <section className="bg-gradient-to-b from-blue-50 to-white py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <nav className="text-sm text-gray-600 mb-4">
-            <Link to="/" className="hover:text-gray-900">Home</Link>
-            <span className="mx-2">/</span>
-            <Link to="/marketplaces" className="hover:text-gray-900">Marketplaces</Link>
-            <span className="mx-2">/</span>
-            <span className="font-medium text-gray-900">Document Studio</span>
+          <nav className="flex items-center text-sm text-muted-foreground mb-4">
+            <Link to="/" className="hover:text-foreground transition-colors">
+              Home
+            </Link>
+            <ChevronRight className="w-4 h-4 mx-2" />
+            <Link to="/marketplaces" className="hover:text-foreground transition-colors">
+              Marketplaces
+            </Link>
+            <ChevronRight className="w-4 h-4 mx-2" />
+            <span className="font-medium text-foreground">Document Studio</span>
           </nav>
 
-          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold uppercase inline-block mb-3">
+          <span className="inline-block bg-phase-design-bg text-phase-design px-3 py-1 rounded-full text-xs font-semibold uppercase mb-3">
             Design
           </span>
-
-          <h1 className="text-3xl lg:text-4xl font-bold text-[#001F3F] mb-3">
-            DTMP Document Studio
+          <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy mb-3">
+            Document Studio
           </h1>
-
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 px-4 py-2 rounded-full text-purple-700 font-semibold text-sm mb-3">
-            <Sparkles size={18} className="text-purple-600" />
-            <span>Powered by AI DocWriter 4.0</span>
-          </div>
-
-          <p className="text-base lg:text-lg text-gray-600 max-w-4xl mb-4">
-            Generate context-specific documents on demand using AI. Submit a request with your organisational context and the Transformation Office will use AI DocWriter 4.0 to generate a tailored document ready for your review and use.
+          <p className="text-base lg:text-lg text-muted-foreground max-w-4xl mb-4">
+            Generate context-specific documents on demand using AI. Submit a request
+            with your organisational context and the Transformation Office will use AI
+            DocWriter 4.0 to generate a tailored document ready for your review and use.
           </p>
-
-          <div className="flex flex-wrap gap-6 text-sm text-gray-500">
+          <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
-              <FileText size={18} />
-              {totalDocuments}+ Documents
+              <ClipboardCheck className="w-4 h-4" />
+              {totalDocumentTypes} Document Types
             </span>
             <span className="flex items-center gap-2">
-              <Sparkles size={18} />
+              <Sparkles className="w-4 h-4" />
               AI-Powered Generation
             </span>
             <span className="flex items-center gap-2">
-              <Download size={18} />
-              Multiple Output Formats
+              <LayoutGrid className="w-4 h-4" />
+              PDF & DOCX Export
             </span>
           </div>
         </div>
       </section>
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col">
-        <div className="bg-white border-b-2 border-gray-200 px-4 lg:px-8">
-          <TabsList className="h-auto bg-transparent p-0 flex gap-1 overflow-x-auto">
-            {(Object.keys(tabConfig) as TabType[]).map((tab) => {
-              const config = tabConfig[tab];
-              const Icon = config.icon;
-              return (
-                <TabsTrigger
-                  key={tab}
-                  value={tab}
-                  className="flex items-center gap-2 px-4 lg:px-6 py-4 text-gray-600 hover:text-gray-900 font-medium relative data-[state=active]:text-[#001F3F] data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:-mb-0.5 rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                >
-                  <Icon size={20} />
-                  <span className="hidden lg:inline">{config.label}</span>
-                  <span className="lg:hidden">{config.shortLabel}</span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs ml-1 ${
-                      activeTab === tab ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"
-                    }`}
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          const next = value as DocumentStudioTab;
+          setActiveTab(next);
+          setSearchParams({ tab: next });
+          setSelectedFilters({});
+          setSortBy("recommended");
+        }}
+      >
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto">
+            <TabsList className="h-auto bg-transparent p-0 gap-2 overflow-x-auto flex justify-start px-4 lg:px-8">
+              {validTabs.map((tab) => {
+                const Icon = tabIcons[tab];
+                const meta = documentStudioTabMeta[tab];
+                return (
+                  <TabsTrigger
+                    key={tab}
+                    value={tab}
+                    className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:text-blue-700 data-[state=active]:shadow-none bg-transparent"
                   >
-                    {config.count}
-                  </span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+                    <Icon className="w-4 h-4" />
+                    {meta.label}
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">
+                      {listDocumentStudioCards(tab).length}
+                    </span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
         </div>
 
-        <div className="flex-1 flex">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={tabPlaceholders[activeTab]}
+        />
+
+        <div className="max-w-7xl mx-auto flex">
           <FilterPanel
-            filters={currentFilters}
+            filters={documentStudioFilters[activeTab]}
             selectedFilters={selectedFilters}
             onFilterChange={handleFilterChange}
-            onClearAll={handleClearFilters}
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
+            onClearAll={() => setSelectedFilters({})}
+            isOpen={filterOpen}
+            onClose={() => setFilterOpen(false)}
           />
 
-          <div className="flex-1 flex flex-col">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder={currentConfig.placeholder}
-            />
-
-            <div className="px-4 lg:px-8 py-3 bg-gray-50 border-b border-gray-200">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{currentData.length}</span> {getTabLabel(activeTab)}
-              </p>
+          <div className="flex-1 min-w-0">
+            <div className="bg-gray-50 border-b border-gray-200 px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Showing{" "}
+                  <span className="font-semibold text-foreground">
+                    {filteredCards.length === 0 ? 0 : 1}
+                  </span>{" "}
+                  -{" "}
+                  <span className="font-semibold text-foreground">{filteredCards.length}</span>{" "}
+                  of <span className="font-semibold text-foreground">{filteredCards.length}</span>{" "}
+                  document types
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {documentStudioTabMeta[activeTab].description}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:flex items-center gap-2">
+                  <label className="text-xs uppercase tracking-wide text-muted-foreground">
+                    Sort
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(event) => setSortBy(event.target.value as SortOption)}
+                    className="border border-gray-300 rounded-md bg-white px-2 py-1 text-sm"
+                  >
+                    <option value="recommended">Recommended</option>
+                    <option value="title-asc">Title A-Z</option>
+                    <option value="usage-desc">Most Used</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            {(Object.keys(tabConfig) as TabType[]).map((tab) => (
-              <TabsContent key={tab} value={tab} className="flex-1 px-4 lg:px-8 py-6 mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {getDataForTab(tab).map((template) => (
-                    <TemplateCard key={template.id} template={template as any} tab={tab} />
-                  ))}
+            {validTabs.map((tab) => (
+              <TabsContent key={tab} value={tab} className="mt-0">
+                <div className="px-4 lg:px-8 py-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredCards.map((card) => (
+                      <DocumentStudioCard
+                        key={card.id}
+                        title={card.title}
+                        description={card.description}
+                        icon={card.icon}
+                        badge={card.categoryBadge}
+                        aiBadge={card.aiBadge}
+                        pageRange={card.pageRange}
+                        outputFormats={card.outputFormats}
+                        specialFeature={card.specialFeature}
+                        usageCount={card.usageCount}
+                        onClick={() =>
+                          navigate(`/marketplaces/document-studio/${activeTab}/${card.id}`)
+                        }
+                      />
+                    ))}
+                  </div>
+                  {filteredCards.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      No document types match your current filters.
+                    </p>
+                  )}
                 </div>
               </TabsContent>
             ))}
@@ -226,9 +264,70 @@ export default function DocumentStudioPage() {
         </div>
       </Tabs>
 
-      <MobileFilterButton onClick={() => setIsFilterOpen(true)} />
-
+      <MobileFilterButton onClick={() => setFilterOpen(true)} />
       <Footer />
     </div>
+  );
+}
+
+function DocumentStudioCard({
+  title,
+  description,
+  icon,
+  badge,
+  aiBadge,
+  pageRange,
+  outputFormats,
+  specialFeature,
+  usageCount,
+  onClick,
+}: {
+  title: string;
+  description: string;
+  icon: string;
+  badge: string;
+  aiBadge: string;
+  pageRange: string;
+  outputFormats: string[];
+  specialFeature?: string;
+  usageCount: number;
+  onClick: () => void;
+}) {
+  const Icon = (icons[icon as keyof typeof icons] as LucideIcon) ?? Layers;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="bg-white text-left border border-gray-200 rounded-xl p-6 hover:border-blue-300 hover:shadow-sm transition-all"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div className="w-14 h-14 bg-blue-50 rounded-lg flex items-center justify-center">
+          <Icon className="text-blue-600" size={28} />
+        </div>
+        <span className="bg-purple-50 border border-purple-200 px-2 py-1 rounded-full text-xs font-medium text-purple-700">
+          {aiBadge}
+        </span>
+      </div>
+
+      <div className="mb-3">
+        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">
+          {badge}
+        </span>
+      </div>
+
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-sm text-gray-600 mb-4">{description}</p>
+
+      <div className="space-y-2 text-xs text-gray-600 mb-4">
+        <div>{pageRange}</div>
+        <div>{outputFormats.join(", ")}</div>
+        {specialFeature && <div>{specialFeature}</div>}
+      </div>
+
+      <div className="border-t border-gray-100 pt-4">
+        <span className="text-xs text-gray-500">{usageCount} uses</span>
+      </div>
+    </button>
   );
 }

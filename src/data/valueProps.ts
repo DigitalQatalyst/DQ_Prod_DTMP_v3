@@ -70,9 +70,4 @@ export const stats: Stat[] = [
     label: "DEWA Divisions Served",
     note: "All major business domains",
   },
-  {
-    value: "1",
-    label: "Enterprise Architecture Platform",
-    note: "One architecture direction",
-  },
 ];

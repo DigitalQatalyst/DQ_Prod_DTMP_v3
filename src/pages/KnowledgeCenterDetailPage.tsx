@@ -12,8 +12,8 @@ import { testimonials } from "@/data/knowledgeCenter/testimonials";
 import { playbooks } from "@/data/knowledgeCenter/playbooks";
 import {
   architectureStandards,
-  designReports,
   executiveSummaries,
+  getDesignReports,
   governanceFrameworks,
   policiesProcedures,
   strategyDocs,
@@ -55,6 +55,7 @@ export default function KnowledgeCenterDetailPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const normalizedTab = validTabs.includes(tab as KnowledgeTab) ? (tab as KnowledgeTab) : null;
 
+  const designReports = useMemo(() => getDesignReports(), []);
   const item = useMemo(() => {
     if (!normalizedTab || !cardId) return undefined;
     switch (normalizedTab) {
