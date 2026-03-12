@@ -310,9 +310,9 @@ export default function DivisionalLandingPage() {
             </div>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/marketplaces">
-                <Button className="cta-primary px-8 py-3 text-base">Enter Marketplace</Button>
+                <Button className="cta-primary">Enter Marketplace</Button>
               </Link>
-              <Link to="/" className="cta-secondary text-base inline-flex items-center px-6 py-3">
+              <Link to="/" className="bg-transparent border-2 border-[#0EA5E9] text-[#0EA5E9] font-bold rounded-md px-4 py-2 hover:bg-[#0EA5E9] hover:text-white transition-colors inline-flex items-center text-sm">
                 Back to Enterprise Platform
               </Link>
             </div>
