@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MarketplaceCard } from "@/components/cards/MarketplaceCard";
@@ -19,11 +20,11 @@ const MarketplacesPage = () => {
         <section className="py-12 lg:py-16 section-gradient">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
-            <nav className="text-sm text-muted-foreground mb-4">
+            <nav className="flex items-center text-sm text-muted-foreground mb-4">
               <Link to="/" className="hover:text-blue-accent transition-colors">
                 Home
               </Link>
-              <span className="mx-2">/</span>
+              <ChevronRight className="w-4 h-4 mx-2" />
               <span className="font-medium text-foreground">Marketplaces</span>
             </nav>
 

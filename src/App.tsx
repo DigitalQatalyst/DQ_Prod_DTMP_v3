@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
@@ -75,6 +75,15 @@ const Stage3GuardedRoute = () => {
   return <Stage3AppPage />;
 };
 
+
+const LegacyDocumentStudioRedirect = () => {
+  const { requestId } = useParams<{ requestId?: string }>();
+  if (requestId) {
+    return <Navigate to={`/stage2/document-studio/my-requests/${requestId}`} replace />;
+  }
+  return <Navigate to="/stage2/document-studio/overview" replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -113,13 +122,13 @@ const App = () => (
           <Route path="/stage2/specs/patterns/:patternId" element={<Stage2AppPage />} />
           <Route path="/stage2/specs/my-designs" element={<Stage2AppPage />} />
           <Route path="/stage2/specs/my-designs/:designId" element={<Stage2AppPage />} />
-          <Route path="/stage2/templates" element={<Navigate to="/stage2/templates/overview" replace />} />
-          <Route path="/stage2/templates/overview" element={<Stage2AppPage />} />
-          <Route path="/stage2/templates/library" element={<Stage2AppPage />} />
-          <Route path="/stage2/templates/library/:templateId" element={<Stage2AppPage />} />
-          <Route path="/stage2/templates/new-request" element={<Stage2AppPage />} />
-          <Route path="/stage2/templates/my-requests" element={<Stage2AppPage />} />
-          <Route path="/stage2/templates/my-requests/:requestId" element={<Stage2AppPage />} />
+          <Route path="/stage2/templates" element={<LegacyDocumentStudioRedirect />} />
+          <Route path="/stage2/templates/overview" element={<LegacyDocumentStudioRedirect />} />
+          <Route path="/stage2/templates/library" element={<LegacyDocumentStudioRedirect />} />
+          <Route path="/stage2/templates/library/:templateId" element={<LegacyDocumentStudioRedirect />} />
+          <Route path="/stage2/templates/new-request" element={<Navigate to="/marketplaces/document-studio" replace />} />
+          <Route path="/stage2/templates/my-requests" element={<Navigate to="/stage2/document-studio/my-requests" replace />} />
+          <Route path="/stage2/templates/my-requests/:requestId" element={<LegacyDocumentStudioRedirect />} />
           <Route path="/stage2/intelligence" element={<Navigate to="/stage2/intelligence/overview" replace />} />
           <Route path="/stage2/intelligence/:intelligenceTab" element={<Stage2AppPage />} />
           <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
@@ -144,6 +153,12 @@ const App = () => (
           {/* Document Studio marketplace */}
           <Route path="/marketplaces/document-studio" element={<DocumentStudioPage />} />
           <Route path="/marketplaces/document-studio/:tab/:cardId" element={<DocumentStudioDetailPage />} />
+          <Route path="/stage2/document-studio" element={<Navigate to="/stage2/document-studio/overview" replace />} />
+          <Route path="/stage2/document-studio/:view" element={<Stage2AppPage />} />
+          <Route path="/stage2/document-studio/:view/:requestId" element={<Stage2AppPage />} />
+          <Route path="/stage3/document-studio" element={<Navigate to="/stage3/document-studio/overview" replace />} />
+          <Route path="/stage3/document-studio/:view" element={<Stage3GuardedRoute />} />
+          <Route path="/stage3/document-studio/:view/:requestId" element={<Stage3GuardedRoute />} />
 
           {/* Blueprints marketplace - Legacy route with redirect */}
           <Route path="/marketplaces/blueprints" element={<Navigate to="/marketplaces/solution-specs" replace />} />

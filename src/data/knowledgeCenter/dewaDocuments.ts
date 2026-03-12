@@ -1,3 +1,5 @@
+import { DS_DOCUMENT_URL, listPublishedDesignReports } from "@/data/documentStudio";
+
 export type DocumentStatus = "Approved" | "Draft" | "Deprecated";
 
 export interface DewaDocumentItem {
@@ -26,7 +28,7 @@ export interface DewaDocumentItem {
 
 const author = "Transformation Office - DEWA Corporate EA Office";
 
-export const designReports: DewaDocumentItem[] = [
+const seededDesignReports: DewaDocumentItem[] = [
   {
     id: "design-report-dewa-transmission-dws",
     docTypeLabel: "Design Report",
@@ -43,7 +45,7 @@ export const designReports: DewaDocumentItem[] = [
     year: "2026",
     topicPills: ["Transmission", "DWS", "Design Report"],
     audienceTag: "Architect",
-    liveUrl: "https://dewatpdesignsummaryreport.lovable.app/",
+    liveUrl: DS_DOCUMENT_URL,
   },
   {
     id: "design-infographic-dewa-transmission-dws",
@@ -100,6 +102,31 @@ export const designReports: DewaDocumentItem[] = [
     comingSoon: true,
   },
 ];
+
+export const getDesignReports = (): DewaDocumentItem[] => {
+  const published = listPublishedDesignReports().map<DewaDocumentItem>((item) => ({
+    id: item.id,
+    docTypeLabel: item.docTypeLabel,
+    format: item.format,
+    title: item.title,
+    description: item.description,
+    division: item.division,
+    stream: item.stream,
+    producedBy: item.producedBy,
+    publishedDate: item.publishedDate,
+    author: item.author,
+    pageCount: item.pageCount,
+    year: item.year,
+    topicPills: [item.division, item.stream, item.docTypeLabel],
+    audienceTag: item.audienceTag,
+    liveUrl: item.liveUrl,
+  }));
+
+  const publishedIds = new Set(published.map((item) => item.id));
+  return [...published, ...seededDesignReports.filter((item) => !publishedIds.has(item.id))];
+};
+
+export const designReports: DewaDocumentItem[] = getDesignReports();
 
 export const policiesProcedures: DewaDocumentItem[] = [
   {
