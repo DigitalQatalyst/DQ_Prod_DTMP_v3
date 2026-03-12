@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ClipboardList, CheckCircle, Clock, AlertCircle, Eye, Download, BookOpen, ArrowRight } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertCircle, Eye, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { solutionSpecs } from '@/data/blueprints/solutionSpecs';
 import {
   getBlueprintTORequests,
   seedSpecsDemoRequests,
@@ -117,9 +116,6 @@ export const getLiveSpecRequests = (): SpecRequest[] => {
     .map(mapBlueprintToSpecRequest);
 };
 
-// ── Mock acquired specs ───────────────────────────────────────────────────
-const acquiredSpecIds = ['dbp-reference-architecture', 'customer-360-platform', 'enterprise-data-platform'];
-
 interface LocationState {
   fromRequest?: boolean;
   specId?: string;
@@ -148,8 +144,6 @@ export default function SolutionSpecsOverview() {
     'pending':      displayRequests.filter((r) => r.status === 'pending').length,
     'on-hold':      displayRequests.filter((r) => r.status === 'on-hold').length,
   };
-
-  const acquiredSpecs = solutionSpecs.filter((s) => acquiredSpecIds.includes(s.id));
 
   // 3 most recent requests
   const recentRequests = [...displayRequests]
@@ -312,89 +306,6 @@ export default function SolutionSpecsOverview() {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* ── Acquired Solution Specs ──────────────────────────────────────── */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold text-gray-700">Acquired Solution Specs</h2>
-            <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-              {acquiredSpecs.length} specs
-            </span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/marketplaces/solution-specs')}
-            className="text-orange-600 hover:text-orange-700 text-xs"
-          >
-            Browse Marketplace
-            <ArrowRight className="w-3.5 h-3.5 ml-1" />
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {acquiredSpecs.map((spec) => (
-            <div
-              key={spec.id}
-              className="bg-white rounded-xl border border-gray-200 p-5 hover:border-orange-300 hover:shadow-md transition-all cursor-pointer group"
-              onClick={() => navigate(`/marketplaces/solution-specs/${spec.id}`)}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <span className="px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded-md">
-                  {spec.solutionType}
-                </span>
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-md ${
-                    spec.maturityLevel === 'reference'
-                      ? 'bg-blue-100 text-blue-700'
-                      : spec.maturityLevel === 'proven'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {spec.maturityLevel.charAt(0).toUpperCase() + spec.maturityLevel.slice(1)}
-                </span>
-              </div>
-
-              <h3 className="text-base font-semibold text-gray-900 mb-1.5 group-hover:text-orange-700 transition-colors">
-                {spec.title}
-              </h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-4">{spec.description}</p>
-
-              <div className="flex items-center justify-between text-xs text-gray-400">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    <BookOpen className="w-3 h-3" />
-                    {spec.diagramCount} diagrams
-                  </span>
-                  <span>{spec.componentCount} components</span>
-                </div>
-                {spec.downloadUrl && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(spec.downloadUrl, '_blank');
-                    }}
-                    className="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium"
-                  >
-                    <Download className="w-3 h-3" />
-                    Download
-                  </button>
-                )}
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                <span className="text-xs text-green-600 font-medium">Acquired</span>
-                <span className="text-xs text-gray-400 ml-auto">
-                  Updated {new Date(spec.lastUpdated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                </span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 

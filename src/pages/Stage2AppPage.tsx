@@ -513,7 +513,8 @@ export default function Stage2AppPage() {
     getTemplatesTabFromPath()
   );
   const getSpecsTabFromPath = (): SpecsWorkspaceTab => {
-    if (location.pathname.startsWith("/stage2/specs/my-requests")) return "my-requests";
+    if (location.pathname.startsWith("/stage2/specs/my-requests"))   return "my-requests";
+    if (location.pathname.startsWith("/stage2/specs/acquired-specs")) return "acquired-specs";
     return "overview";
   };
   const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
@@ -1224,8 +1225,9 @@ export default function Stage2AppPage() {
   const handleSpecsTabClick = (tabId: SpecsWorkspaceTab) => {
     setActiveSpecsTab(tabId);
     const pathByTab: Record<SpecsWorkspaceTab, string> = {
-      overview: "/stage2/specs/overview",
-      "my-requests": "/stage2/specs/my-requests",
+      overview:         "/stage2/specs/overview",
+      "my-requests":    "/stage2/specs/my-requests",
+      "acquired-specs": "/stage2/specs/acquired-specs",
     };
     navigate(pathByTab[tabId], {
       replace: true,
