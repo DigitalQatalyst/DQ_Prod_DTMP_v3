@@ -430,22 +430,32 @@ const featuredDashboardConfigs: Record<string, any> = {
   // PROJECTS PORTFOLIO & LIFECYCLE (10 services)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // #21 — "AI Prediction Hub" (line for prediction, radar in LEFT position)
+  // #21 — "AI Prediction Hub" — 6 metrics → full-width area → donut+bar → radar+scatter → line+pie → full-width bar → area+radar → full-width table → insights
   'project-success-prediction': {
     widgets: [
-      { id: 'success-probability', type: 'metric', title: 'Success Probability', description: 'AI-predicted success rate', position: { row: 1, col: 1, width: 1, height: 1 } },
-      { id: 'risk-score', type: 'metric', title: 'Risk Score', description: 'Overall project risk', position: { row: 1, col: 2, width: 1, height: 1 } },
-      { id: 'on-track-projects', type: 'metric', title: 'On-Track Projects', description: 'Projects meeting targets', position: { row: 1, col: 3, width: 1, height: 1 } },
-      { id: 'success-trend', type: 'chart', chartType: 'line', title: 'Success Probability Trend', description: 'Weekly success rate changes across the portfolio', position: { row: 2, col: 1, width: 2, height: 1 } },
-      { id: 'risk-distribution', type: 'chart', chartType: 'pie', title: 'Risk Distribution', description: 'Projects by risk level', position: { row: 2, col: 3, width: 1, height: 1 } },
-      { id: 'project-health', type: 'chart', chartType: 'radar', title: 'Project Health Dimensions', description: 'Schedule, budget, scope, quality, stakeholder', position: { row: 3, col: 1, width: 1, height: 1 } },
-      { id: 'risk-factors', type: 'chart', chartType: 'bar', title: 'Top Risk Factors', description: 'Most impactful risk factors across projects', position: { row: 3, col: 2, width: 2, height: 1 } },
-      { id: 'ai-insights', type: 'insight', title: 'AI Predictions', description: 'Success predictions and risk mitigation strategies', position: { row: 4, col: 1, width: 2, height: 1 } },
-      { id: 'project-status', type: 'table', title: 'Project Status', description: 'Detailed project breakdown with AI confidence scores', position: { row: 4, col: 3, width: 1, height: 1 } }
+      { id: 'success-probability', type: 'metric', title: 'Success Probability', description: 'AI-predicted portfolio success rate', position: { row: 1, col: 1, width: 1, height: 1 } },
+      { id: 'risk-score', type: 'metric', title: 'Risk Score', description: 'Composite portfolio risk index', position: { row: 1, col: 2, width: 1, height: 1 } },
+      { id: 'on-track-projects', type: 'metric', title: 'On-Track Projects', description: 'Projects meeting schedule and budget targets', position: { row: 1, col: 3, width: 1, height: 1 } },
+      { id: 'budget-variance', type: 'metric', title: 'Budget Variance', description: 'Portfolio-wide actual vs planned spend', position: { row: 2, col: 1, width: 1, height: 1 } },
+      { id: 'schedule-performance', type: 'metric', title: 'Schedule Performance', description: 'Earned value SPI across active projects', position: { row: 2, col: 2, width: 1, height: 1 } },
+      { id: 'model-confidence', type: 'metric', title: 'AI Model Confidence', description: 'Prediction model accuracy on recent projects', position: { row: 2, col: 3, width: 1, height: 1 } },
+      { id: 'success-trend', type: 'chart', chartType: 'area', title: 'Portfolio Success Trend', description: '12-week rolling success probability across all active projects', position: { row: 3, col: 1, width: 3, height: 1 } },
+      { id: 'risk-distribution', type: 'chart', chartType: 'donut', title: 'Risk Distribution', description: 'Projects segmented by composite risk level', position: { row: 4, col: 1, width: 1, height: 1 } },
+      { id: 'success-by-portfolio', type: 'chart', chartType: 'bar', title: 'Success Rate by Portfolio', description: 'Average AI-predicted success probability per portfolio segment', position: { row: 4, col: 2, width: 2, height: 1 } },
+      { id: 'project-health', type: 'chart', chartType: 'radar', title: 'Project Health Dimensions', description: 'Schedule, budget, scope, quality, resource, and stakeholder health', position: { row: 5, col: 1, width: 1, height: 1 } },
+      { id: 'budget-schedule-scatter', type: 'chart', chartType: 'scatter', title: 'Budget vs Schedule Performance', description: 'Each project plotted by cost performance index vs schedule performance index', position: { row: 5, col: 2, width: 2, height: 1 } },
+      { id: 'earned-value-trend', type: 'chart', chartType: 'line', title: 'Earned Value Analysis', description: 'Planned value vs earned value vs actual cost over the past 12 weeks', position: { row: 6, col: 1, width: 2, height: 1 } },
+      { id: 'success-factors', type: 'chart', chartType: 'pie', title: 'Success Factor Impact', description: 'Relative weight of factors driving project success predictions', position: { row: 6, col: 3, width: 1, height: 1 } },
+      { id: 'risk-factors', type: 'chart', chartType: 'bar', title: 'Top Risk Factors', description: 'Most impactful risk drivers across the portfolio ranked by severity', position: { row: 7, col: 1, width: 3, height: 1 } },
+      { id: 'milestone-completion', type: 'chart', chartType: 'area', title: 'Milestone Completion Rate', description: 'On-time milestone delivery percentage trending over 12 weeks', position: { row: 8, col: 1, width: 2, height: 1 } },
+      { id: 'team-performance', type: 'chart', chartType: 'radar', title: 'Team Performance Profile', description: 'Velocity, quality, collaboration, predictability, and innovation scoring', position: { row: 8, col: 3, width: 1, height: 1 } },
+      { id: 'project-status', type: 'table', title: 'Project Status Overview', description: 'Comprehensive project breakdown with AI confidence, risk scores, and health indicators', position: { row: 9, col: 1, width: 3, height: 1 } },
+      { id: 'ai-insights', type: 'insight', title: 'AI Prediction Intelligence', description: 'AI-powered success predictions, risk alerts, and intervention recommendations', position: { row: 10, col: 1, width: 3, height: 1 } }
     ],
     filters: [
       { id: 'dateRange', label: 'Date Range', type: 'daterange', defaultValue: 'last-90-days' },
-      { id: 'portfolio', label: 'Portfolio', type: 'dropdown', defaultValue: 'all', options: ['all', 'Digital Transformation', 'Infrastructure', 'Innovation'] }
+      { id: 'portfolio', label: 'Portfolio', type: 'dropdown', defaultValue: 'all', options: ['all', 'Digital Transformation', 'Infrastructure', 'Innovation', 'Customer Experience'] },
+      { id: 'riskLevel', label: 'Risk Level', type: 'dropdown', defaultValue: 'all', options: ['all', 'Critical', 'High', 'Medium', 'Low'] }
     ],
     defaultDateRange: 'last-90-days', defaultView: 'overview', exportFormats: ['excel', 'pdf', 'powerpoint'], supportsScheduling: true
   },

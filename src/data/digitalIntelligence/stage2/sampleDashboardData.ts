@@ -563,88 +563,228 @@ export const sampleDashboardData: Record<string, DashboardData> = {
     serviceId: 'project-success-prediction',
     dataSource: 'azure-devops',
     timeSeries: [
-      { timestamp: 'Week 1', value: 75, label: 'Week 1' },
-      { timestamp: 'Week 2', value: 78, label: 'Week 2' },
-      { timestamp: 'Week 3', value: 72, label: 'Week 3' },
+      { timestamp: 'Week 1', value: 71, label: 'Week 1' },
+      { timestamp: 'Week 2', value: 73, label: 'Week 2' },
+      { timestamp: 'Week 3', value: 70, label: 'Week 3' },
       { timestamp: 'Week 4', value: 68, label: 'Week 4' },
-      { timestamp: 'Week 5', value: 71, label: 'Week 5' },
-      { timestamp: 'Week 6', value: 74, label: 'Week 6' }
+      { timestamp: 'Week 5', value: 72, label: 'Week 5' },
+      { timestamp: 'Week 6', value: 74, label: 'Week 6' },
+      { timestamp: 'Week 7', value: 73, label: 'Week 7' },
+      { timestamp: 'Week 8', value: 75, label: 'Week 8' },
+      { timestamp: 'Week 9', value: 76, label: 'Week 9' },
+      { timestamp: 'Week 10', value: 74, label: 'Week 10' },
+      { timestamp: 'Week 11', value: 77, label: 'Week 11' },
+      { timestamp: 'Week 12', value: 78, label: 'Week 12' }
     ],
+    widgetData: {
+      'success-trend': [
+        { name: 'Week 1', value: 71 }, { name: 'Week 2', value: 73 }, { name: 'Week 3', value: 70 },
+        { name: 'Week 4', value: 68 }, { name: 'Week 5', value: 72 }, { name: 'Week 6', value: 74 },
+        { name: 'Week 7', value: 73 }, { name: 'Week 8', value: 75 }, { name: 'Week 9', value: 76 },
+        { name: 'Week 10', value: 74 }, { name: 'Week 11', value: 77 }, { name: 'Week 12', value: 78 }
+      ],
+      'risk-distribution': [
+        { name: 'Critical', value: 2 },
+        { name: 'High', value: 4 },
+        { name: 'Medium', value: 6 },
+        { name: 'Low', value: 8 },
+        { name: 'Minimal', value: 5 }
+      ],
+      'success-by-portfolio': [
+        { name: 'Digital Transformation', value: 82 },
+        { name: 'Infrastructure', value: 76 },
+        { name: 'Innovation', value: 71 },
+        { name: 'Customer Experience', value: 88 },
+        { name: 'Data & Analytics', value: 79 }
+      ],
+      'project-health': [
+        { name: 'Schedule', value: 72 },
+        { name: 'Budget', value: 81 },
+        { name: 'Scope', value: 68 },
+        { name: 'Quality', value: 85 },
+        { name: 'Resources', value: 74 },
+        { name: 'Stakeholder', value: 79 }
+      ],
+      'budget-schedule-scatter': [
+        { name: 'Customer Portal', value: 68, index: 72 },
+        { name: 'Mobile App', value: 71, index: 65 },
+        { name: 'Data Pipeline', value: 85, index: 90 },
+        { name: 'API Gateway', value: 95, index: 92 },
+        { name: 'Cloud Migration', value: 78, index: 82 },
+        { name: 'CRM Upgrade', value: 88, index: 86 },
+        { name: 'Security Overhaul', value: 91, index: 88 },
+        { name: 'Analytics Platform', value: 73, index: 70 },
+        { name: 'DevOps Pipeline', value: 96, index: 94 },
+        { name: 'Legacy Modernization', value: 62, index: 58 }
+      ],
+      'earned-value-trend': [
+        { name: 'Week 1', value: 92 }, { name: 'Week 2', value: 95 }, { name: 'Week 3', value: 91 },
+        { name: 'Week 4', value: 88 }, { name: 'Week 5', value: 90 }, { name: 'Week 6', value: 93 },
+        { name: 'Week 7', value: 94 }, { name: 'Week 8', value: 96 }, { name: 'Week 9', value: 97 },
+        { name: 'Week 10', value: 95 }, { name: 'Week 11', value: 98 }, { name: 'Week 12', value: 99 }
+      ],
+      'success-factors': [
+        { name: 'Team Velocity', value: 28 },
+        { name: 'Scope Stability', value: 22 },
+        { name: 'Stakeholder Alignment', value: 18 },
+        { name: 'Budget Adherence', value: 16 },
+        { name: 'Risk Management', value: 16 }
+      ],
+      'risk-factors': [
+        { name: 'Scope Creep', value: 87 },
+        { name: 'Resource Constraints', value: 76 },
+        { name: 'Technical Debt', value: 72 },
+        { name: 'Dependency Delays', value: 68 },
+        { name: 'Requirements Volatility', value: 64 },
+        { name: 'Vendor Delays', value: 52 },
+        { name: 'Knowledge Gaps', value: 48 },
+        { name: 'Integration Complexity', value: 44 }
+      ],
+      'milestone-completion': [
+        { name: 'Week 1', value: 82 }, { name: 'Week 2', value: 85 }, { name: 'Week 3', value: 78 },
+        { name: 'Week 4', value: 76 }, { name: 'Week 5', value: 80 }, { name: 'Week 6', value: 83 },
+        { name: 'Week 7', value: 84 }, { name: 'Week 8', value: 86 }, { name: 'Week 9', value: 88 },
+        { name: 'Week 10', value: 85 }, { name: 'Week 11', value: 89 }, { name: 'Week 12', value: 91 }
+      ],
+      'team-performance': [
+        { name: 'Velocity', value: 82 },
+        { name: 'Quality', value: 88 },
+        { name: 'Collaboration', value: 76 },
+        { name: 'Predictability', value: 71 },
+        { name: 'Innovation', value: 68 }
+      ]
+    },
     metrics: [
       {
         id: 'success-probability',
         label: 'Success Probability',
-        value: '74%',
+        value: '78%',
         trend: 'up',
-        trendValue: 3,
-        trendLabel: '+3% this week',
-        severity: 'warning'
+        trendValue: 4,
+        trendLabel: '+4% over last 4 weeks',
+        severity: 'success'
       },
       {
         id: 'risk-score',
         label: 'Risk Score',
-        value: '26',
-        unit: 'out of 100',
+        value: '24',
+        unit: '/ 100',
         trend: 'down',
-        trendValue: -3,
-        trendLabel: 'Improving',
+        trendValue: -5,
+        trendLabel: '-5 pts — improving',
         severity: 'success'
       },
       {
         id: 'on-track-projects',
         label: 'On-Track Projects',
-        value: '15/18',
-        trend: 'stable',
+        value: '19/25',
+        trend: 'up',
+        trendValue: 2,
+        trendLabel: '+2 projects since last month',
         severity: 'success'
       },
       {
-        id: 'at-risk-projects',
-        label: 'At-Risk Projects',
-        value: 3,
-        trend: 'stable',
-        trendLabel: 'Requires attention',
-        severity: 'warning'
+        id: 'budget-variance',
+        label: 'Budget Variance',
+        value: '-3.2%',
+        trend: 'down',
+        trendValue: -1.1,
+        trendLabel: 'Under budget — healthy',
+        severity: 'success'
+      },
+      {
+        id: 'schedule-performance',
+        label: 'Schedule Performance Index',
+        value: '1.04',
+        trend: 'up',
+        trendValue: 0.03,
+        trendLabel: 'Ahead of schedule',
+        severity: 'success'
+      },
+      {
+        id: 'model-confidence',
+        label: 'AI Model Confidence',
+        value: '91%',
+        trend: 'up',
+        trendValue: 2,
+        trendLabel: '+2% after re-training',
+        severity: 'info'
       }
     ],
     insights: [
       {
         id: 'insight-401',
         type: 'alert',
-        severity: 'high',
-        title: 'Customer Portal Project At Risk',
-        description: 'Success probability dropped from 82% to 68% in past 2 weeks. Key risk factors: scope creep (+15%), resource constraints, delayed dependencies.',
-        confidence: 86,
+        severity: 'critical',
+        title: 'Legacy Modernization at Critical Risk',
+        description: 'Success probability plunged to 58% (was 74% four weeks ago). Root causes: scope increased by 35% without timeline extension, 2 senior architects departed, and 3 upstream dependencies are delayed by 4+ weeks.',
+        confidence: 92,
         actionable: true,
-        suggestedAction: 'Immediate intervention required: Scope review meeting, resource reallocation, dependency escalation.'
+        suggestedAction: 'Convene emergency steering committee. Options: (1) Reset scope to MVP with a revised timeline, (2) Inject 3 senior resources from the bench, (3) Escalate dependency delays to vendor management.'
       },
       {
         id: 'insight-402',
-        type: 'recommendation',
-        severity: 'medium',
-        title: 'Mobile App Project Needs Support',
-        description: 'Success probability at 71% (below 75% threshold). Primary issue: technical debt accumulation affecting velocity.',
-        confidence: 82,
+        type: 'alert',
+        severity: 'high',
+        title: 'Customer Portal Trending Downward',
+        description: 'Success probability dropped from 82% to 68% over the past 3 weeks. The primary driver is scope creep (+15% in story points) combined with resource constraints as two developers were reassigned to the Cloud Migration project.',
+        confidence: 88,
         actionable: true,
-        suggestedAction: 'Allocate 2 senior developers for technical debt sprint. Estimated 2-week effort to stabilize.'
+        suggestedAction: 'Immediate scope review meeting with the product owner. Freeze non-critical features and restore one senior developer from the bench pool.'
       },
       {
         id: 'insight-403',
+        type: 'recommendation',
+        severity: 'medium',
+        title: 'Analytics Platform Needs Technical Debt Sprint',
+        description: 'Success probability at 73% — below the 75% green threshold. Technical debt accumulation (142 unresolved code issues) is slowing velocity by an estimated 22%. Defect escape rate has increased 18% in the last 2 sprints.',
+        confidence: 85,
+        actionable: true,
+        suggestedAction: 'Allocate a dedicated 2-week technical debt sprint with 3 senior developers. Focus on the 28 critical code issues first — projected to recover 15% velocity.'
+      },
+      {
+        id: 'insight-404',
+        type: 'prediction',
+        severity: 'medium',
+        title: 'Cloud Migration Budget Overrun Predicted',
+        description: 'At the current burn rate, the Cloud Migration project will exceed its $2.4M budget by approximately $180K (7.5%) by project completion in Q3. The cost variance has widened steadily over the last 6 weeks.',
+        confidence: 81,
+        actionable: true,
+        suggestedAction: 'Review vendor contract terms for optimization. Consider phasing the DR environment setup to Q4 to defer $120K in infrastructure costs.'
+      },
+      {
+        id: 'insight-405',
         type: 'info',
         severity: 'low',
-        title: 'API Gateway Project Exceeding Expectations',
-        description: 'Success probability at 94%, up from 88% last month. Strong team performance and clear requirements driving success.',
-        confidence: 95,
+        title: 'API Gateway & DevOps Pipeline Exceeding Expectations',
+        description: 'Both projects are at 94%+ success probability with strong team velocity (115% of target), zero scope changes, and 100% on-time milestone delivery. These teams can serve as models for best practice extraction.',
+        confidence: 96,
+        actionable: false
+      },
+      {
+        id: 'insight-406',
+        type: 'prediction',
+        severity: 'low',
+        title: 'Portfolio Health Improving Overall',
+        description: 'AI model predicts portfolio-wide success probability will reach 82% within 4 weeks if current improvement trends continue. The number of at-risk projects is projected to drop from 6 to 3.',
+        confidence: 79,
         actionable: false
       }
     ],
     tableData: [
-      { project: 'Customer Portal', successProb: '68%', riskLevel: 'High', keyRisk: 'Scope Creep', action: 'Immediate Review' },
-      { project: 'Mobile App', successProb: '71%', riskLevel: 'Medium', keyRisk: 'Technical Debt', action: 'Support Needed' },
-      { project: 'Data Pipeline', successProb: '79%', riskLevel: 'Low', keyRisk: 'Resource Availability', action: 'Monitor' },
-      { project: 'API Gateway', successProb: '94%', riskLevel: 'Very Low', keyRisk: 'None', action: 'On Track' }
+      { project: 'Customer Portal', portfolio: 'Digital Transformation', successProb: '68%', riskLevel: 'High', budgetVar: '+5.2%', spi: '0.88', keyRisk: 'Scope Creep', status: 'At Risk' },
+      { project: 'Mobile App', portfolio: 'Customer Experience', successProb: '71%', riskLevel: 'Medium', budgetVar: '+2.1%', spi: '0.92', keyRisk: 'Technical Debt', status: 'Monitor' },
+      { project: 'Analytics Platform', portfolio: 'Data & Analytics', successProb: '73%', riskLevel: 'Medium', budgetVar: '-1.3%', spi: '0.95', keyRisk: 'Code Quality', status: 'Monitor' },
+      { project: 'Cloud Migration', portfolio: 'Infrastructure', successProb: '78%', riskLevel: 'Medium', budgetVar: '+7.5%', spi: '1.02', keyRisk: 'Budget Overrun', status: 'Monitor' },
+      { project: 'Data Pipeline', portfolio: 'Data & Analytics', successProb: '85%', riskLevel: 'Low', budgetVar: '-2.4%', spi: '1.05', keyRisk: 'Resource Availability', status: 'On Track' },
+      { project: 'CRM Upgrade', portfolio: 'Customer Experience', successProb: '88%', riskLevel: 'Low', budgetVar: '-0.8%', spi: '1.08', keyRisk: 'None', status: 'On Track' },
+      { project: 'Security Overhaul', portfolio: 'Infrastructure', successProb: '91%', riskLevel: 'Low', budgetVar: '-3.1%', spi: '1.06', keyRisk: 'None', status: 'On Track' },
+      { project: 'API Gateway', portfolio: 'Digital Transformation', successProb: '94%', riskLevel: 'Very Low', budgetVar: '-4.2%', spi: '1.12', keyRisk: 'None', status: 'On Track' },
+      { project: 'DevOps Pipeline', portfolio: 'Innovation', successProb: '96%', riskLevel: 'Very Low', budgetVar: '-5.0%', spi: '1.15', keyRisk: 'None', status: 'On Track' },
+      { project: 'Legacy Modernization', portfolio: 'Infrastructure', successProb: '58%', riskLevel: 'Critical', budgetVar: '+12.3%', spi: '0.78', keyRisk: 'Scope + Resources', status: 'At Risk' }
     ],
-    generatedAt: '2026-02-11T10:00:00Z',
-    dataRange: { start: 'Week 1', end: 'Week 6' }
+    generatedAt: '2026-03-11T10:00:00Z',
+    dataRange: { start: 'Week 1', end: 'Week 12' }
   },
   'performance-trending': {
     serviceId: 'performance-trending',
