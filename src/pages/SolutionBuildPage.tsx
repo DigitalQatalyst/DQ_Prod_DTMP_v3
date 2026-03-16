@@ -214,15 +214,23 @@ export function SolutionBuildPage() {
       assignedTeam: undefined
     };
 
-    // Store in localStorage for persistence
-    const stored = JSON.parse(localStorage.getItem('buildRequests') || '[]');
-    localStorage.setItem('buildRequests', JSON.stringify([newRequest, ...stored]));
+    // Create build request AND Stage 3 request atomically
+    import('@/data/stage3/intake').then(({ createBuildRequestStage3Intake }) => {
+      const result = createBuildRequestStage3Intake({
+        buildRequest: newRequest,
+        requesterEmail: 'user@dtmp.local',
+        requesterDepartment: newRequest.department,
+        priority: newRequest.priority
+      });
 
-    navigate('/stage2', {
-      state: {
-        marketplace: 'solution-build',
-        newBuildRequest: newRequest,
-        selectedRequestId: newRequest.id
+      if (result) {
+        navigate('/stage2', {
+          state: {
+            marketplace: 'solution-build',
+            newBuildRequest: result.request,
+            selectedRequestId: result.request.id
+          }
+        });
       }
     });
   };

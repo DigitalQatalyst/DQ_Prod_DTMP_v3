@@ -603,3 +603,61 @@ export const createPortfolioStage3Intake = (input: {
 
   return { request, stage3 };
 };
+
+// ─── Solution Build (Full Lifecycle) ──────────────────────────────────────────
+
+import {
+  addBuildRequest,
+  linkBuildRequestToStage3,
+  type BuildRequest,
+} from "@/data/solutionBuild/requestState";
+
+/**
+ * Creates a Solution Build request and a linked Stage 3 request in one atomic
+ * operation. This is the proper intake for full build requests (not simple
+ * blueprint-style requests).
+ * 
+ * Returns both records, or null if the build request data is invalid.
+ */
+export const createBuildRequestStage3Intake = (input: {
+  buildRequest: BuildRequest;
+  requesterEmail: string;
+  requesterDepartment: string;
+  priority?: Stage3Priority;
+}): { request: BuildRequest; stage3: ReturnType<typeof createStage3Request> } | null => {
+  // 1. Create/save the build request
+  const request = addBuildRequest(input.buildRequest);
+
+  // 2. Create the Stage 3 request
+  const stage3 = createStage3Request({
+    type: "solution-build",
+    title: `Build Request: ${request.name}`,
+    description: request.businessNeed,
+    requester: {
+      name: request.requestedBy,
+      email: input.requesterEmail,
+      department: input.requesterDepartment,
+      organization: "DTMP",
+    },
+    priority: input.priority ?? request.priority,
+    estimatedHours: 40, // Default estimate for build requests
+    tags: [
+      "solution-build",
+      request.type,
+      request.department.toLowerCase().replace(/\s+/g, "-"),
+    ],
+    relatedAssets: [`solution-build-request:${request.id}`],
+    notes: [
+      `Build request submitted by ${request.requestedBy}.`,
+      `Build type: ${request.type}.`,
+      `Department: ${request.department}.`,
+      ...(request.targetDate ? [`Target date: ${request.targetDate}.`] : []),
+      ...(request.sponsor ? [`Sponsor: ${request.sponsor}.`] : []),
+    ],
+  });
+
+  // 3. Write the back-link onto the build request
+  linkBuildRequestToStage3(request.id, stage3.id);
+
+  return { request, stage3 };
+};
