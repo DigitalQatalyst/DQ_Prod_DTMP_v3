@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,8 @@ const navLinks = [
   { name: "DBP", sectionId: "dbp-overview" },
   { name: "4D Model", sectionId: "governance-model" },
   { name: "Streams", sectionId: "execution-streams" },
-  { name: "TO", sectionId: "to-value" },
-  { name: "Assets", sectionId: "marketplaces" },
+  { name: "Value", sectionId: "to-value" },
+  { name: "Marketplaces", sectionId: "marketplaces" },
   { name: "Contributors", sectionId: "contributors" },
 ];
 
@@ -21,11 +21,20 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const authenticated = isUserAuthenticated();
+  const role = getSessionRole();
+  const isTOUser = authenticated && isTOStage3Role(role);
+
+  const orderedNavLinks = useMemo(() => {
+    if (!isTOUser) return navLinks;
+    const toLink = navLinks.find((link) => link.sectionId === "to-value");
+    const otherLinks = navLinks.filter((link) => link.sectionId !== "to-value");
+    return toLink ? [toLink, ...otherLinks] : navLinks;
+  }, [isTOUser]);
+
   const scrollToSection = (sectionId: string) => {
-    // If not on landing page, navigate there first
     if (location.pathname !== "/") {
       navigate("/");
-      // Wait for navigation, then scroll
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -47,8 +56,8 @@ export function Header() {
 
   const handleAccessPlatform = () => {
     if (isUserAuthenticated()) {
-      const role = getSessionRole();
-      if (isTOStage3Role(role)) {
+      const sessionRole = getSessionRole();
+      if (isTOStage3Role(sessionRole)) {
         navigate("/stage3/dashboard");
         return;
       }
@@ -62,7 +71,6 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-primary border-b border-primary/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-full bg-blue-accent flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">D</span>
@@ -72,24 +80,21 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
-            {navLinks.map((link) => (
-              <button
-                key={link.sectionId}
-                onClick={() => handleNavClick(link.sectionId)}
-                className="text-sm font-medium transition-colors text-primary-foreground/70 hover:text-primary-foreground"
-              >
-                {link.name}
-              </button>
-            ))}
+            {orderedNavLinks.map((link) => {
+              return (
+                <button
+                  key={link.sectionId}
+                  onClick={() => handleNavClick(link.sectionId)}
+                  className="text-sm font-medium transition-colors text-primary-foreground/70 hover:text-primary-foreground"
+                >
+                  {link.name}
+                </button>
+              );
+            })}
           </nav>
 
-          {/* Right Side - Desktop */}
           <div className="hidden lg:flex items-center gap-4">
-            <span className="text-xs text-primary-foreground/50">
-              Internal Platform
-            </span>
             <Button
               variant="default"
               onClick={handleAccessPlatform}
@@ -98,15 +103,8 @@ export function Header() {
               Access Platform
               <ArrowRight size={16} />
             </Button>
-            <button
-              className="text-primary-foreground/50 hover:text-primary-foreground transition-colors"
-              aria-label="Exit Platform"
-            >
-              <X size={20} />
-            </button>
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center gap-3">
             <Button
               variant="default"
@@ -127,7 +125,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-primary/95 backdrop-blur-sm animate-slide-in-left">
           <div className="flex flex-col h-full">
@@ -155,15 +152,17 @@ export function Header() {
 
             <nav className="flex-1 px-4 py-8 overflow-y-auto">
               <div className="space-y-2">
-                {navLinks.map((link) => (
-                  <button
-                    key={link.sectionId}
-                    onClick={() => handleNavClick(link.sectionId)}
-                    className="block w-full text-left px-4 py-3 rounded-lg text-lg font-medium transition-colors text-primary-foreground/80 hover:bg-primary-foreground/10"
-                  >
-                    {link.name}
-                  </button>
-                ))}
+                {orderedNavLinks.map((link) => {
+                  return (
+                    <button
+                      key={link.sectionId}
+                      onClick={() => handleNavClick(link.sectionId)}
+                      className="block w-full text-left px-4 py-3 rounded-lg text-lg font-medium transition-colors text-primary-foreground/80 hover:bg-primary-foreground/10"
+                    >
+                      {link.name}
+                    </button>
+                  );
+                })}
               </div>
             </nav>
 

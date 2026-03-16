@@ -9,7 +9,9 @@ import {
   ChevronRight, 
   MoreHorizontal,
   Download,
-  Eye
+  Eye,
+  User,
+  Calendar
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,65 +32,75 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { documentRequests, DocumentRequest } from "@/data/stage2/templatesData";
+import { getTemplateTORequests, seedCompletedDemoRequest } from "@/data/templates/requestState";
 
 const statusColors = {
-  'submitted': 'bg-blue-100 text-blue-700',
-  'under-review': 'bg-yellow-100 text-yellow-700',
-  'generating': 'bg-purple-100 text-purple-700',
-  'review-required': 'bg-orange-100 text-orange-700',
-  'delivered': 'bg-green-100 text-green-700',
-  'completed': 'bg-gray-100 text-gray-700',
-  'cancelled': 'bg-red-100 text-red-700'
+  'Open': 'bg-blue-100 text-blue-700',
+  'In Review': 'bg-yellow-100 text-yellow-700',
+  'Resolved': 'bg-green-100 text-green-700',
 };
 
-const priorityColors = {
-  'low': 'text-gray-500',
-  'normal': 'text-blue-500',
-  'high': 'text-orange-500',
-  'urgent': 'text-red-500 font-bold'
+// Calculate SLA status and time
+const calculateSLA = (submittedDate: string, status: string, isAssignment: boolean) => {
+  const submitted = new Date(submittedDate);
+  const now = new Date();
+  const hoursElapsed = (now.getTime() - submitted.getTime()) / (1000 * 60 * 60);
+  
+  // SLA thresholds (in hours)
+  const assignSLA = 24; // 24 hours to assign
+  const completeSLA = 5 * 8; // 5 business days (40 hours)
+  
+  const threshold = isAssignment ? assignSLA : completeSLA;
+  const percentage = (hoursElapsed / threshold) * 100;
+  
+  let slaStatus: 'on-track' | 'approaching' | 'breached';
+  if (percentage < 70) slaStatus = 'on-track';
+  else if (percentage < 100) slaStatus = 'approaching';
+  else slaStatus = 'breached';
+  
+  const days = Math.floor(hoursElapsed / 24);
+  const hours = Math.floor(hoursElapsed % 24);
+  
+  return {
+    status: slaStatus,
+    time: days > 0 ? `${days}d ${hours}h` : `${hours}h`,
+    color: slaStatus === 'on-track' ? 'text-green-600' : slaStatus === 'approaching' ? 'text-yellow-600' : 'text-red-600'
+  };
 };
 
 export default function MyRequestsPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [requests, setRequests] = useState<DocumentRequest[]>([]);
+  const [typeFilter, setTypeFilter] = useState('all');
 
-  // Load requests from localStorage and merge with default data
+  // Seed demo completed request on mount
   React.useEffect(() => {
-    const storedRequests = JSON.parse(localStorage.getItem('documentRequests') || '[]');
-    const allRequests = [...storedRequests, ...documentRequests];
-    setRequests(allRequests);
+    seedCompletedDemoRequest();
   }, []);
 
-  const filteredRequests = requests.filter(req => {
-    const matchesSearch = req.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          req.templateTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  // Load requests from localStorage
+  const allRequests = getTemplateTORequests();
+
+  const filteredRequests = allRequests.filter(req => {
+    const matchesSearch = req.templateTitle.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           req.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || req.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || 
+                          (statusFilter === 'active' && req.status !== 'Resolved') ||
+                          (statusFilter === 'completed' && req.status === 'Resolved');
+    const matchesType = typeFilter === 'all' || req.tab === typeFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesType;
   });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <nav className="flex items-center text-sm text-gray-500 mb-2">
-            <button 
-              onClick={() => navigate('/stage2/templates/overview')}
-              className="hover:text-gray-900 transition-colors"
-            >
-              Overview
-            </button>
-            <span className="mx-2 text-gray-300">/</span>
-            <span className="font-medium text-gray-900">My Requests</span>
-          </nav>
-          <h1 className="text-2xl font-bold text-gray-900">Document Requests</h1>
-          <p className="text-gray-500 mt-1">Track and manage your document generation requests</p>
+          <h1 className="text-2xl font-bold text-gray-900">My Requests</h1>
+          <p className="text-gray-500 mt-1">Track status and SLA for all your document requests</p>
         </div>
-        <Button onClick={() => navigate('/stage2/templates/new-request')} className="bg-orange-600 hover:bg-orange-700">
+        <Button onClick={() => navigate('/marketplaces/document-studio')} className="bg-purple-600 hover:bg-purple-700">
           <Plus className="w-4 h-4 mr-2" />
           New Request
         </Button>
@@ -118,7 +130,7 @@ export default function MyRequestsPage() {
           <Button 
             variant={statusFilter === 'active' ? 'secondary' : 'ghost'} 
             size="sm"
-            onClick={() => setStatusFilter('active')} // Logic for active needs adjustment if I want 'active' to mean not completed
+            onClick={() => setStatusFilter('active')}
             className={statusFilter === 'active' ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
           >
             Active
@@ -131,6 +143,31 @@ export default function MyRequestsPage() {
           >
             Completed
           </Button>
+          <div className="w-px bg-gray-200 mx-1"></div>
+          <Button 
+            variant={typeFilter === 'all' ? 'secondary' : 'ghost'} 
+            size="sm"
+            onClick={() => setTypeFilter('all')}
+            className={typeFilter === 'all' ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
+          >
+            All Types
+          </Button>
+          <Button 
+            variant={typeFilter === 'assessments' ? 'secondary' : 'ghost'} 
+            size="sm"
+            onClick={() => setTypeFilter('assessments')}
+            className={typeFilter === 'assessments' ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
+          >
+            Assessments
+          </Button>
+          <Button 
+            variant={typeFilter === 'application-profiles' ? 'secondary' : 'ghost'} 
+            size="sm"
+            onClick={() => setTypeFilter('application-profiles')}
+            className={typeFilter === 'application-profiles' ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
+          >
+            Profiles
+          </Button>
         </div>
       </div>
 
@@ -139,90 +176,116 @@ export default function MyRequestsPage() {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50 hover:bg-gray-50">
-              <TableHead className="w-[100px]">ID</TableHead>
-              <TableHead>Document Details</TableHead>
+              <TableHead className="w-[120px]">Request ID</TableHead>
+              <TableHead>Document Type</TableHead>
+              <TableHead>Tab / Category</TableHead>
+              <TableHead>Submitted</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Assigned To</TableHead>
+              <TableHead>SLA - Assign</TableHead>
+              <TableHead>SLA - Complete</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredRequests.length > 0 ? (
-              filteredRequests.map((request) => (
-                <TableRow key={request.id} className="hover:bg-gray-50/50 cursor-pointer" onClick={() => navigate(`/stage2/templates/my-requests/${request.id}`)}>
-                  <TableCell className="font-mono text-xs font-medium text-gray-500">
-                    {request.id}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-50 rounded-lg text-blue-600 mt-0.5">
-                        <FileText size={16} />
+              filteredRequests.map((request) => {
+                const assignSLA = calculateSLA(request.createdAt, request.status, true);
+                const completeSLA = calculateSLA(request.createdAt, request.status, false);
+                
+                return (
+                  <TableRow key={request.id} className="hover:bg-gray-50/50 cursor-pointer" onClick={() => navigate(`/stage2/templates/my-requests/${request.id}`)}>
+                    <TableCell className="font-mono text-xs font-medium text-purple-600">
+                      {request.id}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600 mt-0.5">
+                          <FileText size={16} />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{request.templateTitle}</div>
+                          <div className="text-sm text-gray-500 line-clamp-1">{request.message.split('\n')[0]}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-medium text-gray-900">{request.title}</div>
-                        <div className="text-sm text-gray-500">{request.templateTitle}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-normal">
+                        {request.tab === 'assessments' ? 'Assessment' : 'Application Profile'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Calendar size={14} />
+                        {new Date(request.createdAt).toLocaleDateString()}
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={`font-normal ${statusColors[request.status as keyof typeof statusColors]}`}>
-                      {request.status.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="w-[120px]">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500">{request.progress}%</span>
+                      <div className="text-xs text-gray-400">
+                        {new Date(request.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className={`h-1.5 rounded-full ${request.status === 'completed' || request.status === 'delivered' ? 'bg-green-500' : 'bg-blue-500'}`} 
-                          style={{ width: `${request.progress}%` }}
-                        />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={`font-normal ${statusColors[request.status as keyof typeof statusColors]}`}>
+                        {request.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {request.status !== 'Open' ? (
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <User size={14} />
+                          <span>TO Team</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">Pending</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className={`flex items-center gap-1 text-xs font-medium ${assignSLA.color}`}>
+                        <Clock size={12} />
+                        <span>{assignSLA.time}</span>
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1 truncate max-w-[120px]">
-                        {request.currentStep}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    <div className="flex flex-col">
-                      <span>{new Date(request.submittedDate).toLocaleDateString()}</span>
-                      <span className="text-xs text-gray-400">Due: {new Date(request.expectedDeliveryDate).toLocaleDateString()}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => navigate(`/stage2/templates/my-requests/${request.id}`)}>
-                          <Eye className="w-4 h-4 mr-2" /> View Details
-                        </DropdownMenuItem>
-                        {request.generatedDocument && (
-                          <DropdownMenuItem>
-                            <Download className="w-4 h-4 mr-2" /> Download
+                    </TableCell>
+                    <TableCell>
+                      {request.status !== 'Open' ? (
+                        <div className={`flex items-center gap-1 text-xs font-medium ${completeSLA.color}`}>
+                          <Clock size={12} />
+                          <span>{completeSLA.time}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => navigate(`/stage2/templates/my-requests/${request.id}`)}>
+                            <Eye className="w-4 h-4 mr-2" /> View Details
                           </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+                          {request.status === 'Resolved' && (
+                            <DropdownMenuItem>
+                              <Download className="w-4 h-4 mr-2" /> Download
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-gray-500">
                     <p>No requests found matching your filters.</p>
                     <Button 
                       variant="link" 
-                      onClick={() => {setSearchQuery(''); setStatusFilter('all');}}
-                      className="text-orange-600"
+                      onClick={() => {setSearchQuery(''); setStatusFilter('all'); setTypeFilter('all');}}
+                      className="text-purple-600"
                     >
                       Clear filters
                     </Button>

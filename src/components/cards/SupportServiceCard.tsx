@@ -1,5 +1,5 @@
 import { memo, useMemo } from "react";
-import { icons, LucideIcon, Clock, MapPin, Shield, Check, DollarSign, Send } from "lucide-react";
+import { icons, LucideIcon, Clock, MapPin, Shield, Check, Send } from "lucide-react";
 import { TechnicalSupport } from "@/data/supportServices/technicalSupport";
 import { ExpertConsultancy } from "@/data/supportServices/expertConsultancy";
 
@@ -134,11 +134,7 @@ export const SupportServiceCard = memo(function SupportServiceCard({
         )}
 
         {/* Card Footer */}
-        <div className="flex justify-between items-center border-t border-gray-200 pt-4">
-          <span className="text-sm text-gray-600 flex items-center gap-1">
-            <DollarSign size={14} />
-            {service.pricing}
-          </span>
+        <div className="flex justify-end items-center border-t border-gray-200 pt-4">
           <button
             className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             aria-label={`Request ${service.title} service`}

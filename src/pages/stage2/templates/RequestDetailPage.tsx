@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -7,31 +7,50 @@ import {
   Clock, 
   CheckCircle, 
   Send, 
-  Paperclip,
   User,
-  Bot,
-  AlertCircle
+  Calendar,
+  FileEdit,
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { documentRequests } from "@/data/stage2/templatesData";
+import { getTemplateTORequests, seedCompletedDemoRequest } from "@/data/templates/requestState";
+import { addTemplateRevision } from "@/data/templates/revisionState";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { DocumentPreviewModal } from "@/components/templates/DocumentPreviewModal";
 
 const steps = [
-  { id: 'submitted', label: 'Submitted' },
-  { id: 'under-review', label: 'Review' },
-  { id: 'generating', label: 'AI Generation' },
-  { id: 'review-required', label: 'QA Check' },
-  { id: 'delivered', label: 'Delivered' }
+  { id: 'Open', label: 'Submitted' },
+  { id: 'In Review', label: 'In Review' },
+  { id: 'Resolved', label: 'Completed' }
 ];
 
 export default function RequestDetailPage() {
   const { requestId } = useParams();
   const navigate = useNavigate();
+  const [showRevisionModal, setShowRevisionModal] = useState(false);
+  const [revisionNote, setRevisionNote] = useState('');
+  const [previewDocument, setPreviewDocument] = useState<any>(null);
   
-  const request = documentRequests.find(r => r.id === requestId);
+  // Seed demo request
+  React.useEffect(() => {
+    seedCompletedDemoRequest();
+  }, []);
+
+  const allRequests = getTemplateTORequests();
+  const request = allRequests.find(r => r.id === requestId);
 
   if (!request) {
     return (
@@ -47,6 +66,42 @@ export default function RequestDetailPage() {
   // Calculate current step index for progress bar
   const currentStepIndex = steps.findIndex(s => s.id === request.status);
   const progressPercentage = Math.max(5, (currentStepIndex / (steps.length - 1)) * 100);
+
+  const handleRequestRevision = () => {
+    if (!revisionNote.trim()) return;
+    
+    // Create the revision record
+    const revision = addTemplateRevision({
+      linkedRequestId: request.id,
+      documentType: request.tab === 'assessments' ? 'Assessment' : 'Application Profile',
+      documentTitle: request.templateTitle,
+      revisionNote: revisionNote,
+    });
+    
+    if (revision) {
+      console.log('Revision created:', revision);
+      
+      setShowRevisionModal(false);
+      setRevisionNote('');
+      
+      // Show success message and navigate to revisions page
+      setTimeout(() => {
+        navigate('/stage2/templates/revisions');
+      }, 100);
+    }
+  };
+
+  // Parse the message to extract form data
+  const messageLines = request.message.split('\n');
+  const formData: Record<string, string> = {};
+  messageLines.forEach(line => {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex > 0) {
+      const key = line.substring(0, colonIndex).trim();
+      const value = line.substring(colonIndex + 1).trim();
+      formData[key] = value;
+    }
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -67,20 +122,44 @@ export default function RequestDetailPage() {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">{request.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{request.templateTitle}</h1>
               <Badge variant="outline" className="text-gray-500 bg-gray-50">
-                {request.templateTitle}
+                {request.tab === 'assessments' ? 'Assessment' : 'Application Profile'}
               </Badge>
             </div>
-            <p className="text-gray-500 max-w-2xl">{request.description}</p>
+            <p className="text-gray-500 max-w-2xl">{formData['Assessment Request'] || formData['Application Profile Request'] || 'Document request'}</p>
           </div>
           
           <div className="flex gap-2">
-            {request.generatedDocument && (
-              <Button className="bg-green-600 hover:bg-green-700">
-                <Download className="w-4 h-4 mr-2" />
-                Download Document
-              </Button>
+            {request.status === 'Resolved' && (
+              <>
+                <Button 
+                  variant="outline"
+                  onClick={() => setPreviewDocument({
+                    id: request.id,
+                    title: request.templateTitle,
+                    type: request.tab === 'assessments' ? 'Assessment' : 'Application Profile',
+                    completedDate: request.updatedAt,
+                    format: ['PDF', 'DOCX'],
+                  })}
+                  className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+                <Button className="bg-green-600 hover:bg-green-700">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowRevisionModal(true)}
+                  className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                >
+                  <FileEdit className="w-4 h-4 mr-2" />
+                  Request Revision
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -95,10 +174,10 @@ export default function RequestDetailPage() {
               <CardTitle className="text-lg flex items-center justify-between">
                 <span>Request Status</span>
                 <Badge className={
-                  request.status === 'completed' || request.status === 'delivered' ? 'bg-green-100 text-green-700' :
-                  request.status === 'generating' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                  request.status === 'Resolved' ? 'bg-green-100 text-green-700' :
+                  request.status === 'In Review' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
                 }>
-                  {request.status.replace('-', ' ').toUpperCase()}
+                  {request.status}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -142,10 +221,13 @@ export default function RequestDetailPage() {
               <div className="bg-gray-50 rounded-lg p-4 flex items-start gap-3 text-sm">
                 <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
                 <div>
-                  <span className="font-medium text-gray-900">Current Step: </span>
-                  <span className="text-gray-600">{request.currentStep}</span>
+                  <span className="font-medium text-gray-900">Current Status: </span>
+                  <span className="text-gray-600">{request.status}</span>
                   <p className="text-xs text-gray-400 mt-1">
-                    Expected delivery by {new Date(request.expectedDeliveryDate).toLocaleDateString()}
+                    {request.status === 'Resolved' 
+                      ? `Completed on ${new Date(request.updatedAt).toLocaleDateString()}`
+                      : `Submitted on ${new Date(request.createdAt).toLocaleDateString()}`
+                    }
                   </p>
                 </div>
               </div>
@@ -153,101 +235,74 @@ export default function RequestDetailPage() {
           </Card>
 
           {/* Document Preview / Download */}
-          {request.generatedDocument && (
+          {request.status === 'Resolved' && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Generated Document</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
                       <FileText size={24} />
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                        {request.generatedDocument.fileName}
+                        {request.templateTitle.replace(/ /g, '_')}_v1.0.pdf
                       </h4>
                       <p className="text-sm text-gray-500">
-                        v{request.generatedDocument.version} • {request.generatedDocument.fileSize} • {new Date(request.generatedDocument.generatedDate).toLocaleDateString()}
+                        v1.0 • 2.4 MB • {new Date(request.updatedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <Download className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setPreviewDocument({
+                        id: request.id,
+                        title: request.templateTitle,
+                        type: request.tab === 'assessments' ? 'Assessment' : 'Application Profile',
+                        completedDate: request.updatedAt,
+                        format: ['PDF', 'DOCX'],
+                      })}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
-                {/* Revisions */}
-                {request.revisions.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="text-sm font-medium text-gray-900 mb-3">Previous Versions</h4>
-                    <div className="space-y-2">
-                      {request.revisions.map((rev) => (
-                        <div key={rev.id} className="flex items-center justify-between p-3 bg-gray-50 rounded text-sm">
-                          <div className="flex items-center gap-3">
-                            <span className="font-mono text-xs bg-gray-200 px-1.5 py-0.5 rounded text-gray-600">v{rev.version}</span>
-                            <span className="text-gray-600">{rev.changes}</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-gray-400 text-xs">
-                            <span>{new Date(rev.generatedDate).toLocaleDateString()}</span>
-                            <Download className="w-3 h-3 cursor-pointer hover:text-gray-600" />
-                          </div>
-                        </div>
-                      ))}
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-900">
+                      <p className="font-medium mb-1">Need changes?</p>
+                      <p>Click "Request Revision" to describe what needs to be updated. A new revision ticket will be created and tracked separately.</p>
                     </div>
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Messages / Communication */}
-          <Card className="flex flex-col h-[500px]">
-            <CardHeader className="border-b border-gray-100 py-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                Communication
-                <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                  {request.messages.length} messages
-                </span>
-              </CardTitle>
+          {/* Request Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Request Information</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-6">
-              {request.messages.map((msg) => (
-                <div key={msg.id} className={`flex gap-4 ${msg.from.role === 'requester' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    msg.from.role === 'requester' ? 'bg-gray-900 text-white' : 'bg-orange-100 text-orange-700'
-                  }`}>
-                    {msg.from.role === 'requester' ? <User size={14} /> : <Bot size={14} />}
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(formData).map(([key, value]) => (
+                  <div key={key}>
+                    <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">{key}</span>
+                    <p className="text-sm text-gray-900 mt-1">{value}</p>
                   </div>
-                  <div className={`flex flex-col max-w-[80%] ${msg.from.role === 'requester' ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-900">{msg.from.name}</span>
-                      <span className="text-xs text-gray-400">{new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    </div>
-                    <div className={`p-4 rounded-2xl text-sm ${
-                      msg.from.role === 'requester' 
-                        ? 'bg-gray-100 text-gray-800 rounded-tr-none' 
-                        : 'bg-white border border-gray-200 text-gray-700 shadow-sm rounded-tl-none'
-                    }`}>
-                      {msg.message}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-            <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-              <div className="flex gap-2">
-                <Textarea 
-                  placeholder="Type a message or feedback..." 
-                  className="min-h-[40px] max-h-[120px] bg-white resize-none"
-                  rows={1}
-                />
-                <Button size="icon" className="bg-orange-600 hover:bg-orange-700 flex-shrink-0">
-                  <Send className="w-4 h-4" />
-                </Button>
+                ))}
               </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
 
@@ -259,48 +314,123 @@ export default function RequestDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
+                <span className="text-xs text-gray-400">Request ID</span>
+                <p className="text-sm font-mono font-medium text-gray-900 mt-1">{request.id}</p>
+              </div>
+              <Separator />
+              <div>
                 <span className="text-xs text-gray-400">Assigned To</span>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
-                    {request.assignedTo?.name.charAt(0)}
+                    TO
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{request.assignedTo?.name}</span>
+                  <span className="text-sm font-medium text-gray-900">TO Team</span>
                 </div>
               </div>
               <Separator />
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-xs text-gray-400">Submitted</span>
-                  <p className="text-sm font-medium mt-0.5">{new Date(request.submittedDate).toLocaleDateString()}</p>
+                  <p className="text-sm font-medium mt-0.5">{new Date(request.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-gray-400">Priority</span>
-                  <p className="text-sm font-medium mt-0.5 capitalize">{request.priority}</p>
+                  <span className="text-xs text-gray-400">Status</span>
+                  <p className="text-sm font-medium mt-0.5">{request.status}</p>
                 </div>
               </div>
               <Separator />
               <div>
-                <span className="text-xs text-gray-400">Inputs Provided</span>
-                <ul className="mt-2 space-y-2">
-                  {request.inputs.slice(0, 3).map((input, i) => (
-                    <li key={i} className="text-xs">
-                      <span className="text-gray-500 block">{input.label}</span>
-                      <span className="text-gray-900 font-medium truncate block">
-                        {Array.isArray(input.value) ? input.value.join(', ') : input.value.toString()}
-                      </span>
-                    </li>
-                  ))}
-                  {request.inputs.length > 3 && (
-                    <li className="text-xs text-orange-600 cursor-pointer hover:underline">
-                      + {request.inputs.length - 3} more details
-                    </li>
-                  )}
-                </ul>
+                <span className="text-xs text-gray-400">Document Type</span>
+                <p className="text-sm font-medium mt-0.5">{request.templateTitle}</p>
+              </div>
+              <div>
+                <span className="text-xs text-gray-400">Category</span>
+                <p className="text-sm font-medium mt-0.5">
+                  {request.tab === 'assessments' ? 'Assessment' : 'Application Profile'}
+                </p>
               </div>
             </CardContent>
           </Card>
+
+          {request.status === 'Resolved' && (
+            <Card className="border-orange-200 bg-orange-50/50">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <FileEdit className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-gray-900 mb-2">Need Revisions?</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Request changes to this completed document
+                  </p>
+                  <Button 
+                    onClick={() => setShowRevisionModal(true)}
+                    className="w-full bg-orange-600 hover:bg-orange-700"
+                  >
+                    Request Revision
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
+
+      {/* Revision Request Modal */}
+      <Dialog open={showRevisionModal} onOpenChange={setShowRevisionModal}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Request Document Revision</DialogTitle>
+            <DialogDescription>
+              Describe what changes you'd like made to the document. A new revision ticket will be created and tracked in the Revisions page.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="revision-note">What needs to be revised? <span className="text-red-500">*</span></Label>
+              <Textarea
+                id="revision-note"
+                placeholder="e.g., Please update the cloud infrastructure section to include Azure services, and add more detail on the security controls..."
+                value={revisionNote}
+                onChange={(e) => setRevisionNote(e.target.value)}
+                rows={6}
+                className="resize-none"
+              />
+              <p className="text-xs text-gray-500">
+                Be specific about what needs to change. The original document and context will be automatically included.
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Original Request</h4>
+              <div className="space-y-1 text-xs text-gray-600">
+                <p><span className="font-medium">Document:</span> {request.templateTitle}</p>
+                <p><span className="font-medium">Request ID:</span> {request.id}</p>
+                <p><span className="font-medium">Completed:</span> {new Date(request.updatedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRevisionModal(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleRequestRevision}
+              disabled={!revisionNote.trim()}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              Submit Revision Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Document Preview Modal */}
+      {previewDocument && (
+        <DocumentPreviewModal
+          isOpen={!!previewDocument}
+          onClose={() => setPreviewDocument(null)}
+          document={previewDocument}
+        />
+      )}
     </div>
   );
 }

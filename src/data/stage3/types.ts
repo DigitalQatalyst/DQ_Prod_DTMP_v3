@@ -3,8 +3,10 @@ export type Stage3RequestType =
   | "solution-specs"
   | "solution-build"
   | "support-services"
+  | "digital-intelligence"
   | "learning-center"
-  | "knowledge-center";
+  | "knowledge-center"
+  | "portfolio-management";
 
 export type Stage3RequestStatus =
   | "new"

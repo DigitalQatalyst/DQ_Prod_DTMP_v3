@@ -10,12 +10,12 @@ export interface ValueProp {
 
 export const valueProps: ValueProp[] = [
   {
-    id: "accelerate",
-    name: "Accelerate Transformation",
-    icon: Zap,
-    color: "text-orange",
+    id: "visibility",
+    name: "Enterprise-Wide Visibility",
+    icon: Eye,
+    color: "text-purple",
     description:
-      "80% of requirements ready with pre-built templates, blueprints, and governance frameworks",
+      "Across all initiatives, execution streams, and team progress in one view.",
   },
   {
     id: "control",
@@ -23,7 +23,7 @@ export const valueProps: ValueProp[] = [
     icon: DollarSign,
     color: "text-green",
     description:
-      "Reduce non-value applications and uncontrolled delivery through enterprise-wide portfolio oversight",
+      "Reduce non-value applications and uncontrolled delivery through enterprise-wide portfolio oversight.",
   },
   {
     id: "quality",
@@ -31,15 +31,15 @@ export const valueProps: ValueProp[] = [
     icon: CheckCircle,
     color: "text-blue-accent",
     description:
-      "Consolidated patterns and structured contributions ensure consistency and compliance",
+      "Consolidated patterns and structured contributions ensure consistency and compliance.",
   },
   {
-    id: "visibility",
-    name: "Enterprise-Wide Visibility",
-    icon: Eye,
-    color: "text-purple",
+    id: "accelerate",
+    name: "Accelerate Transformation",
+    icon: Zap,
+    color: "text-orange",
     description:
-      "Track every initiative, project, and team across DBP evolution in real-time",
+      "80% of requirements accelerated through pre-built templates, blueprints, and governance frameworks.",
   },
 ];
 
@@ -47,18 +47,20 @@ export interface Stat {
   value: string;
   label: string;
   note: string;
+  footnote?: string;
 }
 
 export const stats: Stat[] = [
   {
     value: "80%",
-    label: "Requirements Ready",
+    label: "Acceleration Rate",
     note: "Through self-serve templates",
+    footnote: "Represents requirements accelerated through reusable templates and guided workflows.",
   },
   {
     value: "4D",
     label: "Governance Model",
-    note: "Discern → Design → Deploy → Drive",
+    note: "Discern -> Design -> Deploy -> Drive",
   },
   {
     value: "4",

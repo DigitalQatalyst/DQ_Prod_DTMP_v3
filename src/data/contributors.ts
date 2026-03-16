@@ -8,6 +8,9 @@ export interface Contributor {
   role: string;
   description: string;
   contributions: string[];
+  capabilities: string[];
+  ctaLabel: string;
+  ctaRoute: string;
 }
 
 export const contributors: Contributor[] = [
@@ -18,26 +21,32 @@ export const contributors: Contributor[] = [
     color: "text-orange",
     role: "Enterprise TO Director",
     description:
-      "Drive strategic alignment and ensure DBP governance across all initiatives",
+      "Drive strategic alignment and ensure DBP governance across all initiatives.",
     contributions: [
       "Enterprise Alignment",
       "DBP Tracking & Oversight",
       "Compliance Enforcement",
     ],
+    capabilities: ["TO Operations", "Portfolio Oversight", "SLA Governance"],
+    ctaLabel: "Go to TO Dashboard",
+    ctaRoute: "/stage3/dashboard",
   },
   {
     id: "strategy",
     name: "Strategy & Executive Leadership",
     icon: Crown,
     color: "text-purple",
-    role: "CEO & Executive Leadership",
+    role: "CDO, Strategy Leads, Analysts",
     description:
-      "Drive enterprise transformation strategy and portfolio decisions",
+      "Strategy analysts use DTMP to access transformation insights, request assessments, and build evidence for strategic decisions.",
     contributions: [
       "Strategic Visibility",
       "Portfolio Oversight",
       "Investment Decisions",
     ],
+    capabilities: ["Digital Intelligence", "Knowledge Center", "Document Studio Assessments"],
+    ctaLabel: "Explore Insights",
+    ctaRoute: "/marketplaces/digital-intelligence?tab=digital-maturity",
   },
   {
     id: "architects",
@@ -46,12 +55,15 @@ export const contributors: Contributor[] = [
     color: "text-blue-accent",
     role: "Enterprise & Solution Architects",
     description:
-      "Design and govern platform blueprints and architecture standards",
+      "Design and govern platform blueprints and architecture standards.",
     contributions: [
       "Architecture Governance",
       "Blueprint Design",
       "Standards Contribution",
     ],
+    capabilities: ["Solution Specs", "Knowledge Center", "Blueprints"],
+    ctaLabel: "Explore Design Resources",
+    ctaRoute: "/marketplaces/solution-specs",
   },
   {
     id: "project-teams",
@@ -59,8 +71,11 @@ export const contributors: Contributor[] = [
     icon: Users,
     color: "text-green",
     role: "Program Managers, Product Owners",
-    description: "Deliver measurable assets and capabilities into DBP",
+    description: "Deliver measurable assets and capabilities into DBP.",
     contributions: ["Project Execution", "Asset Delivery", "Milestone Tracking"],
+    capabilities: ["Portfolio Management", "Lifecycle Management", "Document Studio"],
+    ctaLabel: "Manage My Projects",
+    ctaRoute: "/marketplaces/portfolio-management?tab=project-portfolio",
   },
   {
     id: "lifecycle-ops",
@@ -69,12 +84,15 @@ export const contributors: Contributor[] = [
     color: "text-pink",
     role: "Operations, Insights, ADM",
     description:
-      "Contribute continuous improvements and operational feedback",
+      "Contribute continuous improvements and operational feedback.",
     contributions: [
       "Operational Feedback",
       "Continuous Improvement",
       "Performance Insights",
     ],
+    capabilities: ["Lifecycle Tracking", "Operational Analytics", "Compliance Checks"],
+    ctaLabel: "Open Lifecycle Workspace",
+    ctaRoute: "/marketplaces/lifecycle-management",
   },
   {
     id: "secdevops",
@@ -83,7 +101,10 @@ export const contributors: Contributor[] = [
     color: "text-indigo-600",
     role: "SecDevOps, Support Teams",
     description:
-      "Ensure security, delivery automation, and user enablement",
+      "Ensure security, delivery automation, and user enablement.",
     contributions: ["Security Policies", "Delivery Automation", "User Enablement"],
+    capabilities: ["Support Services", "Secure Delivery", "Operational Guardrails"],
+    ctaLabel: "Access Secure Operations",
+    ctaRoute: "/marketplaces/solution-build",
   },
 ];

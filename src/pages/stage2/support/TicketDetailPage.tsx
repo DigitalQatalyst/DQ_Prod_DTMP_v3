@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import SupportLayout from "./SupportLayout";
-import { supportTickets } from "@/data/supportData";
 import { PriorityBadge, SLATimer, StatusTimeline, ConversationItem } from "@/components/stage2";
 import { ArrowLeft, Paperclip } from "lucide-react";
+import { getSupportTicketsWithStored } from "@/data/supportServices/userSupportState";
 
 export default function TicketDetailPage() {
   const { ticketId } = useParams();
   const navigate = useNavigate();
-  const ticket = supportTickets.find((t) => t.id === ticketId);
+  const ticket = getSupportTicketsWithStored().find((t) => t.id === ticketId);
 
   if (!ticket) {
     return (

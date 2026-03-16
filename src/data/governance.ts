@@ -8,6 +8,7 @@ export interface GovernancePhase {
   bgColor: string;
   description: string;
   route: string;
+  ctaLabel: string;
 }
 
 export const governancePhases: GovernancePhase[] = [
@@ -18,8 +19,9 @@ export const governancePhases: GovernancePhase[] = [
     color: "text-blue-accent",
     bgColor: "bg-phase-discern-bg",
     description:
-      "Assess current state, identify gaps, and build change journey across Business and Technology alignment.",
-    route: "/4d-model",
+      "Request digital maturity assessments, access transformation insights, and build your knowledge base before designing your strategy.",
+    route: "/marketplaces#discern-marketplaces",
+    ctaLabel: "Explore Insights & Knowledge",
   },
   {
     id: "design",
@@ -28,8 +30,9 @@ export const governancePhases: GovernancePhase[] = [
     color: "text-purple",
     bgColor: "bg-phase-design-bg",
     description:
-      "Architect operating models with blueprints and specifications. Contribute to Solution Blueprints and Architecture Governance.",
-    route: "/4d-model",
+      "Define transformation strategies, reference architectures, and solution specifications aligned to your DBP.",
+    route: "/marketplaces#design-marketplaces",
+    ctaLabel: "Explore Design Tools",
   },
   {
     id: "deploy",
@@ -38,8 +41,9 @@ export const governancePhases: GovernancePhase[] = [
     color: "text-green",
     bgColor: "bg-phase-deploy-bg",
     description:
-      "Execute transformation initiatives with structured governance. Contribute to built DBP, Project Execution, and Change Enablement.",
-    route: "/4d-model",
+      "Execute transformation initiatives with structured governance and delivery support for build teams.",
+    route: "/marketplaces#deploy-marketplaces",
+    ctaLabel: "Launch Delivery Tools",
   },
   {
     id: "drive",
@@ -48,7 +52,8 @@ export const governancePhases: GovernancePhase[] = [
     color: "text-orange",
     bgColor: "bg-phase-drive-bg",
     description:
-      "Optimize and ensure continuous improvement through Lifecycle Management and unified configuration.",
-    route: "/4d-model",
+      "Govern, track, and optimise transformation initiatives with stage-gate controls, portfolio health monitoring, and benefits realisation.",
+    route: "/marketplaces#drive-marketplaces",
+    ctaLabel: "Manage Initiatives",
   },
 ];

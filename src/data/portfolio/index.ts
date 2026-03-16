@@ -1,6 +1,54 @@
 // Portfolio Management Services Data
 export const applicationPortfolio = [
   {
+    id: "application-health-dashboard",
+    title: "Application Portfolio Health Dashboard",
+    description: "Real-time monitoring of application health metrics, performance indicators, and availability across your entire portfolio",
+    iconName: "Activity",
+    category: "Health Monitoring",
+    scope: "Enterprise",
+    analysisType: "Operational",
+    deliveryModel: "Dashboard",
+    updateFrequency: "Real-time",
+    complexity: "Medium" as const,
+    realtime: true,
+    keyMetrics: ["Health Score", "Availability", "Performance Index", "Critical Issues"],
+    integrationLevel: "APM Integrated",
+    tab: 'application-portfolio' as const
+  },
+  {
+    id: "application-risk-compliance",
+    title: "Application Risk & Compliance Monitoring",
+    description: "Continuous monitoring of security vulnerabilities, compliance status, and risk exposure across the application portfolio",
+    iconName: "Shield",
+    category: "Risk Assessment",
+    scope: "Enterprise",
+    analysisType: "Risk",
+    deliveryModel: "Dashboard",
+    updateFrequency: "Real-time",
+    complexity: "High" as const,
+    realtime: true,
+    keyMetrics: ["Risk Score", "Compliance Rate", "Vulnerabilities", "Policy Violations"],
+    integrationLevel: "Full Integration",
+    tab: 'application-portfolio' as const
+  },
+  {
+    id: "application-dependencies",
+    title: "Application Dependency Mapping",
+    description: "Visualize and analyze application dependencies, integration points, and cross-system relationships",
+    iconName: "Activity",
+    category: "Portfolio Analytics",
+    scope: "Enterprise",
+    analysisType: "Technical",
+    deliveryModel: "Dashboard",
+    updateFrequency: "Daily",
+    complexity: "High" as const,
+    realtime: false,
+    keyMetrics: ["Total Dependencies", "Integration Points", "Critical Paths", "Circular Dependencies"],
+    integrationLevel: "CMDB Integrated",
+    tab: 'application-portfolio' as const
+  },
+  {
     id: "application-rationalization",
     title: "Application Rationalization Assessment",
     description: "Comprehensive analysis to identify redundant, outdated, or overlapping applications for consolidation or retirement",
@@ -14,22 +62,6 @@ export const applicationPortfolio = [
     realtime: false,
     keyMetrics: ["Redundancy Score", "Business Value", "Technical Health", "TCO Impact"],
     integrationLevel: "CMDB Integrated",
-    tab: 'application-portfolio' as const
-  },
-  {
-    id: "portfolio-health-dashboard",
-    title: "Application Portfolio Health Dashboard",
-    description: "Real-time dashboard showing portfolio-wide health metrics, risks, and trends",
-    iconName: "Activity",
-    category: "Health Monitoring",
-    scope: "Enterprise",
-    analysisType: "Operational",
-    deliveryModel: "Dashboard",
-    updateFrequency: "Real-time",
-    complexity: "Medium" as const,
-    realtime: true,
-    keyMetrics: ["Health Score", "Risk Index", "Availability", "Performance"],
-    integrationLevel: "APM Integrated",
     tab: 'application-portfolio' as const
   },
   {
@@ -131,6 +163,54 @@ export const applicationPortfolio = [
 ];
 
 export const projectPortfolio = [
+  {
+    id: "project-health-dashboard",
+    title: "Project Portfolio Health Dashboard",
+    description: "Real-time monitoring of project health across schedule, budget, quality, and resource dimensions",
+    iconName: "Activity",
+    category: "Project Health Tracking",
+    portfolioType: "All Projects",
+    projectPhase: "All Phases",
+    deliveryModel: "Dashboard",
+    updateFrequency: "Real-time",
+    complexity: "Medium" as const,
+    realtime: true,
+    keyMetrics: ["Health Score", "On-track Projects", "At-risk Projects", "Critical Issues"],
+    reportingLevel: "Executive",
+    tab: 'project-portfolio' as const
+  },
+  {
+    id: "project-risk-compliance",
+    title: "Project Risk & Compliance Monitoring",
+    description: "Centralized risk management and compliance tracking across all projects with mitigation workflows",
+    iconName: "Shield",
+    category: "Risk Management",
+    portfolioType: "All Projects",
+    projectPhase: "All Phases",
+    deliveryModel: "Dashboard",
+    updateFrequency: "Real-time",
+    complexity: "High" as const,
+    realtime: true,
+    keyMetrics: ["Risk Count", "Exposure Value", "Compliance Rate", "Mitigation Status"],
+    reportingLevel: "Portfolio Manager",
+    tab: 'project-portfolio' as const
+  },
+  {
+    id: "project-dependencies",
+    title: "Project Dependency & Resource Mapping",
+    description: "Visualize cross-project dependencies, resource sharing, and critical path analysis",
+    iconName: "Activity",
+    category: "Resource Management",
+    portfolioType: "All Projects",
+    projectPhase: "All Phases",
+    deliveryModel: "Dashboard",
+    updateFrequency: "Daily",
+    complexity: "High" as const,
+    realtime: false,
+    keyMetrics: ["Total Dependencies", "Resource Conflicts", "Critical Path Items", "Bottlenecks"],
+    reportingLevel: "Portfolio Manager",
+    tab: 'project-portfolio' as const
+  },
   {
     id: "portfolio-dashboard",
     title: "Executive Portfolio Dashboard",
@@ -292,3 +372,9 @@ export const portfolioStats = {
   projectServices: projectPortfolio.length,
   realtimeServices: allPortfolioServices.filter(service => service.realtime).length
 };
+
+// Export request state management
+export * from "./requestState";
+
+// Export data alignment utilities
+export * from "./dataAlignment";

@@ -1015,7 +1015,7 @@ export default function KnowledgeCenterPage() {
             onFilterChange={handleFilterChange}
             onClearAll={clearAllFilters}
             isOpen={filterOpen}
-            onClose={() => setFilterOpen(false)}
+            onToggle={() => setFilterOpen(!filterOpen)}
           />
 
           {/* Content Area */}

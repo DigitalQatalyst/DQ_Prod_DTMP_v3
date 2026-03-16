@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { SupportLayout } from "./SupportLayout";
-import { supportTickets, TicketStatus } from "@/data/supportData";
+import { TicketStatus } from "@/data/supportData";
 import { PriorityBadge, SLATimer } from "@/components/stage2";
 import { Search } from "lucide-react";
+import { getSupportTicketsWithStored } from "@/data/supportServices/userSupportState";
 
 const statusFilters: { label: string; value: TicketStatus | "all" }[] = [
   { label: "All", value: "all" },
@@ -18,9 +19,10 @@ export default function MyTicketsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   const statusParam = (searchParams.get("status") as TicketStatus | null) || "all";
+  const tickets = useMemo(() => getSupportTicketsWithStored(), []);
 
   const filtered = useMemo(() => {
-    return supportTickets.filter((t) => {
+    return tickets.filter((t) => {
       const matchesStatus = statusParam === "all" || t.status === statusParam;
       const matchesQuery =
         !query ||
@@ -28,7 +30,7 @@ export default function MyTicketsPage() {
         t.id.toLowerCase().includes(query.toLowerCase());
       return matchesStatus && matchesQuery;
     });
-  }, [query, statusParam]);
+  }, [query, statusParam, tickets]);
 
   return (
     <SupportLayout title="My Tickets" description="Track and manage your support tickets.">

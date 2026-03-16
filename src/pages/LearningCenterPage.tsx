@@ -100,7 +100,7 @@ export default function LearningCenterPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "courses";
-  
+
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -508,7 +508,7 @@ export default function LearningCenterPage() {
               onFilterChange={handleFilterChange}
               onClearAll={clearAllFilters}
               isOpen={filterOpen}
-              onClose={() => setFilterOpen(false)}
+              onToggle={() => setFilterOpen(!filterOpen)}
               onDesktopToggle={() => setShowDesktopFilters((prev) => !prev)}
             />
           )}
@@ -633,11 +633,10 @@ export default function LearningCenterPage() {
                           key={pageNumber}
                           type="button"
                           onClick={() => setCurrentPage(pageNumber)}
-                          className={`px-3 py-1.5 text-sm border rounded-md ${
-                            pageNumber === page
+                          className={`px-3 py-1.5 text-sm border rounded-md ${pageNumber === page
                               ? "border-orange-600 bg-orange-600 text-white"
                               : "border-gray-300 bg-white"
-                          }`}
+                            }`}
                         >
                           {pageNumber}
                         </button>

@@ -34,6 +34,7 @@ export const portfolioFilters = {
       "Daily",
       "Weekly",
       "Monthly",
+      "Quarterly",
       "On-demand"
     ],
     integrationLevel: [
@@ -103,3 +104,10 @@ export const portfolioFilters = {
 
 export type ApplicationFilters = typeof portfolioFilters.application;
 export type ProjectFilters = typeof portfolioFilters.project;
+
+// Category breakdown for segmentation
+export const portfolioSegmentation = {
+  byBusinessUnit: ["Finance", "Sales", "IT", "Operations", "HR", "Marketing"],
+  byTechnology: ["Cloud", "On-premise", "SaaS", "Legacy", "Hybrid"],
+  byLifecycleStatus: ["Active", "Retiring", "Planned", "Sunset", "Modernizing"]
+};

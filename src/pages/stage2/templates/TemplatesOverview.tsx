@@ -125,17 +125,16 @@ export default function TemplatesOverview() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI DocWriter Dashboard</h1>
-          <p className="text-gray-500 mt-1">AI-powered document generation for policies, procedures, and governance documents</p>
+          <h1 className="text-2xl font-bold text-gray-900">Document Studio Overview</h1>
+          <p className="text-gray-500 mt-1">Track your document generation requests powered by AI DocWriter 4.0</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => navigate('/stage2/templates/library')}>
+          <Button variant="outline" onClick={() => navigate('/marketplaces/document-studio')}>
             <FileText className="w-4 h-4 mr-2" />
-            Browse Templates
+            Browse Document Types
           </Button>
-          <Button onClick={() => navigate('/stage2/templates/new-request')} className="bg-orange-600 hover:bg-orange-700">
-            <Plus className="w-4 h-4 mr-2" />
-            New Request
+          <Button onClick={() => navigate('/stage2/templates/my-requests')} className="bg-orange-600 hover:bg-orange-700">
+            View All Requests
           </Button>
         </div>
       </div>
@@ -145,18 +144,18 @@ export default function TemplatesOverview() {
         <MetricCard
           icon={FileText}
           iconColor="blue"
-          label="Available Templates"
-          value={documentTemplates.length}
-          change="Documents, policies, procedures"
+          label="Available Document Types"
+          value="2"
+          change="Assessments & Application Profiles"
           changeType="neutral"
-          onClick={() => navigate('/stage2/templates/library')}
+          onClick={() => navigate('/marketplaces/document-studio')}
         />
         <MetricCard
           icon={Clock}
           iconColor="orange"
           label="Active Requests"
           value={activeRequests.length}
-          change={`${activeRequests.filter(r => r.status === 'generating').length} in generation`}
+          change={`${activeRequests.filter(r => r.status === 'generating').length} in progress`}
           changeType="neutral"
           onClick={() => navigate('/stage2/templates/my-requests')}
         />
@@ -167,14 +166,15 @@ export default function TemplatesOverview() {
           value={completedCount}
           change="This quarter"
           changeType="positive"
+          onClick={() => navigate('/stage2/templates/my-documents')}
         />
         <MetricCard
           icon={Zap}
           iconColor="purple"
           label="Avg. Delivery Time"
-          value="1.2 days"
-          change="-0.3 days improvement"
-          changeType="positive"
+          value="3.2 days"
+          change="+0.5 days vs last period"
+          changeType="negative"
         />
       </div>
 
@@ -204,39 +204,49 @@ export default function TemplatesOverview() {
               <div className="bg-gray-50 border border-dashed border-gray-200 rounded-lg p-8 text-center">
                 <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <h3 className="font-medium text-gray-900">No active requests</h3>
-                <p className="text-sm text-gray-500 mb-4">Start a new document request to get AI-generated content.</p>
-                <Button onClick={() => navigate('/stage2/templates/new-request')} variant="outline">
-                  Create New Request
+                <p className="text-sm text-gray-500 mb-4">Browse document types in Stage 1 to submit a new request.</p>
+                <Button onClick={() => navigate('/marketplaces/document-studio')} variant="outline">
+                  Browse Document Types
                 </Button>
               </div>
             )}
           </section>
 
-          {/* Quick Actions / Categories */}
+          {/* Quick Actions */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Start</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <QuickActionCard
-                icon={Shield}
-                title="Governance"
-                description="Privacy, security & compliance"
-                count={documentTemplates.filter(t => t.category === 'governance').length}
-                onClick={() => navigate('/stage2/templates/library?category=governance')}
-              />
-              <QuickActionCard
-                icon={Settings}
-                title="Operational"
-                description="Procedures & incident response"
-                count={documentTemplates.filter(t => t.category === 'operational').length}
-                onClick={() => navigate('/stage2/templates/library?category=operational')}
-              />
-              <QuickActionCard
-                icon={FileCheck}
-                title="Compliance"
-                description="Audits & standards"
-                count={documentTemplates.filter(t => t.category === 'compliance').length}
-                onClick={() => navigate('/stage2/templates/library?category=compliance')}
-              />
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button 
+                onClick={() => navigate('/marketplaces/document-studio')}
+                className="flex items-center justify-between p-6 bg-white border-2 border-gray-200 rounded-xl hover:border-purple-300 hover:shadow-md transition-all text-left group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 group-hover:bg-purple-100 transition-colors">
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Browse Document Types</h3>
+                    <p className="text-sm text-gray-500">View all available assessments and application profiles</p>
+                  </div>
+                </div>
+                <ChevronRight className="text-gray-400 group-hover:text-purple-600 transition-colors" size={20} />
+              </button>
+              
+              <button 
+                onClick={() => navigate('/stage2/templates/my-requests')}
+                className="flex items-center justify-between p-6 bg-white border-2 border-gray-200 rounded-xl hover:border-orange-300 hover:shadow-md transition-all text-left group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center text-orange-600 group-hover:bg-orange-100 transition-colors">
+                    <Clock size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">View All Requests</h3>
+                    <p className="text-sm text-gray-500">Track status and SLA for all your requests</p>
+                  </div>
+                </div>
+                <ChevronRight className="text-gray-400 group-hover:text-orange-600 transition-colors" size={20} />
+              </button>
             </div>
           </section>
         </div>

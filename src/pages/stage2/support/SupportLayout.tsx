@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Headphones, Home, Ticket, ClipboardList, BookOpen, Menu, X } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Headphones, Home, Ticket, ClipboardList, Menu, X } from "lucide-react";
 
 interface SupportLayoutProps extends PropsWithChildren {
   title?: string;
@@ -11,7 +11,6 @@ const navItems = [
   { label: "Overview", to: "/stage2/support/overview", icon: Home },
   { label: "My Tickets", to: "/stage2/support/tickets", icon: Ticket },
   { label: "Service Requests", to: "/stage2/support/requests", icon: ClipboardList },
-  { label: "Knowledge Base", to: "/stage2/support/knowledge", icon: BookOpen },
 ];
 
 export function SupportLayout({ children, title = "Support Services", description }: SupportLayoutProps) {

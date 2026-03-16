@@ -70,7 +70,11 @@ export function Footer() {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+                    className={`text-sm hover:text-primary-foreground transition-colors ${
+                      link.name === "Architecture Standards"
+                        ? "text-blue-accent font-semibold"
+                        : "text-primary-foreground/60"
+                    }`}
                   >
                     {link.name}
                   </Link>

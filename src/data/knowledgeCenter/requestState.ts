@@ -1,3 +1,5 @@
+import { makeLocalStorageStore } from "@/data/shared/localStorageUtils";
+
 export type TORequestStatus = "Open" | "In Review" | "Resolved";
 export type TORequestType = "clarification" | "outdated-section" | "collaboration";
 
@@ -12,28 +14,14 @@ export interface TORequest {
   status: TORequestStatus;
   createdAt: string;
   updatedAt: string;
+  stage3RequestId?: string;
 }
 
 const REQUESTS_KEY = "dtmp.knowledge.toRequests";
-const isBrowser = typeof window !== "undefined";
+const store = makeLocalStorageStore<TORequest>(REQUESTS_KEY, 300);
 
-const parseJson = <T>(raw: string | null, fallback: T): T => {
-  try {
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-};
-
-const readRequests = (): TORequest[] => {
-  if (!isBrowser) return [];
-  return parseJson<TORequest[]>(window.localStorage.getItem(REQUESTS_KEY), []);
-};
-
-const writeRequests = (requests: TORequest[]) => {
-  if (!isBrowser) return;
-  window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests.slice(0, 300)));
-};
+const readRequests = (): TORequest[] => store.read();
+const writeRequests = (requests: TORequest[]): void => store.write(requests);
 
 export const getTORequests = (requesterName?: string): TORequest[] => {
   const requests = readRequests().sort(
@@ -93,6 +81,25 @@ export const updateTORequestStatus = (
     updated = {
       ...request,
       status,
+      updatedAt: new Date().toISOString(),
+    };
+    return updated;
+  });
+  writeRequests(next);
+  return updated;
+};
+
+export const linkTORequestToStage3 = (
+  requestId: string,
+  stage3RequestId: string
+): TORequest | null => {
+  const requests = readRequests();
+  let updated: TORequest | null = null;
+  const next = requests.map((request) => {
+    if (request.id !== requestId) return request;
+    updated = {
+      ...request,
+      stage3RequestId,
       updatedAt: new Date().toISOString(),
     };
     return updated;

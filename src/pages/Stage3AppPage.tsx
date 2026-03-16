@@ -3,16 +3,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
   BarChart3,
+  Bell,
+  Brain,
   Clock,
   Download,
   Eye,
+  ExternalLink,
   Filter,
   Home,
   Inbox,
   ListChecks,
   MoreHorizontal,
   Search,
+  Send,
   Settings,
+  Sparkles,
   Users,
   X,
 } from "lucide-react";
@@ -31,21 +36,32 @@ import {
   unassignStage3Request,
 } from "@/data/stage3";
 import { getLearningChangeSetById } from "@/data/learningCenter/changeReviewState";
+import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
 
 type Stage3View =
   | "dashboard"
   | "all"
   | "new"
+  | "assigned"
   | "in-progress"
   | "pending-review"
   | "team-capacity"
   | "analytics";
-type Stage3Scope = "all" | "learning-center" | "knowledge-center";
+type Stage3Scope =
+  | "all"
+  | "learning-center"
+  | "knowledge-center"
+  | "solution-specs"
+  | "portfolio-management"
+  | "solution-build"
+  | "support-services"
+  | "digital-intelligence";
 
 const viewLabels: Record<Stage3View, string> = {
   dashboard: "Dashboard",
   all: "All Requests",
   new: "New",
+  assigned: "Assigned",
   "in-progress": "In Progress",
   "pending-review": "Pending Review",
   "team-capacity": "Team & Capacity",
@@ -55,10 +71,12 @@ const viewLabels: Record<Stage3View, string> = {
 const requestTypeLabel: Record<Stage3Request["type"], string> = {
   "learning-center": "Learning Center",
   "knowledge-center": "Knowledge Center",
+  "portfolio-management": "Portfolio Management",
   "dtmp-templates": "Templates",
   "solution-specs": "Solution Specs",
   "solution-build": "Solution Build",
   "support-services": "Support Services",
+  "digital-intelligence": "Digital Intelligence",
 };
 
 function getStatusBadgeClass(status: Stage3Request["status"]) {
@@ -115,6 +133,16 @@ export default function Stage3AppPage() {
   const [priorityFilter, setPriorityFilter] = useState<Stage3Request["priority"] | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
 
+  useEffect(() => {
+    setRequests([...stage3Requests]);
+  }, []);
+
+  useEffect(() => {
+    const onFocus = () => setRequests([...stage3Requests]);
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
+
   const selectedRequest = useMemo(
     () => requests.find((request) => request.id === selectedRequestId) ?? null,
     [requests, selectedRequestId]
@@ -127,7 +155,7 @@ export default function Stage3AppPage() {
     if (!changeAsset) return null;
     const changeId = changeAsset.replace("learning-change:", "").trim();
     return changeId ? getLearningChangeSetById(changeId) ?? null : null;
-  }, [selectedRequest, requests]);
+  }, [selectedRequest]);
 
   useEffect(() => {
     if (!selectedRequestId) return;
@@ -154,13 +182,17 @@ export default function Stage3AppPage() {
   }, [scope, requests]);
 
   useEffect(() => {
+    setStatusFilter("all");
+    setPriorityFilter("all");
+    setAssigneeFilter("all");
+    setSearchQuery("");
     if (!selectedRequestId) return;
     if (scope === "all") return;
     const selected = requests.find((request) => request.id === selectedRequestId);
     if (!selected || selected.type !== scope) {
       setSelectedRequestId(null);
     }
-  }, [scope, selectedRequestId, requests]);
+  }, [scope]);
 
   useEffect(() => {
     if (!selectedRequest) {
@@ -237,6 +269,7 @@ export default function Stage3AppPage() {
         view === "all" ||
         view === "dashboard" ||
         (view === "new" && r.status === "new") ||
+        (view === "assigned" && r.status === "assigned") ||
         (view === "in-progress" && r.status === "in-progress") ||
         (view === "pending-review" && r.status === "pending-review");
       if (!matchesView) return false;
@@ -272,6 +305,7 @@ export default function Stage3AppPage() {
     if (!selectedRequest || !selectedMemberId) return;
     const updated = assignStage3Request(selectedRequest.id, selectedMemberId);
     if (!updated) return;
+    syncMarketplaceRequestStatusFromStage3(updated);
     setRequests([...stage3Requests]);
   };
 
@@ -279,6 +313,7 @@ export default function Stage3AppPage() {
     if (!selectedRequest) return;
     const updated = unassignStage3Request(selectedRequest.id);
     if (!updated) return;
+    syncMarketplaceRequestStatusFromStage3(updated);
     setRequests([...stage3Requests]);
   };
 
@@ -324,9 +359,53 @@ export default function Stage3AppPage() {
     setRequests([...stage3Requests]);
   };
 
+  const [customerNotified, setCustomerNotified] = useState<Set<string>>(new Set());
+
+  const handleNotifyCustomer = (request: Stage3Request) => {
+    const noteText = `Customer notified via email (${request.requester.email}): Status update — request is now "${request.status}".`;
+    appendStage3RequestNote(request.id, noteText, "TO Ops (Auto-Notify)");
+    setRequests([...stage3Requests]);
+    setCustomerNotified(prev => new Set(prev).add(request.id));
+  };
+
+  const getDiRequestSubtype = (request: Stage3Request): string | null => {
+    if (request.type !== "digital-intelligence") return null;
+    const tags = request.tags;
+    if (tags.includes("schedule-report")) return "Scheduled Report";
+    if (tags.includes("set-alert")) return "Threshold Alert";
+    if (tags.includes("request-api")) return "API Access";
+    if (tags.includes("share-dashboard")) return "Dashboard Share";
+    if (tags.includes("request-audit")) return "Data Audit";
+    if (tags.includes("modify-chart")) return "Dashboard Update";
+    if (tags.includes("new-data-source")) return "Data Source";
+    return "General";
+  };
+
+  const getDiServiceId = (request: Stage3Request): string | null => {
+    const asset = (request.relatedAssets ?? []).find(a => a.startsWith("di-dashboard:"));
+    return asset ? asset.replace("di-dashboard:", "") : null;
+  };
+
+  const getDiServiceInfo = (request: Stage3Request) => {
+    const serviceId = getDiServiceId(request);
+    if (!serviceId) return null;
+    const service = intelligenceServices.find(s => s.id === serviceId);
+    const categoryToTab: Record<string, string> = {
+      systems: "systems-portfolio",
+      maturity: "digital-maturity",
+      projects: "projects-portfolio",
+    };
+    return {
+      id: serviceId,
+      title: service?.title ?? serviceId.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+      tab: service ? categoryToTab[service.category] || "systems-portfolio" : "systems-portfolio",
+    };
+  };
+
   const requestNavCounts = {
     all: queueKpis.total,
     new: scopedRequests.filter((request) => request.status === "new").length,
+    assigned: scopedRequests.filter((request) => request.status === "assigned").length,
     inProgress: scopedRequests.filter((request) => request.status === "in-progress").length,
     pendingReview: scopedRequests.filter((request) => request.status === "pending-review").length,
   };
@@ -369,6 +448,15 @@ export default function Stage3AppPage() {
             >
               <span className="inline-flex items-center gap-2"><Inbox className="w-4 h-4" />New</span>
               <span className="text-xs rounded-full px-2 py-0.5 bg-blue-100 text-blue-700">{requestNavCounts.new}</span>
+            </button>
+            <button
+              onClick={() => navigate("/stage3/assigned")}
+              className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
+                view === "assigned" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <span className="inline-flex items-center gap-2"><Users className="w-4 h-4" />Assigned</span>
+              <span className="text-xs rounded-full px-2 py-0.5 bg-purple-100 text-purple-700">{requestNavCounts.assigned}</span>
             </button>
             <button
               onClick={() => navigate("/stage3/in-progress")}
@@ -450,6 +538,11 @@ export default function Stage3AppPage() {
             <Button size="sm" variant={scope === "all" ? "default" : "outline"} className={scope === "all" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("all")}>All</Button>
             <Button size="sm" variant={scope === "learning-center" ? "default" : "outline"} className={scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("learning-center")}>Learning Center</Button>
             <Button size="sm" variant={scope === "knowledge-center" ? "default" : "outline"} className={scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("knowledge-center")}>Knowledge Center</Button>
+            <Button size="sm" variant={scope === "solution-specs" ? "default" : "outline"} className={scope === "solution-specs" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("solution-specs")}>Solution Specs</Button>
+            <Button size="sm" variant={scope === "portfolio-management" ? "default" : "outline"} className={scope === "portfolio-management" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("portfolio-management")}>Portfolio Management</Button>
+            <Button size="sm" variant={scope === "solution-build" ? "default" : "outline"} className={scope === "solution-build" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("solution-build")}>Solution Build</Button>
+            <Button size="sm" variant={scope === "support-services" ? "default" : "outline"} className={scope === "support-services" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("support-services")}>Support Services</Button>
+            <Button size="sm" variant={scope === "digital-intelligence" ? "default" : "outline"} className={scope === "digital-intelligence" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("digital-intelligence")}><Brain className="w-3.5 h-3.5 mr-1" />Digital Intelligence</Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -583,7 +676,10 @@ export default function Stage3AppPage() {
                     <p className="text-sm font-semibold text-gray-900">{request.title}</p>
                     <p className="text-xs text-gray-500">{request.requestNumber}</p>
                   </div>
-                  <div className="text-sm text-gray-700">{requestTypeLabel[request.type]}</div>
+                  <div className="text-sm text-gray-700 flex items-center gap-1.5">
+                    {request.type === "digital-intelligence" && <Brain className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />}
+                    {requestTypeLabel[request.type]}
+                  </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{request.requester.name}</p>
                     <p className="text-xs text-gray-500">{request.requester.organization}</p>
@@ -634,6 +730,49 @@ export default function Stage3AppPage() {
               <p>{selectedRequest.requester.name}</p>
               <p className="text-gray-600">{selectedRequest.requester.email}</p>
             </div>
+            {selectedRequest.type === "digital-intelligence" && (
+              <div className="border-t pt-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-purple-600" />
+                  <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide">Digital Intelligence Request</p>
+                </div>
+                {getDiRequestSubtype(selectedRequest) && (
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-purple-100 text-purple-700"><Sparkles className="w-3 h-3 mr-1" />{getDiRequestSubtype(selectedRequest)}</Badge>
+                  </div>
+                )}
+                {getDiServiceInfo(selectedRequest) && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <p className="text-xs text-gray-500 mb-1.5">Related Dashboard</p>
+                    <p className="text-sm font-medium text-gray-900 mb-2">{getDiServiceInfo(selectedRequest)!.title}</p>
+                    <button
+                      onClick={() => {
+                        const info = getDiServiceInfo(selectedRequest);
+                        if (info) window.open(`/marketplaces/digital-intelligence/${info.tab}/${info.id}/dashboard`, '_blank');
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Open Dashboard
+                    </button>
+                  </div>
+                )}
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <p className="text-xs font-medium text-purple-800 mb-2 flex items-center gap-1.5">
+                    <Bell className="w-3 h-3" /> Customer Notification
+                  </p>
+                  {customerNotified.has(selectedRequest.id) ? (
+                    <p className="text-xs text-green-700 font-medium">Customer has been notified of the latest status update.</p>
+                  ) : (
+                    <button
+                      onClick={() => handleNotifyCustomer(selectedRequest)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white text-xs font-semibold rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <Send className="w-3 h-3" /> Notify Customer of Status Update
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
             {selectedLearningChangeSet && (
               <div className="border-t pt-3">
                 <p className="text-xs text-gray-500">Proposed Learning Changes</p>

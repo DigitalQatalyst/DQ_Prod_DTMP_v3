@@ -23,7 +23,7 @@ const createActivityEntry = (
   detail,
 });
 
-export const stage3Requests: Stage3Request[] = [
+const defaultStage3Requests: Stage3Request[] = [
   {
     id: "req-stage3-001",
     requestNumber: "REQ-2026-001",
@@ -214,7 +214,526 @@ export const stage3Requests: Stage3Request[] = [
     ],
     slaStatus: "on-track",
   },
+  {
+    id: "req-stage3-007",
+    requestNumber: "REQ-2026-007",
+    type: "portfolio-management",
+    title: "Application Portfolio Health Assessment",
+    description:
+      "Comprehensive health assessment of the enterprise application portfolio with risk analysis and optimization recommendations.",
+    requester: {
+      name: "David Chen",
+      email: "david.chen@dtmp.local",
+      department: "Enterprise Architecture",
+      organization: "DTMP",
+    },
+    status: "assigned",
+    priority: "high",
+    assignedTo: "Lisa Wang",
+    assignedTeam: "Portfolio Analytics",
+    createdAt: new Date(now.getTime() - 5 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 2 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 7 * day).toISOString(),
+    estimatedHours: 32,
+    actualHours: 8,
+    tags: ["portfolio", "assessment", "health-monitoring"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709423456789-mno90"],
+    notes: ["Initial data collection completed.", "Stakeholder interviews scheduled."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request received from Portfolio Management marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Lisa Wang (Portfolio Analytics)."),
+      createActivityEntry("status-changed", "Status moved to assigned."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-008",
+    requestNumber: "REQ-2026-008",
+    type: "portfolio-management",
+    title: "Project Portfolio Risk Dashboard Setup",
+    description:
+      "Configure and deploy real-time risk monitoring dashboard for the transformation project portfolio.",
+    requester: {
+      name: "Maria Rodriguez",
+      email: "maria.rodriguez@dtmp.local",
+      department: "PMO",
+      organization: "DTMP",
+    },
+    status: "in-progress",
+    priority: "medium",
+    assignedTo: "Michael Chen",
+    assignedTeam: "Portfolio Analytics",
+    createdAt: new Date(now.getTime() - 8 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 5 * day).toISOString(),
+    estimatedHours: 16,
+    actualHours: 12,
+    tags: ["portfolio", "dashboard", "risk-management"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709023456789-def34"],
+    notes: ["Dashboard framework configured.", "Data integration in progress."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request submitted from Portfolio Management services.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Michael Chen (Portfolio Analytics)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-009",
+    requestNumber: "REQ-2026-009",
+    type: "portfolio-management",
+    title: "Application Dependency Impact Analysis",
+    description:
+      "Comprehensive dependency mapping for application portfolio to support rationalization decisions.",
+    requester: {
+      name: "David Chen",
+      email: "david.chen@dtmp.local",
+      department: "Enterprise Architecture",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "medium",
+    createdAt: new Date(now.getTime() - 4 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 4 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 8 * day).toISOString(),
+    estimatedHours: 12,
+    tags: ["portfolio", "analysis", "dependencies"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709123456789-abc12"],
+    notes: ["Request received from Stage 2 Portfolio Management."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request received from Portfolio Management marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-010",
+    requestNumber: "REQ-2026-010",
+    type: "portfolio-management",
+    title: "Portfolio Health Remediation Action Plan",
+    description:
+      "Develop remediation action plan for applications showing health concerns with specific actions and timelines.",
+    requester: {
+      name: "Sarah Johnson",
+      email: "sarah.johnson@dtmp.local",
+      department: "Application Owner",
+      organization: "DTMP",
+    },
+    status: "pending-review",
+    priority: "medium",
+    assignedTo: "Lisa Wang",
+    assignedTeam: "Portfolio Analytics",
+    createdAt: new Date(now.getTime() - 6 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 2 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 14 * day).toISOString(),
+    estimatedHours: 8,
+    actualHours: 6,
+    tags: ["portfolio", "consultation", "health-review"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709223456789-ghi56"],
+    notes: ["Initial analysis completed.", "Awaiting stakeholder review."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request submitted from Portfolio Management services.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Lisa Wang (Portfolio Analytics)."),
+      createActivityEntry("status-changed", "Status moved to pending-review."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-011",
+    requestNumber: "REQ-2026-011",
+    type: "portfolio-management",
+    title: "Portfolio Health Review Workshop",
+    description:
+      "Facilitate health review workshop to align stakeholders on improvement strategies and priorities.",
+    requester: {
+      name: "Michael Thompson",
+      email: "michael.thompson@dtmp.local",
+      department: "Portfolio Manager",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "low",
+    createdAt: new Date(now.getTime() - 1 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 1 * day).toISOString(),
+    dueDate: new Date(now.getTime() + 21 * day).toISOString(),
+    estimatedHours: 4,
+    tags: ["portfolio", "consultation", "workshop"],
+    relatedAssets: ["portfolio-request:portfolio-request-1709323456789-jkl78"],
+    notes: ["Workshop request received.", "Scheduling coordination needed."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Request received from Portfolio Management marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-012",
+    requestNumber: "REQ-2026-012",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — System Health Analytics Dashboard",
+    description:
+      "Schedule Email Report request for the System Health Analytics dashboard. Frequency: weekly. Priority: medium. Recipient: ops-lead@company.com.",
+    requester: {
+      name: "Current User",
+      email: "current.user@company.com",
+      department: "IT Operations",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "medium",
+    createdAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 3 * day).toISOString(),
+    estimatedHours: 2,
+    tags: ["digital-intelligence", "schedule-report", "system-health"],
+    relatedAssets: ["di-dashboard:system-health-analytics"],
+    notes: ["Auto-created from Digital Intelligence marketplace form submission."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Schedule Email Report request received from Digital Intelligence marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-013",
+    requestNumber: "REQ-2026-013",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Predictive Maintenance Intelligence",
+    description:
+      "Set Threshold Alert request for Predictive Maintenance Intelligence dashboard. Metric: Equipment Failure Rate. Alert when value goes above 5%. Priority: high.",
+    requester: {
+      name: "Current User",
+      email: "current.user@company.com",
+      department: "Facilities Engineering",
+      organization: "DTMP",
+    },
+    status: "new",
+    priority: "high",
+    createdAt: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 2 * day).toISOString(),
+    estimatedHours: 3,
+    tags: ["digital-intelligence", "set-alert", "predictive-maintenance"],
+    relatedAssets: ["di-dashboard:predictive-maintenance"],
+    notes: ["Threshold alert configuration — requires platform integration."],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Set Threshold Alert request received from Digital Intelligence marketplace.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-014",
+    requestNumber: "REQ-2026-014",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Delivery Velocity Analytics",
+    description:
+      "Request API Access for Delivery Velocity Analytics dashboard. Use case: Integrate dashboard metrics into internal Slack bot for sprint standups. Expected volume: Medium (100–1,000 calls/day). Priority: medium.",
+    requester: {
+      name: "James Park",
+      email: "j.park@dtmp.local",
+      department: "Engineering",
+      organization: "DTMP",
+    },
+    status: "assigned",
+    priority: "medium",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 2 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 18 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 3 * day).toISOString(),
+    estimatedHours: 8,
+    actualHours: 2,
+    tags: ["digital-intelligence", "request-api", "delivery-velocity"],
+    relatedAssets: ["di-dashboard:delivery-velocity-analytics"],
+    notes: ["API credential provisioning in progress.", "Slack webhook integration documented."],
+    activityLog: [
+      createActivityEntry("created", "API Access request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to assigned."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-015",
+    requestNumber: "REQ-2026-015",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Resource Allocation Optimizer",
+    description:
+      "Share with Team request for Resource Allocation Optimizer dashboard. Shared with: sarah.chen@company.com (Editor access). Message: Please review the resource bottleneck analysis before our Monday planning session.",
+    requester: {
+      name: "Emily Torres",
+      email: "e.torres@dtmp.local",
+      department: "PMO",
+      organization: "DTMP",
+    },
+    status: "in-progress",
+    priority: "low",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 3 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - day).toISOString(),
+    dueDate: new Date(now.getTime() + day).toISOString(),
+    estimatedHours: 1,
+    actualHours: 0.5,
+    tags: ["digital-intelligence", "share-dashboard", "resource-allocation"],
+    relatedAssets: ["di-dashboard:resource-optimization-ai"],
+    notes: ["Dashboard sharing permissions being configured."],
+    activityLog: [
+      createActivityEntry("created", "Share Dashboard request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-016",
+    requestNumber: "REQ-2026-016",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Digital Maturity Scoring Engine",
+    description:
+      "Request Data Audit for Digital Maturity Scoring Engine. Audit Scope: Full Audit — all data sources and transformations. Reason: Quarterly compliance review — maturity scores are feeding executive KPIs and need verified accuracy. Priority: high.",
+    requester: {
+      name: "Rachel Kim",
+      email: "r.kim@dtmp.local",
+      department: "Compliance",
+      organization: "DTMP",
+    },
+    status: "pending-review",
+    priority: "high",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 5 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + day).toISOString(),
+    estimatedHours: 16,
+    actualHours: 14,
+    tags: ["digital-intelligence", "request-audit", "maturity-scoring", "compliance"],
+    relatedAssets: ["di-dashboard:dbp-maturity-assessment"],
+    notes: ["Full data lineage trace completed.", "Awaiting compliance sign-off on transformation logic audit."],
+    activityLog: [
+      createActivityEntry("created", "Data Audit request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+      createActivityEntry("note-added", "Data lineage trace completed for all 3 source systems."),
+      createActivityEntry("status-changed", "Status moved to pending-review."),
+    ],
+    slaStatus: "at-risk",
+  },
+  {
+    id: "req-stage3-017",
+    requestNumber: "REQ-2026-017",
+    type: "digital-intelligence",
+    title: "Digital Intelligence — Portfolio Risk Analyzer",
+    description:
+      "Request Dashboard Update for Portfolio Risk Analyzer. Improvement: Add a heatmap visualization showing risk exposure by department and project phase, and include a trend line for the risk mitigation velocity metric. Priority: medium.",
+    requester: {
+      name: "David Okafor",
+      email: "d.okafor@dtmp.local",
+      department: "Strategy",
+      organization: "DTMP",
+    },
+    status: "completed",
+    priority: "medium",
+    assignedTo: "Alex Rivera",
+    assignedTeam: "Intelligence Platform",
+    createdAt: new Date(now.getTime() - 10 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 4 * day).toISOString(),
+    completedAt: new Date(now.getTime() - 4 * day).toISOString(),
+    dueDate: new Date(now.getTime() - 5 * day).toISOString(),
+    estimatedHours: 12,
+    actualHours: 10,
+    tags: ["digital-intelligence", "modify-chart", "portfolio-risk", "heatmap"],
+    relatedAssets: ["di-dashboard:risk-prediction-engine"],
+    notes: ["Heatmap and trend line delivered.", "Customer confirmed satisfaction."],
+    activityLog: [
+      createActivityEntry("created", "Dashboard Update request received from Digital Intelligence marketplace.", INTAKE_ACTIVITY_ACTOR),
+      createActivityEntry("assigned", "Assigned to Alex Rivera (Intelligence Platform)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+      createActivityEntry("note-added", "Heatmap prototype shared with requester for feedback."),
+      createActivityEntry("status-changed", "Status moved to completed."),
+    ],
+    slaStatus: "on-track",
+    customerSatisfaction: 5,
+  },
+  {
+    id: "req-stage3-017",
+    requestNumber: "REQ-2026-017",
+    type: "solution-build",
+    title: "Build Request: Zero Trust Network Implementation",
+    description:
+      "Implement zero trust security model to meet new compliance requirements by Q2. Complex security implementation requiring Delta team expertise.",
+    requester: {
+      name: "Current User",
+      email: "user@dtmp.local",
+      department: "Security",
+      organization: "DTMP",
+    },
+    status: "assigned",
+    priority: "critical",
+    assignedTo: "Sarah Miller",
+    assignedTeam: "Team Delta",
+    createdAt: new Date(now.getTime() - 3 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - day).toISOString(),
+    dueDate: new Date(now.getTime() + 10 * day).toISOString(),
+    estimatedHours: 480,
+    actualHours: 20,
+    tags: ["solution-build", "custom", "security", "zero-trust"],
+    relatedAssets: ["solution-build-request:BLD-2026-003"],
+    notes: [
+      "Build request submitted by Current User.",
+      "Build type: custom.",
+      "Department: Security.",
+      "Target date: 2026-04-30.",
+      "Sponsor: Jennifer Lee.",
+    ],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Build request received from Stage 1 submission.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Sarah Miller (Team Delta)."),
+      createActivityEntry("status-changed", "Status moved to assigned."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-018",
+    requestNumber: "REQ-2026-018",
+    type: "solution-build",
+    title: "Build Request: Real-Time Analytics Dashboard",
+    description:
+      "Executive dashboard with real-time KPIs for data-driven decision making. Analytics expertise required, Beta team ideal fit.",
+    requester: {
+      name: "Current User",
+      email: "user@dtmp.local",
+      department: "Executive",
+      organization: "DTMP",
+    },
+    status: "in-progress",
+    priority: "high",
+    assignedTo: "Michael Chen",
+    assignedTeam: "Team Beta",
+    createdAt: new Date(now.getTime() - 50 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 15 * day).toISOString(),
+    estimatedHours: 400,
+    actualHours: 260,
+    tags: ["solution-build", "custom", "executive", "analytics", "dashboard"],
+    relatedAssets: ["solution-build-request:BLD-2025-089"],
+    notes: [
+      "Build request submitted by Current User.",
+      "Build type: custom.",
+      "Department: Executive.",
+      "Target date: 2026-03-15.",
+      "Sponsor: Thomas Wilson.",
+      "Sprint 12 in progress.",
+    ],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Build request received from Stage 1 submission.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Michael Chen (Team Beta)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-019",
+    requestNumber: "REQ-2026-019",
+    type: "solution-build",
+    title: "Build Request: Microservices Platform Deployment",
+    description:
+      "Modernize monolithic application to microservices architecture for better scalability. Pre-built solution with customization.",
+    requester: {
+      name: "Current User",
+      email: "user@dtmp.local",
+      department: "Engineering",
+      organization: "DTMP",
+    },
+    status: "pending-review",
+    priority: "medium",
+    assignedTo: "Lisa Wang",
+    assignedTeam: "Team Alpha",
+    createdAt: new Date(now.getTime() - 135 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 5 * day).toISOString(),
+    estimatedHours: 560,
+    actualHours: 520,
+    tags: ["solution-build", "pre-built", "engineering", "microservices"],
+    relatedAssets: ["solution-build-request:BLD-2025-067"],
+    notes: [
+      "Build request submitted by Current User.",
+      "Build type: pre-built.",
+      "Department: Engineering.",
+      "Target date: 2026-02-28.",
+      "Testing phase in progress.",
+    ],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Build request received from Stage 1 submission.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Lisa Wang (Team Alpha)."),
+      createActivityEntry("status-changed", "Status moved to pending-review."),
+    ],
+    slaStatus: "on-track",
+  },
 ];
+
+const STAGE3_DATA_VERSION = 5;
+
+const loadStage3Requests = (): Stage3Request[] => {
+  const storedVersion = localStorage.getItem('stage3RequestsVersion');
+  if (storedVersion !== String(STAGE3_DATA_VERSION)) {
+    localStorage.removeItem('stage3Requests');
+    localStorage.setItem('stage3RequestsVersion', String(STAGE3_DATA_VERSION));
+    return [...defaultStage3Requests];
+  }
+  const stored = localStorage.getItem('stage3Requests');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return [...defaultStage3Requests];
+    }
+  }
+  return [...defaultStage3Requests];
+};
+
+const saveStage3Requests = () => {
+  localStorage.setItem('stage3Requests', JSON.stringify(stage3Requests));
+};
+
+export const stage3Requests: Stage3Request[] = loadStage3Requests();
 
 export const stage3TeamMembers: Stage3TeamMember[] = [
   {
@@ -243,6 +762,15 @@ export const stage3TeamMembers: Stage3TeamMember[] = [
     capacityHours: 40,
     allocatedHours: 31,
     skills: ["incident-response", "support-services", "consulting"],
+  },
+  {
+    id: "to-004",
+    name: "Alex Rivera",
+    role: "Intelligence Platform Engineer",
+    team: "Intelligence Platform",
+    capacityHours: 40,
+    allocatedHours: 26,
+    skills: ["digital-intelligence", "data-engineering", "api-provisioning", "dashboard-ops", "alert-configuration"],
   },
 ];
 
@@ -290,6 +818,7 @@ export function createStage3Request(input: Stage3CreateRequestInput): Stage3Requ
     slaStatus: "on-track",
   };
   stage3Requests.unshift(request);
+  saveStage3Requests();
   return request;
 }
 
@@ -318,6 +847,7 @@ export function assignStage3Request(
     createActivityEntry("assigned", `Assigned to ${member.name} (${member.team}).`)
   );
 
+  saveStage3Requests();
   return request;
 }
 
@@ -336,6 +866,7 @@ export function unassignStage3Request(requestId: string): Stage3Request | null {
     createActivityEntry("unassigned", "Request unassigned from current owner/team.")
   );
 
+  saveStage3Requests();
   return request;
 }
 
@@ -380,6 +911,7 @@ export function transitionStage3RequestStatus(
     request.completedAt = undefined;
   }
 
+  saveStage3Requests();
   return request;
 }
 
@@ -397,5 +929,6 @@ export function appendStage3RequestNote(
   request.notes.unshift(trimmed);
   request.updatedAt = new Date().toISOString();
   request.activityLog.unshift(createActivityEntry("note-added", trimmed, actor));
+  saveStage3Requests();
   return request;
 }

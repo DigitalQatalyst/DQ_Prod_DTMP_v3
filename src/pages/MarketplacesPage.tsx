@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MarketplaceCard } from "@/components/cards/MarketplaceCard";
@@ -11,6 +12,22 @@ import {
 } from "@/data/marketplaces";
 
 const MarketplacesPage = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+
+    const id = location.hash.replace("#", "");
+    const frame = window.requestAnimationFrame(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.hash]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -48,7 +65,11 @@ const MarketplacesPage = () => {
               if (phaseMarketplaces.length === 0) return null;
 
               return (
-                <div key={phase} className="mb-16 last:mb-0">
+                <div
+                  key={phase}
+                  id={`${phase.toLowerCase()}-marketplaces`}
+                  className="mb-16 last:mb-0 scroll-mt-24"
+                >
                   {/* Phase Header */}
                   <div className="mb-8">
                     <span

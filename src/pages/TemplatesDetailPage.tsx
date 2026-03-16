@@ -18,6 +18,8 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { LoginModal } from "@/components/learningCenter/LoginModal";
+import { DocumentRequestModal } from "@/components/templates/DocumentRequestModal";
+import { isUserAuthenticated } from "@/data/sessionAuth";
 
 import { applicationProfiles, assessments } from "@/data/templates";
 
@@ -50,6 +52,8 @@ export default function DocumentStudioDetailPage() {
   const navigate = useNavigate();
   const [activeContentTab, setActiveContentTab] = useState("about");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   const data = getDataForTab(tab || "");
   const template = data.find((item) => item.id === cardId);
@@ -75,7 +79,19 @@ export default function DocumentStudioDetailPage() {
     (icons[template.icon as keyof typeof icons] as LucideIcon) || FileText;
 
   const handleRequestServiceClick = () => {
-    setShowLoginModal(true);
+    // Check if user is authenticated
+    if (isUserAuthenticated()) {
+      // Show request form modal directly
+      setShowRequestModal(true);
+    } else {
+      // Show login modal first
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLoginSuccess = (email: string) => {
+    setUserEmail(email);
+    setShowRequestModal(true);
   };
 
   const relatedTemplates = data
@@ -275,6 +291,23 @@ export default function DocumentStudioDetailPage() {
           serviceName: template.title,
           action: "request-service",
         }}
+        onLoginSuccess={(email) => {
+          setUserEmail(email || "user@dtmp.local");
+          setShowLoginModal(false);
+          setShowRequestModal(true);
+        }}
+      />
+
+      <DocumentRequestModal
+        isOpen={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        template={{
+          id: cardId || "",
+          title: template.title,
+        }}
+        tab={(tab as "application-profiles" | "assessments") || "application-profiles"}
+        userEmail={userEmail || "user@dtmp.local"}
+        userName="Current User"
       />
     </div>
   );

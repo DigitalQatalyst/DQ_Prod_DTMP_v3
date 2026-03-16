@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SupportLayout } from "./SupportLayout";
-import { serviceRequests } from "@/data/supportData";
 import { PriorityBadge } from "@/components/stage2";
 import { Search } from "lucide-react";
+import { getSupportRequestsWithStored } from "@/data/supportServices/userSupportState";
 
 const statusOptions = ["all", "pending-approval", "approved", "in-progress", "completed", "rejected"] as const;
 
@@ -11,10 +11,11 @@ export default function ServiceRequestsPage() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<typeof statusOptions[number]>("all");
   const [query, setQuery] = useState("");
+  const requests = useMemo(() => getSupportRequestsWithStored(), []);
 
   const filtered = useMemo(
     () =>
-      serviceRequests.filter((r) => {
+      requests.filter((r) => {
         const statusMatch = status === "all" || r.status === status;
         const queryMatch =
           !query ||
@@ -22,7 +23,7 @@ export default function ServiceRequestsPage() {
           r.id.toLowerCase().includes(query.toLowerCase());
         return statusMatch && queryMatch;
       }),
-    [status, query],
+    [status, query, requests],
   );
 
   return (
