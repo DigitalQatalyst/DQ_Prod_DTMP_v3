@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { SolutionSpec, SolutionType } from "@/data/blueprints/solutionSpecs";
-import { FileText, Layers, GitBranch } from "lucide-react";
+import { Layers, GitBranch } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface SolutionSpecCardProps {
@@ -8,18 +8,12 @@ interface SolutionSpecCardProps {
   onClick: (id: string) => void;
 }
 
-const SOLUTION_TYPE_COLORS: Record<SolutionType, { bg: string; text: string; border: string }> = {
-  DBP: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
-  DXP: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
-  DWS: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200" },
-  DIA: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
-  SDO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
-};
-
-const SCOPE_LABELS: Record<string, string> = {
-  enterprise: "Enterprise",
-  departmental: "Departmental",
-  project: "Project",
+const SOLUTION_TYPE_COLORS: Record<SolutionType, { bg: string; text: string; border: string; gradient: string }> = {
+  DBP: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", gradient: "from-blue-500 to-blue-700" },
+  DXP: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", gradient: "from-purple-500 to-purple-700" },
+  DWS: { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200", gradient: "from-teal-500 to-teal-700" },
+  DIA: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", gradient: "from-orange-400 to-orange-600" },
+  SDO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", gradient: "from-red-500 to-red-700" },
 };
 
 const MATURITY_LABELS: Record<string, string> = {
@@ -34,7 +28,7 @@ export const SolutionSpecCard = memo(({ spec, onClick }: SolutionSpecCardProps) 
   return (
     <article
       onClick={() => onClick(spec.id)}
-      className="card-marketplace group cursor-pointer h-full flex flex-col"
+      className="bg-white border border-gray-200 rounded-xl hover:shadow-xl hover:border-orange-300 hover:-translate-y-1 transition-all duration-300 cursor-pointer h-full flex flex-col overflow-hidden"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -45,71 +39,62 @@ export const SolutionSpecCard = memo(({ spec, onClick }: SolutionSpecCardProps) 
       }}
       aria-label={`View details for ${spec.title}`}
     >
-      {/* Header with Solution Type Badge */}
-      <div className="flex justify-between items-start mb-3">
-        <Badge
-          className={`${colors.bg} ${colors.text} ${colors.border} border font-semibold`}
-          variant="outline"
-        >
-          {spec.solutionType}
-        </Badge>
-        <FileText className="w-5 h-5 text-gray-400" aria-hidden="true" />
-      </div>
+      {/* Coloured stream header */}
+      <div className={`h-2 w-full bg-gradient-to-r ${colors.gradient}`} />
 
-      {/* Title */}
-      <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-[hsl(var(--orange))] transition-colors">
-        {spec.title}
-      </h3>
-
-      {/* Description */}
-      <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-grow">
-        {spec.description}
-      </p>
-
-      {/* Scope and Maturity Level */}
-      <div className="flex gap-2 mb-4">
-        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-          {SCOPE_LABELS[spec.scope]}
-        </span>
-        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-          {MATURITY_LABELS[spec.maturityLevel]}
-        </span>
-      </div>
-
-      {/* Diagram and Component Count */}
-      <div className="flex gap-4 mb-4 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1" title="Diagram count">
-          <Layers className="w-4 h-4" aria-hidden="true" />
-          <span aria-label={`${spec.diagramCount} diagrams`}>
-            {spec.diagramCount} {spec.diagramCount === 1 ? "diagram" : "diagrams"}
+      <div className="p-6 flex flex-col flex-1">
+        {/* Stream + maturity badges */}
+        <div className="flex items-center gap-2 mb-3">
+          <Badge
+            className={`${colors.bg} ${colors.text} ${colors.border} border font-semibold`}
+            variant="outline"
+          >
+            {spec.solutionType}
+          </Badge>
+          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+            {MATURITY_LABELS[spec.maturityLevel]}
           </span>
-        </span>
-        <span className="flex items-center gap-1" title="Component count">
-          <GitBranch className="w-4 h-4" aria-hidden="true" />
-          <span aria-label={`${spec.componentCount} components`}>
-            {spec.componentCount} {spec.componentCount === 1 ? "component" : "components"}
-          </span>
-        </span>
-      </div>
+        </div>
 
-      {/* Tags */}
-      {spec.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
-          {spec.tags.slice(0, 3).map((tag) => (
+        {/* Title */}
+        <h3 className="text-base font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+          {spec.title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-grow">
+          {spec.description}
+        </p>
+
+        {/* Division pills */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {spec.divisionRelevance.slice(0, 2).map((division) => (
             <span
-              key={tag}
-              className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs"
+              key={division}
+              className="inline-flex items-center rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-700"
             >
-              {tag}
+              {division}
             </span>
           ))}
-          {spec.tags.length > 3 && (
-            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-medium">
-              +{spec.tags.length - 3} more
+          {spec.divisionRelevance.length > 2 && (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">
+              +{spec.divisionRelevance.length - 2}
             </span>
           )}
         </div>
-      )}
+
+        {/* Stats row */}
+        <div className="flex gap-4 text-sm text-muted-foreground border-t border-gray-100 pt-4">
+          <span className="flex items-center gap-1">
+            <Layers className="w-3.5 h-3.5" aria-hidden="true" />
+            {spec.diagramCount} diagrams
+          </span>
+          <span className="flex items-center gap-1">
+            <GitBranch className="w-3.5 h-3.5" aria-hidden="true" />
+            {spec.componentCount} components
+          </span>
+        </div>
+      </div>
     </article>
   );
 });

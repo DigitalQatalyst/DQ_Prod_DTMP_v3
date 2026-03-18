@@ -1,349 +1,84 @@
-export type SolutionType = 'DBP' | 'DXP' | 'DWS' | 'DIA' | 'SDO';
+export type SolutionType = "DBP" | "DXP" | "DWS" | "DIA" | "SDO";
+
+export type DivisionRelevance =
+  | "Generation"
+  | "Transmission"
+  | "Distribution"
+  | "Water Services"
+  | "Customer Services"
+  | "Digital DEWA & Moro Hub"
+  | "All Divisions";
+
+export interface SolutionSpecDocument {
+  id: string;
+  title: string;
+  type: "pdf" | "diagram-set" | "component-pack" | "roadmap";
+  summary: string;
+}
 
 export interface SolutionSpec {
   id: string;
   title: string;
   description: string;
   solutionType: SolutionType;
-  scope: 'enterprise' | 'departmental' | 'project';
-  maturityLevel: 'conceptual' | 'proven' | 'reference';
+  scope: "enterprise" | "departmental" | "project";
+  maturityLevel: "conceptual" | "proven" | "reference";
   diagramCount: number;
   componentCount: number;
   tags: string[];
   lastUpdated: string;
   author: string;
+  divisionRelevance: DivisionRelevance[];
+  dewaAlignment: string[];
+  overview: string;
+  architectureSummary: string;
+  implementationGuidance: string;
+  keyHighlights: string[];
+  useCases: string[];
+  includedArtifacts: string[];
+  connectedSpecIds: string[];
+  documents: SolutionSpecDocument[];
   downloadUrl?: string;
 }
 
-export const solutionSpecs: SolutionSpec[] = [
-  {
-    id: "dbp-reference-architecture",
-    title: "DBP Reference Architecture",
-    description: "Complete enterprise reference architecture for Digital Business Platform with 12 capability domains covering integration, APIs, microservices, and business process management.",
-    solutionType: "DBP",
-    scope: "enterprise",
-    maturityLevel: "reference",
-    diagramCount: 5,
-    componentCount: 45,
-    tags: ["Microservices", "API Gateway", "Event Bus", "Data Mesh", "Cloud Native", "Multi-Cloud", "Cross-Industry"],
-    lastUpdated: "2026-01-15",
-    author: "Enterprise Architecture Team",
-    downloadUrl: "/downloads/dbp-reference-architecture.pdf"
-  },
-  {
-    id: "customer-360-platform",
-    title: "Customer 360 Platform",
-    description: "Unified customer data platform with real-time profile aggregation, analytics, and personalization capabilities across all customer touchpoints.",
-    solutionType: "DXP",
-    scope: "departmental",
-    maturityLevel: "proven",
-    diagramCount: 4,
-    componentCount: 18,
-    tags: ["CDP", "Real-time Analytics", "API Layer", "Data Lake", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-10",
-    author: "Customer Experience Team"
-  },
-  {
-    id: "omnichannel-experience-platform",
-    title: "Omnichannel Experience Platform",
-    description: "Seamless customer experience across web, mobile, in-store, and contact center touchpoints with unified journey orchestration.",
-    solutionType: "DXP",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 22,
-    tags: ["Headless CMS", "Mobile Backend", "POS Integration", "Journey Orchestration", "Hybrid", "Retail"],
-    lastUpdated: "2026-01-08",
-    author: "Digital Experience Team"
-  },
-  {
-    id: "digital-workplace-hub",
-    title: "Digital Workplace Hub",
-    description: "Integrated employee experience platform with collaboration, productivity tools, and knowledge management for modern workforce.",
-    solutionType: "DWS",
-    scope: "departmental",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 15,
-    tags: ["Microsoft 365", "Collaboration Tools", "Intranet", "Knowledge Graph", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-12",
-    author: "Digital Workplace Team"
-  },
-  {
-    id: "enterprise-data-platform",
-    title: "Enterprise Data Platform",
-    description: "Comprehensive data platform with data lake, warehouse, governance, and analytics capabilities for enterprise-wide data management.",
-    solutionType: "DIA",
-    scope: "enterprise",
-    maturityLevel: "reference",
-    diagramCount: 6,
-    componentCount: 32,
-    tags: ["Data Lake", "Data Warehouse", "Data Catalog", "ETL", "Governance", "Multi-Cloud", "Cross-Industry"],
-    lastUpdated: "2026-01-14",
-    author: "Data Architecture Team",
-    downloadUrl: "/downloads/enterprise-data-platform.pdf"
-  },
-  {
-    id: "api-gateway-architecture",
-    title: "API Gateway Architecture",
-    description: "Enterprise API management platform with gateway, developer portal, analytics, and comprehensive API lifecycle management.",
-    solutionType: "DBP",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 12,
-    tags: ["API Gateway", "Developer Portal", "Rate Limiting", "Analytics", "Hybrid", "Cross-Industry"],
-    lastUpdated: "2026-01-09",
-    author: "Integration Architecture Team"
-  },
-  {
-    id: "microservices-platform",
-    title: "Microservices Platform",
-    description: "Cloud-native microservices architecture with service mesh, container orchestration, and comprehensive DevOps tooling.",
-    solutionType: "DBP",
-    scope: "departmental",
-    maturityLevel: "reference",
-    diagramCount: 5,
-    componentCount: 28,
-    tags: ["Kubernetes", "Service Mesh", "Docker", "CI/CD", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-11",
-    author: "Platform Engineering Team",
-    downloadUrl: "/downloads/microservices-platform.pdf"
-  },
-  {
-    id: "identity-access-management",
-    title: "Identity & Access Management",
-    description: "Enterprise IAM platform with SSO, MFA, identity governance, and comprehensive access control across all systems.",
-    solutionType: "SDO",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 4,
-    componentCount: 14,
-    tags: ["SSO", "MFA", "RBAC", "Identity Governance", "Hybrid", "Cross-Industry"],
-    lastUpdated: "2026-01-07",
-    author: "Security Architecture Team"
-  },
-  {
-    id: "data-governance-platform",
-    title: "Data Governance Platform",
-    description: "Comprehensive data governance with data quality, lineage, cataloging, and compliance management for enterprise data assets.",
-    solutionType: "DIA",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 4,
-    componentCount: 16,
-    tags: ["Data Catalog", "Data Quality", "Lineage", "Compliance", "Hybrid", "Financial Services"],
-    lastUpdated: "2026-01-06",
-    author: "Data Governance Team"
-  },
-  {
-    id: "event-driven-architecture",
-    title: "Event-Driven Architecture",
-    description: "Scalable event-driven system with event streaming, processing, choreography, and real-time data integration.",
-    solutionType: "DBP",
-    scope: "departmental",
-    maturityLevel: "reference",
-    diagramCount: 4,
-    componentCount: 16,
-    tags: ["Kafka", "Event Store", "CQRS", "Saga Pattern", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-13",
-    author: "Integration Architecture Team"
-  },
-  {
-    id: "mobile-experience-platform",
-    title: "Mobile Experience Platform",
-    description: "Comprehensive mobile backend platform with offline sync, push notifications, analytics, and cross-platform support.",
-    solutionType: "DXP",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 14,
-    tags: ["GraphQL", "Offline Sync", "Push Notifications", "Analytics", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-05",
-    author: "Mobile Architecture Team"
-  },
-  {
-    id: "ai-ml-platform",
-    title: "AI/ML Platform",
-    description: "End-to-end machine learning platform with MLOps, model registry, feature store, and automated deployment capabilities.",
-    solutionType: "DIA",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 5,
-    componentCount: 20,
-    tags: ["MLOps", "Feature Store", "Model Registry", "Kubernetes", "GPU Compute", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-15",
-    author: "AI/ML Team",
-    downloadUrl: "/downloads/ai-ml-platform.pdf"
-  },
-  {
-    id: "iot-platform",
-    title: "IoT Platform",
-    description: "Industrial IoT platform with device management, data ingestion, edge computing, and real-time analytics for connected devices.",
-    solutionType: "DIA",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 5,
-    componentCount: 24,
-    tags: ["MQTT", "Edge Computing", "Time Series DB", "Device Management", "Hybrid", "Manufacturing"],
-    lastUpdated: "2026-01-04",
-    author: "IoT Architecture Team"
-  },
-  {
-    id: "headless-cms",
-    title: "Headless CMS",
-    description: "Modern headless content management system with multi-channel delivery, personalization, and digital asset management.",
-    solutionType: "DXP",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 10,
-    tags: ["Headless CMS", "CDN", "Personalization", "DAM", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-03",
-    author: "Content Architecture Team"
-  },
-  {
-    id: "zero-trust-security",
-    title: "Zero Trust Security",
-    description: "Comprehensive zero trust security architecture with identity-centric access control, micro-segmentation, and continuous verification.",
-    solutionType: "SDO",
-    scope: "enterprise",
-    maturityLevel: "reference",
-    diagramCount: 6,
-    componentCount: 25,
-    tags: ["Identity Provider", "Policy Engine", "Micro-segmentation", "SIEM", "Multi-Cloud", "Cross-Industry"],
-    lastUpdated: "2026-01-02",
-    author: "Security Architecture Team",
-    downloadUrl: "/downloads/zero-trust-security.pdf"
-  },
-  {
-    id: "real-time-analytics",
-    title: "Real-Time Analytics",
-    description: "Stream processing platform for real-time analytics, event processing, and instant insights from streaming data sources.",
-    solutionType: "DIA",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 4,
-    componentCount: 14,
-    tags: ["Kafka Streams", "Flink", "Real-time Processing", "Stream SQL", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2026-01-01",
-    author: "Data Architecture Team"
-  },
-  {
-    id: "collaboration-platform",
-    title: "Collaboration Platform",
-    description: "Unified collaboration suite with real-time messaging, video conferencing, document collaboration, and team workspaces.",
-    solutionType: "DWS",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 12,
-    tags: ["Real-time Messaging", "Video Conferencing", "Document Collab", "Presence", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2025-12-30",
-    author: "Digital Workplace Team"
-  },
-  {
-    id: "service-mesh",
-    title: "Service Mesh",
-    description: "Microservices communication layer with traffic management, security, observability, and resilience patterns.",
-    solutionType: "DBP",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 4,
-    componentCount: 10,
-    tags: ["Istio", "Envoy", "mTLS", "Traffic Management", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2025-12-29",
-    author: "Platform Engineering Team"
-  },
-  {
-    id: "personalization-engine",
-    title: "Personalization Engine",
-    description: "AI-powered personalization with ML-driven recommendations, A/B testing, and real-time content optimization.",
-    solutionType: "DXP",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 3,
-    componentCount: 8,
-    tags: ["ML Models", "Real-time Processing", "A/B Testing", "Recommendation Engine", "Cloud-Native", "Retail"],
-    lastUpdated: "2025-12-28",
-    author: "Digital Experience Team"
-  },
-  {
-    id: "enterprise-search",
-    title: "Enterprise Search",
-    description: "Unified search platform across all enterprise content with AI-powered relevance, federated search, and NLP capabilities.",
-    solutionType: "DWS",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 9,
-    tags: ["Elasticsearch", "NLP", "Federated Search", "Relevance Tuning", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2025-12-27",
-    author: "Digital Workplace Team"
-  },
-  {
-    id: "observability-platform",
-    title: "Observability Platform",
-    description: "Full-stack observability with monitoring, logging, distributed tracing, and intelligent alerting for complex systems.",
-    solutionType: "SDO",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 4,
-    componentCount: 15,
-    tags: ["Prometheus", "Grafana", "Jaeger", "ELK Stack", "Multi-Cloud", "Cross-Industry"],
-    lastUpdated: "2025-12-26",
-    author: "Platform Engineering Team"
-  },
-  {
-    id: "blockchain-platform",
-    title: "Blockchain Platform",
-    description: "Enterprise blockchain platform for supply chain, smart contracts, and asset tracking with permissioned distributed ledger.",
-    solutionType: "DBP",
-    scope: "project",
-    maturityLevel: "conceptual",
-    diagramCount: 4,
-    componentCount: 12,
-    tags: ["Hyperledger", "Smart Contracts", "Consensus", "Distributed Ledger", "Hybrid", "Financial Services"],
-    lastUpdated: "2025-12-25",
-    author: "Blockchain Architecture Team"
-  },
-  {
-    id: "low-code-platform",
-    title: "Low-Code Platform",
-    description: "Enterprise low-code development platform with visual builders, workflow automation, and rapid application development.",
-    solutionType: "DWS",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 13,
-    tags: ["BPMN", "RPA", "Low-code", "Process Mining", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2025-12-24",
-    author: "Digital Workplace Team"
-  },
-  {
-    id: "conversational-ai",
-    title: "Conversational AI",
-    description: "AI chatbot and virtual assistant platform with NLP, intent recognition, dialog management, and multi-channel support.",
-    solutionType: "DXP",
-    scope: "project",
-    maturityLevel: "reference",
-    diagramCount: 4,
-    componentCount: 12,
-    tags: ["NLP", "Intent Recognition", "Dialog Management", "Multi-channel", "Cloud-Native", "Cross-Industry"],
-    lastUpdated: "2025-12-23",
-    author: "Digital Experience Team"
-  },
-  {
-    id: "backup-disaster-recovery",
-    title: "Backup & Disaster Recovery",
-    description: "Enterprise backup and disaster recovery solution with automated backups, replication, and business continuity planning.",
-    solutionType: "SDO",
-    scope: "project",
-    maturityLevel: "proven",
-    diagramCount: 3,
-    componentCount: 11,
-    tags: ["Backup Automation", "Replication", "Recovery Orchestration", "RPO/RTO", "Multi-Cloud", "Cross-Industry"],
-    lastUpdated: "2025-12-22",
-    author: "Infrastructure Team"
-  }
+type Seed = Omit<SolutionSpec, "documents">;
+
+const docs = (id: string, title: string): SolutionSpecDocument[] => [
+  { id: `${id}-full`, title: `${title} Full Spec`, type: "pdf", summary: "Contextualized architecture specification for DEWA." },
+  { id: `${id}-diag`, title: `${title} Diagrams`, type: "diagram-set", summary: "Logical, integration, and deployment diagrams." },
+  { id: `${id}-comp`, title: `${title} Components`, type: "component-pack", summary: "Component definitions and interface mappings." },
+  { id: `${id}-road`, title: `${title} Roadmap`, type: "roadmap", summary: "Implementation sequencing, dependencies, and controls." },
 ];
+
+const seedSpecs: Seed[] = [
+  { id: "dbp-reference-architecture", title: "DEWA Digital Business Platform - Reference Architecture", description: "Enterprise architecture for how DXP, DWS, DIA, and SDO converge into DEWA's unified Digital Business Platform.", solutionType: "DBP", scope: "enterprise", maturityLevel: "reference", diagramCount: 7, componentCount: 60, tags: ["Microservices", "API Gateway", "Event Bus", "Data Mesh", "Cloud Native"], lastUpdated: "2026-03-10", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Smart Grid Strategy 2021-2035", "Digital DEWA Programme"], overview: "Defines DEWA's enterprise target state across all platform streams.", architectureSummary: "Shows shared service layers, control points, and cross-stream dependencies.", implementationGuidance: "Use as the baseline for any programme needing enterprise-level platform alignment.", keyHighlights: ["Capability map", "Cross-stream governance", "Shared platform controls"], useCases: ["Executive alignment", "Enterprise review", "Programme baseline"], includedArtifacts: ["Capability map", "Reference architecture", "Control matrix"], connectedSpecIds: ["dbp-integration-architecture", "dbp-security-architecture", "dws-dtmp-platform-architecture"] },
+  { id: "dbp-integration-architecture", title: "DEWA DBP Integration Architecture", description: "Master integration architecture defining how DEWA's platform services, legacy systems, and domain systems exchange data.", solutionType: "DBP", scope: "enterprise", maturityLevel: "reference", diagramCount: 5, componentCount: 40, tags: ["API Layer", "Event Streaming", "Data Integration", "ESB Migration", "Governance"], lastUpdated: "2026-03-10", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines canonical integration patterns for DBP.", architectureSummary: "Covers API-led, event-driven, and governed batch exchange patterns.", implementationGuidance: "Use when a programme must connect new capabilities into DEWA's platform estate.", keyHighlights: ["Canonical patterns", "Legacy modernization path", "API governance"], useCases: ["Integration planning", "API design", "Data exchange governance"], includedArtifacts: ["Pattern catalog", "Decision tree", "Migration roadmap"], connectedSpecIds: ["dbp-reference-architecture", "dxp-services-360", "dia-enterprise-data-platform"] },
+  { id: "dbp-security-architecture", title: "DEWA DBP Security Architecture", description: "Security blueprint for identity, zero trust, OT/IT convergence, and control design across the Digital Business Platform.", solutionType: "DBP", scope: "enterprise", maturityLevel: "reference", diagramCount: 6, componentCount: 45, tags: ["Zero Trust", "IAM", "OT Security", "IEC 62443", "Security Governance"], lastUpdated: "2026-03-11", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["DEWA Cybersecurity Strategy"], overview: "Defines security-by-design requirements for DBP.", architectureSummary: "Connects identity, segmentation, policy, and monitoring across platform layers.", implementationGuidance: "Use for architecture reviews that require enterprise security alignment.", keyHighlights: ["Identity-first controls", "Trust boundaries", "OT-aware protection"], useCases: ["Security review", "Risk control design", "Standard alignment"], includedArtifacts: ["Trust model", "Control matrix", "Security domains"], connectedSpecIds: ["dbp-reference-architecture", "sdo-zero-trust-platform", "sdo-security-operations-platform"] },
+  { id: "dbp-cloud-infrastructure", title: "DEWA Cloud & Infrastructure Architecture", description: "Hybrid cloud and infrastructure architecture for DBP, including Moro Hub positioning, sovereignty, resilience, and infrastructure governance.", solutionType: "DBP", scope: "enterprise", maturityLevel: "proven", diagramCount: 5, componentCount: 38, tags: ["Moro Hub", "Hybrid Cloud", "Data Sovereignty", "Green Infrastructure", "IaaS"], lastUpdated: "2026-03-08", author: "Corporate EA Office", divisionRelevance: ["Digital DEWA & Moro Hub"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines where workloads run and how resilience is structured.", architectureSummary: "Shows hybrid placement choices, recovery patterns, and hosting control points.", implementationGuidance: "Use when a solution needs an enterprise hosting and resilience baseline.", keyHighlights: ["Hybrid hosting", "Recovery topology", "Sovereignty controls"], useCases: ["Hosting strategy", "Infrastructure planning", "Cloud adoption"], includedArtifacts: ["Hosting matrix", "Recovery topology", "Infrastructure principles"], connectedSpecIds: ["dbp-reference-architecture", "sdo-observability-platform", "dws-dtmp-platform-architecture"] },
+  { id: "dbp-governance-operating-model", title: "DEWA DBP Governance & Operating Model", description: "Operating model for architecture governance, platform ownership, standards, and DTMP's role in managing the platform transformation lifecycle.", solutionType: "DBP", scope: "enterprise", maturityLevel: "reference", diagramCount: 4, componentCount: 28, tags: ["EA Governance", "Platform Ownership", "API Governance", "DTMP", "Portfolio Governance"], lastUpdated: "2026-03-09", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["EA 4.0 Initiative"], overview: "Defines governance forums, decision rights, and ownership expectations.", architectureSummary: "Links platform governance to stream-level operating responsibilities.", implementationGuidance: "Use when mobilizing programmes or clarifying architecture governance roles.", keyHighlights: ["Decision rights", "Ownership model", "Assurance workflow"], useCases: ["Programme mobilization", "Operating model design", "Governance setup"], includedArtifacts: ["RACI", "Forum map", "Decision workflow"], connectedSpecIds: ["dbp-reference-architecture", "dws-dtmp-platform-architecture", "dia-data-governance-foundation"] },
+  { id: "dxp-services-360", title: "DEWA Customer Experience Platform (Services 360)", description: "Architecture for DEWA's Services 360 vision linking web, mobile, contact centre, and Rammas AI into a unified customer experience platform.", solutionType: "DXP", scope: "enterprise", maturityLevel: "proven", diagramCount: 5, componentCount: 42, tags: ["CDP", "Real-time Analytics", "Omnichannel", "Rammas AI", "API Layer"], lastUpdated: "2026-03-10", author: "Corporate EA Office", divisionRelevance: ["Customer Services", "Digital DEWA & Moro Hub"], dewaAlignment: ["Digital DEWA Programme", "Services 360"], overview: "Defines the omnichannel customer platform target state.", architectureSummary: "Combines CRM, channel services, customer data, and AI decisioning.", implementationGuidance: "Use for customer-facing initiatives that need a reusable experience architecture.", keyHighlights: ["Omnichannel journeys", "Shared customer context", "AI-assisted service"], useCases: ["Experience modernization", "Journey redesign", "Customer platform consolidation"], includedArtifacts: ["Journey map", "Capability matrix", "Context model"], connectedSpecIds: ["dxp-self-service-portal", "dxp-rammas-ai-platform", "dbp-integration-architecture"] },
+  { id: "dxp-self-service-portal", title: "DEWA Self-Service Digital Portal", description: "Architecture for DEWA's self-service portal covering billing, service requests, outage reporting, EV charging, and personalized experiences.", solutionType: "DXP", scope: "departmental", maturityLevel: "proven", diagramCount: 4, componentCount: 32, tags: ["Headless CMS", "Self-Service", "Mobile Backend", "CRM Integration", "Notifications"], lastUpdated: "2026-03-08", author: "Corporate EA Office", divisionRelevance: ["Customer Services"], dewaAlignment: ["Services 360"], overview: "Defines the customer self-service architecture for DEWA.", architectureSummary: "Uses API-first experience services tied to identity, CRM, and notification layers.", implementationGuidance: "Use when designing portals or service journeys for customers.", keyHighlights: ["API-first portal", "Reusable components", "Secure identity"], useCases: ["Portal rollout", "Service journey redesign", "Customer channel modernization"], includedArtifacts: ["Portal capability map", "Identity flow", "Integration pattern"], connectedSpecIds: ["dxp-services-360", "dxp-mobile-experience-platform", "dbp-integration-architecture"] },
+  { id: "dxp-rammas-ai-platform", title: "DEWA AI Customer Service Platform (Rammas)", description: "Architecture for Rammas AI covering conversational AI, knowledge orchestration, sentiment analysis, and human handoff across channels.", solutionType: "DXP", scope: "enterprise", maturityLevel: "proven", diagramCount: 4, componentCount: 35, tags: ["NLP", "Conversational AI", "Model Management", "Sentiment Analysis", "Human Handoff"], lastUpdated: "2026-03-11", author: "Corporate EA Office", divisionRelevance: ["Customer Services", "Digital DEWA & Moro Hub"], dewaAlignment: ["Digital DEWA Programme", "AI Strategy"], overview: "Defines how AI-led customer interaction services are structured and governed.", architectureSummary: "Links AI orchestration, knowledge retrieval, customer channels, and escalation paths.", implementationGuidance: "Use when evolving Rammas AI or adding AI-assisted customer workflows.", keyHighlights: ["Conversation orchestration", "Knowledge-backed responses", "Escalation controls"], useCases: ["Chatbot modernization", "Contact centre AI", "Customer support automation"], includedArtifacts: ["Interaction flow", "Knowledge map", "Governance checkpoints"], connectedSpecIds: ["dxp-services-360", "dia-ai-analytics-platform", "dia-enterprise-data-platform"] },
+  { id: "dxp-mobile-experience-platform", title: "DEWA Mobile Experience Platform", description: "Mobile-first architecture for DEWA's customer apps with offline capability, biometric authentication, push notifications, and real-time visibility.", solutionType: "DXP", scope: "departmental", maturityLevel: "proven", diagramCount: 3, componentCount: 28, tags: ["Mobile Native", "Offline Sync", "Biometric Auth", "Push Notifications", "Real-time Data"], lastUpdated: "2026-03-07", author: "Corporate EA Office", divisionRelevance: ["Customer Services"], dewaAlignment: ["Services 360"], overview: "Provides a reusable mobile engagement architecture for DEWA.", architectureSummary: "Connects mobile apps, APIs, identity, telemetry, and notifications into a governed platform.", implementationGuidance: "Use for mobile initiatives that need enterprise alignment rather than app-by-app design.", keyHighlights: ["Offline resilience", "Secure mobile identity", "Telemetry integration"], useCases: ["Mobile redesign", "Channel expansion", "Usage visibility"], includedArtifacts: ["Mobile stack", "Identity sequence", "Notification flow"], connectedSpecIds: ["dxp-services-360", "dxp-self-service-portal", "dbp-security-architecture"] },
+  { id: "dxp-api-portal", title: "DEWA Developer Experience & API Portal", description: "Architecture for DEWA's developer-facing API ecosystem including gateway, catalog, developer portal, partner onboarding, and governance.", solutionType: "DXP", scope: "enterprise", maturityLevel: "conceptual", diagramCount: 3, componentCount: 22, tags: ["API Gateway", "Developer Portal", "API Catalogue", "Partner Integration", "OAuth"], lastUpdated: "2026-03-06", author: "Corporate EA Office", divisionRelevance: ["Digital DEWA & Moro Hub"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines a governed API product and developer engagement model.", architectureSummary: "Connects productized APIs, portal services, analytics, and security controls.", implementationGuidance: "Use when DEWA needs structured API exposure for internal or partner ecosystems.", keyHighlights: ["Developer onboarding", "API product model", "Partner controls"], useCases: ["Partner enablement", "Internal API strategy", "API ecosystem design"], includedArtifacts: ["Journey map", "Service model", "Governance matrix"], connectedSpecIds: ["dbp-integration-architecture", "dbp-security-architecture", "dxp-services-360"] },
+  { id: "dws-digital-workplace-hub", title: "DEWA Digital Workplace Hub (Microsoft 365)", description: "Architecture for DEWA's digital workplace covering Microsoft 365, Teams, SharePoint, Power Platform, and collaboration governance.", solutionType: "DWS", scope: "enterprise", maturityLevel: "proven", diagramCount: 4, componentCount: 38, tags: ["Microsoft 365", "Teams", "SharePoint", "Power Platform", "Governance"], lastUpdated: "2026-03-10", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines the collaboration and workplace platform baseline.", architectureSummary: "Combines collaboration, content, workflow, identity, and governance into one workplace architecture.", implementationGuidance: "Use for workplace and collaboration initiatives that need a governed platform model.", keyHighlights: ["Unified collaboration stack", "Governed low-code", "Content controls"], useCases: ["Collaboration modernization", "Intranet redesign", "Workflow automation"], includedArtifacts: ["Operating model", "Content governance", "Adoption controls"], connectedSpecIds: ["dws-dtmp-platform-architecture", "dws-core-business-platform", "dia-knowledge-intelligence-platform"] },
+  { id: "dws-core-business-platform", title: "DEWA Core Business Platform Architecture", description: "Architecture for DEWA's ERP, asset management, work order management, and the integration layer linking core operations to the digital workplace.", solutionType: "DWS", scope: "enterprise", maturityLevel: "proven", diagramCount: 5, componentCount: 45, tags: ["ERP", "Asset Management", "Work Orders", "System Integration", "Master Data"], lastUpdated: "2026-03-11", author: "Corporate EA Office", divisionRelevance: ["Generation", "Transmission", "Distribution", "Water Services"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines the operational business platform backbone for utility operations.", architectureSummary: "Shows how core systems interact with workflow, analytics, and workplace layers.", implementationGuidance: "Use for platform modernization involving operational or enterprise business systems.", keyHighlights: ["Operational integration model", "Master data positioning", "Backbone governance"], useCases: ["ERP transformation", "Work management modernization", "Core platform integration"], includedArtifacts: ["Domain map", "Interaction views", "Data ownership"], connectedSpecIds: ["dbp-integration-architecture", "dia-enterprise-data-platform", "sdo-secure-integration-platform"] },
+  { id: "dws-hr-people-systems", title: "DEWA HR & People Systems Architecture", description: "Architecture for DEWA's people platform including HRMS, learning, performance management, payroll integration, and employee self-service.", solutionType: "DWS", scope: "departmental", maturityLevel: "proven", diagramCount: 3, componentCount: 28, tags: ["HRMS", "LMS", "Performance Management", "Payroll Integration", "Employee Self-Service"], lastUpdated: "2026-03-09", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines the target-state architecture for workforce systems and employee journeys.", architectureSummary: "Links HR, learning, payroll, performance, and service interactions across the enterprise.", implementationGuidance: "Use when HR transformation needs a platform view instead of a single system design.", keyHighlights: ["Employee lifecycle view", "Core HR integration", "Learning and performance link"], useCases: ["HR modernization", "Employee self-service", "Workforce data integration"], includedArtifacts: ["Journey map", "Capability map", "Integration sequence"], connectedSpecIds: ["dws-digital-workplace-hub", "dia-enterprise-data-platform", "dbp-security-architecture"] },
+  { id: "dws-dtmp-platform-architecture", title: "DEWA DTMP Platform Architecture", description: "Architecture of DTMP as DEWA's transformation management platform, including governance enablement, portfolio visibility, knowledge management, and AI-assisted services.", solutionType: "DWS", scope: "enterprise", maturityLevel: "reference", diagramCount: 5, componentCount: 40, tags: ["DTMP", "EA Governance", "Portfolio Management", "Knowledge Management", "AI DocWriter"], lastUpdated: "2026-03-12", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["EA 4.0 Initiative", "Digital DEWA Programme"], overview: "Defines DTMP's own architecture and stage operating model.", architectureSummary: "Shows how marketplaces, workflows, governance data, and TO operations fit together.", implementationGuidance: "Use when extending DTMP or placing it inside enterprise architecture views.", keyHighlights: ["Marketplace architecture", "Stage 1-2-3 flow", "TO enablement"], useCases: ["DTMP evolution", "Governance platform design", "Operating model alignment"], includedArtifacts: ["Platform map", "Workflow architecture", "Capability alignment"], connectedSpecIds: ["dbp-governance-operating-model", "dws-digital-workplace-hub", "dia-knowledge-intelligence-platform"] },
+  { id: "dws-back-office-finance", title: "DEWA Back Office & Finance Platform", description: "Architecture for finance, procurement, budgeting, regulatory reporting, and back-office integration with DEWA's digital workplace.", solutionType: "DWS", scope: "departmental", maturityLevel: "proven", diagramCount: 3, componentCount: 30, tags: ["Finance Systems", "Procurement", "Budgeting", "Regulatory Reporting", "ERP Integration"], lastUpdated: "2026-03-08", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines back-office and finance platform patterns aligned to enterprise controls.", architectureSummary: "Links finance services, reporting, procurement, workflows, and integration controls.", implementationGuidance: "Use when support-function transformation must align to enterprise platform standards.", keyHighlights: ["Back-office platform model", "Reporting integration", "Shared workflow governance"], useCases: ["Finance modernization", "Procurement redesign", "Reporting transformation"], includedArtifacts: ["Process model", "Reporting landscape", "Control points"], connectedSpecIds: ["dws-core-business-platform", "dbp-integration-architecture", "dia-data-governance-foundation"] },
+  { id: "dia-enterprise-data-platform", title: "DEWA Enterprise Data Platform (Data Mesh)", description: "Architecture for DEWA's enterprise data platform covering data products, shared analytics foundations, and governed metadata and access controls.", solutionType: "DIA", scope: "enterprise", maturityLevel: "reference", diagramCount: 6, componentCount: 46, tags: ["Data Mesh", "Lakehouse", "Data Products", "Metadata", "Governance"], lastUpdated: "2026-03-12", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Digital DEWA Programme", "AI Strategy"], overview: "Defines DEWA's enterprise data platform target state.", architectureSummary: "Connects ingestion, storage, metadata, governance, product ownership, and consumption.", implementationGuidance: "Use when a programme must publish or consume governed data products.", keyHighlights: ["Data product model", "Shared analytics base", "Metadata and access controls"], useCases: ["Data modernization", "Cross-domain analytics", "Platform expansion"], includedArtifacts: ["Platform stack", "Ownership map", "Governance checkpoints"], connectedSpecIds: ["dia-ai-analytics-platform", "dia-data-governance-foundation", "dbp-integration-architecture"] },
+  { id: "dia-ai-analytics-platform", title: "DEWA AI & Advanced Analytics Platform", description: "Architecture for DEWA's AI and analytics capability including model operations, advanced analytics, shared feature services, and governed experimentation.", solutionType: "DIA", scope: "enterprise", maturityLevel: "proven", diagramCount: 5, componentCount: 34, tags: ["MLOps", "Feature Store", "Analytics Workbench", "Model Registry", "GPU Compute"], lastUpdated: "2026-03-10", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["AI Strategy", "Digital DEWA Programme"], overview: "Defines the target architecture for shared AI and analytics services.", architectureSummary: "Shows the flow from governed data to experimentation, deployment, and monitored consumption.", implementationGuidance: "Use when AI initiatives should use shared platform patterns instead of isolated stacks.", keyHighlights: ["Shared AI services", "Model governance", "Analytics integration"], useCases: ["AI acceleration", "Model operations", "Advanced analytics"], includedArtifacts: ["MLOps view", "Model controls", "Consumption map"], connectedSpecIds: ["dia-enterprise-data-platform", "dxp-rammas-ai-platform", "dia-virtual-engineer-platform"] },
+  { id: "dia-virtual-engineer-platform", title: "DEWA Virtual Engineer Platform", description: "Architecture for DEWA's Virtual Engineer capability spanning AI copilots, field knowledge augmentation, and operational intelligence workflows.", solutionType: "DIA", scope: "departmental", maturityLevel: "proven", diagramCount: 4, componentCount: 29, tags: ["Copilot", "Knowledge Retrieval", "Field Intelligence", "Recommendations", "Analytics"], lastUpdated: "2026-03-09", author: "Corporate EA Office", divisionRelevance: ["Generation", "Transmission", "Distribution", "Water Services"], dewaAlignment: ["Virtual Engineer Programme", "AI Strategy"], overview: "Defines how AI assistants support engineering and operational teams.", architectureSummary: "Connects operational telemetry, knowledge sources, AI orchestration, and user interfaces.", implementationGuidance: "Use when designing domain AI copilots or operational support tools.", keyHighlights: ["Operational copilot pattern", "Telemetry and knowledge fusion", "Explainability checkpoints"], useCases: ["Engineer productivity", "Decision support", "Field knowledge enablement"], includedArtifacts: ["Copilot flow", "Knowledge map", "Capability roadmap"], connectedSpecIds: ["dia-ai-analytics-platform", "dia-enterprise-data-platform", "dws-core-business-platform"] },
+  { id: "dia-data-governance-foundation", title: "DEWA Data Governance Foundation", description: "Architecture and operating model for data ownership, quality, stewardship, lineage, and policy controls across DEWA's data landscape.", solutionType: "DIA", scope: "enterprise", maturityLevel: "reference", diagramCount: 4, componentCount: 24, tags: ["Data Governance", "Stewardship", "Lineage", "Quality", "Policy Controls"], lastUpdated: "2026-03-11", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["EA 4.0 Initiative", "AI Strategy"], overview: "Defines the trusted data control model for DEWA.", architectureSummary: "Covers stewardship, metadata, quality services, policy enforcement, and lineage.", implementationGuidance: "Use when programmes need to prove how their data will be governed and owned.", keyHighlights: ["Ownership model", "Quality and lineage controls", "Policy alignment"], useCases: ["Governance mobilization", "Trusted data", "Compliance design"], includedArtifacts: ["Stewardship matrix", "Process map", "Control taxonomy"], connectedSpecIds: ["dia-enterprise-data-platform", "dbp-governance-operating-model", "dws-back-office-finance"] },
+  { id: "dia-knowledge-intelligence-platform", title: "DEWA Knowledge & Intelligence Platform", description: "Architecture connecting knowledge assets, governance references, search, and intelligence services to support enterprise decision-making.", solutionType: "DIA", scope: "departmental", maturityLevel: "conceptual", diagramCount: 3, componentCount: 21, tags: ["Knowledge Graph", "Enterprise Search", "Recommendations", "Governance Content", "Insights"], lastUpdated: "2026-03-07", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["EA 4.0 Initiative"], overview: "Defines how DEWA can connect curated knowledge and intelligence services.", architectureSummary: "Combines content management, metadata, recommendation logic, and insight overlays.", implementationGuidance: "Use when linking knowledge, search, and decision-support capabilities.", keyHighlights: ["Knowledge and insight convergence", "Governed discoverability", "Decision support"], useCases: ["Knowledge platform design", "Search improvement", "Governance insight enablement"], includedArtifacts: ["Service map", "Discovery flow", "Metadata alignment"], connectedSpecIds: ["dws-digital-workplace-hub", "dws-dtmp-platform-architecture", "dia-enterprise-data-platform"] },
+  { id: "sdo-zero-trust-platform", title: "DEWA Zero Trust Security Platform", description: "Architecture for DEWA's zero trust platform including identity-centric access, segmentation, policy enforcement, and continuous verification.", solutionType: "SDO", scope: "enterprise", maturityLevel: "reference", diagramCount: 6, componentCount: 36, tags: ["Identity Provider", "Policy Engine", "Micro-segmentation", "SIEM", "Continuous Verification"], lastUpdated: "2026-03-10", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["DEWA Cybersecurity Strategy"], overview: "Defines the zero trust target state for identities, devices, and workloads.", architectureSummary: "Shows trust evaluation, segmentation, and policy enforcement across DEWA's estate.", implementationGuidance: "Use as the security design baseline for programmes with regulated or critical access patterns.", keyHighlights: ["Identity-first security", "Trust orchestration", "Policy enforcement"], useCases: ["Security modernization", "Access redesign", "Critical environment protection"], includedArtifacts: ["Trust domain map", "Policy model", "Access sequence"], connectedSpecIds: ["dbp-security-architecture", "sdo-security-operations-platform", "sdo-secure-integration-platform"] },
+  { id: "sdo-security-operations-platform", title: "DEWA Security Operations & Threat Response Platform", description: "Architecture for detection, observability, incident response, and coordinated threat response across IT and OT security domains.", solutionType: "SDO", scope: "enterprise", maturityLevel: "proven", diagramCount: 5, componentCount: 33, tags: ["SOC", "SIEM", "SOAR", "Threat Intel", "Incident Response"], lastUpdated: "2026-03-09", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["DEWA Cybersecurity Strategy"], overview: "Defines DEWA's operating architecture for security detection and response.", architectureSummary: "Links telemetry sources, detections, automation, and analyst workspaces.", implementationGuidance: "Use when improving SOC capabilities or response automation.", keyHighlights: ["Detection and response workflow", "IT/OT visibility", "Response orchestration"], useCases: ["SOC modernization", "Response automation", "Security integration"], includedArtifacts: ["Telemetry map", "Case workflow", "Threat response model"], connectedSpecIds: ["sdo-zero-trust-platform", "dbp-security-architecture", "sdo-observability-platform"] },
+  { id: "sdo-secure-integration-platform", title: "DEWA Secure Integration & OT Convergence Platform", description: "Architecture for secure integration across enterprise, operational technology, and partner environments with governed trust boundaries.", solutionType: "SDO", scope: "enterprise", maturityLevel: "proven", diagramCount: 4, componentCount: 27, tags: ["OT/IT Convergence", "Gateway Security", "Protocol Mediation", "DMZ", "Integration Controls"], lastUpdated: "2026-03-08", author: "Corporate EA Office", divisionRelevance: ["Generation", "Transmission", "Distribution", "Water Services"], dewaAlignment: ["DEWA Cybersecurity Strategy", "Smart Grid Strategy 2021-2035"], overview: "Defines DEWA's secure posture for OT and enterprise integration.", architectureSummary: "Shows zoning, mediation, inspection, and trusted exchange for sensitive interfaces.", implementationGuidance: "Use when a programme must connect enterprise and OT systems securely.", keyHighlights: ["Boundary controls", "Secure mediation", "Trust-zone aware design"], useCases: ["OT integration", "Partner connections", "Sensitive interface modernization"], includedArtifacts: ["Zone map", "Gateway patterns", "Control responsibilities"], connectedSpecIds: ["dbp-integration-architecture", "dbp-security-architecture", "dws-core-business-platform"] },
+  { id: "sdo-observability-platform", title: "DEWA Observability & Reliability Platform", description: "Architecture for enterprise monitoring, logging, tracing, and intelligent alerting across DEWA's distributed services and platforms.", solutionType: "SDO", scope: "enterprise", maturityLevel: "reference", diagramCount: 4, componentCount: 26, tags: ["Metrics", "Logging", "Tracing", "Alerting", "SRE"], lastUpdated: "2026-03-11", author: "Corporate EA Office", divisionRelevance: ["All Divisions"], dewaAlignment: ["Digital DEWA Programme"], overview: "Defines the observability stack and reliability model for DEWA's platforms.", architectureSummary: "Combines telemetry ingestion, analytics, dashboards, alerting, and operational workflows.", implementationGuidance: "Use when programmes need a shared observability and reliability baseline.", keyHighlights: ["Unified telemetry", "Service health visibility", "Reliability workflows"], useCases: ["Monitoring modernization", "Reliability design", "Shared observability"], includedArtifacts: ["Telemetry stack", "Reliability controls", "Alerting model"], connectedSpecIds: ["dbp-cloud-infrastructure", "sdo-security-operations-platform", "dbp-reference-architecture"] },
+  { id: "sdo-devsecops-platform", title: "DEWA DevSecOps & Delivery Platform", description: "Architecture for secure engineering pipelines, release controls, artifact governance, and delivery automation across DEWA programmes.", solutionType: "SDO", scope: "departmental", maturityLevel: "proven", diagramCount: 4, componentCount: 25, tags: ["CI/CD", "Artifact Governance", "Pipeline Security", "Release Controls", "Automation"], lastUpdated: "2026-03-07", author: "Corporate EA Office", divisionRelevance: ["Digital DEWA & Moro Hub", "All Divisions"], dewaAlignment: ["Digital DEWA Programme", "DEWA Cybersecurity Strategy"], overview: "Defines the engineering delivery platform for secure build, test, and release.", architectureSummary: "Shows source, pipeline, artifact, approval, and deployment layers with security controls.", implementationGuidance: "Use when teams need governed delivery pipelines instead of bespoke release flows.", keyHighlights: ["Secure software delivery", "Reusable pipelines", "Release auditability"], useCases: ["Delivery platform modernization", "Engineering enablement", "Secure release automation"], includedArtifacts: ["Pipeline model", "Control checkpoints", "Artifact lifecycle"], connectedSpecIds: ["dbp-cloud-infrastructure", "sdo-zero-trust-platform", "dws-dtmp-platform-architecture"] },
+];
+
+export const solutionSpecs: SolutionSpec[] = seedSpecs.map((spec) => ({
+  ...spec,
+  documents: docs(spec.id, spec.title),
+}));

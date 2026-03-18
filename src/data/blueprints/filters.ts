@@ -37,6 +37,32 @@ export const solutionSpecsFilters: FilterConfig[] = [
     label: 'Has Diagrams',
     type: 'checkbox',
     options: [{ value: 'true', label: 'Yes' }]
+  },
+  {
+    key: 'divisionRelevance',
+    label: 'Division Relevance',
+    type: 'checkbox',
+    options: [
+      { value: 'Generation', label: 'Generation' },
+      { value: 'Transmission', label: 'Transmission' },
+      { value: 'Distribution', label: 'Distribution' },
+      { value: 'Water Services', label: 'Water Services' },
+      { value: 'Customer Services', label: 'Customer Services' },
+      { value: 'Digital DEWA & Moro Hub', label: 'Digital DEWA & Moro Hub' },
+      { value: 'All Divisions', label: 'All Divisions' }
+    ]
+  },
+  {
+    key: 'stream',
+    label: 'DBP Stream',
+    type: 'checkbox',
+    options: [
+      { value: 'DBP', label: 'DBP' },
+      { value: 'DXP', label: 'DXP' },
+      { value: 'DWS', label: 'DWS' },
+      { value: 'DIA', label: 'DIA' },
+      { value: 'SDO', label: 'SDO' }
+    ]
   }
 ];
 

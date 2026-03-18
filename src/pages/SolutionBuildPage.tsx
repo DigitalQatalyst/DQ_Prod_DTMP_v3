@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
 import { SolutionType } from "@/data/blueprints/solutionSpecs";
@@ -16,7 +16,10 @@ type FilterValue = string | string[] | number | boolean | undefined;
 
 export function SolutionBuildPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const sourceSpecTitle = (location.state as { sourceSpecTitle?: string } | null)?.sourceSpecTitle;
+  const sourceStream = (location.state as { sourceStream?: string } | null)?.sourceStream;
 
   // Initialize activeType from URL query parameter
   const initialType = (searchParams.get("type") as SolutionType | null) || "all";
@@ -138,6 +141,14 @@ export function SolutionBuildPage() {
       </div>
 
       {/* Header Section */}
+      {sourceSpecTitle && (
+        <div className="mx-auto mt-8 max-w-7xl px-4">
+          <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900">
+            Starting from: <span className="font-semibold">{sourceSpecTitle}</span>
+            {sourceStream ? ` - ${sourceStream}` : ""}. Your solution spec documents are available in My Specs.
+          </div>
+        </div>
+      )}
       <MarketplaceHeader
         title="Solution Build"
         description="Ready-to-deploy solutions organized by solution type. Access production-ready implementations, code samples, and technical resources for your digital transformation projects."
