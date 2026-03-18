@@ -454,6 +454,88 @@ export const deliverSsRequestById = (id: string): SolutionSpecRequest | null => 
   return nextRequests.find((r) => r.id === id) ?? null;
 };
 
+/** Create a custom (free-text) Solution Spec request from the marketplace form.
+ *  Does not require an existing spec in the catalog — builds request from scratch
+ *  and wires a corresponding Stage 3 entry so it appears in the TO Office queue.
+ */
+export interface CustomSsRequestInput {
+  requesterName: string;
+  division: string;
+  stream: SolutionType;
+  scope: string;
+  title: string;
+  problem: string;
+  priority: "Low" | "Medium" | "High" | "Urgent";
+  timeline: string;
+}
+
+export const createCustomSolutionSpecRequest = (
+  input: CustomSsRequestInput
+): SolutionSpecRequest => {
+  const requests = listSolutionSpecRequests();
+  const createdAt = new Date().toISOString();
+
+  const timelinePriorityMap: Record<string, SolutionSpecRequestPriority> = {
+    Urgent: "Urgent (within 1 month)",
+    High: "Standard (1-3 months)",
+    Medium: "Standard (1-3 months)",
+    Low: "Planning (3-6 months)",
+  };
+  const stage3PriorityMap: Record<string, "high" | "medium" | "low"> = {
+    Urgent: "high",
+    High: "high",
+    Medium: "medium",
+    Low: "low",
+  };
+
+  const stage3 = createStage3Request({
+    type: "solution-specs",
+    title: input.title,
+    description: input.problem,
+    requester: {
+      name: input.requesterName,
+      email: `${input.requesterName.toLowerCase().replace(/\s+/g, ".")}@dewa.local`,
+      department: input.division,
+      organization: "DEWA",
+    },
+    priority: stage3PriorityMap[input.priority] ?? "medium",
+    estimatedHours: 24,
+    tags: [input.stream.toLowerCase(), "solution-specs", "custom-request"],
+    notes: [
+      `Division: ${input.division}`,
+      `Scope: ${input.scope}`,
+      `Timeline: ${input.timeline || "Not specified"}`,
+    ],
+    relatedAssets: [],
+  });
+
+  const request: SolutionSpecRequest = {
+    id: `ssr-${Date.now()}`,
+    specId: `custom-${Date.now()}`,
+    specTitle: input.title,
+    stream: input.stream,
+    requestType: "New Initiative",
+    dewaDivision: input.division as DivisionRelevance | "Enterprise-wide",
+    programme: input.timeline || "",
+    businessNeed: input.problem,
+    currentState: "",
+    keyRequirements: "",
+    architectureConstraints: "",
+    timelinePriority: timelinePriorityMap[input.priority] ?? "Standard (1-3 months)",
+    preferredOutputs: ["Full Spec Document (PDF)", "Architecture Diagrams"],
+    additionalNotes: `Scope: ${input.scope}`,
+    submittedAt: createdAt,
+    assignedTo: "Unassigned",
+    status: "Submitted",
+    slaStatus: "On Track",
+    deliveredDocumentIds: [],
+    stage3RequestId: stage3.id,
+  };
+
+  persistRequests([request, ...requests]);
+  return request;
+};
+
 /** Update a revision status by revision id. */
 export const updateSsRevisionStatus = (
   revisionId: string,

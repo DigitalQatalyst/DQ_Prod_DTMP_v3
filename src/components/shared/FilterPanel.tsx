@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FilterConfig } from "@/data/blueprints/filters";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, ChevronDown, ChevronRight } from "lucide-react";
 
 type FilterValue = string | string[] | number | boolean | undefined;
 
@@ -27,6 +28,13 @@ export function FilterPanel({
   onFilterChange,
   onReset,
 }: FilterPanelProps) {
+  // All groups collapsed by default — user clicks to expand (matches other marketplace pattern)
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+  const toggleGroup = (key: string) => {
+    setExpandedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Check if any filters are active
   const hasActiveFilters = Object.keys(activeFilters).some((key) => {
     const value = activeFilters[key];
@@ -45,24 +53,25 @@ export function FilterPanel({
     };
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-1">
         {filter.options?.map((option) => {
           const isChecked = selectedValues.includes(option.value);
           const checkboxId = `${filter.key}-${option.value}`;
 
           return (
-            <div key={option.value} className="flex items-center space-x-2">
+            <div key={option.value} className="flex items-center gap-2 py-1 min-h-[32px]">
               <Checkbox
                 id={checkboxId}
                 checked={isChecked}
                 onCheckedChange={(checked) =>
                   handleCheckboxChange(option.value, checked === true)
                 }
+                className="border-gray-300 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600 w-4 h-4"
                 aria-label={option.label}
               />
               <Label
                 htmlFor={checkboxId}
-                className="text-sm font-normal cursor-pointer"
+                className="text-sm font-normal text-gray-700 cursor-pointer hover:text-gray-900 flex-1"
               >
                 {option.label}
               </Label>
@@ -163,16 +172,50 @@ export function FilterPanel({
         )}
       </div>
 
-      {/* Filter Groups */}
-      <div className="space-y-6">
-        {filters.map((filter) => (
-          <div key={filter.key} className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900">
-              {filter.label}
-            </h3>
-            {renderFilter(filter)}
-          </div>
-        ))}
+      {/* Filter Groups — collapsible, matching other marketplace panels */}
+      <div className="space-y-2">
+        {filters.map((filter) => {
+          const isExpanded = expandedGroups[filter.key] ?? false;
+          // Count active selections for badge
+          const activeVal = activeFilters[filter.key];
+          const activeCount = Array.isArray(activeVal)
+            ? activeVal.length
+            : activeVal
+            ? 1
+            : 0;
+
+          return (
+            <div key={filter.key} className="border border-gray-100 rounded-lg">
+              {/* Group header — clickable toggle */}
+              <button
+                type="button"
+                onClick={() => toggleGroup(filter.key)}
+                className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <span className="text-sm font-semibold text-gray-900">
+                  {filter.label}
+                  {activeCount > 0 && (
+                    <span className="ml-2 text-xs font-normal text-orange-600">
+                      ({activeCount})
+                    </span>
+                  )}
+                </span>
+                {isExpanded ? (
+                  <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-gray-500 shrink-0" />
+                )}
+              </button>
+
+              {/* Expanded content */}
+              {isExpanded && (
+                <div className="px-3 pb-3 pt-1">
+                  {renderFilter(filter)}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </aside>
   );

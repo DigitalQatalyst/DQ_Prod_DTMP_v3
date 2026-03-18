@@ -1,130 +1,357 @@
 import { useState, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ChevronRight, Download, ArrowRight } from "lucide-react";
+import {
+  ChevronRight,
+  FileX,
+  FilePlus2,
+} from "lucide-react";
 import { solutionSpecs, SolutionType } from "@/data/blueprints/solutionSpecs";
 import { solutionSpecsFilters } from "@/data/blueprints/filters";
+import { createCustomSolutionSpecRequest } from "@/data/solutionSpecsWorkspace";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MarketplaceHeader } from "@/components/shared/MarketplaceHeader";
 import { TypeTabs } from "@/components/shared/TypeTabs";
 import { FilterPanel } from "@/components/shared/FilterPanel";
 import { SolutionSpecCard } from "@/components/cards/SolutionSpecCard";
-import { FileX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type FilterValue = string | string[] | number | boolean | undefined;
 
+// ── Request Spec Dialog ──────────────────────────────────────────────────────
+const DIVISIONS = [
+  "Generation",
+  "Transmission",
+  "Distribution",
+  "Water Services",
+  "Customer Services",
+  "Digital DEWA & Moro Hub",
+  "Corporate Services",
+];
+
+const STREAMS = ["DBP", "DXP", "DWS", "DIA", "SDO"];
+const SCOPES = ["Enterprise", "Departmental", "Project"];
+const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
+
+interface RequestFormState {
+  name: string;
+  division: string;
+  stream: string;
+  scope: string;
+  title: string;
+  problem: string;
+  priority: string;
+  timeline: string;
+}
+
+const EMPTY_FORM: RequestFormState = {
+  name: "",
+  division: "",
+  stream: "",
+  scope: "",
+  title: "",
+  problem: "",
+  priority: "",
+  timeline: "",
+};
+
+function RequestSpecDialog({
+  open,
+  onClose,
+  onSubmitted,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmitted: () => void;
+}) {
+  const [form, setForm] = useState<RequestFormState>(EMPTY_FORM);
+  const [loading, setLoading] = useState(false);
+
+  const set = (field: keyof RequestFormState) => (value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+  const canSubmit =
+    form.name.trim() &&
+    form.division &&
+    form.stream &&
+    form.scope &&
+    form.title.trim() &&
+    form.problem.trim() &&
+    form.priority;
+
+  const handleSubmit = () => {
+    if (!canSubmit || loading) return;
+    setLoading(true);
+    // Persist to localStorage + create Stage 3 queue entry
+    createCustomSolutionSpecRequest({
+      requesterName: form.name.trim(),
+      division: form.division,
+      stream: form.stream as SolutionType,
+      scope: form.scope,
+      title: form.title.trim(),
+      problem: form.problem.trim(),
+      priority: form.priority as "Low" | "Medium" | "High" | "Urgent",
+      timeline: form.timeline.trim(),
+    });
+    setForm(EMPTY_FORM);
+    setLoading(false);
+    onClose();
+    // Navigate to Stage 2 My Requests
+    onSubmitted();
+  };
+
+  const handleClose = () => {
+    setForm(EMPTY_FORM);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-gray-900">
+                Request a Solution Spec
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-500">
+                Can't find what you need? Tell us what you're looking for and the
+                TO Office will create a contextualised spec for your division.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 mt-2">
+              {/* Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="rs-name">Your Name <span className="text-red-500">*</span></Label>
+                <Input
+                  id="rs-name"
+                  placeholder="e.g. Ahmed Al Mansouri"
+                  value={form.name}
+                  onChange={(e) => set("name")(e.target.value)}
+                />
+              </div>
+
+              {/* Division */}
+              <div className="space-y-1.5">
+                <Label>Division <span className="text-red-500">*</span></Label>
+                <Select value={form.division} onValueChange={set("division")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your division" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DIVISIONS.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Stream + Scope — side by side */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>DBP Stream <span className="text-red-500">*</span></Label>
+                  <Select value={form.stream} onValueChange={set("stream")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STREAMS.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Scope <span className="text-red-500">*</span></Label>
+                  <Select value={form.scope} onValueChange={set("scope")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Scope" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SCOPES.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Spec title */}
+              <div className="space-y-1.5">
+                <Label htmlFor="rs-title">Spec Title <span className="text-red-500">*</span></Label>
+                <Input
+                  id="rs-title"
+                  placeholder="e.g. Smart Metering Integration Architecture"
+                  value={form.title}
+                  onChange={(e) => set("title")(e.target.value)}
+                />
+              </div>
+
+              {/* Problem / context */}
+              <div className="space-y-1.5">
+                <Label htmlFor="rs-problem">
+                  What problem are you solving? <span className="text-red-500">*</span>
+                </Label>
+                <Textarea
+                  id="rs-problem"
+                  placeholder="Describe the business challenge, the system context, and what the spec should address..."
+                  rows={3}
+                  value={form.problem}
+                  onChange={(e) => set("problem")(e.target.value)}
+                  className="resize-none"
+                />
+              </div>
+
+              {/* Priority + Timeline — side by side */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Priority <span className="text-red-500">*</span></Label>
+                  <Select value={form.priority} onValueChange={set("priority")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRIORITIES.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="rs-timeline">Target Timeline</Label>
+                  <Input
+                    id="rs-timeline"
+                    placeholder="e.g. Q3 2026"
+                    value={form.timeline}
+                    onChange={(e) => set("timeline")(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer actions */}
+            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={!canSubmit || loading}
+                className="bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
+              >
+                {loading ? "Submitting…" : "Submit Request"}
+              </Button>
+            </div>
+          </>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ── Main Page ────────────────────────────────────────────────────────────────
 export function SolutionSpecsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [requestOpen, setRequestOpen] = useState(false);
 
-  // Initialize activeType from URL query parameter
   const initialType = (searchParams.get("type") as SolutionType | null) || "all";
   const [searchQuery, setSearchQuery] = useState("");
   const [activeType, setActiveType] = useState<SolutionType | "all">(initialType);
   const [activeFilters, setActiveFilters] = useState<Record<string, FilterValue>>({});
 
-  // Calculate type counts
   const typeCounts = useMemo(() => {
     const counts: Record<SolutionType, number> = {
-      DBP: 0,
-      DXP: 0,
-      DWS: 0,
-      DIA: 0,
-      SDO: 0,
+      DBP: 0, DXP: 0, DWS: 0, DIA: 0, SDO: 0,
     };
-
-    solutionSpecs.forEach((spec) => {
-      counts[spec.solutionType]++;
-    });
-
+    solutionSpecs.forEach((spec) => { counts[spec.solutionType]++; });
     return counts;
   }, []);
 
-  // Filter and search logic with memoization
   const filteredSpecs = useMemo(() => {
     let results = solutionSpecs;
-
-    // Filter by solution type
-    if (activeType !== "all") {
-      results = results.filter((spec) => spec.solutionType === activeType);
-    }
-
-    // Filter by search query
+    if (activeType !== "all") results = results.filter((s) => s.solutionType === activeType);
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+      const q = searchQuery.toLowerCase();
       results = results.filter(
-        (spec) =>
-          spec.title.toLowerCase().includes(query) ||
-          spec.description.toLowerCase().includes(query) ||
-          spec.tags.some((tag) => tag.toLowerCase().includes(query))
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          s.description.toLowerCase().includes(q) ||
+          s.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
-
-    // Apply active filters
-    const scopeFilters = activeFilters.scope as string[] | undefined;
-    if (scopeFilters && scopeFilters.length > 0) {
-      results = results.filter((spec) => scopeFilters.includes(spec.scope));
-    }
-
-    const maturityFilters = activeFilters.maturityLevel as string[] | undefined;
-    if (maturityFilters && maturityFilters.length > 0) {
-      results = results.filter((spec) => maturityFilters.includes(spec.maturityLevel));
-    }
-
-    const hasDiagramsFilter = activeFilters.hasDiagrams as string[] | undefined;
-    if (hasDiagramsFilter && hasDiagramsFilter.includes("true")) {
-      results = results.filter((spec) => spec.diagramCount > 0);
-    }
-
-    const divisionFilters = activeFilters.divisionRelevance as string[] | undefined;
-    if (divisionFilters && divisionFilters.length > 0) {
-      results = results.filter((spec) =>
-        spec.divisionRelevance.some((division) => divisionFilters.includes(division))
-      );
-    }
-
-    const streamFilters = activeFilters.stream as string[] | undefined;
-    if (streamFilters && streamFilters.length > 0) {
-      results = results.filter((spec) => streamFilters.includes(spec.solutionType));
-    }
-
+    const scopeF = activeFilters.scope as string[] | undefined;
+    if (scopeF?.length) results = results.filter((s) => scopeF.includes(s.scope));
+    const matF = activeFilters.maturityLevel as string[] | undefined;
+    if (matF?.length) results = results.filter((s) => matF.includes(s.maturityLevel));
+    const diagF = activeFilters.hasDiagrams as string[] | undefined;
+    if (diagF?.includes("true")) results = results.filter((s) => s.diagramCount > 0);
+    const divF = activeFilters.divisionRelevance as string[] | undefined;
+    if (divF?.length)
+      results = results.filter((s) => s.divisionRelevance.some((d) => divF.includes(d)));
+    const strF = activeFilters.stream as string[] | undefined;
+    if (strF?.length) results = results.filter((s) => strF.includes(s.solutionType));
     return results;
   }, [searchQuery, activeType, activeFilters]);
 
-  // Handle type change and update URL
   const handleTypeChange = useCallback(
     (type: SolutionType | "all") => {
       setActiveType(type);
-      if (type === "all") {
-        searchParams.delete("type");
-      } else {
-        searchParams.set("type", type);
-      }
+      if (type === "all") searchParams.delete("type");
+      else searchParams.set("type", type);
       setSearchParams(searchParams, { replace: true });
     },
     [searchParams, setSearchParams]
   );
 
-  // Handle filter changes
   const handleFilterChange = useCallback((filterKey: string, value: FilterValue) => {
-    setActiveFilters((prev) => ({
-      ...prev,
-      [filterKey]: value,
-    }));
+    setActiveFilters((prev) => ({ ...prev, [filterKey]: value }));
   }, []);
 
-  // Handle filter reset
-  const handleFilterReset = useCallback(() => {
-    setActiveFilters({});
-  }, []);
+  const handleFilterReset = useCallback(() => setActiveFilters({}), []);
 
-  // Handle card click - navigate to detail page
   const handleCardClick = useCallback(
-    (id: string) => {
-      navigate(`/marketplaces/solution-specs/${id}`);
-    },
+    (id: string) => navigate(`/marketplaces/solution-specs/${id}`),
     [navigate]
+  );
+
+  // Right-column button passed into the header
+  const requestButton = (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center gap-4 w-full">
+      <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+        <FilePlus2 className="w-6 h-6 text-orange-600" />
+      </div>
+      <div>
+        <p className="font-semibold text-gray-900 text-sm leading-snug mb-1">
+          Can't find the spec you need?
+        </p>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          Request a contextualised spec built for your division and programme.
+        </p>
+      </div>
+      <Button
+        onClick={() => setRequestOpen(true)}
+        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+      >
+        Request a Spec
+      </Button>
+    </div>
   );
 
   return (
@@ -135,20 +362,16 @@ export function SolutionSpecsPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="flex items-center text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-foreground transition-colors">
-              Home
-            </Link>
+            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="w-4 h-4 mx-2" />
-            <Link to="/marketplaces" className="hover:text-foreground transition-colors">
-              Marketplaces
-            </Link>
+            <Link to="/marketplaces" className="hover:text-foreground transition-colors">Marketplaces</Link>
             <ChevronRight className="w-4 h-4 mx-2" />
             <span className="font-medium text-foreground">Solution Specs</span>
           </nav>
         </div>
       </div>
 
-      {/* Header Section */}
+      {/* Header */}
       <MarketplaceHeader
         title="Solution Specs"
         description="Browse DEWA's blueprint-led solution specifications across the Digital Business Platform streams. Find comprehensive architecture designs, component specifications, and implementation guidance contextualized to DEWA divisions and programmes."
@@ -156,6 +379,7 @@ export function SolutionSpecsPage() {
         onSearchChange={setSearchQuery}
         itemCount={filteredSpecs.length}
         searchPlaceholder="Search DEWA solution specs..."
+        rightContent={requestButton}
       />
 
       {/* Type Tabs */}
@@ -168,15 +392,12 @@ export function SolutionSpecsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filter Sidebar */}
           <FilterPanel
             filters={solutionSpecsFilters}
             activeFilters={activeFilters}
             onFilterChange={handleFilterChange}
             onReset={handleFilterReset}
           />
-
-          {/* Content Grid */}
           <div className="flex-1">
             {filteredSpecs.length > 0 ? (
               <div
@@ -185,27 +406,19 @@ export function SolutionSpecsPage() {
                 aria-label="Solution specifications"
               >
                 {filteredSpecs.map((spec) => (
-                  <SolutionSpecCard
-                    key={spec.id}
-                    spec={spec}
-                    onClick={handleCardClick}
-                  />
+                  <SolutionSpecCard key={spec.id} spec={spec} onClick={handleCardClick} />
                 ))}
               </div>
             ) : (
-              // Empty State
               <div
                 className="flex flex-col items-center justify-center py-16 px-4 text-center"
                 role="status"
                 aria-live="polite"
               >
                 <FileX className="w-16 h-16 text-gray-300 mb-4" aria-hidden="true" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  No solution specs found
-                </h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No solution specs found</h3>
                 <p className="text-gray-600 max-w-md">
-                  Try adjusting your search query or filters to find what you're looking
-                  for.
+                  Try adjusting your search query or filters to find what you're looking for.
                 </p>
               </div>
             )}
@@ -213,38 +426,14 @@ export function SolutionSpecsPage() {
         </div>
       </main>
 
-      {/* Call to Action Section */}
-      <section className="bg-gradient-to-b from-gray-50 to-white py-16 lg:py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 lg:p-12">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Download className="w-8 h-8 text-orange-600" />
-              </div>
-              
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                Can't Find What You're Looking For?
-              </h2>
-              
-              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                Request a contextualized DEWA solution spec aligned to your division, programme, and platform constraints.
-              </p>
-              
-              <div className="flex justify-center">
-                <Button
-                  onClick={() => navigate('/stage2/specs/overview')}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-12 py-6 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
-                >
-                  Request This Spec
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <Footer />
+
+      {/* Request Spec Dialog */}
+      <RequestSpecDialog
+        open={requestOpen}
+        onClose={() => setRequestOpen(false)}
+        onSubmitted={() => navigate("/stage2/specs/my-requests")}
+      />
     </div>
   );
 }
