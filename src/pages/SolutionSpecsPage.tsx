@@ -77,6 +77,18 @@ export function SolutionSpecsPage() {
       results = results.filter((spec) => spec.diagramCount > 0);
     }
 
+    const divisionFilters = activeFilters.divisionRelevance as string[] | undefined;
+    if (divisionFilters && divisionFilters.length > 0) {
+      results = results.filter((spec) =>
+        spec.divisionRelevance.some((division) => divisionFilters.includes(division))
+      );
+    }
+
+    const streamFilters = activeFilters.stream as string[] | undefined;
+    if (streamFilters && streamFilters.length > 0) {
+      results = results.filter((spec) => streamFilters.includes(spec.solutionType));
+    }
+
     return results;
   }, [searchQuery, activeType, activeFilters]);
 
@@ -139,11 +151,11 @@ export function SolutionSpecsPage() {
       {/* Header Section */}
       <MarketplaceHeader
         title="Solution Specs"
-        description="Explore blueprint-led solution specifications organized by solution type. Find comprehensive architecture designs, diagrams, and component specifications for your digital transformation initiatives."
+        description="Browse DEWA's blueprint-led solution specifications across the Digital Business Platform streams. Find comprehensive architecture designs, component specifications, and implementation guidance contextualized to DEWA divisions and programmes."
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         itemCount={filteredSpecs.length}
-        searchPlaceholder="Search solution specs..."
+        searchPlaceholder="Search DEWA solution specs..."
       />
 
       {/* Type Tabs */}
@@ -215,7 +227,7 @@ export function SolutionSpecsPage() {
               </h2>
               
               <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                Request a custom solution spec, architecture blueprint, or design. Our team will create it tailored to your needs.
+                Request a contextualized DEWA solution spec aligned to your division, programme, and platform constraints.
               </p>
               
               <div className="flex justify-center">
@@ -223,7 +235,7 @@ export function SolutionSpecsPage() {
                   onClick={() => navigate('/stage2/specs/overview')}
                   className="bg-orange-600 hover:bg-orange-700 text-white px-12 py-6 h-auto text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
                 >
-                  Make Request
+                  Request This Spec
                   <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>

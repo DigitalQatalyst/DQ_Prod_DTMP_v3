@@ -44,6 +44,20 @@ import {
   type DocumentStudioRequest,
   type DocumentStudioRequestStatus,
 } from "@/data/documentStudio";
+import {
+  deliverSolutionSpecRequestFromStage3,
+  getSolutionSpecById,
+  getSolutionSpecRequestByStage3RequestId,
+  listDeliveredSolutionSpecs,
+  listSolutionSpecRequests,
+  listSolutionSpecRevisions,
+  updateSolutionSpecRequestStatusFromStage3,
+  updateSsRequestById,
+  deliverSsRequestById,
+  updateSsRevisionStatus,
+  type SolutionSpecRequest,
+  type SolutionSpecRevision,
+} from "@/data/solutionSpecsWorkspace";
 
 // ─── General Stage3 types ────────────────────────────────────────────────────
 type Stage3View =
@@ -54,7 +68,7 @@ type Stage3View =
   | "pending-review"
   | "team-capacity"
   | "analytics";
-type Stage3Scope = "all" | "learning-center" | "knowledge-center";
+type Stage3Scope = "all" | "learning-center" | "knowledge-center" | "solution-specs";
 
 const viewLabels: Record<Stage3View, string> = {
   dashboard: "Dashboard",
@@ -88,6 +102,35 @@ const dsNavLabels: Record<DsStage3View, string> = {
   completed: "Completed",
   published: "Published to KC",
 };
+
+// ─── Solution Specs Stage3 types ─────────────────────────────────────────────
+const SS_VIEWS = ["overview", "queue", "active", "completed", "revisions"] as const;
+type SsStage3View = (typeof SS_VIEWS)[number];
+
+const ssNavLabels: Record<SsStage3View, string> = {
+  overview: "Overview",
+  queue: "Request Queue",
+  active: "Active Requests",
+  completed: "Completed",
+  revisions: "Revisions",
+};
+
+const SS_STREAM_COLORS: Record<string, string> = {
+  DBP: "bg-blue-100 text-blue-700",
+  DXP: "bg-purple-100 text-purple-700",
+  DWS: "bg-teal-100 text-teal-700",
+  DIA: "bg-amber-100 text-amber-700",
+  SDO: "bg-red-100 text-red-700",
+};
+
+function getSsStatusClass(status: SolutionSpecRequest["status"]) {
+  if (status === "Completed") return "bg-green-100 text-green-700";
+  if (status === "Delivered") return "bg-green-50 text-green-600";
+  if (status === "In Progress") return "bg-blue-100 text-blue-700";
+  if (status === "Assigned") return "bg-sky-100 text-sky-700";
+  if (status === "Revision") return "bg-red-100 text-red-700";
+  return "bg-gray-100 text-gray-700";
+}
 
 // ─── Badge helpers ────────────────────────────────────────────────────────────
 function getStatusBadgeClass(status: Stage3Request["status"]) {
@@ -145,6 +188,7 @@ export default function Stage3AppPage() {
   }>();
 
   const isDocumentStudioScope = location.pathname.startsWith("/stage3/document-studio");
+  const isSolutionSpecsScope = location.pathname.startsWith("/stage3/solution-specs");
 
   // ── General state ────────────────────────────────────────────────────────
   const isStage3View = (value: string): value is Stage3View => value in viewLabels;
@@ -161,6 +205,11 @@ export default function Stage3AppPage() {
   const [statusFilter, setStatusFilter] = useState<Stage3Request["status"] | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<Stage3Request["priority"] | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
+
+  // ── Solution Specs state ─────────────────────────────────────────────────
+  const [ssRequests, setSsRequests] = useState<SolutionSpecRequest[]>(() => listSolutionSpecRequests());
+  const [selectedSsRequestId, setSelectedSsRequestId] = useState<string | null>(null);
+  const [ssAssignMemberId, setSsAssignMemberId] = useState<string>("");
 
   // ── Document Studio state ────────────────────────────────────────────────
   const [dsRequests, setDsRequests] = useState<DocumentStudioRequest[]>([]);
@@ -179,6 +228,46 @@ export default function Stage3AppPage() {
     )[0]?.id ?? "";
   }, []);
   const [dsAssignMemberId, setDsAssignMemberId] = useState<string>(suggestedMemberId);
+
+  // ── SS derived data ──────────────────────────────────────────────────────
+  const activeSsView: SsStage3View = (SS_VIEWS as readonly string[]).includes(routeView ?? "")
+    ? (routeView as SsStage3View)
+    : "overview";
+  const ssQueue = ssRequests.filter((r) => r.status === "Submitted");
+  const ssActive = ssRequests.filter((r) => ["Assigned", "In Progress"].includes(r.status));
+  const ssCompleted = ssRequests.filter((r) => ["Delivered", "Completed"].includes(r.status));
+  const ssRevisions = ssRequests.filter((r) => r.status === "Revision");
+  const allSsRevisionTickets = useMemo(() => listSolutionSpecRevisions(), [ssRequests]);
+  const selectedSsRequest = useMemo(
+    () => ssRequests.find((r) => r.id === selectedSsRequestId) ?? null,
+    [ssRequests, selectedSsRequestId]
+  );
+  const selectedSsSpec = useMemo(
+    () => (selectedSsRequest ? getSolutionSpecById(selectedSsRequest.specId) : null),
+    [selectedSsRequest]
+  );
+  const selectedSsDelivered = useMemo(
+    () => listDeliveredSolutionSpecs().find((d) => d.requestId === (selectedSsRequest?.id ?? "")) ?? null,
+    [selectedSsRequest, ssRequests]
+  );
+  const ssCounts: Record<SsStage3View, number> = {
+    overview: ssRequests.length,
+    queue: ssQueue.length,
+    active: ssActive.length,
+    completed: ssCompleted.length,
+    revisions: ssRevisions.length,
+  };
+  const ssVisibleRequests = useMemo(() => {
+    switch (activeSsView) {
+      case "queue": return ssQueue;
+      case "active": return ssActive;
+      case "completed": return ssCompleted;
+      case "revisions": return ssRevisions;
+      default: return ssRequests;
+    }
+  }, [activeSsView, ssQueue, ssActive, ssCompleted, ssRevisions, ssRequests]);
+
+  const refreshSs = () => setSsRequests(listSolutionSpecRequests());
 
   // ── DS derived data ──────────────────────────────────────────────────────
   const activeDsView: DsStage3View = (DS_VIEWS as readonly string[]).includes(routeView ?? "")
@@ -249,6 +338,20 @@ export default function Stage3AppPage() {
     const changeId = changeAsset.replace("learning-change:", "").trim();
     return changeId ? getLearningChangeSetById(changeId) ?? null : null;
   }, [selectedRequest, requests]);
+  const selectedSolutionSpecRequest = useMemo(() => {
+    if (!selectedRequest || selectedRequest.type !== "solution-specs") return null;
+    return getSolutionSpecRequestByStage3RequestId(selectedRequest.id);
+  }, [selectedRequest, requests]);
+  const selectedSolutionSpec = useMemo(() => {
+    if (!selectedSolutionSpecRequest) return null;
+    return getSolutionSpecById(selectedSolutionSpecRequest.specId);
+  }, [selectedSolutionSpecRequest]);
+  const selectedDeliveredSpec = useMemo(() => {
+    if (!selectedSolutionSpecRequest) return null;
+    return listDeliveredSolutionSpecs().find(
+      (item) => item.requestId === selectedSolutionSpecRequest.id
+    ) ?? null;
+  }, [selectedSolutionSpecRequest, requests]);
 
   const scopedRequests = useMemo(() => {
     if (scope === "all") return requests;
@@ -322,6 +425,11 @@ export default function Stage3AppPage() {
 
   // ── Effects ──────────────────────────────────────────────────────────────
   useEffect(() => {
+    if (!isSolutionSpecsScope) return;
+    setSsRequests(listSolutionSpecRequests());
+  }, [isSolutionSpecsScope, location.key]);
+
+  useEffect(() => {
     if (!isDocumentStudioScope) return;
     setDsRequests(listDocumentStudioRequests());
   }, [isDocumentStudioScope, location.key]);
@@ -378,6 +486,9 @@ export default function Stage3AppPage() {
     if (!selectedRequest || !selectedMemberId) return;
     const updated = assignStage3Request(selectedRequest.id, selectedMemberId);
     if (!updated) return;
+    if (updated.type === "solution-specs") {
+      updateSolutionSpecRequestStatusFromStage3(updated.id, "Assigned", updated.assignedTo);
+    }
     setRequests([...stage3Requests]);
   };
   const handleUnassign = () => {
@@ -390,6 +501,21 @@ export default function Stage3AppPage() {
     if (!selectedRequest || !selectedNextStatus) return;
     const updated = transitionStage3RequestStatus(selectedRequest.id, selectedNextStatus);
     if (!updated) return;
+    if (updated.type === "solution-specs") {
+      const mappedStatus =
+        selectedNextStatus === "assigned"
+          ? "Assigned"
+          : selectedNextStatus === "in-progress"
+            ? "In Progress"
+            : selectedNextStatus === "pending-review"
+              ? "Delivered"
+              : selectedNextStatus === "completed"
+                ? "Completed"
+                : null;
+      if (mappedStatus) {
+        updateSolutionSpecRequestStatusFromStage3(updated.id, mappedStatus, updated.assignedTo);
+      }
+    }
     syncMarketplaceRequestStatusFromStage3(updated);
     setRequests([...stage3Requests]);
   };
@@ -400,6 +526,55 @@ export default function Stage3AppPage() {
     setRequests([...stage3Requests]);
     setNoteDraft("");
   };
+  const handleSolutionSpecStartWork = () => {
+    if (!selectedRequest || selectedRequest.type !== "solution-specs") return;
+    const updated = transitionStage3RequestStatus(selectedRequest.id, "in-progress");
+    if (!updated) return;
+    updateSolutionSpecRequestStatusFromStage3(updated.id, "In Progress", updated.assignedTo);
+    syncMarketplaceRequestStatusFromStage3(updated);
+    setRequests([...stage3Requests]);
+  };
+  const handleSolutionSpecGenerateAndDeliver = () => {
+    if (!selectedRequest || selectedRequest.type !== "solution-specs") return;
+    const reviewReady =
+      selectedRequest.status === "pending-review"
+        ? selectedRequest
+        : transitionStage3RequestStatus(selectedRequest.id, "pending-review");
+    if (!reviewReady) return;
+    updateSolutionSpecRequestStatusFromStage3(reviewReady.id, "Delivered", reviewReady.assignedTo);
+    const completed =
+      reviewReady.status === "completed"
+        ? reviewReady
+        : transitionStage3RequestStatus(reviewReady.id, "completed");
+    if (!completed) return;
+    deliverSolutionSpecRequestFromStage3(completed.id);
+    syncMarketplaceRequestStatusFromStage3(completed);
+    setRequests([...stage3Requests]);
+  };
+  // ── Solution Specs dedicated handlers ────────────────────────────────────
+  const handleSsAssign = () => {
+    if (!selectedSsRequest || !ssAssignMemberId) return;
+    const member = stage3TeamMembers.find((m) => m.id === ssAssignMemberId);
+    if (!member) return;
+    updateSsRequestById(selectedSsRequest.id, { status: "Assigned", assignedTo: member.name });
+    refreshSs();
+  };
+  const handleSsStartWork = () => {
+    if (!selectedSsRequest) return;
+    updateSsRequestById(selectedSsRequest.id, { status: "In Progress" });
+    refreshSs();
+  };
+  const handleSsBuildAndDeliver = () => {
+    if (!selectedSsRequest) return;
+    deliverSsRequestById(selectedSsRequest.id);
+    window.open("https://lovable.dev/dashboard", "_blank");
+    refreshSs();
+  };
+  const handleSsResumeRevision = (requestId: string) => {
+    updateSsRequestById(requestId, { status: "In Progress" });
+    refreshSs();
+  };
+
   const advanceLearningChangeReview = (request: Stage3Request, terminal: "approved" | "rejected") => {
     const transitionOrder: Stage3Request["status"][] =
       terminal === "approved"
@@ -429,8 +604,56 @@ export default function Stage3AppPage() {
           <p className="text-sm text-gray-500">Stage 3 — Transformation Office</p>
         </div>
 
-        {/* DS scope: flat nav with count badges */}
-        {isDocumentStudioScope ? (
+        {/* SS scope: flat nav with count badges */}
+        {isSolutionSpecsScope ? (
+          <nav className="p-4 space-y-1 flex-1">
+            <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2 px-1">
+              Solution Specs
+            </p>
+            {SS_VIEWS.map((v) => (
+              <button
+                key={v}
+                onClick={() => navigate(`/stage3/solution-specs/${v}`)}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
+                  activeSsView === v
+                    ? "bg-orange-50 text-orange-700 font-medium"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span>{ssNavLabels[v]}</span>
+                {v !== "overview" && ssCounts[v] > 0 && (
+                  <span className={`text-xs rounded-full px-2 py-0.5 ${
+                    v === "queue" ? "bg-blue-100 text-blue-700"
+                    : v === "revisions" ? "bg-red-100 text-red-700"
+                    : v === "active" ? "bg-amber-100 text-amber-700"
+                    : "bg-gray-100 text-gray-600"
+                  }`}>
+                    {ssCounts[v]}
+                  </span>
+                )}
+              </button>
+            ))}
+            <div className="pt-3 border-t border-gray-100 mt-3">
+              <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2 px-1">
+                Management
+              </p>
+              <button
+                onClick={() => navigate("/stage3/team-capacity")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 text-gray-700 hover:bg-gray-50"
+              >
+                <Users className="w-4 h-4" />
+                Team &amp; Capacity
+              </button>
+              <button
+                onClick={() => navigate("/stage3/analytics")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 text-gray-700 hover:bg-gray-50"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </button>
+            </div>
+          </nav>
+        ) : isDocumentStudioScope ? (
           <nav className="p-4 space-y-1 flex-1">
             <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2 px-1">
               Document Studio
@@ -578,12 +801,14 @@ export default function Stage3AppPage() {
         <div className="border-b border-gray-200 bg-white px-6 py-5 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-semibold text-gray-900">
-              {isDocumentStudioScope ? dsNavLabels[activeDsView] : "Request Management"}
+              {isSolutionSpecsScope ? ssNavLabels[activeSsView] : isDocumentStudioScope ? dsNavLabels[activeDsView] : "Request Management"}
             </h1>
             <p className="text-sm text-gray-500">
-              {isDocumentStudioScope
-                ? "Document Studio — TO Office"
-                : "Transformation Office Operations Dashboard"}
+              {isSolutionSpecsScope
+                ? "Solution Specs — TO Office"
+                : isDocumentStudioScope
+                  ? "Document Studio — TO Office"
+                  : "Transformation Office Operations Dashboard"}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -615,24 +840,32 @@ export default function Stage3AppPage() {
             </Button>
             <Button
               size="sm"
-              variant={!isDocumentStudioScope && scope === "all" ? "default" : "outline"}
-              className={!isDocumentStudioScope && scope === "all" ? "bg-orange-600 hover:bg-orange-700" : ""}
+              variant={isSolutionSpecsScope ? "default" : "outline"}
+              className={isSolutionSpecsScope ? "bg-orange-600 hover:bg-orange-700" : ""}
+              onClick={() => navigate("/stage3/solution-specs/overview")}
+            >
+              Solution Specs
+            </Button>
+            <Button
+              size="sm"
+              variant={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "all" ? "default" : "outline"}
+              className={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "all" ? "bg-orange-600 hover:bg-orange-700" : ""}
               onClick={() => { navigate("/stage3/dashboard"); setScope("all"); }}
             >
               All (General)
             </Button>
             <Button
               size="sm"
-              variant={!isDocumentStudioScope && scope === "learning-center" ? "default" : "outline"}
-              className={!isDocumentStudioScope && scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
+              variant={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "learning-center" ? "default" : "outline"}
+              className={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
               onClick={() => { navigate("/stage3/all"); setScope("learning-center"); }}
             >
               Learning Center
             </Button>
             <Button
               size="sm"
-              variant={!isDocumentStudioScope && scope === "knowledge-center" ? "default" : "outline"}
-              className={!isDocumentStudioScope && scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
+              variant={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "knowledge-center" ? "default" : "outline"}
+              className={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
               onClick={() => { navigate("/stage3/all"); setScope("knowledge-center"); }}
             >
               Knowledge Center
@@ -640,7 +873,15 @@ export default function Stage3AppPage() {
           </div>
 
           {/* ── KPI cards ────────────────────────────────────────────────── */}
-          {isDocumentStudioScope ? (
+          {isSolutionSpecsScope ? (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <S3KpiCard color="blue" label="Total Requests" value={String(ssRequests.length)} sub="All time" />
+              <S3KpiCard color="sky" label="In Queue" value={String(ssQueue.length)} sub="Pending assignment" />
+              <S3KpiCard color="amber" label="Active" value={String(ssActive.length)} sub="Assigned or in progress" />
+              <S3KpiCard color="green" label="Completed" value={String(ssCompleted.length)} sub="Delivered to user" />
+              <S3KpiCard color="orange" label="Revisions" value={String(ssRevisions.length)} sub="Awaiting action" />
+            </div>
+          ) : isDocumentStudioScope ? (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <S3KpiCard color="blue" label="Total Requests" value={String(dsRequests.length)} sub="All time" />
               <S3KpiCard color="sky" label="Pending Assignment" value={String(dsQueue.length)} sub="In queue" />
@@ -667,9 +908,11 @@ export default function Stage3AppPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
-                    isDocumentStudioScope
-                      ? "Search requests, document types, requesters..."
-                      : "Search requests, requesters, or organizations..."
+                    isSolutionSpecsScope
+                      ? "Search specs, divisions, request types..."
+                      : isDocumentStudioScope
+                        ? "Search requests, document types, requesters..."
+                        : "Search requests, requesters, or organizations..."
                   }
                   className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
                 />
@@ -721,9 +964,9 @@ export default function Stage3AppPage() {
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-gray-500">
                 Showing{" "}
-                {isDocumentStudioScope ? dsVisibleRequests.length : filteredRequests.length}{" "}
+                {isSolutionSpecsScope ? ssVisibleRequests.length : isDocumentStudioScope ? dsVisibleRequests.length : filteredRequests.length}{" "}
                 of{" "}
-                {isDocumentStudioScope ? dsRequests.length : queueKpis.total} requests
+                {isSolutionSpecsScope ? ssRequests.length : isDocumentStudioScope ? dsRequests.length : queueKpis.total} requests
               </p>
               <select className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white">
                 <option>25</option><option>50</option><option>100</option>
@@ -731,8 +974,152 @@ export default function Stage3AppPage() {
             </div>
           </div>
 
-          {/* ── Document Studio content ─────────────────────────────────── */}
-          {isDocumentStudioScope ? (
+          {/* ── Solution Specs content ──────────────────────────────────── */}
+          {isSolutionSpecsScope ? (
+            <>
+              {/* SS Overview */}
+              {activeSsView === "overview" && (
+                <div className="space-y-4">
+                  <div className="grid lg:grid-cols-2 gap-4">
+                    <S3Panel title="Requests by Stream">
+                      <div className="flex flex-wrap gap-3">
+                        {(["DBP","DXP","DWS","DIA","SDO"] as const).map((stream) => {
+                          const count = ssRequests.filter((r) => r.stream === stream).length;
+                          return (
+                            <div key={stream} className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${SS_STREAM_COLORS[stream]}`}>
+                              <span>{stream}</span>
+                              <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-xs font-bold">{count}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </S3Panel>
+                    <S3Panel title="SLA At Risk">
+                      <div className="space-y-2">
+                        {ssRequests
+                          .filter((r) => r.slaStatus === "At Risk" || r.slaStatus === "Breached")
+                          .slice(0, 5)
+                          .map((r) => (
+                            <button
+                              key={r.id}
+                              onClick={() => { setSelectedSsRequestId(r.id); }}
+                              className="w-full flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 text-left hover:bg-gray-50"
+                            >
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{r.specTitle}</p>
+                                <p className="text-xs text-gray-500">{r.assignedTo} · {r.dewaDivision}</p>
+                              </div>
+                              <span className={`text-xs rounded-full px-2 py-0.5 ${r.slaStatus === "Breached" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                {r.slaStatus}
+                              </span>
+                            </button>
+                          ))}
+                        {ssRequests.filter((r) => r.slaStatus === "At Risk" || r.slaStatus === "Breached").length === 0 && (
+                          <p className="text-sm text-gray-500">All requests are within SLA.</p>
+                        )}
+                      </div>
+                    </S3Panel>
+                    <S3Panel title="Active Requests">
+                      <div className="space-y-2">
+                        {ssActive.slice(0, 5).map((r) => (
+                          <button
+                            key={r.id}
+                            onClick={() => setSelectedSsRequestId(r.id)}
+                            className="w-full flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 text-left hover:bg-gray-50"
+                          >
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{r.specTitle}</p>
+                              <p className="text-xs text-gray-500">{r.stream} · {r.assignedTo}</p>
+                            </div>
+                            <span className={`text-xs rounded-full px-2 py-0.5 ${getSsStatusClass(r.status)}`}>{r.status}</span>
+                          </button>
+                        ))}
+                        {ssActive.length === 0 && <p className="text-sm text-gray-500">No active requests.</p>}
+                      </div>
+                    </S3Panel>
+                    <S3Panel title="Recent Completions">
+                      <div className="space-y-2">
+                        {ssCompleted.slice(0, 5).map((r) => (
+                          <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3">
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{r.specTitle}</p>
+                              <p className="text-xs text-gray-500">{r.stream} · {r.dewaDivision}</p>
+                            </div>
+                            {r.stage3RequestId && (
+                              <span className="text-xs text-gray-400">
+                                {listDeliveredSolutionSpecs().find((d) => d.requestId === r.id)?.solutionBuildStartedAt
+                                  ? "→ Build started"
+                                  : "Delivered"}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                        {ssCompleted.length === 0 && <p className="text-sm text-gray-500">No completed requests yet.</p>}
+                      </div>
+                    </S3Panel>
+                  </div>
+                </div>
+              )}
+
+              {/* SS Revisions view */}
+              {activeSsView === "revisions" && (
+                <div className="space-y-3">
+                  {ssRevisions.map((r) => {
+                    const linked = allSsRevisionTickets.filter((rev) => rev.requestId === r.id);
+                    return (
+                      <div key={r.id} className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${SS_STREAM_COLORS[r.stream] ?? "bg-gray-100 text-gray-700"}`}>{r.stream}</span>
+                              <span className="text-xs text-gray-500">{r.dewaDivision}</span>
+                            </div>
+                            <p className="font-semibold text-gray-900">{r.specTitle}</p>
+                            <p className="text-sm text-gray-500">{r.assignedTo}</p>
+                          </div>
+                          <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">Revision</span>
+                        </div>
+                        <div className="space-y-2">
+                          {linked.map((rev) => (
+                            <div key={rev.id} className="rounded-lg border border-red-100 bg-red-50 p-3">
+                              <p className="text-sm font-medium text-red-900">{rev.id}</p>
+                              <p className="text-sm text-red-800 mt-1">{rev.note}</p>
+                              <p className="text-xs text-red-600 mt-1">{rev.status}</p>
+                            </div>
+                          ))}
+                          {linked.length === 0 && <p className="text-sm text-gray-500">No revision notes attached.</p>}
+                        </div>
+                        <div className="flex gap-3">
+                          <Button variant="outline" onClick={() => setSelectedSsRequestId(r.id)}>
+                            Open Request
+                          </Button>
+                          <Button onClick={() => handleSsResumeRevision(r.id)}>
+                            Resume Work
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {ssRevisions.length === 0 && (
+                    <p className="text-sm text-gray-500">No revision tickets are currently open.</p>
+                  )}
+                </div>
+              )}
+
+              {/* SS request card list — queue, active, completed */}
+              {activeSsView !== "overview" && activeSsView !== "revisions" && (
+                <div className="space-y-3">
+                  {ssVisibleRequests.map((r) => (
+                    <SsRequestCard key={r.id} request={r} onClick={() => setSelectedSsRequestId(r.id)} />
+                  ))}
+                  {ssVisibleRequests.length === 0 && (
+                    <p className="text-sm text-gray-500">No requests in this view.</p>
+                  )}
+                </div>
+              )}
+            </>
+          ) : isDocumentStudioScope ? (
+          /* ── Document Studio content ─────────────────────────────────── */
             <>
               {/* DS Overview */}
               {activeDsView === "overview" && (
@@ -895,6 +1282,37 @@ export default function Stage3AppPage() {
               ) : (
                 /* Card-based request list (upgraded from grid table) */
                 <div className="space-y-3">
+                  {/* Stream breakdown — shown when Solution Specs scope is active */}
+                  {scope === "solution-specs" && (() => {
+                    const streams = ["DBP", "DXP", "DWS", "DIA", "SDO"] as const;
+                    const streamColors: Record<string, string> = {
+                      DBP: "bg-blue-50 text-blue-700 border-blue-200",
+                      DXP: "bg-purple-50 text-purple-700 border-purple-200",
+                      DWS: "bg-teal-50 text-teal-700 border-teal-200",
+                      DIA: "bg-amber-50 text-amber-700 border-amber-200",
+                      SDO: "bg-red-50 text-red-700 border-red-200",
+                    };
+                    const streamCounts = streams.map((s) => ({
+                      stream: s,
+                      count: scopedRequests.filter((r) => r.tags?.includes(s.toLowerCase())).length,
+                    }));
+                    return (
+                      <div className="rounded-lg border border-gray-200 bg-white p-4">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Requests by Stream</p>
+                        <div className="flex flex-wrap gap-3">
+                          {streamCounts.map(({ stream, count }) => (
+                            <div
+                              key={stream}
+                              className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${streamColors[stream]}`}
+                            >
+                              <span>{stream}</span>
+                              <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-xs font-bold">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   {filteredRequests.map((r) => (
                     <GenericRequestCard
                       key={r.id}
@@ -911,6 +1329,193 @@ export default function Stage3AppPage() {
           )}
         </div>
       </main>
+
+      {/* ── Solution Specs detail overlay ───────────────────────────────── */}
+      {selectedSsRequest && selectedSsSpec && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px]"
+          onClick={() => setSelectedSsRequestId(null)}
+        >
+          <aside
+            className="absolute right-0 top-0 h-full w-full max-w-[860px] bg-white border-l border-gray-200 p-6 overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${SS_STREAM_COLORS[selectedSsRequest.stream] ?? "bg-gray-100 text-gray-700"}`}>
+                    {selectedSsRequest.stream}
+                  </span>
+                  <span className="text-xs text-gray-500">{selectedSsRequest.requestType}</span>
+                </div>
+                <h2 className="font-semibold text-lg text-gray-900">{selectedSsRequest.specTitle}</h2>
+                <p className="text-sm text-gray-500">{selectedSsRequest.dewaDivision} · {selectedSsRequest.programme || "No programme specified"}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className={getSsStatusClass(selectedSsRequest.status)}>{selectedSsRequest.status}</Badge>
+                <button onClick={() => setSelectedSsRequestId(null)} className="text-gray-500 hover:text-gray-700 ml-2">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Info grid */}
+              <div className="grid md:grid-cols-2 gap-3">
+                <S3Panel title="Spec Reference">
+                  <p className="font-medium text-gray-900">{selectedSsSpec.title}</p>
+                  <p className="text-sm text-gray-500">{selectedSsSpec.solutionType} · {selectedSsSpec.maturityLevel} · {selectedSsSpec.diagramCount} diagrams · {selectedSsSpec.componentCount} components</p>
+                  <Button size="sm" variant="outline" className="mt-2" onClick={() => navigate(`/marketplaces/solution-specs/${selectedSsSpec.id}`)}>
+                    Open Stage 1 Spec
+                  </Button>
+                </S3Panel>
+                <S3Panel title="Request Details">
+                  <div className="space-y-1 text-sm">
+                    <div><span className="text-gray-500">Division:</span> <span className="text-gray-900">{selectedSsRequest.dewaDivision}</span></div>
+                    <div><span className="text-gray-500">Timeline:</span> <span className="text-gray-900">{selectedSsRequest.timelinePriority}</span></div>
+                    <div><span className="text-gray-500">Submitted:</span> <span className="text-gray-900">{new Date(selectedSsRequest.submittedAt).toLocaleDateString()}</span></div>
+                    <div><span className="text-gray-500">SLA:</span> <span className={`font-medium ${selectedSsRequest.slaStatus === "Breached" ? "text-red-600" : selectedSsRequest.slaStatus === "At Risk" ? "text-amber-600" : "text-green-600"}`}>{selectedSsRequest.slaStatus}</span></div>
+                  </div>
+                </S3Panel>
+              </div>
+
+              {/* Submitted context */}
+              <S3Panel title="Submitted Context">
+                <div className="grid md:grid-cols-2 gap-3 text-sm">
+                  <div className="md:col-span-2"><span className="text-gray-500">Business Need:</span> <span className="text-gray-900">{selectedSsRequest.businessNeed}</span></div>
+                  <div className="md:col-span-2"><span className="text-gray-500">Current State:</span> <span className="text-gray-900">{selectedSsRequest.currentState}</span></div>
+                  <div className="md:col-span-2"><span className="text-gray-500">Key Requirements:</span> <span className="text-gray-900">{selectedSsRequest.keyRequirements}</span></div>
+                  {selectedSsRequest.architectureConstraints && (
+                    <div className="md:col-span-2"><span className="text-gray-500">Architecture Constraints:</span> <span className="text-gray-900">{selectedSsRequest.architectureConstraints}</span></div>
+                  )}
+                  <div><span className="text-gray-500">Preferred Output:</span> <span className="text-gray-900">{selectedSsRequest.preferredOutputs.join(", ")}</span></div>
+                  {selectedSsRequest.additionalNotes && (
+                    <div className="md:col-span-2"><span className="text-gray-500">Additional Notes:</span> <span className="text-gray-900">{selectedSsRequest.additionalNotes}</span></div>
+                  )}
+                </div>
+              </S3Panel>
+
+              {/* Status-specific workflow panels */}
+
+              {/* SUBMITTED → Assignment */}
+              {selectedSsRequest.status === "Submitted" && (
+                <S3Panel title="Assignment">
+                  <p className="text-sm text-gray-600 mb-4">Assign this request to a TO team member. The recommended assignee has the most available capacity.</p>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Assign to</label>
+                      <select
+                        value={ssAssignMemberId}
+                        onChange={(e) => setSsAssignMemberId(e.target.value)}
+                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="">Select team member</option>
+                        {[...stage3TeamMembers]
+                          .sort((a, b) => (b.capacityHours - b.allocatedHours) - (a.capacityHours - a.allocatedHours))
+                          .map((m, idx) => {
+                            const pct = Math.round((m.allocatedHours / m.capacityHours) * 100);
+                            const avail = m.capacityHours - m.allocatedHours;
+                            return (
+                              <option key={m.id} value={m.id}>
+                                {idx === 0 ? "★ " : ""}{m.name} — {m.team} ({pct}% utilized · {avail}h free)
+                              </option>
+                            );
+                          })}
+                      </select>
+                    </div>
+                    <Button disabled={!ssAssignMemberId} onClick={handleSsAssign}>
+                      Assign Request
+                    </Button>
+                  </div>
+                </S3Panel>
+              )}
+
+              {/* ASSIGNED → Start Work + Generation Panel */}
+              {selectedSsRequest.status === "Assigned" && (
+                <>
+                  <S3Panel title="Assigned To">
+                    <p className="font-medium text-gray-900">{selectedSsRequest.assignedTo}</p>
+                    <p className="text-sm text-gray-500">Ready to begin work on this specification.</p>
+                    <Button variant="outline" className="mt-3" onClick={handleSsStartWork}>
+                      Start Work
+                    </Button>
+                  </S3Panel>
+                  <S3Panel title="Reference Documents">
+                    <div className="space-y-2">
+                      {selectedSsSpec.documents.map((doc) => (
+                        <div key={doc.id} className="rounded-md border border-gray-200 p-3">
+                          <p className="text-sm font-medium text-gray-900">{doc.title}</p>
+                          <p className="text-xs text-gray-500">{doc.summary}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </S3Panel>
+                </>
+              )}
+
+              {/* IN PROGRESS → Generation Panel */}
+              {selectedSsRequest.status === "In Progress" && (
+                <S3Panel title="Generation Panel">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Build the contextualised spec using AI DocWriter. Generating will deliver the spec documents to the user and notify them via the platform.
+                  </p>
+                  <div className="mb-4 space-y-2">
+                    {selectedSsSpec.documents.map((doc) => (
+                      <div key={doc.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{doc.title}</p>
+                          <p className="text-xs text-gray-500">{doc.summary}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <Button className="bg-orange-600 hover:bg-orange-700" onClick={handleSsBuildAndDeliver}>
+                    Build Spec with AI DocWriter &amp; Deliver
+                  </Button>
+                </S3Panel>
+              )}
+
+              {/* DELIVERED / COMPLETED → Delivery Panel */}
+              {(selectedSsRequest.status === "Delivered" || selectedSsRequest.status === "Completed") && (
+                <S3Panel title="Delivery Record">
+                  <p className="text-sm font-medium text-gray-900 mb-3">Deliverables sent to user</p>
+                  <div className="space-y-2 mb-3">
+                    {selectedSsSpec.documents.map((doc) => (
+                      <div key={doc.id} className="text-sm text-gray-700">• {doc.title}</div>
+                    ))}
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+                    <span className="font-medium">Solution Build handoff: </span>
+                    {selectedSsDelivered?.solutionBuildStartedAt
+                      ? <span className="text-green-700">User directed to Solution Build on {new Date(selectedSsDelivered.solutionBuildStartedAt).toLocaleDateString()}</span>
+                      : <span className="text-gray-500">Not started yet</span>}
+                  </div>
+                </S3Panel>
+              )}
+
+              {/* REVISION → Revision notes + Resume */}
+              {selectedSsRequest.status === "Revision" && (
+                <S3Panel title="Revision Requested">
+                  <div className="space-y-2 mb-3">
+                    {allSsRevisionTickets
+                      .filter((rev) => rev.requestId === selectedSsRequest.id)
+                      .map((rev) => (
+                        <div key={rev.id} className="rounded-lg border border-red-100 bg-red-50 p-3">
+                          <p className="text-sm font-medium text-red-900">{rev.id}</p>
+                          <p className="text-sm text-red-800 mt-1">{rev.note}</p>
+                          <p className="text-xs text-red-600 mt-1">{rev.status}</p>
+                        </div>
+                      ))}
+                  </div>
+                  <Button onClick={() => handleSsResumeRevision(selectedSsRequest.id)}>
+                    Move Back to In Progress
+                  </Button>
+                </S3Panel>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* ── Generic detail overlay ──────────────────────────────────────── */}
       {selectedRequest && (
@@ -942,6 +1547,99 @@ export default function Stage3AppPage() {
                 <p className="font-medium text-gray-900">{selectedRequest.requester.name}</p>
                 <p className="text-gray-600">{selectedRequest.requester.email}</p>
               </div>
+
+              {selectedSolutionSpecRequest && selectedSolutionSpec && (
+                <>
+                  <div className="border-t pt-4">
+                    <p className="text-xs text-gray-500 mb-2">Solution Spec Reference</p>
+                    <div className="rounded-lg border border-gray-200 p-3 space-y-1">
+                      <p className="font-medium text-gray-900">{selectedSolutionSpec.title}</p>
+                      <p className="text-xs text-gray-600">
+                        {selectedSolutionSpec.solutionType} · {selectedSolutionSpec.maturityLevel} ·{" "}
+                        {selectedSolutionSpec.diagramCount} diagrams · {selectedSolutionSpec.componentCount} components
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2"
+                        onClick={() => navigate(`/marketplaces/solution-specs/${selectedSolutionSpec.id}`)}
+                      >
+                        Open Stage 1 Spec
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <p className="text-xs text-gray-500 mb-2">Submitted Context</p>
+                    <div className="grid md:grid-cols-2 gap-2 text-sm">
+                      <div><span className="text-gray-500">Request Type:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.requestType}</span></div>
+                      <div><span className="text-gray-500">Division:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.dewaDivision}</span></div>
+                      <div><span className="text-gray-500">Programme:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.programme || "Not provided"}</span></div>
+                      <div><span className="text-gray-500">Timeline:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.timelinePriority}</span></div>
+                      <div className="md:col-span-2"><span className="text-gray-500">Business Need:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.businessNeed}</span></div>
+                      <div className="md:col-span-2"><span className="text-gray-500">Current State:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.currentState}</span></div>
+                      <div className="md:col-span-2"><span className="text-gray-500">Key Requirements:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.keyRequirements}</span></div>
+                      <div className="md:col-span-2"><span className="text-gray-500">Architecture Constraints:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.architectureConstraints || "None provided"}</span></div>
+                      <div className="md:col-span-2"><span className="text-gray-500">Preferred Output:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.preferredOutputs.join(", ")}</span></div>
+                      <div className="md:col-span-2"><span className="text-gray-500">Additional Notes:</span> <span className="text-gray-900">{selectedSolutionSpecRequest.additionalNotes || "None provided"}</span></div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <p className="text-xs text-gray-500 mb-2">Generation Panel</p>
+                    <div className="rounded-lg border border-gray-200 p-3 space-y-3">
+                      <p className="text-sm text-gray-700">
+                        Build Spec with AI DocWriter is mocked here by using the DEWA reference documents attached to the selected Solution Spec.
+                      </p>
+                      <div className="space-y-2">
+                        {selectedSolutionSpec.documents.map((document) => (
+                          <div key={document.id} className="rounded-md border border-gray-200 p-3">
+                            <p className="text-sm font-medium text-gray-900">{document.title}</p>
+                            <p className="text-xs text-gray-500">{document.summary}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedRequest.status === "assigned" && (
+                          <Button size="sm" variant="outline" onClick={handleSolutionSpecStartWork}>
+                            Start Work
+                          </Button>
+                        )}
+                        {(selectedRequest.status === "assigned" || selectedRequest.status === "in-progress" || selectedRequest.status === "pending-review") && (
+                          <Button size="sm" className="bg-orange-600 hover:bg-orange-700" onClick={handleSolutionSpecGenerateAndDeliver}>
+                            Build Spec with AI DocWriter
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {(selectedRequest.status === "completed" || selectedDeliveredSpec) && (
+                    <div className="border-t pt-4">
+                      <p className="text-xs text-gray-500 mb-2">Delivery Panel</p>
+                      <div className="rounded-lg border border-gray-200 p-3 space-y-2">
+                        <p className="text-sm font-medium text-gray-900">
+                          Deliverables attached to user request
+                        </p>
+                        {selectedSolutionSpec.documents.map((document) => (
+                          <div key={document.id} className="text-sm text-gray-700">
+                            • {document.title}
+                          </div>
+                        ))}
+                        <p className="text-xs text-gray-500 pt-1">
+                          Status on delivery follows the Solution Specs model: Delivered → Completed.
+                        </p>
+                        <div className="text-xs text-gray-500">
+                          Solution Build handoff:{" "}
+                          {selectedDeliveredSpec?.solutionBuildStartedAt
+                            ? `User directed to Solution Build on ${new Date(selectedDeliveredSpec.solutionBuildStartedAt).toLocaleDateString()}`
+                            : "Not started yet"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
 
               {selectedLearningChangeSet && (
                 <div className="border-t pt-4">
@@ -1493,6 +2191,41 @@ function GenericRequestCard({
         <Badge className={getStatusBadgeClass(request.status)}>{request.status}</Badge>
         <Badge className={getSlaBadgeClass(request.slaStatus)}>{request.slaStatus}</Badge>
         <p className="text-xs text-gray-500 hidden md:block">{getDueSummary(request.dueDate)}</p>
+      </div>
+    </button>
+  );
+}
+
+function SsRequestCard({
+  request,
+  onClick,
+}: {
+  request: SolutionSpecRequest;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full bg-white border border-gray-200 rounded-xl p-5 flex items-center justify-between gap-4 text-left hover:bg-orange-50/30 transition-colors"
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${SS_STREAM_COLORS[request.stream] ?? "bg-gray-100 text-gray-700"}`}>
+            {request.stream}
+          </span>
+          <span className="text-xs text-gray-500">{request.requestType}</span>
+          <span className="text-xs text-gray-400">·</span>
+          <span className="text-xs text-gray-500">{request.dewaDivision}</span>
+        </div>
+        <p className="font-semibold text-gray-900 truncate">{request.specTitle}</p>
+        <p className="text-sm text-gray-500">{request.assignedTo} · {new Date(request.submittedAt).toLocaleDateString()}</p>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${request.slaStatus === "Breached" ? "bg-red-100 text-red-700" : request.slaStatus === "At Risk" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
+          {request.slaStatus}
+        </span>
+        <Badge className={getSsStatusClass(request.status)}>{request.status}</Badge>
       </div>
     </button>
   );

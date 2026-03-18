@@ -134,14 +134,9 @@ import { PriorityBadge, SLATimer } from "@/components/stage2";
 import { Tag, Calendar, Clock as ClockIcon, Eye } from "lucide-react";
 import { createStage3Request } from "@/data/stage3";
 import SolutionSpecsOverview from "@/pages/stage2/specs/SolutionSpecsOverview";
-import ArchitectureLibraryPage from "@/pages/stage2/specs/ArchitectureLibraryPage";
-import BlueprintDetailPage from "@/pages/stage2/specs/BlueprintDetailPage";
-import DesignTemplatesPage from "@/pages/stage2/specs/DesignTemplatesPage";
-import SpecTemplateDetailPage from "@/pages/stage2/specs/TemplateDetailPage";
-import DesignPatternsPage from "@/pages/stage2/specs/DesignPatternsPage";
-import PatternDetailPage from "@/pages/stage2/specs/PatternDetailPage";
-import MyDesignsPage from "@/pages/stage2/specs/MyDesignsPage";
-import DesignDetailPage from "@/pages/stage2/specs/DesignDetailPage";
+import SolutionSpecRequestsPage from "@/pages/stage2/specs/SolutionSpecRequestsPage";
+import SolutionSpecDeliverablesPage from "@/pages/stage2/specs/SolutionSpecDeliverablesPage";
+import SolutionSpecRevisionsPage from "@/pages/stage2/specs/SolutionSpecRevisionsPage";
 
 interface LocationState {
   marketplace?: string;
@@ -160,7 +155,7 @@ const EMPTY_LOCATION_STATE: LocationState = {};
 type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
-type SpecsWorkspaceTab = "overview" | "blueprints" | "templates" | "patterns" | "my-designs";
+type SpecsWorkspaceTab = "overview" | "my-requests" | "my-specs" | "revisions";
 type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
 type DocumentStudioView = "overview" | "my-requests" | "my-documents" | "revisions";
 const dsViews: DocumentStudioView[] = ["overview", "my-requests", "my-documents", "revisions"];
@@ -385,10 +380,6 @@ export default function Stage2AppPage() {
     tab: routeKnowledgeTab,
     templateId: routeTemplateId,
     requestId: routeRequestId,
-    blueprintId: routeBlueprintId,
-    specTemplateId: routeSpecTemplateId,
-    patternId: routePatternId,
-    designId: routeDesignId,
     intelligenceTab: routeIntelligenceTab,
     intelligenceItemId: routeIntelligenceItemId,
   } = useParams<{
@@ -397,10 +388,6 @@ export default function Stage2AppPage() {
     tab?: string;
     templateId?: string;
     requestId?: string;
-    blueprintId?: string;
-    specTemplateId?: string;
-    patternId?: string;
-    designId?: string;
     intelligenceTab?: string;
     intelligenceItemId?: string;
   }>();
@@ -516,10 +503,9 @@ export default function Stage2AppPage() {
         : "overview"
   );
   const getSpecsTabFromPath = (): SpecsWorkspaceTab => {
-    if (location.pathname.startsWith("/stage2/specs/blueprints")) return "blueprints";
-    if (location.pathname.startsWith("/stage2/specs/templates")) return "templates";
-    if (location.pathname.startsWith("/stage2/specs/patterns")) return "patterns";
-    if (location.pathname.startsWith("/stage2/specs/my-designs")) return "my-designs";
+    if (location.pathname.startsWith("/stage2/specs/my-requests")) return "my-requests";
+    if (location.pathname.startsWith("/stage2/specs/my-specs")) return "my-specs";
+    if (location.pathname.startsWith("/stage2/specs/revisions")) return "revisions";
     return "overview";
   };
   const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
@@ -1114,10 +1100,9 @@ export default function Stage2AppPage() {
     setActiveSpecsTab(tabId);
     const pathByTab: Record<SpecsWorkspaceTab, string> = {
       overview: "/stage2/specs/overview",
-      blueprints: "/stage2/specs/blueprints",
-      templates: "/stage2/specs/templates",
-      patterns: "/stage2/specs/patterns",
-      "my-designs": "/stage2/specs/my-designs",
+      "my-requests": "/stage2/specs/my-requests",
+      "my-specs": "/stage2/specs/my-specs",
+      revisions: "/stage2/specs/revisions",
     };
     navigate(pathByTab[tabId], {
       replace: true,
@@ -2199,59 +2184,46 @@ export default function Stage2AppPage() {
                   >
                     <div className="text-left">
                       <div className="font-medium">Overview</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Solutions specs workspace summary</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Workspace summary and quick actions</div>
                     </div>
                   </button>
                   <button
-                    onClick={() => handleSpecsTabClick("blueprints")}
+                    onClick={() => handleSpecsTabClick("my-requests")}
                     className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "blueprints"
+                      activeSpecsTab === "my-requests"
                         ? "bg-orange-50 text-orange-700 border border-orange-200"
                         : "text-gray-700 hover:bg-gray-50 border border-transparent"
                     }`}
                   >
                     <div className="text-left">
-                      <div className="font-medium">Architecture Library</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Browse architecture blueprints</div>
+                      <div className="font-medium">My Requests</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Track submitted specification requests</div>
                     </div>
                   </button>
                   <button
-                    onClick={() => handleSpecsTabClick("templates")}
+                    onClick={() => handleSpecsTabClick("my-specs")}
                     className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "templates"
+                      activeSpecsTab === "my-specs"
                         ? "bg-orange-50 text-orange-700 border border-orange-200"
                         : "text-gray-700 hover:bg-gray-50 border border-transparent"
                     }`}
                   >
                     <div className="text-left">
-                      <div className="font-medium">Design Templates</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Reusable design templates</div>
+                      <div className="font-medium">My Specs</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Delivered specs and Solution Build handoff</div>
                     </div>
                   </button>
                   <button
-                    onClick={() => handleSpecsTabClick("patterns")}
+                    onClick={() => handleSpecsTabClick("revisions")}
                     className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "patterns"
+                      activeSpecsTab === "revisions"
                         ? "bg-orange-50 text-orange-700 border border-orange-200"
                         : "text-gray-700 hover:bg-gray-50 border border-transparent"
                     }`}
                   >
                     <div className="text-left">
-                      <div className="font-medium">Design Patterns</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Pattern library and standards</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("my-designs")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "my-designs"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">My Designs</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Saved and in-progress designs</div>
+                      <div className="font-medium">Revisions</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Raise and track revision tickets</div>
                     </div>
                   </button>
                 </div>
@@ -2895,14 +2867,9 @@ export default function Stage2AppPage() {
           ) : activeService === "Solutions Specs" ? (
             <div className="h-full">
               {activeSpecsTab === "overview" && <SolutionSpecsOverview />}
-              {activeSpecsTab === "blueprints" && !routeBlueprintId && <ArchitectureLibraryPage />}
-              {activeSpecsTab === "blueprints" && !!routeBlueprintId && <BlueprintDetailPage />}
-              {activeSpecsTab === "templates" && !routeSpecTemplateId && <DesignTemplatesPage />}
-              {activeSpecsTab === "templates" && !!routeSpecTemplateId && <SpecTemplateDetailPage />}
-              {activeSpecsTab === "patterns" && !routePatternId && <DesignPatternsPage />}
-              {activeSpecsTab === "patterns" && !!routePatternId && <PatternDetailPage />}
-              {activeSpecsTab === "my-designs" && !routeDesignId && <MyDesignsPage />}
-              {activeSpecsTab === "my-designs" && !!routeDesignId && <DesignDetailPage />}
+              {activeSpecsTab === "my-requests" && <SolutionSpecRequestsPage />}
+              {activeSpecsTab === "my-specs" && <SolutionSpecDeliverablesPage />}
+              {activeSpecsTab === "revisions" && <SolutionSpecRevisionsPage />}
             </div>
           ) : activeService === "Lifecycle Management" && activeSubService ? (
             <div className="h-full">

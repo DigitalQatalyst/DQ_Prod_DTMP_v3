@@ -114,14 +114,17 @@ const App = () => (
           <Route path="/stage2/support/knowledge/:articleId" element={<ArticleDetailPage />} />
           <Route path="/stage2/specs" element={<Navigate to="/stage2/specs/overview" replace />} />
           <Route path="/stage2/specs/overview" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/blueprints" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/blueprints/:blueprintId" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/templates" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/templates/:specTemplateId" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/patterns" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/patterns/:patternId" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/my-designs" element={<Stage2AppPage />} />
-          <Route path="/stage2/specs/my-designs/:designId" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/my-requests" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/my-specs" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/revisions" element={<Stage2AppPage />} />
+          <Route path="/stage2/specs/blueprints" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/blueprints/:blueprintId" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/templates" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/templates/:specTemplateId" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/patterns" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/patterns/:patternId" element={<Navigate to="/stage2/specs/overview" replace />} />
+          <Route path="/stage2/specs/my-designs" element={<Navigate to="/stage2/specs/my-specs" replace />} />
+          <Route path="/stage2/specs/my-designs/:designId" element={<Navigate to="/stage2/specs/my-specs" replace />} />
           <Route path="/stage2/templates" element={<LegacyDocumentStudioRedirect />} />
           <Route path="/stage2/templates/overview" element={<LegacyDocumentStudioRedirect />} />
           <Route path="/stage2/templates/library" element={<LegacyDocumentStudioRedirect />} />
@@ -167,6 +170,8 @@ const App = () => (
           {/* Solution Specs marketplace */}
           <Route path="/marketplaces/solution-specs" element={<SolutionSpecsPage />} />
           <Route path="/marketplaces/solution-specs/:id" element={<SolutionSpecDetailPage />} />
+          <Route path="/stage3/solution-specs" element={<Navigate to="/stage3/solution-specs/overview" replace />} />
+          <Route path="/stage3/solution-specs/:view" element={<Stage3GuardedRoute />} />
           
           {/* Solution Build marketplace */}
           <Route path="/marketplaces/solution-build" element={<SolutionBuildPage />} />
