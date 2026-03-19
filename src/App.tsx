@@ -19,12 +19,6 @@ import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
 import { SolutionSpecDetailPage } from "./pages/SolutionSpecDetailPage";
 import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
-import {
-  BuildOverviewPage,
-  BuildRequestsPage,
-  BuildDeliverablesPage,
-  BuildRevisionsPage,
-} from "./pages/stage2/build";
 import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
 import SupportServicesOverview from "./pages/stage2/support/SupportServicesOverview";
@@ -182,11 +176,15 @@ const App = () => (
           {/* Solution Build marketplace */}
           <Route path="/marketplaces/solution-build" element={<SolutionBuildPage />} />
           <Route path="/marketplaces/solution-build/:id" element={<SolutionBuildDetailPage />} />
-          <Route path="/stage2/build" element={<Navigate to="/stage2/build/overview" replace />} />
-          <Route path="/stage2/build/overview" element={<BuildOverviewPage />} />
-          <Route path="/stage2/build/requests" element={<BuildRequestsPage />} />
-          <Route path="/stage2/build/deliverables" element={<BuildDeliverablesPage />} />
-          <Route path="/stage2/build/revisions" element={<BuildRevisionsPage />} />
+          {/* Solution Build Stage 2 — unified shell */}
+          <Route path="/stage2/solution-build" element={<Navigate to="/stage2/solution-build/overview" replace />} />
+          <Route path="/stage2/solution-build/:view" element={<Stage2AppPage />} />
+          {/* Legacy redirects for old /stage2/build/* links */}
+          <Route path="/stage2/build" element={<Navigate to="/stage2/solution-build/overview" replace />} />
+          <Route path="/stage2/build/overview" element={<Navigate to="/stage2/solution-build/overview" replace />} />
+          <Route path="/stage2/build/requests" element={<Navigate to="/stage2/solution-build/my-requests" replace />} />
+          <Route path="/stage2/build/deliverables" element={<Navigate to="/stage2/solution-build/deliverables" replace />} />
+          <Route path="/stage2/build/revisions" element={<Navigate to="/stage2/solution-build/revisions" replace />} />
           <Route path="/stage3/solution-build" element={<Navigate to="/stage3/solution-build/overview" replace />} />
           <Route path="/stage3/solution-build/:view" element={<Stage3GuardedRoute />} />
           

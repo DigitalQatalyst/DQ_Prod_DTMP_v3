@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { listBuildRevisions, listBuildRequests } from "@/data/solutionBuildWorkspace";
 
@@ -21,11 +21,6 @@ export default function BuildRevisionsPage() {
 
   return (
     <div className="stage2-content p-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate("/stage2/build/overview")} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Overview
-      </Button>
-
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">My Revisions</h1>
         <p className="text-gray-600">Revision requests raised against completed build deliveries.</p>
@@ -40,7 +35,7 @@ export default function BuildRevisionsPage() {
           </p>
           <Button
             variant="outline"
-            onClick={() => navigate("/stage2/build/requests")}
+            onClick={() => navigate("/stage2/solution-build/my-requests")}
           >
             View My Requests
           </Button>

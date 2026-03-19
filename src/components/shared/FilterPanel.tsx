@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RotateCcw, ChevronDown, ChevronRight } from "lucide-react";
+import { RotateCcw, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 type FilterValue = string | string[] | number | boolean | undefined;
 
@@ -151,32 +151,34 @@ export function FilterPanel({
 
   return (
     <aside
-      className="w-full lg:w-64 bg-white border border-gray-200 rounded-lg p-6 h-fit sticky top-4"
+      className="w-full lg:w-64 bg-white border border-gray-200 rounded-xl h-fit sticky top-4 overflow-hidden"
       role="complementary"
       aria-label="Filter panel"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4 text-gray-500" />
+          Filters
+        </h2>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onReset}
-            className="text-[hsl(var(--orange))] hover:text-[hsl(var(--orange))]/80 hover:bg-orange-50 -mr-2"
+            className="text-[hsl(var(--orange))] hover:text-[hsl(var(--orange))]/80 hover:bg-orange-50 -mr-2 h-7 px-2 text-xs"
             aria-label="Reset all filters"
           >
-            <RotateCcw className="w-4 h-4 mr-1" />
+            <RotateCcw className="w-3 h-3 mr-1" />
             Reset
           </Button>
         )}
       </div>
 
-      {/* Filter Groups — collapsible, matching other marketplace panels */}
-      <div className="space-y-2">
+      {/* Filter Groups — accordion rows with dividers */}
+      <div className="divide-y divide-gray-100">
         {filters.map((filter) => {
           const isExpanded = expandedGroups[filter.key] ?? false;
-          // Count active selections for badge
           const activeVal = activeFilters[filter.key];
           const activeCount = Array.isArray(activeVal)
             ? activeVal.length
@@ -185,31 +187,29 @@ export function FilterPanel({
             : 0;
 
           return (
-            <div key={filter.key} className="border border-gray-100 rounded-lg">
-              {/* Group header — clickable toggle */}
+            <div key={filter.key}>
+              {/* Row header */}
               <button
                 type="button"
                 onClick={() => toggleGroup(filter.key)}
-                className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 rounded-lg transition-colors"
+                className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-gray-50 transition-colors"
               >
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-gray-800">
                   {filter.label}
                   {activeCount > 0 && (
-                    <span className="ml-2 text-xs font-normal text-orange-600">
-                      ({activeCount})
+                    <span className="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold">
+                      {activeCount}
                     </span>
                   )}
                 </span>
-                {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-500 shrink-0" />
-                )}
+                <ChevronRight
+                  className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                />
               </button>
 
               {/* Expanded content */}
               {isExpanded && (
-                <div className="px-3 pb-3 pt-1">
+                <div className="px-5 pb-4 pt-1 bg-gray-50/50">
                   {renderFilter(filter)}
                 </div>
               )}

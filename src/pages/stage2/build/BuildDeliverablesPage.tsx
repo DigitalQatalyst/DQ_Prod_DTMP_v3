@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Rocket } from "lucide-react";
+import { CheckCircle2, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { listBuildRequests } from "@/data/solutionBuildWorkspace";
 import { STREAM_COLORS } from "@/data/blueprints/solutionBuilds";
@@ -10,11 +10,6 @@ export default function BuildDeliverablesPage() {
 
   return (
     <div className="stage2-content p-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate("/stage2/build/overview")} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Overview
-      </Button>
-
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">My Completed Builds</h1>
         <p className="text-gray-600">Build solutions that have been fully delivered and accepted.</p>
@@ -27,7 +22,7 @@ export default function BuildDeliverablesPage() {
           <p className="text-gray-500 text-sm mb-6">Completed builds will appear here once delivered.</p>
           <Button
             className="bg-orange-600 hover:bg-orange-700"
-            onClick={() => navigate("/stage2/build/requests")}
+            onClick={() => navigate("/stage2/solution-build/my-requests")}
           >
             View My Requests
           </Button>
@@ -64,7 +59,7 @@ export default function BuildDeliverablesPage() {
                     variant="outline"
                     size="sm"
                     className="mt-4 w-full"
-                    onClick={() => navigate("/stage2/build/requests")}
+                    onClick={() => navigate("/stage2/solution-build/my-requests")}
                   >
                     <Rocket className="w-3.5 h-3.5 mr-1" />
                     View Details

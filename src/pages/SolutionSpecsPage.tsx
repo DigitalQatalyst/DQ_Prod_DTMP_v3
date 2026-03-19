@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
   ChevronRight,
   FileX,
-  FilePlus2,
+  HelpCircle,
 } from "lucide-react";
 import { solutionSpecs, SolutionType } from "@/data/blueprints/solutionSpecs";
 import { solutionSpecsFilters } from "@/data/blueprints/filters";
@@ -333,23 +333,14 @@ export function SolutionSpecsPage() {
 
   // Right-column button passed into the header
   const requestButton = (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center gap-4 w-full">
-      <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-        <FilePlus2 className="w-6 h-6 text-orange-600" />
-      </div>
-      <div>
-        <p className="font-semibold text-gray-900 text-sm leading-snug mb-1">
-          Can't find the spec you need?
-        </p>
-        <p className="text-xs text-gray-500 leading-relaxed">
-          Request a contextualised spec built for your division and programme.
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
       <Button
+        size="sm"
+        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold self-start border border-orange-200"
         onClick={() => setRequestOpen(true)}
-        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
       >
-        Request a Spec
+        <HelpCircle className="w-4 h-4 mr-1" />
+        Can't find the spec you need?
       </Button>
     </div>
   );

@@ -139,7 +139,7 @@ export function SolutionBuildPage() {
         additionalRequirements: customForm.additionalRequirements,
       });
       setShowCustomDialog(false);
-      navigate("/stage2/build/requests");
+      navigate("/stage2/solution-build/my-requests");
     } finally {
       setCustomSubmitting(false);
     }
@@ -149,26 +149,26 @@ export function SolutionBuildPage() {
   const streamCount = 5;
 
   const rightContent = (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-6">
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{solutionBuilds.length}</div>
-          <div className="text-xs text-white/70 mt-0.5">Build Solutions</div>
+          <div className="text-2xl font-bold text-gray-900">{solutionBuilds.length}</div>
+          <div className="text-xs text-gray-500 mt-0.5">Build Solutions</div>
         </div>
-        <div className="w-px bg-white/20 self-stretch" />
+        <div className="w-px bg-gray-200 self-stretch" />
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{streamCount}</div>
-          <div className="text-xs text-white/70 mt-0.5">DBP Streams</div>
+          <div className="text-2xl font-bold text-gray-900">{streamCount}</div>
+          <div className="text-xs text-gray-500 mt-0.5">DBP Streams</div>
         </div>
-        <div className="w-px bg-white/20 self-stretch" />
+        <div className="w-px bg-gray-200 self-stretch" />
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{totalDeployments}</div>
-          <div className="text-xs text-white/70 mt-0.5">Total Deployments</div>
+          <div className="text-2xl font-bold text-gray-900">{totalDeployments}</div>
+          <div className="text-xs text-gray-500 mt-0.5">Total Deployments</div>
         </div>
       </div>
       <Button
         size="sm"
-        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold self-start"
+        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold self-start border border-orange-200"
         onClick={() => setShowCustomDialog(true)}
       >
         <HelpCircle className="w-4 h-4 mr-1" />

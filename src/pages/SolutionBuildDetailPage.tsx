@@ -133,7 +133,7 @@ export function SolutionBuildDetailPage() {
       setSubmitted(true);
       setTimeout(() => {
         setShowRequestDialog(false);
-        navigate("/stage2/build/requests");
+        navigate("/stage2/solution-build/my-requests");
       }, 1500);
     } finally {
       setSubmitting(false);
@@ -170,25 +170,26 @@ export function SolutionBuildDetailPage() {
           <div className="space-y-6">
 
             {/* Hero card */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              {/* Stream header strip */}
-              <div className={`${colors.headerBg} px-8 py-5 flex items-center justify-between`}>
-                <div className="flex items-center gap-3">
-                  <Badge className="bg-white/20 text-white border-white/30 border font-semibold">
-                    {build.solutionType}
-                  </Badge>
-                  <span className="text-white/80 text-sm font-medium uppercase tracking-wide">DEPLOY</span>
-                </div>
-                <Badge className={`${COMPLEXITY_COLORS[build.complexity]} text-xs font-semibold`}>
+            <div className="bg-white border border-gray-200 rounded-xl p-8">
+              {/* Thin stream accent line */}
+              <div className={`w-12 h-1 rounded-full ${colors.headerBg} mb-5`} />
+
+              {/* Badge row */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Badge className={`${colors.bg} ${colors.text} ${colors.border} border font-semibold`} variant="outline">
+                  {build.solutionType}
+                </Badge>
+                <Badge variant="outline" className="text-gray-600">DEPLOY</Badge>
+                <Badge className={`${COMPLEXITY_COLORS[build.complexity]} text-xs font-semibold`} variant="outline">
                   {build.complexity} Complexity
                 </Badge>
               </div>
 
-              <div className="p-8">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
                   {build.title}
                 </h1>
-                <p className="text-gray-600 text-base leading-relaxed mb-6">
+                <p className="text-gray-600 text-base lg:text-lg leading-relaxed mb-6">
                   {build.fullDescription}
                 </p>
 
@@ -238,6 +239,7 @@ export function SolutionBuildDetailPage() {
                 </div>
               </div>
             </div>
+
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -391,31 +393,22 @@ export function SolutionBuildDetailPage() {
                   {relatedBuilds.map(rel => {
                     const relColors = STREAM_COLORS[rel.solutionType] ?? STREAM_COLORS["DBP"];
                     return (
-                      <article
+                      <button
                         key={rel.id}
                         onClick={() => navigate(`/marketplaces/solution-build/${rel.id}`)}
-                        className="border border-gray-200 rounded-lg overflow-hidden hover:border-orange-300 hover:shadow-md transition-all cursor-pointer group"
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={e => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            navigate(`/marketplaces/solution-build/${rel.id}`);
-                          }
-                        }}
+                        className="bg-white border border-gray-200 rounded-xl p-5 text-left transition-all hover:border-orange-300 hover:shadow-lg hover:-translate-y-0.5 duration-200 w-full"
                         aria-label={`View ${rel.title}`}
                       >
-                        <div className={`${relColors.headerBg} px-4 py-2 flex items-center justify-between`}>
-                          <span className="text-xs text-white/80 font-medium uppercase tracking-wide">{rel.solutionType}</span>
-                          <span className="text-xs text-white/70">{rel.timeline}</span>
+                        <div className={`mb-3 inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${relColors.bg} ${relColors.text} ${relColors.border}`}>
+                          {rel.solutionType}
                         </div>
-                        <div className="p-4">
-                          <h3 className="text-sm font-bold text-gray-900 mb-1 group-hover:text-[hsl(var(--orange))] transition-colors line-clamp-2">
-                            {rel.title}
-                          </h3>
-                          <p className="text-xs text-gray-500 line-clamp-2">{rel.shortDescription}</p>
+                        <div className="text-base font-bold text-gray-900 mb-2 group-hover:text-[hsl(var(--orange))] transition-colors line-clamp-2">{rel.title}</div>
+                        <p className="text-sm text-gray-500 line-clamp-2 mb-3">{rel.shortDescription}</p>
+                        <div className="flex gap-3 text-xs text-gray-400">
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{rel.timeline}</span>
+                          <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" />{rel.complexity}</span>
                         </div>
-                      </article>
+                      </button>
                     );
                   })}
                 </div>
@@ -477,7 +470,7 @@ export function SolutionBuildDetailPage() {
               <Button
                 variant="outline"
                 className="w-full mt-3"
-                onClick={() => navigate("/stage2/build/requests")}
+                onClick={() => navigate("/stage2/solution-build/my-requests")}
               >
                 View My Requests
               </Button>

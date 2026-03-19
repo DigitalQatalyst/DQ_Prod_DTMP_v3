@@ -137,6 +137,10 @@ import SolutionSpecsOverview from "@/pages/stage2/specs/SolutionSpecsOverview";
 import SolutionSpecRequestsPage from "@/pages/stage2/specs/SolutionSpecRequestsPage";
 import SolutionSpecDeliverablesPage from "@/pages/stage2/specs/SolutionSpecDeliverablesPage";
 import SolutionSpecRevisionsPage from "@/pages/stage2/specs/SolutionSpecRevisionsPage";
+import BuildOverviewPage from "@/pages/stage2/build/BuildOverviewPage";
+import BuildRequestsPage from "@/pages/stage2/build/BuildRequestsPage";
+import BuildDeliverablesPage from "@/pages/stage2/build/BuildDeliverablesPage";
+import BuildRevisionsPage from "@/pages/stage2/build/BuildRevisionsPage";
 
 interface LocationState {
   marketplace?: string;
@@ -156,6 +160,7 @@ type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
 type SpecsWorkspaceTab = "overview" | "my-requests" | "my-specs" | "revisions";
+type BuildWorkspaceTab = "overview" | "my-requests" | "deliverables" | "revisions";
 type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
 type DocumentStudioView = "overview" | "my-requests" | "my-documents" | "revisions";
 const dsViews: DocumentStudioView[] = ["overview", "my-requests", "my-documents", "revisions"];
@@ -398,6 +403,7 @@ export default function Stage2AppPage() {
   const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
   const isPortfolioCenterRoute = location.pathname.startsWith("/stage2/portfolio-management");
   const isSolutionSpecsRoute = location.pathname.startsWith("/stage2/specs");
+  const isSolutionBuildRoute = location.pathname.startsWith("/stage2/solution-build");
   const isIntelligenceRoute = location.pathname.startsWith("/stage2/intelligence");
   const isDocumentStudioRoute = location.pathname.startsWith("/stage2/document-studio");
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
@@ -422,6 +428,8 @@ export default function Stage2AppPage() {
       ? "knowledge-center"
       : isSolutionSpecsRoute
         ? "solution-specs"
+      : isSolutionBuildRoute
+        ? "solution-build"
       : isIntelligenceRoute
         ? "digital-intelligence"
       : isDocumentStudioRoute
@@ -510,6 +518,15 @@ export default function Stage2AppPage() {
   };
   const [activeSpecsTab, setActiveSpecsTab] = useState<SpecsWorkspaceTab>(
     getSpecsTabFromPath()
+  );
+  const getBuildTabFromPath = (): BuildWorkspaceTab => {
+    if (location.pathname.startsWith("/stage2/solution-build/my-requests")) return "my-requests";
+    if (location.pathname.startsWith("/stage2/solution-build/deliverables")) return "deliverables";
+    if (location.pathname.startsWith("/stage2/solution-build/revisions")) return "revisions";
+    return "overview";
+  };
+  const [activeBuildTab, setActiveBuildTab] = useState<BuildWorkspaceTab>(
+    getBuildTabFromPath()
   );
   const getIntelligenceTabFromPath = (): IntelligenceWorkspaceTab => {
     if (location.pathname.startsWith("/stage2/intelligence/services")) return "services";
@@ -730,6 +747,11 @@ export default function Stage2AppPage() {
     if (!isSolutionSpecsRoute) return;
     setActiveSpecsTab(getSpecsTabFromPath());
   }, [isSolutionSpecsRoute, location.pathname]);
+
+  useEffect(() => {
+    if (!isSolutionBuildRoute) return;
+    setActiveBuildTab(getBuildTabFromPath());
+  }, [isSolutionBuildRoute, location.pathname]);
 
   useEffect(() => {
     if (!isIntelligenceRoute) return;
@@ -1112,6 +1134,19 @@ export default function Stage2AppPage() {
       },
     });
   };
+  const handleBuildTabClick = (tabId: BuildWorkspaceTab) => {
+    setActiveBuildTab(tabId);
+    const pathByTab: Record<BuildWorkspaceTab, string> = {
+      overview: "/stage2/solution-build/overview",
+      "my-requests": "/stage2/solution-build/my-requests",
+      deliverables: "/stage2/solution-build/deliverables",
+      revisions: "/stage2/solution-build/revisions",
+    };
+    navigate(pathByTab[tabId], {
+      replace: true,
+      state: { ...state, marketplace: "solution-build" },
+    });
+  };
   const handleIntelligenceTabClick = (tabId: IntelligenceWorkspaceTab) => {
     setActiveIntelligenceTab(tabId);
     const pathByTab: Record<IntelligenceWorkspaceTab, string> = {
@@ -1249,6 +1284,10 @@ export default function Stage2AppPage() {
     if (service === "Solutions Specs" && location.pathname.startsWith('/stage2/specs')) {
       return "bg-orange-50 text-orange-700 font-medium";
     }
+    // Check if current path matches Solution Build routes
+    if (service === "Solution Build" && location.pathname.startsWith('/stage2/solution-build')) {
+      return "bg-orange-50 text-orange-700 font-medium";
+    }
     return activeService === service ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50";
   };
 
@@ -1293,6 +1332,12 @@ export default function Stage2AppPage() {
           ...state,
           marketplace: "digital-intelligence",
         },
+      });
+    }
+    if (service === "Solution Build") {
+      navigate("/stage2/solution-build/overview", {
+        replace: true,
+        state: { ...state, marketplace: "solution-build" },
       });
     }
     if (service !== "Support Services") {
@@ -2227,6 +2272,61 @@ export default function Stage2AppPage() {
                     </div>
                   </button>
                 </div>
+              ) : activeService === "Solution Build" ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleBuildTabClick("overview")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeBuildTab === "overview"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Overview</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Build workspace summary and KPIs</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleBuildTabClick("my-requests")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeBuildTab === "my-requests"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">My Requests</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Track active build requests</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleBuildTabClick("deliverables")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeBuildTab === "deliverables"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Completed Builds</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Delivered and accepted solutions</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleBuildTabClick("revisions")}
+                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                      activeBuildTab === "revisions"
+                        ? "bg-orange-50 text-orange-700 border border-orange-200"
+                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Revisions</div>
+                      <div className="text-xs text-gray-500 mt-0.5">Raise and track revision tickets</div>
+                    </div>
+                  </button>
+                </div>
               ) : activeService === "Lifecycle Management" ? (
                 <div className="space-y-4">
                   <div>
@@ -2870,6 +2970,13 @@ export default function Stage2AppPage() {
               {activeSpecsTab === "my-requests" && <SolutionSpecRequestsPage />}
               {activeSpecsTab === "my-specs" && <SolutionSpecDeliverablesPage />}
               {activeSpecsTab === "revisions" && <SolutionSpecRevisionsPage />}
+            </div>
+          ) : activeService === "Solution Build" ? (
+            <div className="h-full">
+              {activeBuildTab === "overview" && <BuildOverviewPage />}
+              {activeBuildTab === "my-requests" && <BuildRequestsPage />}
+              {activeBuildTab === "deliverables" && <BuildDeliverablesPage />}
+              {activeBuildTab === "revisions" && <BuildRevisionsPage />}
             </div>
           ) : activeService === "Lifecycle Management" && activeSubService ? (
             <div className="h-full">

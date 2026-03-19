@@ -442,6 +442,14 @@ export function SolutionSpecDetailPage() {
                     Make Request
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full mt-3"
+                    onClick={() => navigate("/stage2/specs/my-requests")}
+                  >
+                    View My Specs
+                  </Button>
                 </div>
 
               </div>
