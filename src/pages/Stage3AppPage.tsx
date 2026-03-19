@@ -58,6 +58,16 @@ import {
   type SolutionSpecRequest,
   type SolutionSpecRevision,
 } from "@/data/solutionSpecsWorkspace";
+import {
+  listBuildRequests,
+  listBuildRevisions,
+  updateBuildRequestStatus,
+  assignBuildRequest,
+  completeBuildRequest,
+  getBuildById,
+  type BuildRequest,
+} from "@/data/solutionBuildWorkspace";
+import { STREAM_COLORS as SB_STREAM_COLORS } from "@/data/blueprints/solutionBuilds";
 
 // ─── General Stage3 types ────────────────────────────────────────────────────
 type Stage3View =
@@ -68,7 +78,7 @@ type Stage3View =
   | "pending-review"
   | "team-capacity"
   | "analytics";
-type Stage3Scope = "all" | "learning-center" | "knowledge-center" | "solution-specs";
+type Stage3Scope = "all" | "learning-center" | "knowledge-center" | "solution-specs" | "solution-build";
 
 const viewLabels: Record<Stage3View, string> = {
   dashboard: "Dashboard",
@@ -102,6 +112,31 @@ const dsNavLabels: Record<DsStage3View, string> = {
   completed: "Completed",
   published: "Published to KC",
 };
+
+// ─── Solution Build Stage3 types ─────────────────────────────────────────────
+const SB_VIEWS = ["overview", "queue", "active", "testing", "completed", "on-hold", "revisions"] as const;
+type SbStage3View = (typeof SB_VIEWS)[number];
+
+const sbNavLabels: Record<SbStage3View, string> = {
+  overview: "Overview",
+  queue: "Request Queue",
+  active: "Active Builds",
+  testing: "In Testing",
+  completed: "Completed",
+  "on-hold": "On Hold",
+  revisions: "Revisions",
+};
+
+function getSbStatusClass(status: BuildRequest["status"]): string {
+  if (status === "Complete") return "bg-green-100 text-green-700";
+  if (status === "In Progress") return "bg-orange-100 text-orange-700";
+  if (status === "Testing") return "bg-purple-100 text-purple-700";
+  if (status === "Queue") return "bg-blue-100 text-blue-700";
+  if (status === "Triage") return "bg-yellow-100 text-yellow-700";
+  if (status === "On Hold") return "bg-red-100 text-red-700";
+  if (status === "Revision") return "bg-yellow-100 text-yellow-700";
+  return "bg-gray-100 text-gray-700";
+}
 
 // ─── Solution Specs Stage3 types ─────────────────────────────────────────────
 const SS_VIEWS = ["overview", "queue", "active", "completed", "revisions"] as const;
@@ -189,6 +224,7 @@ export default function Stage3AppPage() {
 
   const isDocumentStudioScope = location.pathname.startsWith("/stage3/document-studio");
   const isSolutionSpecsScope = location.pathname.startsWith("/stage3/solution-specs");
+  const isSolutionBuildScope = location.pathname.startsWith("/stage3/solution-build");
 
   // ── General state ────────────────────────────────────────────────────────
   const isStage3View = (value: string): value is Stage3View => value in viewLabels;
@@ -210,6 +246,11 @@ export default function Stage3AppPage() {
   const [ssRequests, setSsRequests] = useState<SolutionSpecRequest[]>(() => listSolutionSpecRequests());
   const [selectedSsRequestId, setSelectedSsRequestId] = useState<string | null>(null);
   const [ssAssignMemberId, setSsAssignMemberId] = useState<string>("");
+
+  // ── Solution Build state ─────────────────────────────────────────────────
+  const [sbRequests, setSbRequests] = useState<BuildRequest[]>(() => listBuildRequests());
+  const [selectedSbRequestId, setSelectedSbRequestId] = useState<string | null>(null);
+  const [sbAssignTeam, setSbAssignTeam] = useState<string>("");
 
   // ── Document Studio state ────────────────────────────────────────────────
   const [dsRequests, setDsRequests] = useState<DocumentStudioRequest[]>([]);
@@ -268,6 +309,48 @@ export default function Stage3AppPage() {
   }, [activeSsView, ssQueue, ssActive, ssCompleted, ssRevisions, ssRequests]);
 
   const refreshSs = () => setSsRequests(listSolutionSpecRequests());
+
+  // ── SB derived data ──────────────────────────────────────────────────────
+  const activeSbView: SbStage3View = (SB_VIEWS as readonly string[]).includes(routeView ?? "")
+    ? (routeView as SbStage3View)
+    : "overview";
+  const sbQueue = sbRequests.filter((r) => ["Submitted", "Triage"].includes(r.status));
+  const sbActive = sbRequests.filter((r) => ["Queue", "In Progress"].includes(r.status));
+  const sbTesting = sbRequests.filter((r) => r.status === "Testing");
+  const sbCompleted = sbRequests.filter((r) => r.status === "Complete");
+  const sbOnHold = sbRequests.filter((r) => r.status === "On Hold");
+  const sbRevisionRequests = sbRequests.filter((r) => r.status === "Revision");
+  const allSbRevisionTickets = useMemo(() => listBuildRevisions(), [sbRequests]);
+  const selectedSbRequest = useMemo(
+    () => sbRequests.find((r) => r.id === selectedSbRequestId) ?? null,
+    [sbRequests, selectedSbRequestId]
+  );
+  const selectedSbBuild = useMemo(
+    () => (selectedSbRequest ? getBuildById(selectedSbRequest.buildId) : null),
+    [selectedSbRequest]
+  );
+  const sbCounts: Record<SbStage3View, number> = {
+    overview: sbRequests.length,
+    queue: sbQueue.length,
+    active: sbActive.length,
+    testing: sbTesting.length,
+    completed: sbCompleted.length,
+    "on-hold": sbOnHold.length,
+    revisions: sbRevisionRequests.length,
+  };
+  const sbVisibleRequests = useMemo(() => {
+    switch (activeSbView) {
+      case "queue": return sbQueue;
+      case "active": return sbActive;
+      case "testing": return sbTesting;
+      case "completed": return sbCompleted;
+      case "on-hold": return sbOnHold;
+      case "revisions": return sbRevisionRequests;
+      default: return sbRequests;
+    }
+  }, [activeSbView, sbQueue, sbActive, sbTesting, sbCompleted, sbOnHold, sbRevisionRequests, sbRequests]);
+
+  const refreshSb = () => setSbRequests(listBuildRequests());
 
   // ── DS derived data ──────────────────────────────────────────────────────
   const activeDsView: DsStage3View = (DS_VIEWS as readonly string[]).includes(routeView ?? "")
@@ -430,6 +513,11 @@ export default function Stage3AppPage() {
   }, [isSolutionSpecsScope, location.key]);
 
   useEffect(() => {
+    if (!isSolutionBuildScope) return;
+    setSbRequests(listBuildRequests());
+  }, [isSolutionBuildScope, location.key]);
+
+  useEffect(() => {
     if (!isDocumentStudioScope) return;
     setDsRequests(listDocumentStudioRequests());
   }, [isDocumentStudioScope, location.key]);
@@ -456,6 +544,13 @@ export default function Stage3AppPage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectedDsRequestId]);
+
+  useEffect(() => {
+    if (!selectedSbRequestId) return;
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") setSelectedSbRequestId(null); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedSbRequestId]);
 
   useEffect(() => {
     if (!selectedRequestId) return;
@@ -604,8 +699,58 @@ export default function Stage3AppPage() {
           <p className="text-sm text-gray-500">Stage 3 — Transformation Office</p>
         </div>
 
-        {/* SS scope: flat nav with count badges */}
-        {isSolutionSpecsScope ? (
+        {/* SB scope: flat nav with count badges */}
+        {isSolutionBuildScope ? (
+          <nav className="p-4 space-y-1 flex-1">
+            <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2 px-1">
+              Solution Build
+            </p>
+            {SB_VIEWS.map((v) => (
+              <button
+                key={v}
+                onClick={() => navigate(`/stage3/solution-build/${v}`)}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
+                  activeSbView === v
+                    ? "bg-orange-50 text-orange-700 font-medium"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span>{sbNavLabels[v]}</span>
+                {v !== "overview" && sbCounts[v] > 0 && (
+                  <span className={`text-xs rounded-full px-2 py-0.5 ${
+                    v === "queue" ? "bg-blue-100 text-blue-700"
+                    : v === "revisions" ? "bg-red-100 text-red-700"
+                    : v === "active" ? "bg-amber-100 text-amber-700"
+                    : v === "testing" ? "bg-purple-100 text-purple-700"
+                    : v === "on-hold" ? "bg-red-50 text-red-600"
+                    : "bg-gray-100 text-gray-600"
+                  }`}>
+                    {sbCounts[v]}
+                  </span>
+                )}
+              </button>
+            ))}
+            <div className="pt-3 border-t border-gray-100 mt-3">
+              <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2 px-1">
+                Management
+              </p>
+              <button
+                onClick={() => navigate("/stage3/team-capacity")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 text-gray-700 hover:bg-gray-50"
+              >
+                <Users className="w-4 h-4" />
+                Team &amp; Capacity
+              </button>
+              <button
+                onClick={() => navigate("/stage3/analytics")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 text-gray-700 hover:bg-gray-50"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </button>
+            </div>
+          </nav>
+        ) : isSolutionSpecsScope ? (
           <nav className="p-4 space-y-1 flex-1">
             <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2 px-1">
               Solution Specs
@@ -801,14 +946,16 @@ export default function Stage3AppPage() {
         <div className="border-b border-gray-200 bg-white px-6 py-5 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-semibold text-gray-900">
-              {isSolutionSpecsScope ? ssNavLabels[activeSsView] : isDocumentStudioScope ? dsNavLabels[activeDsView] : "Request Management"}
+              {isSolutionBuildScope ? sbNavLabels[activeSbView] : isSolutionSpecsScope ? ssNavLabels[activeSsView] : isDocumentStudioScope ? dsNavLabels[activeDsView] : "Request Management"}
             </h1>
             <p className="text-sm text-gray-500">
-              {isSolutionSpecsScope
-                ? "Solution Specs — TO Office"
-                : isDocumentStudioScope
-                  ? "Document Studio — TO Office"
-                  : "Transformation Office Operations Dashboard"}
+              {isSolutionBuildScope
+                ? "Solution Build — TO Office"
+                : isSolutionSpecsScope
+                  ? "Solution Specs — TO Office"
+                  : isDocumentStudioScope
+                    ? "Document Studio — TO Office"
+                    : "Transformation Office Operations Dashboard"}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -848,24 +995,32 @@ export default function Stage3AppPage() {
             </Button>
             <Button
               size="sm"
-              variant={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "all" ? "default" : "outline"}
-              className={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "all" ? "bg-orange-600 hover:bg-orange-700" : ""}
+              variant={isSolutionBuildScope ? "default" : "outline"}
+              className={isSolutionBuildScope ? "bg-orange-600 hover:bg-orange-700" : ""}
+              onClick={() => navigate("/stage3/solution-build/overview")}
+            >
+              Solution Build
+            </Button>
+            <Button
+              size="sm"
+              variant={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "all" ? "default" : "outline"}
+              className={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "all" ? "bg-orange-600 hover:bg-orange-700" : ""}
               onClick={() => { navigate("/stage3/dashboard"); setScope("all"); }}
             >
               All (General)
             </Button>
             <Button
               size="sm"
-              variant={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "learning-center" ? "default" : "outline"}
-              className={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
+              variant={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "learning-center" ? "default" : "outline"}
+              className={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
               onClick={() => { navigate("/stage3/all"); setScope("learning-center"); }}
             >
               Learning Center
             </Button>
             <Button
               size="sm"
-              variant={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "knowledge-center" ? "default" : "outline"}
-              className={!isDocumentStudioScope && !isSolutionSpecsScope && scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
+              variant={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "knowledge-center" ? "default" : "outline"}
+              className={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
               onClick={() => { navigate("/stage3/all"); setScope("knowledge-center"); }}
             >
               Knowledge Center
@@ -873,7 +1028,15 @@ export default function Stage3AppPage() {
           </div>
 
           {/* ── KPI cards ────────────────────────────────────────────────── */}
-          {isSolutionSpecsScope ? (
+          {isSolutionBuildScope ? (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <S3KpiCard color="blue" label="Total Requests" value={String(sbRequests.length)} sub="All time" />
+              <S3KpiCard color="sky" label="In Queue" value={String(sbQueue.length)} sub="Pending triage" />
+              <S3KpiCard color="amber" label="Active Builds" value={String(sbActive.length + sbTesting.length)} sub="In progress or testing" />
+              <S3KpiCard color="green" label="Completed" value={String(sbCompleted.length)} sub="Delivered to user" />
+              <S3KpiCard color="orange" label="Revisions" value={String(sbRevisionRequests.length)} sub="Awaiting action" />
+            </div>
+          ) : isSolutionSpecsScope ? (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <S3KpiCard color="blue" label="Total Requests" value={String(ssRequests.length)} sub="All time" />
               <S3KpiCard color="sky" label="In Queue" value={String(ssQueue.length)} sub="Pending assignment" />
@@ -908,11 +1071,13 @@ export default function Stage3AppPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
-                    isSolutionSpecsScope
-                      ? "Search specs, divisions, request types..."
-                      : isDocumentStudioScope
-                        ? "Search requests, document types, requesters..."
-                        : "Search requests, requesters, or organizations..."
+                    isSolutionBuildScope
+                      ? "Search builds, streams, divisions..."
+                      : isSolutionSpecsScope
+                        ? "Search specs, divisions, request types..."
+                        : isDocumentStudioScope
+                          ? "Search requests, document types, requesters..."
+                          : "Search requests, requesters, or organizations..."
                   }
                   className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
                 />
@@ -964,9 +1129,9 @@ export default function Stage3AppPage() {
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm text-gray-500">
                 Showing{" "}
-                {isSolutionSpecsScope ? ssVisibleRequests.length : isDocumentStudioScope ? dsVisibleRequests.length : filteredRequests.length}{" "}
+                {isSolutionBuildScope ? sbVisibleRequests.length : isSolutionSpecsScope ? ssVisibleRequests.length : isDocumentStudioScope ? dsVisibleRequests.length : filteredRequests.length}{" "}
                 of{" "}
-                {isSolutionSpecsScope ? ssRequests.length : isDocumentStudioScope ? dsRequests.length : queueKpis.total} requests
+                {isSolutionBuildScope ? sbRequests.length : isSolutionSpecsScope ? ssRequests.length : isDocumentStudioScope ? dsRequests.length : queueKpis.total} requests
               </p>
               <select className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white">
                 <option>25</option><option>50</option><option>100</option>
@@ -974,8 +1139,145 @@ export default function Stage3AppPage() {
             </div>
           </div>
 
-          {/* ── Solution Specs content ──────────────────────────────────── */}
-          {isSolutionSpecsScope ? (
+          {/* ── Solution Build content ──────────────────────────────────── */}
+          {isSolutionBuildScope ? (
+            <>
+              {/* SB Overview */}
+              {activeSbView === "overview" && (
+                <div className="space-y-4">
+                  <div className="grid lg:grid-cols-2 gap-4">
+                    <S3Panel title="Requests by Stream">
+                      <div className="flex flex-wrap gap-3">
+                        {(["DBP","DXP","DWS","DIA","SDO"] as const).map((stream) => {
+                          const count = sbRequests.filter((r) => r.stream === stream).length;
+                          const colors = SB_STREAM_COLORS[stream] ?? SB_STREAM_COLORS["DBP"];
+                          return (
+                            <div key={stream} className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${colors.bg} ${colors.text}`}>
+                              <span>{stream}</span>
+                              <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-xs font-bold">{count}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </S3Panel>
+                    <S3Panel title="SLA At Risk">
+                      <div className="space-y-2">
+                        {sbRequests
+                          .filter((r) => r.slaStatus === "At Risk" || r.slaStatus === "Breached")
+                          .slice(0, 5)
+                          .map((r) => (
+                            <button
+                              key={r.id}
+                              onClick={() => setSelectedSbRequestId(r.id)}
+                              className="w-full flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 text-left hover:bg-gray-50"
+                            >
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{r.buildTitle}</p>
+                                <p className="text-xs text-gray-500">{r.stream} · {r.dewaDivision}</p>
+                              </div>
+                              <span className={`text-xs rounded-full px-2 py-0.5 ${r.slaStatus === "Breached" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                {r.slaStatus}
+                              </span>
+                            </button>
+                          ))}
+                        {sbRequests.filter((r) => r.slaStatus === "At Risk" || r.slaStatus === "Breached").length === 0 && (
+                          <p className="text-sm text-gray-500">All requests are within SLA.</p>
+                        )}
+                      </div>
+                    </S3Panel>
+                    <S3Panel title="Active Builds">
+                      <div className="space-y-2">
+                        {[...sbActive, ...sbTesting].slice(0, 5).map((r) => (
+                          <button
+                            key={r.id}
+                            onClick={() => setSelectedSbRequestId(r.id)}
+                            className="w-full flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 text-left hover:bg-gray-50"
+                          >
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{r.buildTitle}</p>
+                              <p className="text-xs text-gray-500">{r.stream} · {r.progress}% complete</p>
+                            </div>
+                            <span className={`text-xs rounded-full px-2 py-0.5 ${getSbStatusClass(r.status)}`}>{r.status}</span>
+                          </button>
+                        ))}
+                        {sbActive.length === 0 && sbTesting.length === 0 && <p className="text-sm text-gray-500">No active builds.</p>}
+                      </div>
+                    </S3Panel>
+                    <S3Panel title="Recent Completions">
+                      <div className="space-y-2">
+                        {sbCompleted.slice(0, 5).map((r) => (
+                          <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3">
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{r.buildTitle}</p>
+                              <p className="text-xs text-gray-500">{r.stream} · {r.dewaDivision}</p>
+                            </div>
+                            <span className="text-xs text-green-600">Delivered</span>
+                          </div>
+                        ))}
+                        {sbCompleted.length === 0 && <p className="text-sm text-gray-500">No completed builds yet.</p>}
+                      </div>
+                    </S3Panel>
+                  </div>
+                </div>
+              )}
+
+              {/* SB Revisions view */}
+              {activeSbView === "revisions" && (
+                <div className="space-y-3">
+                  {sbRevisionRequests.map((r) => {
+                    const linked = allSbRevisionTickets.filter((rev) => rev.requestId === r.id);
+                    return (
+                      <div key={r.id} className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${(SB_STREAM_COLORS[r.stream] ?? SB_STREAM_COLORS["DBP"]).bg} ${(SB_STREAM_COLORS[r.stream] ?? SB_STREAM_COLORS["DBP"]).text}`}>{r.stream}</span>
+                              <span className="text-xs text-gray-500">{r.dewaDivision}</span>
+                            </div>
+                            <p className="font-semibold text-gray-900">{r.buildTitle}</p>
+                          </div>
+                          <span className="rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-700">Revision</span>
+                        </div>
+                        <div className="space-y-2">
+                          {linked.map((rev) => (
+                            <div key={rev.id} className="rounded-lg border border-red-100 bg-red-50 p-3">
+                              <p className="text-sm font-medium text-red-900">{rev.id}</p>
+                              <p className="text-sm text-red-800 mt-1">{rev.note}</p>
+                              <p className="text-xs text-red-600 mt-1">{rev.status}</p>
+                            </div>
+                          ))}
+                          {linked.length === 0 && <p className="text-sm text-gray-500">No revision notes attached.</p>}
+                        </div>
+                        <div className="flex gap-3">
+                          <Button variant="outline" onClick={() => setSelectedSbRequestId(r.id)}>
+                            Open Request
+                          </Button>
+                          <Button onClick={() => { updateBuildRequestStatus(r.id, "In Progress"); refreshSb(); }}>
+                            Resume Work
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {sbRevisionRequests.length === 0 && (
+                    <p className="text-sm text-gray-500">No revision tickets are currently open.</p>
+                  )}
+                </div>
+              )}
+
+              {/* SB request card list — queue, active, testing, completed, on-hold */}
+              {activeSbView !== "overview" && activeSbView !== "revisions" && (
+                <div className="space-y-3">
+                  {sbVisibleRequests.map((r) => (
+                    <SbRequestCard key={r.id} request={r} onClick={() => setSelectedSbRequestId(r.id)} />
+                  ))}
+                  {sbVisibleRequests.length === 0 && (
+                    <p className="text-sm text-gray-500">No requests in this view.</p>
+                  )}
+                </div>
+              )}
+            </>
+          ) : isSolutionSpecsScope ? (
             <>
               {/* SS Overview */}
               {activeSsView === "overview" && (
@@ -1329,6 +1631,211 @@ export default function Stage3AppPage() {
           )}
         </div>
       </main>
+
+      {/* ── Solution Build detail overlay ────────────────────────────────── */}
+      {selectedSbRequest && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px]"
+          onClick={() => setSelectedSbRequestId(null)}
+        >
+          <aside
+            className="absolute right-0 top-0 h-full w-full max-w-[860px] bg-white border-l border-gray-200 p-6 overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${(SB_STREAM_COLORS[selectedSbRequest.stream] ?? SB_STREAM_COLORS["DBP"]).bg} ${(SB_STREAM_COLORS[selectedSbRequest.stream] ?? SB_STREAM_COLORS["DBP"]).text}`}>
+                    {selectedSbRequest.stream}
+                  </span>
+                  <span className="text-xs text-gray-500">{selectedSbRequest.dewaDivision}</span>
+                </div>
+                <h2 className="font-semibold text-lg text-gray-900">{selectedSbRequest.buildTitle}</h2>
+                <p className="text-sm text-gray-500">{selectedSbRequest.id} · {selectedSbRequest.programme || "No programme specified"}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className={getSbStatusClass(selectedSbRequest.status)}>{selectedSbRequest.status}</Badge>
+                <button onClick={() => setSelectedSbRequestId(null)} className="text-gray-500 hover:text-gray-700 ml-2">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Info grid */}
+              <div className="grid md:grid-cols-2 gap-3">
+                <S3Panel title="Request Details">
+                  <div className="space-y-1 text-sm">
+                    <div><span className="text-gray-500">Priority:</span> <span className="text-gray-900">{selectedSbRequest.priority}</span></div>
+                    <div><span className="text-gray-500">Timeline:</span> <span className="text-gray-900">{selectedSbRequest.timelinePreference}</span></div>
+                    <div><span className="text-gray-500">Submitted:</span> <span className="text-gray-900">{new Date(selectedSbRequest.submittedAt).toLocaleDateString()}</span></div>
+                    <div><span className="text-gray-500">SLA:</span> <span className={`font-medium ${selectedSbRequest.slaStatus === "Breached" ? "text-red-600" : selectedSbRequest.slaStatus === "At Risk" ? "text-amber-600" : "text-green-600"}`}>{selectedSbRequest.slaStatus}</span></div>
+                  </div>
+                </S3Panel>
+                <S3Panel title="Progress">
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-gray-600">Build Progress</span>
+                      <span className="font-semibold text-gray-900">{selectedSbRequest.progress}%</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${selectedSbRequest.status === "Complete" ? "bg-green-500" : "bg-orange-500"}`}
+                        style={{ width: `${selectedSbRequest.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    {selectedSbRequest.milestones.map((m) => (
+                      <div key={m.id} className="flex items-center gap-2 text-xs">
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${m.completed ? "bg-green-500" : "bg-gray-200"}`} />
+                        <span className={m.completed ? "text-gray-500 line-through" : "text-gray-700"}>{m.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </S3Panel>
+              </div>
+
+              {/* Submitted context */}
+              {(selectedSbRequest.businessNeed || selectedSbRequest.keyRequirements) && (
+                <S3Panel title="Submitted Context">
+                  <div className="space-y-2 text-sm">
+                    {selectedSbRequest.businessNeed && (
+                      <div><span className="text-gray-500">Business Need:</span> <span className="text-gray-900">{selectedSbRequest.businessNeed}</span></div>
+                    )}
+                    {selectedSbRequest.keyRequirements && (
+                      <div><span className="text-gray-500">Key Requirements:</span> <span className="text-gray-900">{selectedSbRequest.keyRequirements}</span></div>
+                    )}
+                    {selectedSbRequest.customisationSelections.length > 0 && (
+                      <div>
+                        <span className="text-gray-500">Customisations:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {selectedSbRequest.customisationSelections.map((sel) => (
+                            <span key={sel} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-700 border border-blue-100">{sel}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </S3Panel>
+              )}
+
+              {/* Assignment panel */}
+              <S3Panel title="Assignment">
+                <p className="text-sm text-gray-600 mb-3">
+                  {selectedSbRequest.assignedTeam
+                    ? `Currently assigned to: ${selectedSbRequest.assignedTeam}`
+                    : "Not yet assigned to a team."}
+                </p>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Assign to Team</label>
+                    <select
+                      value={sbAssignTeam}
+                      onChange={(e) => setSbAssignTeam(e.target.value)}
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">Select team</option>
+                      {stage3TeamMembers.map((m) => (
+                        <option key={m.id} value={m.team}>{m.name} — {m.team}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Button
+                    disabled={!sbAssignTeam}
+                    onClick={() => {
+                      assignBuildRequest(selectedSbRequest.id, sbAssignTeam);
+                      refreshSb();
+                    }}
+                  >
+                    Assign Request
+                  </Button>
+                </div>
+              </S3Panel>
+
+              {/* Status workflow panel */}
+              {selectedSbRequest.status !== "Complete" && (
+                <S3Panel title="Workflow Actions">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSbRequest.status === "Submitted" && (
+                      <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "Triage"); refreshSb(); }}>
+                        Move to Triage
+                      </Button>
+                    )}
+                    {selectedSbRequest.status === "Triage" && (
+                      <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "Queue"); refreshSb(); }}>
+                        Add to Queue
+                      </Button>
+                    )}
+                    {selectedSbRequest.status === "Queue" && (
+                      <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "In Progress"); refreshSb(); }}>
+                        Start Build
+                      </Button>
+                    )}
+                    {selectedSbRequest.status === "In Progress" && (
+                      <>
+                        <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "Testing"); refreshSb(); }}>
+                          Move to Testing
+                        </Button>
+                        <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "On Hold"); refreshSb(); }}>
+                          Put On Hold
+                        </Button>
+                      </>
+                    )}
+                    {selectedSbRequest.status === "Testing" && (
+                      <Button className="bg-green-600 hover:bg-green-700" onClick={() => { completeBuildRequest(selectedSbRequest.id); refreshSb(); }}>
+                        Mark Complete &amp; Deliver
+                      </Button>
+                    )}
+                    {selectedSbRequest.status === "On Hold" && (
+                      <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "In Progress"); refreshSb(); }}>
+                        Resume Build
+                      </Button>
+                    )}
+                    {selectedSbRequest.status === "Revision" && (
+                      <Button variant="outline" onClick={() => { updateBuildRequestStatus(selectedSbRequest.id, "In Progress"); refreshSb(); }}>
+                        Resume Work
+                      </Button>
+                    )}
+                  </div>
+                </S3Panel>
+              )}
+
+              {/* Revision notes */}
+              {allSbRevisionTickets.filter((rev) => rev.requestId === selectedSbRequest.id).length > 0 && (
+                <S3Panel title="Revision Notes">
+                  <div className="space-y-2">
+                    {allSbRevisionTickets
+                      .filter((rev) => rev.requestId === selectedSbRequest.id)
+                      .map((rev) => (
+                        <div key={rev.id} className="rounded-lg border border-red-100 bg-red-50 p-3">
+                          <p className="text-sm font-medium text-red-900">{rev.id}</p>
+                          <p className="text-sm text-red-800 mt-1">{rev.note}</p>
+                          <p className="text-xs text-red-600 mt-1">{rev.status}</p>
+                        </div>
+                      ))}
+                  </div>
+                </S3Panel>
+              )}
+
+              {/* From Spec reference */}
+              {selectedSbRequest.fromSpecId && selectedSbBuild && (
+                <S3Panel title="Based on Solution Spec">
+                  <p className="font-medium text-gray-900">{selectedSbBuild.fromSpecTitle}</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() => navigate(`/marketplaces/solution-specs/${selectedSbRequest.fromSpecId}`)}
+                  >
+                    Open Stage 1 Spec
+                  </Button>
+                </S3Panel>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* ── Solution Specs detail overlay ───────────────────────────────── */}
       {selectedSsRequest && selectedSsSpec && (
@@ -2226,6 +2733,46 @@ function SsRequestCard({
           {request.slaStatus}
         </span>
         <Badge className={getSsStatusClass(request.status)}>{request.status}</Badge>
+      </div>
+    </button>
+  );
+}
+
+function SbRequestCard({
+  request,
+  onClick,
+}: {
+  request: BuildRequest;
+  onClick: () => void;
+}) {
+  const colors = SB_STREAM_COLORS[request.stream] ?? SB_STREAM_COLORS["DBP"];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full bg-white border border-gray-200 rounded-xl p-5 flex items-center justify-between gap-4 text-left hover:bg-orange-50/30 transition-colors"
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${colors.bg} ${colors.text}`}>
+            {request.stream}
+          </span>
+          <span className="text-xs text-gray-500">{request.dewaDivision}</span>
+        </div>
+        <p className="font-semibold text-gray-900 truncate">{request.buildTitle}</p>
+        <div className="flex items-center gap-2 mt-1">
+          <div className="flex-1 max-w-[120px] h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full bg-orange-500 rounded-full" style={{ width: `${request.progress}%` }} />
+          </div>
+          <span className="text-xs text-gray-500">{request.progress}%</span>
+          <span className="text-xs text-gray-400">· {new Date(request.submittedAt).toLocaleDateString()}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${request.slaStatus === "Breached" ? "bg-red-100 text-red-700" : request.slaStatus === "At Risk" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
+          {request.slaStatus}
+        </span>
+        <Badge className={getSbStatusClass(request.status)}>{request.status}</Badge>
       </div>
     </button>
   );
