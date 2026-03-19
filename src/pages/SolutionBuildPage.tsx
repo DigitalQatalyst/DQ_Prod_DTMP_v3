@@ -23,6 +23,8 @@ import { FileX } from "lucide-react";
 import { createCustomBuildRequest } from "@/data/solutionBuildWorkspace";
 import type { BuildRequestPriority, BuildTimeline } from "@/data/solutionBuildWorkspace";
 import type { DewaDivision } from "@/data/blueprints/solutionBuilds";
+import { isUserAuthenticated } from "@/data/sessionAuth";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
 
 type FilterValue = string | string[] | number | boolean | undefined;
 
@@ -52,6 +54,7 @@ export function SolutionBuildPage() {
     additionalRequirements: "",
   });
   const [customSubmitting, setCustomSubmitting] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const typeCounts = useMemo(() => {
     const counts: Record<SolutionType, number> = { DBP: 0, DXP: 0, DWS: 0, DIA: 0, SDO: 0 };
@@ -88,9 +91,16 @@ export function SolutionBuildPage() {
       );
     }
 
-    const specFilter = activeFilters.hasMatchingSpec as string[] | undefined;
-    if (specFilter && specFilter.includes("yes")) {
-      results = results.filter(b => !!b.fromSpecId);
+    const timelineFilter = activeFilters.timeline as string[] | undefined;
+    if (timelineFilter && timelineFilter.length > 0) {
+      results = results.filter(b => {
+        const w = b.timelineWeeks;
+        return timelineFilter.some(t =>
+          t === "short"  ? w <= 8  :
+          t === "medium" ? w >= 9 && w <= 16 :
+          t === "long"   ? w >= 17 : false
+        );
+      });
     }
 
     return results;
@@ -128,6 +138,7 @@ export function SolutionBuildPage() {
     if (!customForm.businessNeed.trim()) return;
     setCustomSubmitting(true);
     try {
+      // Always save the request first (localStorage persists regardless of auth state)
       createCustomBuildRequest({
         dewaDivision: customForm.dewaDivision,
         programme: customForm.programme,
@@ -139,7 +150,13 @@ export function SolutionBuildPage() {
         additionalRequirements: customForm.additionalRequirements,
       });
       setShowCustomDialog(false);
-      navigate("/stage2/build/requests");
+      if (isUserAuthenticated()) {
+        // Already logged in — go straight to My Requests
+        navigate("/stage2/solution-build/my-requests");
+      } else {
+        // Not logged in — pop login modal; on success navigate to My Requests
+        setShowLoginModal(true);
+      }
     } finally {
       setCustomSubmitting(false);
     }
@@ -149,26 +166,26 @@ export function SolutionBuildPage() {
   const streamCount = 5;
 
   const rightContent = (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3">
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-6">
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{solutionBuilds.length}</div>
-          <div className="text-xs text-white/70 mt-0.5">Build Solutions</div>
+          <div className="text-2xl font-bold text-gray-900">{solutionBuilds.length}</div>
+          <div className="text-xs text-gray-500 mt-0.5">Build Solutions</div>
         </div>
-        <div className="w-px bg-white/20 self-stretch" />
+        <div className="w-px bg-gray-200 self-stretch" />
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{streamCount}</div>
-          <div className="text-xs text-white/70 mt-0.5">DBP Streams</div>
+          <div className="text-2xl font-bold text-gray-900">{streamCount}</div>
+          <div className="text-xs text-gray-500 mt-0.5">DBP Streams</div>
         </div>
-        <div className="w-px bg-white/20 self-stretch" />
+        <div className="w-px bg-gray-200 self-stretch" />
         <div className="text-center">
-          <div className="text-2xl font-bold text-white">{totalDeployments}</div>
-          <div className="text-xs text-white/70 mt-0.5">Total Deployments</div>
+          <div className="text-2xl font-bold text-gray-900">{totalDeployments}</div>
+          <div className="text-xs text-gray-500 mt-0.5">Total Deployments</div>
         </div>
       </div>
       <Button
         size="sm"
-        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold self-start"
+        className="bg-white text-orange-600 hover:bg-orange-50 font-semibold self-start border border-orange-200"
         onClick={() => setShowCustomDialog(true)}
       >
         <HelpCircle className="w-4 h-4 mr-1" />
@@ -386,6 +403,23 @@ export function SolutionBuildPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Login modal — shown after custom request is saved, when user isn't authenticated */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "solution-build",
+          tab: "my-requests",
+          cardId: "custom-request",
+          serviceName: "Solution Build",
+          action: "request-build",
+        }}
+        onLoginSuccess={() => {
+          setShowLoginModal(false);
+          navigate("/stage2/solution-build/my-requests");
+        }}
+      />
     </div>
   );
 }

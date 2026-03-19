@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronUp, Rocket, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Rocket, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -241,11 +241,6 @@ export default function BuildRequestsPage() {
 
   return (
     <div className="stage2-content p-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate("/stage2/build/overview")} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Overview
-      </Button>
-
       <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">My Build Requests</h1>

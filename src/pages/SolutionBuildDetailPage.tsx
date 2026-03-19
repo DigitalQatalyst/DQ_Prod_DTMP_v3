@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ChevronRight,
-  ArrowLeft,
   Clock,
   BarChart3,
   Rocket,
@@ -30,6 +29,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { createBuildRequest } from "@/data/solutionBuildWorkspace";
 import type { BuildRequestDraft, BuildRequestPriority, BuildTimeline } from "@/data/solutionBuildWorkspace";
+import { isUserAuthenticated } from "@/data/sessionAuth";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
 
 const COMPLEXITY_COLORS = {
   Low: "bg-green-100 text-green-700",
@@ -46,7 +47,7 @@ export function SolutionBuildDetailPage() {
   // Request form state
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [form, setForm] = useState<{
     dewaDivision: DewaDivision;
@@ -129,12 +130,16 @@ export function SolutionBuildDetailPage() {
         fromSpecId: build.fromSpecId,
         fromSpecTitle: build.fromSpecTitle,
       };
+      // Always save the request first (localStorage persists regardless of auth state)
       createBuildRequest(build.id, draft);
-      setSubmitted(true);
-      setTimeout(() => {
-        setShowRequestDialog(false);
-        navigate("/stage2/build/requests");
-      }, 1500);
+      setShowRequestDialog(false);
+      if (isUserAuthenticated()) {
+        // Already logged in — go straight to My Requests
+        navigate("/stage2/solution-build/my-requests");
+      } else {
+        // Not logged in — pop the login modal; on success navigate to My Requests
+        setShowLoginModal(true);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -156,89 +161,80 @@ export function SolutionBuildDetailPage() {
           <span className="text-gray-900 font-medium truncate max-w-[300px]" aria-current="page">{build.title}</span>
         </nav>
 
-        <button
-          onClick={() => navigate("/marketplaces/solution-build")}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-[hsl(var(--orange))] transition-colors mb-6 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--orange))] focus:ring-offset-2 rounded px-2 py-1"
-        >
-          <ArrowLeft size={16} />
-          Back to Solution Build
-        </button>
+        {/* Hero — full width */}
+        <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
+          {/* Thin stream accent line */}
+          <div className={`w-12 h-1 rounded-full ${colors.headerBg} mb-5`} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+          {/* Badge row */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Badge className={`${colors.bg} ${colors.text} ${colors.border} border font-semibold`} variant="outline">
+              {build.solutionType}
+            </Badge>
+            <Badge variant="outline" className="text-gray-600">DEPLOY</Badge>
+            <Badge className={`${COMPLEXITY_COLORS[build.complexity]} text-xs font-semibold`} variant="outline">
+              {build.complexity} Complexity
+            </Badge>
+          </div>
 
-          {/* Left — main content */}
-          <div className="space-y-6">
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+            {build.title}
+          </h1>
+          <p className="text-gray-600 text-base lg:text-lg leading-relaxed mb-6">
+            {build.fullDescription}
+          </p>
 
-            {/* Hero card */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              {/* Stream header strip */}
-              <div className={`${colors.headerBg} px-8 py-5 flex items-center justify-between`}>
-                <div className="flex items-center gap-3">
-                  <Badge className="bg-white/20 text-white border-white/30 border font-semibold">
-                    {build.solutionType}
-                  </Badge>
-                  <span className="text-white/80 text-sm font-medium uppercase tracking-wide">DEPLOY</span>
-                </div>
-                <Badge className={`${COMPLEXITY_COLORS[build.complexity]} text-xs font-semibold`}>
-                  {build.complexity} Complexity
-                </Badge>
-              </div>
-
-              <div className="p-8">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 leading-tight">
-                  {build.title}
-                </h1>
-                <p className="text-gray-600 text-base leading-relaxed mb-6">
-                  {build.fullDescription}
-                </p>
-
-                {/* 5-column metadata strip */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pb-6 border-b border-gray-100">
-                  <div>
-                    <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
-                      <Clock className="w-3 h-3" />Timeline
-                    </dt>
-                    <dd className="text-sm font-medium text-gray-900">{build.timeline}</dd>
-                  </div>
-                  <div>
-                    <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
-                      <BarChart3 className="w-3 h-3" />Complexity
-                    </dt>
-                    <dd className="text-sm font-medium text-gray-900">{build.complexity}</dd>
-                  </div>
-                  <div>
-                    <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
-                      <Rocket className="w-3 h-3" />Deployments
-                    </dt>
-                    <dd className="text-sm font-medium text-gray-900">{build.deploymentCount}</dd>
-                  </div>
-                  <div>
-                    <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
-                      <Users className="w-3 h-3" />Programme
-                    </dt>
-                    <dd className="text-sm font-medium text-gray-900 line-clamp-2">{build.programme}</dd>
-                  </div>
-                  <div>
-                    <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
-                      <Calendar className="w-3 h-3" />Updated
-                    </dt>
-                    <dd className="text-sm font-medium text-gray-900">
-                      {new Date(build.lastUpdated).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" })}
-                    </dd>
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 pt-4">
-                  {build.tags.map(tag => (
-                    <span key={tag} className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-medium">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+          {/* 5-column metadata strip */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pb-6 border-b border-gray-100">
+            <div>
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Clock className="w-3 h-3" />Timeline
+              </dt>
+              <dd className="text-sm font-medium text-gray-900">{build.timeline}</dd>
             </div>
+            <div>
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <BarChart3 className="w-3 h-3" />Complexity
+              </dt>
+              <dd className="text-sm font-medium text-gray-900">{build.complexity}</dd>
+            </div>
+            <div>
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Rocket className="w-3 h-3" />Deployments
+              </dt>
+              <dd className="text-sm font-medium text-gray-900">{build.deploymentCount}</dd>
+            </div>
+            <div>
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Users className="w-3 h-3" />Programme
+              </dt>
+              <dd className="text-sm font-medium text-gray-900 line-clamp-2">{build.programme}</dd>
+            </div>
+            <div>
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Calendar className="w-3 h-3" />Updated
+              </dt>
+              <dd className="text-sm font-medium text-gray-900">
+                {new Date(build.lastUpdated).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" })}
+              </dd>
+            </div>
+          </div>
 
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 pt-4">
+            {build.tags.map(tag => (
+              <span key={tag} className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-medium">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Two-column: tabs | sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_384px] gap-8">
+
+          {/* Left — tabs */}
+          <div>
             {/* Tabs */}
             <Tabs defaultValue="overview" className="bg-white border border-gray-200 rounded-xl overflow-hidden">
               <div className="border-b border-gray-200 px-6 pt-4">
@@ -383,108 +379,118 @@ export function SolutionBuildDetailPage() {
               </TabsContent>
             </Tabs>
 
-            {/* Related Builds */}
-            {relatedBuilds.length > 0 && (
-              <section className="bg-white border border-gray-200 rounded-xl p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Related Builds — {build.solutionType} Stream</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {relatedBuilds.map(rel => {
-                    const relColors = STREAM_COLORS[rel.solutionType] ?? STREAM_COLORS["DBP"];
-                    return (
-                      <article
-                        key={rel.id}
-                        onClick={() => navigate(`/marketplaces/solution-build/${rel.id}`)}
-                        className="border border-gray-200 rounded-lg overflow-hidden hover:border-orange-300 hover:shadow-md transition-all cursor-pointer group"
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={e => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            navigate(`/marketplaces/solution-build/${rel.id}`);
-                          }
-                        }}
-                        aria-label={`View ${rel.title}`}
-                      >
-                        <div className={`${relColors.headerBg} px-4 py-2 flex items-center justify-between`}>
-                          <span className="text-xs text-white/80 font-medium uppercase tracking-wide">{rel.solutionType}</span>
-                          <span className="text-xs text-white/70">{rel.timeline}</span>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="text-sm font-bold text-gray-900 mb-1 group-hover:text-[hsl(var(--orange))] transition-colors line-clamp-2">
-                            {rel.title}
-                          </h3>
-                          <p className="text-xs text-gray-500 line-clamp-2">{rel.shortDescription}</p>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
           </div>
 
           {/* Right — sticky sidebar */}
-          <div className="space-y-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-6 sticky top-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Build Details</h3>
-              <dl className="space-y-3 text-sm mb-6">
-                <div className="flex justify-between">
-                  <dt className="text-gray-500">Timeline</dt>
-                  <dd className="font-medium text-gray-900">{build.timeline}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-gray-500">Complexity</dt>
-                  <dd>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${COMPLEXITY_COLORS[build.complexity]}`}>
-                      {build.complexity}
-                    </span>
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-gray-500">Deployments</dt>
-                  <dd className="font-medium text-gray-900">{build.deploymentCount}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-gray-500">Delivery Team</dt>
-                  <dd className="font-medium text-gray-900">{build.deliveryTeam}</dd>
-                </div>
-              </dl>
+          <aside className="lg:w-96 flex-shrink-0">
+            <div className="lg:sticky lg:top-24 space-y-5">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
+                <h3 className="text-base font-semibold text-foreground mb-4">Build Details</h3>
 
-              {build.fromSpecId && (
-                <div className="mb-5 pb-5 border-b border-gray-100">
-                  <p className="text-xs text-gray-500 uppercase font-semibold mb-2">From Solution Spec</p>
-                  <button
-                    onClick={() => navigate(`/marketplaces/solution-specs/${build.fromSpecId}`)}
-                    className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                    {build.fromSpecTitle}
-                  </button>
+                <table className="w-full mb-6">
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><Clock className="h-3.5 w-3.5" />Timeline</span>
+                      </td>
+                      <td className="text-sm font-medium text-foreground py-3">{build.timeline}</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><BarChart3 className="h-3.5 w-3.5" />Complexity</span>
+                      </td>
+                      <td className="py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${COMPLEXITY_COLORS[build.complexity]}`}>
+                          {build.complexity}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><Rocket className="h-3.5 w-3.5" />Deployments</span>
+                      </td>
+                      <td className="text-sm font-medium text-foreground py-3">{build.deploymentCount}</td>
+                    </tr>
+                    <tr className={build.fromSpecId ? "border-b border-gray-100" : ""}>
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><Users className="h-3.5 w-3.5" />Delivery Team</span>
+                      </td>
+                      <td className="text-sm font-medium text-foreground py-3">{build.deliveryTeam}</td>
+                    </tr>
+                    {build.fromSpecId && (
+                      <tr>
+                        <td className="text-sm text-muted-foreground py-3 pr-4">
+                          <span className="flex items-center gap-2"><Link2 className="h-3.5 w-3.5" />From Spec</span>
+                        </td>
+                        <td className="py-3">
+                          <button
+                            onClick={() => navigate(`/marketplaces/solution-specs/${build.fromSpecId}`)}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium text-left"
+                          >
+                            {build.fromSpecTitle}
+                          </button>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                <div className="border-t border-gray-200 pt-5 mb-6">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Key Deliverables:</h4>
+                  <ul className="space-y-2">
+                    {build.keyDeliverables.map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
 
-              <Button
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold"
-                onClick={() => {
-                  setSubmitted(false);
-                  setShowRequestDialog(true);
-                }}
-              >
-                <Rocket className="w-4 h-4 mr-2" />
-                Request Build
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full mt-3"
-                onClick={() => navigate("/stage2/build/requests")}
-              >
-                View My Requests
-              </Button>
+                <Button
+                  onClick={() => setShowRequestDialog(true)}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-base font-semibold transition-all hover:shadow-xl"
+                >
+                  Request Build
+                  <Rocket className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
+          </aside>
         </div>
       </main>
+
+      {/* Related Builds — full-width bottom section, same pattern as Sol Specs */}
+      {relatedBuilds.length > 0 && (
+        <section className="bg-gray-50 py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-2xl font-bold text-foreground mb-8">Related Builds — {build.solutionType} Stream</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedBuilds.map(rel => {
+                const relColors = STREAM_COLORS[rel.solutionType] ?? STREAM_COLORS["DBP"];
+                return (
+                  <button
+                    key={rel.id}
+                    onClick={() => navigate(`/marketplaces/solution-build/${rel.id}`)}
+                    className="bg-white border border-gray-200 rounded-xl p-5 text-left transition-all hover:border-orange-300 hover:shadow-lg hover:-translate-y-0.5 duration-200 w-full"
+                    aria-label={`View ${rel.title}`}
+                  >
+                    <div className={`mb-3 inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${relColors.bg} ${relColors.text} ${relColors.border}`}>
+                      {rel.solutionType}
+                    </div>
+                    <div className="text-base font-bold text-gray-900 mb-2 line-clamp-2">{rel.title}</div>
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">{rel.shortDescription}</p>
+                    <div className="flex gap-3 text-xs text-gray-400">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{rel.timeline}</span>
+                      <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" />{rel.complexity}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
 
@@ -496,14 +502,7 @@ export function SolutionBuildDetailPage() {
             <p className="text-sm text-muted-foreground mt-1">{build.title}</p>
           </DialogHeader>
 
-          {submitted ? (
-            <div className="flex flex-col items-center py-8 text-center">
-              <CheckCircle2 className="w-12 h-12 text-green-500 mb-3" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Request Submitted!</h3>
-              <p className="text-sm text-gray-500">Redirecting to My Requests...</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
               {/* Pre-filled read-only fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -672,9 +671,25 @@ export function SolutionBuildDetailPage() {
                 </Button>
               </div>
             </div>
-          )}
         </DialogContent>
       </Dialog>
+
+      {/* Login modal — shown after request is saved, when user isn't authenticated */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "solution-build",
+          tab: "my-requests",
+          cardId: build?.id ?? "",
+          serviceName: build?.title ?? "Solution Build",
+          action: "request-build",
+        }}
+        onLoginSuccess={() => {
+          setShowLoginModal(false);
+          navigate("/stage2/solution-build/my-requests");
+        }}
+      />
     </div>
   );
 }

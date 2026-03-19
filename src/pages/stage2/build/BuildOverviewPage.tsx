@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft,
   Rocket,
   Activity,
   CheckCircle2,
@@ -35,11 +34,6 @@ export default function BuildOverviewPage() {
 
   return (
     <div className="stage2-content p-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate("/stage2")} className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Service Hub
-      </Button>
-
       <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">My Solution Builds</h1>
@@ -80,7 +74,7 @@ export default function BuildOverviewPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">Recent Requests</h2>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/stage2/build/requests")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/stage2/solution-build/my-requests")}>
             View All
           </Button>
         </div>
@@ -116,7 +110,7 @@ export default function BuildOverviewPage() {
                     <tr
                       key={req.id}
                       className="hover:bg-gray-50 cursor-pointer"
-                      onClick={() => navigate("/stage2/build/requests")}
+                      onClick={() => navigate("/stage2/solution-build/my-requests")}
                     >
                       <td className="py-3 px-3 font-mono text-xs text-gray-500">{req.id}</td>
                       <td className="py-3 px-3">

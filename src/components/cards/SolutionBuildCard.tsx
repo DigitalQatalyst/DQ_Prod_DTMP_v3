@@ -42,7 +42,7 @@ export const SolutionBuildCard = memo(({ build, onClick }: Props) => {
       </h3>
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">
+      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
         {build.shortDescription}
       </p>
 
@@ -87,12 +87,6 @@ export const SolutionBuildCard = memo(({ build, onClick }: Props) => {
         </div>
       )}
 
-      {/* Footer CTA */}
-      <div className="mt-auto pt-3 border-t border-border">
-        <span className="inline-flex items-center gap-1 text-sm font-semibold text-[hsl(var(--orange))] group-hover:gap-2 transition-all">
-          Request Build <span aria-hidden="true">→</span>
-        </span>
-      </div>
     </article>
   );
 });

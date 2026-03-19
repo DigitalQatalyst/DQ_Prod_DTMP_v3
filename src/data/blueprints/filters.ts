@@ -92,11 +92,13 @@ export const solutionBuildFilters: FilterConfig[] = [
     ],
   },
   {
-    key: 'hasMatchingSpec',
-    label: 'Has Matching Solution Spec',
+    key: 'timeline',
+    label: 'Timeline',
     type: 'checkbox',
     options: [
-      { label: 'Yes — arrived from Solution Specs', value: 'yes' },
+      { label: 'Short  (≤ 8 weeks)', value: 'short' },
+      { label: 'Medium (9–16 weeks)', value: 'medium' },
+      { label: 'Long   (17+ weeks)', value: 'long' },
     ],
   },
 ];
