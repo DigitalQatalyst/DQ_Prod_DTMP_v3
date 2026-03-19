@@ -68,29 +68,35 @@ export const solutionSpecsFilters: FilterConfig[] = [
 
 export const solutionBuildFilters: FilterConfig[] = [
   {
-    key: 'buildComplexity',
-    label: 'Build Complexity',
+    key: 'complexity',
+    label: 'Complexity',
     type: 'checkbox',
     options: [
-      { value: 'basic', label: 'Basic' },
-      { value: 'intermediate', label: 'Intermediate' },
-      { value: 'advanced', label: 'Advanced' }
-    ]
+      { label: 'Low', value: 'Low' },
+      { label: 'Medium', value: 'Medium' },
+      { label: 'High', value: 'High' },
+    ],
   },
   {
-    key: 'automationLevel',
-    label: 'Automation Level',
+    key: 'divisionRelevance',
+    label: 'Division Relevance',
     type: 'checkbox',
     options: [
-      { value: 'manual', label: 'Manual' },
-      { value: 'semi-automated', label: 'Semi-Automated' },
-      { value: 'fully-automated', label: 'Fully Automated' }
-    ]
+      { label: 'Generation', value: 'Generation' },
+      { label: 'Transmission', value: 'Transmission' },
+      { label: 'Distribution', value: 'Distribution' },
+      { label: 'Water Services', value: 'Water Services' },
+      { label: 'Customer Services', value: 'Customer Services' },
+      { label: 'Digital DEWA & Moro Hub', value: 'Digital DEWA & Moro Hub' },
+      { label: 'All Divisions', value: 'All Divisions' },
+    ],
   },
   {
-    key: 'hasCodeSamples',
-    label: 'Has Code Samples',
+    key: 'hasMatchingSpec',
+    label: 'Has Matching Solution Spec',
     type: 'checkbox',
-    options: [{ value: 'true', label: 'Yes' }]
-  }
+    options: [
+      { label: 'Yes — arrived from Solution Specs', value: 'yes' },
+    ],
+  },
 ];
