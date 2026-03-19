@@ -93,6 +93,11 @@ import {
   LearningWorkspaceMain,
   LearningWorkspaceSidebar,
 } from "@/components/stage2/learning/LearningWorkspacePanels";
+import LCDashboardOverview from "@/components/learningCenter/stage2/dashboard/LCDashboardOverview";
+import LCMyCoursesTab from "@/components/learningCenter/stage2/dashboard/LCMyCoursesTab";
+import LCMyTracksTab from "@/components/learningCenter/stage2/dashboard/LCMyTracksTab";
+import LCCertificatesTab from "@/components/learningCenter/stage2/dashboard/LCCertificatesTab";
+import LCBookmarksTab from "@/components/learningCenter/stage2/dashboard/LCBookmarksTab";
 import {
   PortfolioWorkspaceMain,
   PortfolioWorkspaceSidebar,
@@ -153,6 +158,7 @@ const EMPTY_LOCATION_STATE: LocationState = {};
 type EnrolledCourse = (typeof enrolledCourses)[number];
 type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
+type LearningDashboardTab = "overview" | "my-courses" | "my-tracks" | "certificates" | "bookmarks";
 type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
 type SpecsWorkspaceTab = "overview" | "blueprints" | "templates" | "patterns" | "my-designs";
 type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
@@ -376,8 +382,8 @@ export default function Stage2AppPage() {
   }>();
   const state = (location.state as LocationState) ?? EMPTY_LOCATION_STATE;
 
-  const isLearningCenterRoute =
-    !!routeCourseId && (routeView === "user" || routeView === "admin");
+  const isLearningCenterRoute = location.pathname.startsWith("/stage2/learning-center");
+  const isLearningCourseWorkspace = isLearningCenterRoute && !!routeCourseId;
   const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
   const isPortfolioCenterRoute = location.pathname.startsWith("/stage2/portfolio-management");
   const isTemplatesRoute = location.pathname.startsWith("/stage2/templates");
@@ -475,6 +481,8 @@ export default function Stage2AppPage() {
     useState<LearningUserTab>("overview");
   const [activeLearningAdminTab, setActiveLearningAdminTab] =
     useState<LearningAdminTab>("overview");
+  const [activeLearningDashboardTab, setActiveLearningDashboardTab] =
+    useState<LearningDashboardTab>("overview");
   const [userCourseRuntime, setUserCourseRuntime] = useState<Record<string, typeof userCourseData>>({});
   const [activeKnowledgeTab, setActiveKnowledgeTab] = useState<KnowledgeWorkspaceTab>(
     isKnowledgeWorkspaceTab(routeKnowledgeTab)
@@ -539,7 +547,7 @@ export default function Stage2AppPage() {
   useEffect(() => {
     if (
       routeView === "admin" &&
-      isLearningCenterRoute &&
+      isLearningCourseWorkspace &&
       !canAccessAdminView
     ) {
       navigate(
@@ -564,13 +572,24 @@ export default function Stage2AppPage() {
     }
   }, [
     routeView,
-    isLearningCenterRoute,
+    isLearningCourseWorkspace,
     canAccessAdminView,
     navigate,
     resolvedLearningCourseId,
     state,
     learningRole,
   ]);
+
+  // Sync LC dashboard tab from URL path
+  useEffect(() => {
+    if (!isLearningCenterRoute || isLearningCourseWorkspace) return;
+    const segments = location.pathname.split("/").filter(Boolean);
+    const last = segments.at(-1) ?? "overview";
+    const valid: LearningDashboardTab[] = ["overview", "my-courses", "my-tracks", "certificates", "bookmarks"];
+    if (valid.includes(last as LearningDashboardTab)) {
+      setActiveLearningDashboardTab(last as LearningDashboardTab);
+    }
+  }, [location.pathname, isLearningCenterRoute, isLearningCourseWorkspace]);
 
   const refreshKnowledgeState = () => {
     setSavedKnowledgeIds(getSavedKnowledgeIds());
@@ -1310,6 +1329,11 @@ export default function Stage2AppPage() {
       }
     );
   };
+  const handleLearningDashboardTabClick = (tab: LearningDashboardTab) => {
+    setActiveLearningDashboardTab(tab);
+    navigate(`/stage2/learning-center/${tab}`);
+  };
+
   const handleEscalateLearningToStage3 = () => {
     if (activeService !== "Learning Center" || viewMode !== "admin" || !selectedLearningCourse) {
       return;
@@ -1428,13 +1452,13 @@ export default function Stage2AppPage() {
       initials: "AT",
       name: "Amina TO",
       role: "Learner",
-      label: "User View",
+      label: "My Learning",
     },
     admin: {
       initials: "AT",
       name: "Amina TO",
-      role: "Admin",
-      label: "Admin View",
+      role: "Course Coordinator",
+      label: "Course Management",
     },
   } as const;
 
@@ -1449,7 +1473,7 @@ export default function Stage2AppPage() {
     setViewMode(nextMode);
     setProfileMenuOpen(false);
 
-    if (isLearningCenterRoute && resolvedLearningCourseId) {
+    if (isLearningCourseWorkspace && resolvedLearningCourseId) {
       navigate(
         `/stage2/learning-center/course/${resolvedLearningCourseId}/${nextMode}`,
         {
@@ -2050,7 +2074,7 @@ export default function Stage2AppPage() {
                   viewMode === "user" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
                 }`}
               >
-                Amina TO - Learner View
+                My Learning
               </button>
               <button
                 type="button"
@@ -2059,7 +2083,7 @@ export default function Stage2AppPage() {
                   viewMode === "admin" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
                 }`}
               >
-                Amina TO - Admin View
+                Course Management
               </button>
             </div>
           )}
@@ -2320,45 +2344,78 @@ export default function Stage2AppPage() {
                   </div>
                 </div>
               ) : activeService === "Learning Center" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">My Courses</h3>
-                    <div className="space-y-2">
-                      {learningSubServices.map((course) => {
-                        const Icon = course.icon;
-                        const statusColor = course.status === 'completed' ? 'text-green-600' : 
-                                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
-                        return (
-                          <button
-                            key={course.id}
-                            onClick={() => handleSubServiceClick(course.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === course.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
-                            <div className="text-left flex-1">
-                              <div className="font-medium">{course.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{course.description}</div>
-                              {course.progress > 0 && (
-                                <div className="mt-2">
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div 
-                                      className="bg-orange-600 h-1.5 rounded-full" 
-                                      style={{ width: `${course.progress}%` }}
-                                    />
+                isLearningCourseWorkspace ? (
+                  <div className="space-y-4">
+                    <div>
+                      <button
+                        onClick={() => handleLearningDashboardTabClick("my-courses")}
+                        className="flex items-center gap-2 text-xs text-orange-600 hover:text-orange-700 mb-3 font-medium"
+                      >
+                        <ChevronLeft className="w-3 h-3" /> My Learning
+                      </button>
+                      <h3 className="text-sm font-medium text-gray-900 mb-3">My Courses</h3>
+                      <div className="space-y-2">
+                        {learningSubServices.map((course) => {
+                          const Icon = course.icon;
+                          const statusColor = course.status === 'completed' ? 'text-green-600' :
+                                            course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
+                          return (
+                            <button
+                              key={course.id}
+                              onClick={() => handleSubServiceClick(course.id)}
+                              className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                                activeSubService === course.id
+                                  ? "bg-orange-50 text-orange-700 border border-orange-200"
+                                  : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                              }`}
+                            >
+                              <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
+                              <div className="text-left flex-1">
+                                <div className="font-medium">{course.name}</div>
+                                <div className="text-xs text-gray-500 mt-0.5">{course.description}</div>
+                                {course.progress > 0 && (
+                                  <div className="mt-2">
+                                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                      <div
+                                        className="bg-orange-600 h-1.5 rounded-full"
+                                        style={{ width: `${course.progress}%` }}
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-1">
+                    {([
+                      { id: "overview",     label: "Overview",     desc: "My learning summary"      },
+                      { id: "my-courses",   label: "My Courses",   desc: "Enrolled and completed"   },
+                      { id: "my-tracks",    label: "My Tracks",    desc: "Learning pathways"        },
+                      { id: "certificates", label: "Certificates", desc: "Earned credentials"       },
+                      { id: "bookmarks",    label: "Bookmarks",    desc: "Saved for later"          },
+                    ] as { id: LearningDashboardTab; label: string; desc: string }[]).map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleLearningDashboardTabClick(item.id)}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeLearningDashboardTab === item.id
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">{item.label}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{item.desc}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )
               ) : activeService === "Solution Build" ? (
                 <div className="space-y-4">
                   <div>
@@ -2513,7 +2570,9 @@ export default function Stage2AppPage() {
                     (activeService === "Portfolio Management" 
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
                       : activeService === "Learning Center"
-                      ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      ? (isLearningCourseWorkspace
+                          ? learningSubServices.find(s => s.id === activeSubService)?.name
+                          : "Learning Centre — My Learning")
                       : activeService === "Lifecycle Management"
                       ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
                       : activeService === "Solution Build"
@@ -2531,7 +2590,9 @@ export default function Stage2AppPage() {
                     (activeService === "Portfolio Management"
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Learning Center"
-                      ? learningSubServices.find(s => s.id === activeSubService)?.description
+                      ? (isLearningCourseWorkspace
+                          ? learningSubServices.find(s => s.id === activeSubService)?.description
+                          : "Your courses, tracks, and learning progress")
                       : activeService === "Solution Build"
                       ? `${solutionBuildSubServices.find(s => s.id === activeSubService)?.solutionType} Solution`
                       : activeService === "Digital Intelligence"
@@ -2565,7 +2626,7 @@ export default function Stage2AppPage() {
               activeSubService={activeSubService}
               portfolioSubServices={portfolioSubServices}
             />
-          ) : activeService === "Learning Center" && activeSubService ? (
+          ) : activeService === "Learning Center" && isLearningCourseWorkspace && activeSubService ? (
             <LearningWorkspaceMain
               viewMode={viewMode}
               activeTrackSnapshot={activeTrackSnapshot}
@@ -2589,6 +2650,39 @@ export default function Stage2AppPage() {
               onAdminDeleteRequestedChange={handleAdminDeleteRequestedChange}
               adminPendingChangeCount={activeAdminPendingChangeCount}
             />
+          ) : activeService === "Learning Center" ? (
+            <div className="h-full">
+              {activeLearningDashboardTab === "overview" && (
+                <LCDashboardOverview
+                  onNavigate={handleLearningDashboardTabClick}
+                  onContinueCourse={(courseId) =>
+                    navigate(`/stage2/learning-center/course/${courseId}/user`, {
+                      state: { ...location.state, learningRole: "learner" },
+                    })
+                  }
+                />
+              )}
+              {activeLearningDashboardTab === "my-courses" && (
+                <LCMyCoursesTab
+                  onContinueCourse={(courseId) =>
+                    navigate(`/stage2/learning-center/course/${courseId}/user`, {
+                      state: { ...location.state, learningRole: "learner" },
+                    })
+                  }
+                />
+              )}
+              {activeLearningDashboardTab === "my-tracks" && <LCMyTracksTab />}
+              {activeLearningDashboardTab === "certificates" && <LCCertificatesTab />}
+              {activeLearningDashboardTab === "bookmarks" && (
+                <LCBookmarksTab
+                  onEnrol={(courseId) =>
+                    navigate(`/stage2/learning-center/course/${courseId}/user`, {
+                      state: { ...location.state, learningRole: "learner" },
+                    })
+                  }
+                />
+              )}
+            </div>
           ) : activeService === "Knowledge Center" ? (
             <KnowledgeWorkspaceMain
               activeTab={activeKnowledgeTab}

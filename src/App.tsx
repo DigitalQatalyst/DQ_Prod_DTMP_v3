@@ -13,6 +13,7 @@ import KnowledgeCenterDetailPage from "./pages/KnowledgeCenterDetailPage";
 import TransactAppPage from "./pages/TransactAppPage";
 import Stage2AppPage from "./pages/Stage2AppPage";
 import Stage3AppPage from "./pages/Stage3AppPage";
+import LCGovernancePage from "./pages/LCGovernancePage";
 import DocumentStudioPage from "./pages/TemplatesPage";
 import DocumentStudioDetailPage from "./pages/TemplatesDetailPage";
 import { SolutionSpecsPage } from "./pages/SolutionSpecsPage";
@@ -91,6 +92,9 @@ const App = () => (
 
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
+          {/* Learning Centre Stage 2 — dashboard tabs + course workspace */}
+          <Route path="/stage2/learning-center" element={<Navigate to="/stage2/learning-center/overview" replace />} />
+          <Route path="/stage2/learning-center/:tab" element={<Stage2AppPage />} />
           <Route path="/stage2/learning-center/course/:courseId/:view" element={<Stage2AppPage />} />
           <Route path="/stage2/knowledge" element={<Navigate to="/stage2/knowledge/overview" replace />} />
           <Route path="/stage2/knowledge/:tab" element={<Stage2AppPage />} />
@@ -127,6 +131,10 @@ const App = () => (
           <Route path="/stage2" element={<Stage2AppPage />} />
           <Route path="/stage3" element={<Navigate to="/stage3/dashboard" replace />} />
           <Route path="/stage3/:view" element={<Stage3GuardedRoute />} />
+
+          {/* Learning Centre Content Governance (Stage 3) */}
+          <Route path="/stage3/learning-centre" element={<Navigate to="/stage3/learning-centre/dashboard" replace />} />
+          <Route path="/stage3/learning-centre/:view" element={<LCGovernancePage />} />
           
           {/* Main platform routes */}
           <Route path="/dbp" element={<ComingSoonPage pageName="DBP" />} />
