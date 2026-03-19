@@ -30,6 +30,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { createBuildRequest } from "@/data/solutionBuildWorkspace";
 import type { BuildRequestDraft, BuildRequestPriority, BuildTimeline } from "@/data/solutionBuildWorkspace";
+import { isUserAuthenticated } from "@/data/sessionAuth";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
 
 const COMPLEXITY_COLORS = {
   Low: "bg-green-100 text-green-700",
@@ -46,7 +48,7 @@ export function SolutionBuildDetailPage() {
   // Request form state
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [form, setForm] = useState<{
     dewaDivision: DewaDivision;
@@ -129,12 +131,16 @@ export function SolutionBuildDetailPage() {
         fromSpecId: build.fromSpecId,
         fromSpecTitle: build.fromSpecTitle,
       };
+      // Always save the request first (localStorage persists regardless of auth state)
       createBuildRequest(build.id, draft);
-      setSubmitted(true);
-      setTimeout(() => {
-        setShowRequestDialog(false);
+      setShowRequestDialog(false);
+      if (isUserAuthenticated()) {
+        // Already logged in — go straight to My Requests
         navigate("/stage2/solution-build/my-requests");
-      }, 1500);
+      } else {
+        // Not logged in — pop the login modal; on success navigate to My Requests
+        setShowLoginModal(true);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -668,6 +674,23 @@ export function SolutionBuildDetailPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Login modal — shown after request is saved, when user isn't authenticated */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "solution-build",
+          tab: "my-requests",
+          cardId: build?.id ?? "",
+          serviceName: build?.title ?? "Solution Build",
+          action: "request-build",
+        }}
+        onLoginSuccess={() => {
+          setShowLoginModal(false);
+          navigate("/stage2/solution-build/my-requests");
+        }}
+      />
     </div>
   );
 }

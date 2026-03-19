@@ -187,6 +187,8 @@ export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginMo
             ? `Please log in to access the ${context.serviceName} dashboard`
             : context.marketplace === "solution-specs"
             ? "Log in to complete your request."
+            : context.marketplace === "solution-build"
+            ? "Your request has been saved. Log in to track it in your workspace."
             : context.action === "access-platform"
             ? "Log in to access internal platform workspace."
             : "Please log in to continue with your enrollment"}

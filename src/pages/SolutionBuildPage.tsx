@@ -23,6 +23,8 @@ import { FileX } from "lucide-react";
 import { createCustomBuildRequest } from "@/data/solutionBuildWorkspace";
 import type { BuildRequestPriority, BuildTimeline } from "@/data/solutionBuildWorkspace";
 import type { DewaDivision } from "@/data/blueprints/solutionBuilds";
+import { isUserAuthenticated } from "@/data/sessionAuth";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
 
 type FilterValue = string | string[] | number | boolean | undefined;
 
@@ -52,6 +54,7 @@ export function SolutionBuildPage() {
     additionalRequirements: "",
   });
   const [customSubmitting, setCustomSubmitting] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const typeCounts = useMemo(() => {
     const counts: Record<SolutionType, number> = { DBP: 0, DXP: 0, DWS: 0, DIA: 0, SDO: 0 };
@@ -128,6 +131,7 @@ export function SolutionBuildPage() {
     if (!customForm.businessNeed.trim()) return;
     setCustomSubmitting(true);
     try {
+      // Always save the request first (localStorage persists regardless of auth state)
       createCustomBuildRequest({
         dewaDivision: customForm.dewaDivision,
         programme: customForm.programme,
@@ -139,7 +143,13 @@ export function SolutionBuildPage() {
         additionalRequirements: customForm.additionalRequirements,
       });
       setShowCustomDialog(false);
-      navigate("/stage2/solution-build/my-requests");
+      if (isUserAuthenticated()) {
+        // Already logged in — go straight to My Requests
+        navigate("/stage2/solution-build/my-requests");
+      } else {
+        // Not logged in — pop login modal; on success navigate to My Requests
+        setShowLoginModal(true);
+      }
     } finally {
       setCustomSubmitting(false);
     }
@@ -386,6 +396,23 @@ export function SolutionBuildPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Login modal — shown after custom request is saved, when user isn't authenticated */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "solution-build",
+          tab: "my-requests",
+          cardId: "custom-request",
+          serviceName: "Solution Build",
+          action: "request-build",
+        }}
+        onLoginSuccess={() => {
+          setShowLoginModal(false);
+          navigate("/stage2/solution-build/my-requests");
+        }}
+      />
     </div>
   );
 }
