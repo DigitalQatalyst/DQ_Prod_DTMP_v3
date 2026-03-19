@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ChevronRight,
-  ArrowLeft,
   Clock,
   BarChart3,
   Rocket,
@@ -162,13 +161,6 @@ export function SolutionBuildDetailPage() {
           <span className="text-gray-900 font-medium truncate max-w-[300px]" aria-current="page">{build.title}</span>
         </nav>
 
-        <button
-          onClick={() => navigate("/marketplaces/solution-build")}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-[hsl(var(--orange))] transition-colors mb-6 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--orange))] focus:ring-offset-2 rounded px-2 py-1"
-        >
-          <ArrowLeft size={16} />
-          Back to Solution Build
-        </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
 
@@ -470,13 +462,6 @@ export function SolutionBuildDetailPage() {
                 Request Build
               </Button>
 
-              <Button
-                variant="outline"
-                className="w-full mt-3"
-                onClick={() => navigate("/stage2/solution-build/my-requests")}
-              >
-                View My Requests
-              </Button>
             </div>
           </div>
         </div>
