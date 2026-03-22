@@ -92,9 +92,8 @@ const App = () => (
 
           {/* Stage 2 - Transact App */}
           <Route path="/transact-app" element={<TransactAppPage />} />
-          {/* Learning Centre Stage 2 — dashboard tabs + course workspace */}
-          <Route path="/stage2/learning-center" element={<Navigate to="/stage2/learning-center/overview" replace />} />
-          <Route path="/stage2/learning-center/:tab" element={<Stage2AppPage />} />
+          {/* Learning Centre Stage 2 — accordion sidebar + course workspace */}
+          <Route path="/stage2/learning-center" element={<Stage2AppPage />} />
           <Route path="/stage2/learning-center/course/:courseId/:view" element={<Stage2AppPage />} />
           <Route path="/stage2/knowledge" element={<Navigate to="/stage2/knowledge/overview" replace />} />
           <Route path="/stage2/knowledge/:tab" element={<Stage2AppPage />} />
