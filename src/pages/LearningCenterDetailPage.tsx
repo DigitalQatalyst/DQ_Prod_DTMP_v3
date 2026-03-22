@@ -13,6 +13,7 @@ import {
   Users,
   FileText,
   Image,
+  BookMarked,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -22,10 +23,13 @@ import { Badge } from "@/components/ui/badge";
 import { CourseCard } from "@/components/learningCenter/CourseCard";
 import { LearningTrackCard } from "@/components/learningCenter/LearningTrackCard";
 import { LoginModal } from "@/components/learningCenter/LoginModal";
+import { BookmarkSaveDialog } from "@/components/learningCenter/BookmarkSaveDialog";
 import { courses, Course } from "@/data/learningCenter/courses";
 import { learningTracks, LearningTrack } from "@/data/learningCenter/learningTracks";
 import { getOrderedTrackCourses, getTrackPrimaryCourseId } from "@/data/learningCenter/trackRuntime";
 import { reviews, Review } from "@/data/learningCenter/reviews";
+import { isBookmarked, removeBookmark } from "@/data/learningCenter/bookmarks";
+import { isUserAuthenticated } from "@/data/sessionAuth";
 
 type DetailTab = "about" | "eligibility" | "process" | "documents" | "provider";
 
@@ -57,6 +61,9 @@ export default function LearningCenterDetailPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<DetailTab>("about");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showBookmarkLogin, setShowBookmarkLogin] = useState(false);
+  const [showBookmarkDialog, setShowBookmarkDialog] = useState(false);
+  const [bookmarked, setBookmarked] = useState(() => isBookmarked(cardId ?? ""));
 
   // Find the item based on tab type
   const getCourse = (): Course | undefined => courses.find((c) => c.id === cardId);
@@ -123,6 +130,19 @@ export default function LearningCenterDetailPage() {
 
   const handleEnroll = () => {
     setShowLoginModal(true);
+  };
+
+  const handleBookmarkClick = () => {
+    if (bookmarked) {
+      removeBookmark(cardId ?? "");
+      setBookmarked(false);
+      return;
+    }
+    if (isUserAuthenticated()) {
+      setShowBookmarkDialog(true);
+    } else {
+      setShowBookmarkLogin(true);
+    }
   };
 
   const gradientIndex = cardId ? cardId.length % gradientColors.length : 0;
@@ -665,12 +685,24 @@ export default function LearningCenterDetailPage() {
                   </ul>
                 </div>
 
-                {/* CTA Button */}
+                {/* CTA Buttons */}
                 <Button
                   onClick={handleEnroll}
                   className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-lg font-semibold transition-all hover:shadow-xl"
                 >
                   Enroll Now
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleBookmarkClick}
+                  className={`w-full mt-3 font-medium transition-all ${
+                    bookmarked
+                      ? "border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100"
+                      : "border-gray-300 text-gray-700 hover:border-purple-300 hover:text-purple-700"
+                  }`}
+                >
+                  <BookMarked className={`w-4 h-4 mr-2 ${bookmarked ? "fill-purple-500 text-purple-500" : ""}`} />
+                  {bookmarked ? "Bookmarked ✓" : "Save for Later"}
                 </Button>
               </div>
             </aside>
@@ -706,7 +738,7 @@ export default function LearningCenterDetailPage() {
         </section>
       )}
 
-      {/* Login Modal */}
+      {/* Enrol Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
@@ -716,6 +748,33 @@ export default function LearningCenterDetailPage() {
           cardId: enrollmentTargetCardId,
           serviceName: title || "",
           action: "enroll",
+        }}
+      />
+
+      {/* Bookmark Login Modal */}
+      <LoginModal
+        isOpen={showBookmarkLogin}
+        onClose={() => setShowBookmarkLogin(false)}
+        onLoginSuccess={() => setShowBookmarkDialog(true)}
+        context={{
+          marketplace: "learning-center",
+          tab: tab || "courses",
+          cardId: cardId || "",
+          serviceName: title || "",
+          action: "bookmark",
+        }}
+      />
+
+      {/* Bookmark Save Dialog */}
+      <BookmarkSaveDialog
+        isOpen={showBookmarkDialog}
+        courseId={cardId || ""}
+        courseTitle={title || ""}
+        courseCategory={isCourse ? course?.category : undefined}
+        onClose={() => setShowBookmarkDialog(false)}
+        onSaved={() => {
+          setShowBookmarkDialog(false);
+          setBookmarked(true);
         }}
       />
 

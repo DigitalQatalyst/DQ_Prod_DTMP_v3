@@ -24,6 +24,10 @@ interface AdminSettingsTabProps {
   deleteRequested: boolean;
   onDeleteRequestedChange: (value: boolean) => void;
   pendingChangeCount: number;
+  onSubmitForReview: () => void;
+  escalationMessage?: string | null;
+  settingsDiffs: Array<{ label: string; before: string; after: string }>;
+  onViewInTOOffice?: () => void;
 }
 
 const SectionHeader = ({
@@ -45,6 +49,10 @@ const AdminSettingsTab = ({
   deleteRequested,
   onDeleteRequestedChange,
   pendingChangeCount,
+  onSubmitForReview,
+  escalationMessage,
+  settingsDiffs,
+  onViewInTOOffice,
 }: AdminSettingsTabProps) => {
   const updateField = <K extends keyof CourseSettings>(field: K, value: CourseSettings[K]) => {
     onChange({
@@ -53,13 +61,66 @@ const AdminSettingsTab = ({
     });
   };
 
+  const totalPending = pendingChangeCount + (deleteRequested ? 1 : 0);
+
   return (
     <div className="space-y-6">
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <p className="text-sm text-blue-900 font-medium">Pending Draft Changes</p>
-        <p className="text-xs text-blue-700 mt-1">
-          {pendingChangeCount} field change(s) {deleteRequested ? " + delete request" : ""} ready for TO review submission.
-        </p>
+      {/* Submit action strip */}
+      <div className={`border rounded-xl p-4 flex items-center justify-between gap-4 ${
+        totalPending > 0
+          ? "bg-orange-50 border-orange-200"
+          : "bg-gray-50 border-gray-200"
+      }`}>
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-medium ${totalPending > 0 ? "text-orange-900" : "text-gray-600"}`}>
+            {totalPending > 0
+              ? `${totalPending} pending change${totalPending > 1 ? "s" : ""} awaiting submission`
+              : "No pending changes"}
+          </p>
+          {escalationMessage ? (
+            <div className="flex items-center gap-3 mt-0.5">
+              <p className="text-xs text-green-700">{escalationMessage}</p>
+              {onViewInTOOffice && (
+                <button
+                  type="button"
+                  onClick={onViewInTOOffice}
+                  className="text-xs text-orange-600 hover:text-orange-800 font-medium underline underline-offset-2 flex-shrink-0"
+                >
+                  View in TO Office →
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className={`text-xs mt-0.5 ${totalPending > 0 ? "text-orange-700" : "text-gray-400"}`}>
+              {totalPending > 0
+                ? "Review proposed changes below, then submit to TO Office for approval."
+                : "Edit any field below to stage a change request."}
+            </p>
+          )}
+          {settingsDiffs.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {settingsDiffs.map((d, i) => (
+                <li key={i} className="text-xs text-orange-800">
+                  • <span className="font-medium">{d.label}:</span>{" "}
+                  <span className="line-through text-orange-400">"{d.before}"</span>{" "}
+                  → <span className="font-medium">"{d.after}"</span>
+                </li>
+              ))}
+              {deleteRequested && (
+                <li className="text-xs text-red-700 font-medium">• Archive / delete course requested</li>
+              )}
+            </ul>
+          )}
+        </div>
+        <Button
+          size="sm"
+          className="bg-orange-600 hover:bg-orange-700 text-white flex-shrink-0"
+          disabled={totalPending === 0}
+          onClick={onSubmitForReview}
+        >
+          <Save className="w-4 h-4 mr-2" />
+          Submit for TO Review
+        </Button>
       </div>
       {/* General Settings */}
       <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -131,10 +192,6 @@ const AdminSettingsTab = ({
             </select>
           </div>
         </div>
-        <Button className="mt-4 bg-orange-600 hover:bg-orange-700 text-white" size="sm">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
       </div>
 
       {/* Enrollment Settings */}
@@ -216,10 +273,6 @@ const AdminSettingsTab = ({
             </div>
           </div>
         </div>
-        <Button className="mt-4 bg-orange-600 hover:bg-orange-700 text-white" size="sm">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
       </div>
 
       {/* Grading & Certification */}
@@ -292,10 +345,6 @@ const AdminSettingsTab = ({
             className="mt-1 w-32"
           />
         </div>
-        <Button className="mt-4 bg-orange-600 hover:bg-orange-700 text-white" size="sm">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
       </div>
 
       {/* Instructor Settings */}
@@ -328,10 +377,6 @@ const AdminSettingsTab = ({
             </Button>
           </div>
         </div>
-        <Button className="mt-4 bg-orange-600 hover:bg-orange-700 text-white" size="sm">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
       </div>
 
       {/* Notifications */}
@@ -355,10 +400,6 @@ const AdminSettingsTab = ({
             <Switch checked={settings.notifyQuizFailures} onCheckedChange={(value) => updateField("notifyQuizFailures", value)} />
           </div>
         </div>
-        <Button className="mt-4 bg-orange-600 hover:bg-orange-700 text-white" size="sm">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
       </div>
 
       {/* Advanced */}

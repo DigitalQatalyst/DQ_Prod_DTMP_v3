@@ -3,12 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
   BarChart3,
+  CheckSquare,
+  ClipboardCheck,
   Clock,
   Download,
   Eye,
+  FileEdit,
   Filter,
   Home,
   Inbox,
+  LayoutDashboard,
+  Library,
   ListChecks,
   MoreHorizontal,
   Search,
@@ -31,6 +36,15 @@ import {
   unassignStage3Request,
 } from "@/data/stage3";
 import { getLearningChangeSetById } from "@/data/learningCenter/changeReviewState";
+import { getSessionRole } from "@/data/sessionRole";
+import { getLCChangeRequests } from "@/data/learningCenter/stage3/lcChangeRequests";
+import type { LCChangeRequest } from "@/data/learningCenter/stage3/lcChangeRequests";
+import LCGovOverview from "@/components/learningCenter/stage3/LCGovOverview";
+import LCContentBrowser from "@/components/learningCenter/stage3/LCContentBrowser";
+import LCChangeRequests from "@/components/learningCenter/stage3/LCChangeRequests";
+import LCPendingApproval from "@/components/learningCenter/stage3/LCPendingApproval";
+import LCApprovedChanges from "@/components/learningCenter/stage3/LCApprovedChanges";
+import LCAnalytics from "@/components/learningCenter/stage3/LCAnalytics";
 
 type Stage3View =
   | "dashboard"
@@ -41,6 +55,14 @@ type Stage3View =
   | "team-capacity"
   | "analytics";
 type Stage3Scope = "all" | "learning-center" | "knowledge-center";
+
+type LCGovView =
+  | "dashboard"
+  | "content-browser"
+  | "change-requests"
+  | "pending-approval"
+  | "approved-changes"
+  | "analytics";
 
 const viewLabels: Record<Stage3View, string> = {
   dashboard: "Dashboard",
@@ -111,6 +133,11 @@ export default function Stage3AppPage() {
   const [selectedNextStatus, setSelectedNextStatus] = useState<Stage3Request["status"] | "">("");
   const [noteDraft, setNoteDraft] = useState("");
   const [scope, setScope] = useState<Stage3Scope>("all");
+  const role = getSessionRole();
+  const [lcView, setLcView] = useState<LCGovView>("dashboard");
+  const [lcRequests, setLcRequests] = useState<LCChangeRequest[]>([]);
+  const refreshLc = () => setLcRequests(getLCChangeRequests());
+  const lcSubmittedCount = lcRequests.filter((r) => r.status === "submitted").length;
   const [statusFilter, setStatusFilter] = useState<Stage3Request["status"] | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<Stage3Request["priority"] | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
@@ -161,6 +188,12 @@ export default function Stage3AppPage() {
       setSelectedRequestId(null);
     }
   }, [scope, selectedRequestId, requests]);
+
+  useEffect(() => {
+    if (scope === "learning-center") {
+      setLcRequests(getLCChangeRequests());
+    }
+  }, [scope]);
 
   useEffect(() => {
     if (!selectedRequest) {
@@ -336,7 +369,9 @@ export default function Stage3AppPage() {
       <aside className="w-72 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-5 border-b border-gray-200">
           <h2 className="font-semibold text-2xl text-gray-900">TO Operations</h2>
-          <p className="text-sm text-gray-500">Stage 3 - CRM</p>
+          <p className="text-sm text-gray-500">
+            {scope === "learning-center" ? "Learning Centre Governance" : "Stage 3 - CRM"}
+          </p>
         </div>
         <div className="p-4 space-y-1">
           <button
@@ -349,47 +384,85 @@ export default function Stage3AppPage() {
             Dashboard
           </button>
         </div>
-        <div className="px-4 pb-3">
-          <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Requests</p>
-          <div className="space-y-1">
-            <button
-              onClick={() => navigate("/stage3/all")}
-              className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
-                view === "all" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <span className="inline-flex items-center gap-2"><ListChecks className="w-4 h-4" />All Requests</span>
-              <span className="text-xs rounded-full px-2 py-0.5 bg-gray-100">{requestNavCounts.all}</span>
-            </button>
-            <button
-              onClick={() => navigate("/stage3/new")}
-              className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
-                view === "new" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <span className="inline-flex items-center gap-2"><Inbox className="w-4 h-4" />New</span>
-              <span className="text-xs rounded-full px-2 py-0.5 bg-blue-100 text-blue-700">{requestNavCounts.new}</span>
-            </button>
-            <button
-              onClick={() => navigate("/stage3/in-progress")}
-              className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
-                view === "in-progress" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <span className="inline-flex items-center gap-2"><Activity className="w-4 h-4" />In Progress</span>
-              <span className="text-xs rounded-full px-2 py-0.5 bg-amber-100 text-amber-700">{requestNavCounts.inProgress}</span>
-            </button>
-            <button
-              onClick={() => navigate("/stage3/pending-review")}
-              className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
-                view === "pending-review" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <span className="inline-flex items-center gap-2"><Eye className="w-4 h-4" />Pending Review</span>
-              <span className="text-xs rounded-full px-2 py-0.5 bg-orange-100 text-orange-700">{requestNavCounts.pendingReview}</span>
-            </button>
+        {scope === "learning-center" ? (
+          <div className="px-4 pb-3">
+            <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Content Governance</p>
+            <div className="space-y-1">
+              {(
+                [
+                  { id: "dashboard" as LCGovView, label: "Overview", Icon: LayoutDashboard },
+                  { id: "content-browser" as LCGovView, label: "Content Browser", Icon: Library },
+                  { id: "change-requests" as LCGovView, label: "Change Requests", Icon: FileEdit },
+                  { id: "pending-approval" as LCGovView, label: "Pending Approval", Icon: ClipboardCheck },
+                  { id: "approved-changes" as LCGovView, label: "Approved Changes", Icon: CheckSquare },
+                  { id: "analytics" as LCGovView, label: "Analytics", Icon: BarChart3 },
+                ]
+              ).map(({ id, label, Icon }) => {
+                const isActive = lcView === id;
+                const showBadge = id === "pending-approval" && lcSubmittedCount > 0;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setLcView(id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+                      isActive ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-orange-600" : "text-gray-500"}`} />
+                    <span className="flex-1">{label}</span>
+                    {showBadge && (
+                      <span className="bg-orange-600 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
+                        {lcSubmittedCount}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="px-4 pb-3">
+            <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Requests</p>
+            <div className="space-y-1">
+              <button
+                onClick={() => navigate("/stage3/all")}
+                className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
+                  view === "all" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2"><ListChecks className="w-4 h-4" />All Requests</span>
+                <span className="text-xs rounded-full px-2 py-0.5 bg-gray-100">{requestNavCounts.all}</span>
+              </button>
+              <button
+                onClick={() => navigate("/stage3/new")}
+                className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
+                  view === "new" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2"><Inbox className="w-4 h-4" />New</span>
+                <span className="text-xs rounded-full px-2 py-0.5 bg-blue-100 text-blue-700">{requestNavCounts.new}</span>
+              </button>
+              <button
+                onClick={() => navigate("/stage3/in-progress")}
+                className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
+                  view === "in-progress" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2"><Activity className="w-4 h-4" />In Progress</span>
+                <span className="text-xs rounded-full px-2 py-0.5 bg-amber-100 text-amber-700">{requestNavCounts.inProgress}</span>
+              </button>
+              <button
+                onClick={() => navigate("/stage3/pending-review")}
+                className={`w-full text-left px-3 py-2 rounded-lg text-base flex items-center justify-between ${
+                  view === "pending-review" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2"><Eye className="w-4 h-4" />Pending Review</span>
+                <span className="text-xs rounded-full px-2 py-0.5 bg-orange-100 text-orange-700">{requestNavCounts.pendingReview}</span>
+              </button>
+            </div>
+          </div>
+        )}
         <div className="px-4 pb-3">
           <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Management</p>
           <div className="space-y-1">
@@ -429,8 +502,14 @@ export default function Stage3AppPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="border-b border-gray-200 bg-white px-6 py-5 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-semibold text-gray-900">Request Management</h1>
-            <p className="text-sm text-gray-500">Transformation Office Operations Dashboard</p>
+            <h1 className="text-4xl font-semibold text-gray-900">
+              {scope === "learning-center" ? "Learning Centre" : "Request Management"}
+            </h1>
+            <p className="text-sm text-gray-500">
+              {scope === "learning-center"
+                ? "Content Governance · EA Office"
+                : "Transformation Office Operations Dashboard"}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" className="inline-flex items-center gap-2">
@@ -448,10 +527,22 @@ export default function Stage3AppPage() {
           <div className="bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mr-2">Marketplace Scope</span>
             <Button size="sm" variant={scope === "all" ? "default" : "outline"} className={scope === "all" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("all")}>All</Button>
-            <Button size="sm" variant={scope === "learning-center" ? "default" : "outline"} className={scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("learning-center")}>Learning Center</Button>
+            <Button size="sm" variant={scope === "learning-center" ? "default" : "outline"} className={scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => { setScope("learning-center"); setLcView("dashboard"); }}>Learning Centre</Button>
             <Button size="sm" variant={scope === "knowledge-center" ? "default" : "outline"} className={scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""} onClick={() => setScope("knowledge-center")}>Knowledge Center</Button>
           </div>
 
+          {scope === "learning-center" && (
+            <div className="space-y-4">
+              {lcView === "dashboard" && <LCGovOverview requests={lcRequests} role={role} />}
+              {lcView === "content-browser" && <LCContentBrowser onRequestCreated={refreshLc} />}
+              {lcView === "change-requests" && <LCChangeRequests requests={lcRequests} onRefresh={refreshLc} />}
+              {lcView === "pending-approval" && <LCPendingApproval requests={lcRequests} role={role} onRefresh={refreshLc} />}
+              {lcView === "approved-changes" && <LCApprovedChanges requests={lcRequests} role={role} onRefresh={refreshLc} />}
+              {lcView === "analytics" && <LCAnalytics />}
+            </div>
+          )}
+
+          {scope !== "learning-center" && (<>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
               <p className="text-sm font-semibold text-blue-800">Total Requests</p>
@@ -603,6 +694,7 @@ export default function Stage3AppPage() {
               ))}
             </div>
           )}
+          </>)}
         </div>
       </main>
 

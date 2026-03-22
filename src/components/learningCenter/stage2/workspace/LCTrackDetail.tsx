@@ -1,4 +1,4 @@
-import { CheckCircle2, PlayCircle, Circle, ArrowRight } from "lucide-react";
+import { CheckCircle2, PlayCircle, Circle, ArrowRight, Award, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { learningTracks } from "@/data/learningCenter/learningTracks";
@@ -33,13 +33,11 @@ export default function LCTrackDetail({ trackId, onContinueCourse }: LCTrackDeta
 
   if (!trackEnrollment) {
     return (
-      <div className="h-full p-8 flex flex-col items-center justify-center gap-4">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{track.title}</h2>
-          <p className="text-gray-500 mb-6 max-w-md">{track.description}</p>
-          <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-            Enrol in Track
-          </Button>
+      <div className="h-full p-8 flex flex-col items-center justify-center gap-4 text-center">
+        <BarChart3 className="w-10 h-10 text-gray-300" />
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700 mb-1">{track.title}</h2>
+          <p className="text-sm text-gray-400">No enrolment record found for this track.</p>
         </div>
       </div>
     );
@@ -208,8 +206,30 @@ export default function LCTrackDetail({ trackId, onContinueCourse }: LCTrackDeta
         })}
       </div>
 
-      {/* Continue Track CTA */}
-      {nextIncompleteId && (
+      {/* Bottom CTA — completed or continue */}
+      {trackEnrollment.status === "completed" ? (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-5 flex items-center gap-4">
+          <Award className="w-8 h-8 text-green-600 flex-shrink-0" />
+          <div className="flex-1">
+            <div className="font-semibold text-green-800 mb-0.5">Track Completed</div>
+            <div className="text-sm text-green-600">
+              {trackEnrollment.completedAt
+                ? `Completed on ${new Date(trackEnrollment.completedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                : "All courses finished"}
+              {track.certification && " · Certificate awarded"}
+            </div>
+          </div>
+          {track.certification && (
+            <Button
+              variant="outline"
+              className="border-green-400 text-green-700 hover:bg-green-100 flex-shrink-0"
+              onClick={() => {}}
+            >
+              View Certificate
+            </Button>
+          )}
+        </div>
+      ) : nextIncompleteId ? (
         <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 flex items-center justify-between">
           <div>
             <div className="font-semibold text-orange-800 mb-0.5">Continue your track</div>
@@ -224,7 +244,7 @@ export default function LCTrackDetail({ trackId, onContinueCourse }: LCTrackDeta
             Continue Track <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

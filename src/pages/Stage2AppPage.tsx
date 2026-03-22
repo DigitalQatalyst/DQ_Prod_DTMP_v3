@@ -30,13 +30,17 @@ import {
   Hammer,
   Code,
   Ticket,
-  ClipboardList
+  ClipboardList,
+  Bookmark,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { applicationPortfolio } from "@/data/portfolio";
-import { enrolledCourses } from "@/data/learning";
 import { learningTracks, trackEnrollments } from "@/data/learningCenter";
+import { courses as lcCatalogCourses } from "@/data/learningCenter/courses";
+import { getEnrollments, addEnrollment as addLCEnrollment, type EnrolledEntry } from "@/data/learningCenter/enrollments";
+import { buildDewaUserCourseData } from "@/data/learningCenter/stage2/userCourseAdapter";
 import {
   buildTrackProgressSnapshots,
   type TrackProgressSnapshot,
@@ -83,6 +87,7 @@ import {
   upsertLearningDraftChangeSet,
 } from "@/data/learningCenter/changeReviewState";
 import { getKnowledgeUsageMetrics } from "@/data/knowledgeCenter/analyticsState";
+import { saveLCChangeRequest } from "@/data/learningCenter/stage3/lcChangeRequests";
 import {
   KnowledgeWorkspaceMain,
   KnowledgeWorkspaceSidebar,
@@ -96,7 +101,10 @@ import {
 import LCTrackDetail from "@/components/learningCenter/stage2/workspace/LCTrackDetail";
 import LCCertificateDetail from "@/components/learningCenter/stage2/workspace/LCCertificateDetail";
 import LCBookmarkDetail from "@/components/learningCenter/stage2/workspace/LCBookmarkDetail";
-import { dashboardCertificates, bookmarkedCourses } from "@/data/learningCenter/stage2/learnerDashboardData";
+import { dashboardCertificates } from "@/data/learningCenter/stage2/learnerDashboardData";
+import { getBookmarks, removeBookmark as removeLCBookmark, type BookmarkEntry } from "@/data/learningCenter/bookmarks";
+import { courses as lcCourses } from "@/data/learningCenter";
+import { mapToStage2CourseId } from "@/data/learningCenter/courseIdMap";
 import {
   PortfolioWorkspaceMain,
   PortfolioWorkspaceSidebar,
@@ -154,8 +162,8 @@ interface LocationState {
 }
 const EMPTY_LOCATION_STATE: LocationState = {};
 
-type EnrolledCourse = (typeof enrolledCourses)[number];
-type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
+type EnrolledCourse = { id: string; [key: string]: unknown };
+type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate" | "feedback";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
 type LCSection = "my-courses" | "my-tracks" | "certificates" | "bookmarks";
 type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
@@ -229,7 +237,7 @@ const buildAdminDataForCourse = (course: EnrolledCourse | undefined) => {
   cloned.recentActivitySummary.earnedCertificates = Math.round(completedCount * 0.01);
   cloned.recentActivitySummary.avgQuizScore = Math.max(
     70,
-    Math.min(98, Math.round(course.stats.averageQuizScore || 82))
+    Math.min(98, Math.round((course as any).stats?.averageQuizScore || 82))
   );
 
   cloned.activityFeed = [
@@ -391,12 +399,12 @@ export default function Stage2AppPage() {
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
   const canAccessAdminView = learningRole === "admin";
 
-  const fallbackLearningCourseId = enrolledCourses[0]?.id ?? "";
+  const fallbackLearningCourseId = getEnrollments()[0]?.courseId ?? "";
   const matchedLearningCourse = routeCourseId
-    ? enrolledCourses.find((course) => course.id === routeCourseId)
+    ? getEnrollments().find((entry) => entry.courseId === routeCourseId)
     : undefined;
   const resolvedLearningCourseId =
-    matchedLearningCourse?.id || fallbackLearningCourseId;
+    matchedLearningCourse?.courseId || routeCourseId || fallbackLearningCourseId;
   
   const {
     marketplace: stateMarketplace = "portfolio-management",
@@ -484,6 +492,7 @@ export default function Stage2AppPage() {
   const [selectedLCTrackId, setSelectedLCTrackId] = useState<string | null>(null);
   const [selectedLCCertId, setSelectedLCCertId] = useState<string | null>(null);
   const [selectedLCBookmarkId, setSelectedLCBookmarkId] = useState<string | null>(null);
+  const [lcBookmarks, setLCBookmarks] = useState<BookmarkEntry[]>(() => getBookmarks());
 
   const handleLCSectionToggle = (section: LCSection) => {
     setOpenLCSection((prev) => (prev === section ? prev : section));
@@ -800,30 +809,42 @@ export default function Stage2AppPage() {
     complexity: service.complexity
   }));
 
-  const learnerScopedCourses = useMemo(() => {
-    const workedCourses = enrolledCourses.filter(
-      (course) => course.status !== "not-started"
-    );
-    return workedCourses.length > 0 ? workedCourses : enrolledCourses;
-  }, []);
+  // Dynamic enrollment store — seeded with DEWA courses, updated on new enrolments
+  const [lcEnrollments, setLCEnrollments] = useState<EnrolledEntry[]>(() => getEnrollments());
 
-  const scopedLearningCourses =
-    viewMode === "admin" ? enrolledCourses : learnerScopedCourses;
+  // Resolve enrolled entries to full catalog records
+  const enrolledWithCatalog = useMemo(() =>
+    lcEnrollments
+      .map((entry) => ({
+        entry,
+        course: lcCatalogCourses.find((c) => c.id === entry.courseId),
+      }))
+      .filter((item): item is { entry: EnrolledEntry; course: NonNullable<typeof item.course> } =>
+        item.course !== undefined
+      ),
+    [lcEnrollments]
+  );
 
-  // Learning Center sub-services - Role-scoped courses
-  const learningSubServices = scopedLearningCourses.map(course => ({
-    id: course.id,
-    name: course.courseName,
-    description: `${course.instructor} • ${course.duration} • ${course.progress}% complete`,
-    icon: BookOpen,
-    category: course.difficulty,
-    status: course.status,
-    progress: course.progress
-  }));
+  // Learning Center sub-services — Role-scoped courses from DEWA catalog
+  const learningSubServices = useMemo(() =>
+    enrolledWithCatalog.map(({ entry, course }) => ({
+      id: course.id,
+      name: course.title,
+      description: `${course.provider?.name ?? "DEWA"} • ${course.duration} • ${entry.progress}% complete`,
+      icon: BookOpen,
+      category: course.level.toLowerCase(),
+      status: entry.status,
+      progress: entry.progress,
+    })),
+    [enrolledWithCatalog]
+  );
 
-  const selectedLearningCourse = activeSubService
-    ? enrolledCourses.find((course) => course.id === activeSubService)
-    : undefined;
+  const selectedLearningCourse = useMemo(() =>
+    activeSubService
+      ? enrolledWithCatalog.find(({ course }) => course.id === activeSubService)
+      : undefined,
+    [activeSubService, enrolledWithCatalog]
+  );
   useEffect(() => {
     if (activeService !== "Learning Center") return;
     // Only auto-redirect when already in course workspace — don't force a course
@@ -832,10 +853,10 @@ export default function Stage2AppPage() {
 
     const hasActiveSelection =
       !!activeSubService &&
-      scopedLearningCourses.some((course) => course.id === activeSubService);
+      learningSubServices.some((course) => course.id === activeSubService);
     if (hasActiveSelection) return;
 
-    const nextCourseId = scopedLearningCourses[0]?.id ?? null;
+    const nextCourseId = learningSubServices[0]?.id ?? null;
     if (!nextCourseId) return;
 
     setActiveSubService(nextCourseId);
@@ -850,7 +871,7 @@ export default function Stage2AppPage() {
     activeService,
     activeSubService,
     isLearningCourseWorkspace,
-    scopedLearningCourses,
+    learningSubServices,
     navigate,
     viewMode,
     state,
@@ -858,29 +879,28 @@ export default function Stage2AppPage() {
   ]);
   useEffect(() => {
     if (!selectedLearningCourse || viewMode !== "user") return;
+    const { course, entry } = selectedLearningCourse;
 
     setUserCourseRuntime((prev) => {
-      if (prev[selectedLearningCourse.id]) return prev;
+      if (prev[course.id]) return prev;
       return {
         ...prev,
-        [selectedLearningCourse.id]: buildUserProgressionData(
-          selectedLearningCourse,
-          userCourseData
-        ),
+        [course.id]: buildDewaUserCourseData(course, entry),
       };
     });
 
-    if (selectedLearningCourse.status === "not-started") {
+    if (entry.status === "not-started") {
       setActiveLearningUserTab("modules");
     }
   }, [selectedLearningCourse, viewMode]);
+
   const learningCourseProgressById = useMemo(
     () =>
-      enrolledCourses.reduce<Record<string, number>>((acc, course) => {
-        acc[course.id] = course.progress;
+      lcEnrollments.reduce<Record<string, number>>((acc, entry) => {
+        acc[entry.courseId] = entry.progress;
         return acc;
       }, {}),
-    []
+    [lcEnrollments]
   );
   const learnerTrackSnapshots = useMemo(
     () =>
@@ -964,22 +984,35 @@ export default function Stage2AppPage() {
   }, [activeTrackForAdminAnalytics]);
   const userViewData = useMemo(() => {
     if (!selectedLearningCourse) return buildUserDataForCourse(undefined);
+    const { course, entry } = selectedLearningCourse;
     return (
-      userCourseRuntime[selectedLearningCourse.id] ??
-      buildUserProgressionData(selectedLearningCourse, userCourseData)
+      userCourseRuntime[course.id] ??
+      buildDewaUserCourseData(course, entry)
     );
   }, [selectedLearningCourse, userCourseRuntime]);
-  const adminViewData = useMemo(
-    () => buildAdminDataForCourse(selectedLearningCourse),
-    [selectedLearningCourse]
-  );
+  const adminViewData = useMemo(() => {
+    if (!selectedLearningCourse) return buildAdminDataForCourse(undefined);
+    const { course, entry } = selectedLearningCourse;
+    return buildAdminDataForCourse({
+      id: course.id,
+      courseName: course.title,
+      enrolledCount: course.students ?? 450,
+      progress: entry.progress,
+      rating: course.rating ?? 4.5,
+      stats: {
+        totalModules: entry.totalModules,
+        averageQuizScore: entry.averageQuizScore || 82,
+        timeInvested: entry.timeInvested,
+      },
+    } as any);
+  }, [selectedLearningCourse]);
   const activeAdminBaseSettings = adminViewData.settings;
   const activeAdminDraftSettings = useMemo(() => {
     if (!selectedLearningCourse) return activeAdminBaseSettings;
-    return learningDraftSettingsByCourse[selectedLearningCourse.id] ?? activeAdminBaseSettings;
+    return learningDraftSettingsByCourse[selectedLearningCourse.course.id] ?? activeAdminBaseSettings;
   }, [selectedLearningCourse, learningDraftSettingsByCourse, activeAdminBaseSettings]);
   const activeAdminDeleteRequested = selectedLearningCourse
-    ? Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id])
+    ? Boolean(learningDeleteIntentByCourse[selectedLearningCourse.course.id])
     : false;
   const activeAdminPendingChangeCount = useMemo(() => {
     if (!selectedLearningCourse) return 0;
@@ -1142,17 +1175,14 @@ export default function Stage2AppPage() {
   };
   const handleLessonComplete = (moduleId: string, lessonId: string) => {
     if (!selectedLearningCourse) return;
+    const courseId = selectedLearningCourse.course.id;
     setUserCourseRuntime((prev) => {
       const current =
-        prev[selectedLearningCourse.id] ??
-        buildUserProgressionData(selectedLearningCourse, userCourseData);
+        prev[courseId] ??
+        buildDewaUserCourseData(selectedLearningCourse.course, selectedLearningCourse.entry);
       return {
         ...prev,
-        [selectedLearningCourse.id]: completeLessonAndRecalculate(
-          current,
-          moduleId,
-          lessonId
-        ),
+        [courseId]: completeLessonAndRecalculate(current, moduleId, lessonId),
       };
     });
   };
@@ -1163,19 +1193,14 @@ export default function Stage2AppPage() {
     passThreshold: number
   ) => {
     if (!selectedLearningCourse) return;
+    const courseId = selectedLearningCourse.course.id;
     setUserCourseRuntime((prev) => {
       const current =
-        prev[selectedLearningCourse.id] ??
-        buildUserProgressionData(selectedLearningCourse, userCourseData);
+        prev[courseId] ??
+        buildDewaUserCourseData(selectedLearningCourse.course, selectedLearningCourse.entry);
       return {
         ...prev,
-        [selectedLearningCourse.id]: submitQuizAttemptAndRecalculate(
-          current,
-          moduleId,
-          lessonId,
-          score,
-          passThreshold
-        ),
+        [courseId]: submitQuizAttemptAndRecalculate(current, moduleId, lessonId, score, passThreshold),
       };
     });
   };
@@ -1329,114 +1354,109 @@ export default function Stage2AppPage() {
       }
     );
   };
-  const handleEscalateLearningToStage3 = () => {
-    if (activeService !== "Learning Center" || viewMode !== "admin" || !selectedLearningCourse) {
+  const handleSubmitSettingsForTOReview = () => {
+    if (!selectedLearningCourse) return;
+    const courseId = selectedLearningCourse.course.id;
+    const courseTitle = selectedLearningCourse.course.title;
+    const diffs = buildLearningSettingDiffs(activeAdminBaseSettings, activeAdminDraftSettings);
+
+    if (diffs.length === 0 && !activeAdminDeleteRequested) {
+      setLearningEscalationMessage("No pending changes to submit.");
       return;
     }
 
-    const baseSettings = adminViewData.settings;
-    const draftSettings =
-      learningDraftSettingsByCourse[selectedLearningCourse.id] ?? baseSettings;
-    const deleteRequested = Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id]);
-    const diffs = buildLearningSettingDiffs(baseSettings, draftSettings);
-
-    if (diffs.length === 0 && !deleteRequested) {
-      setLearningEscalationMessage("No pending settings changes to submit.");
-      return;
+    if (diffs.length > 0) {
+      saveLCChangeRequest({
+        subject: courseTitle,
+        subjectId: courseId,
+        subjectType: "course",
+        changeType: "update-course-metadata",
+        changeDescription: diffs
+          .map((d) => `${d.label}: "${d.before}" → "${d.after}"`)
+          .join("; "),
+        reason: "Course settings updated by course admin — submitted for TO Office review.",
+        urgency: "medium",
+        status: "submitted",
+        submittedBy: "Course Admin",
+      });
     }
 
-    const draftSet = upsertLearningDraftChangeSet({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requestedBy: "Amina TO",
-      settingsBefore: baseSettings,
-      settingsAfter: draftSettings,
-      deleteRequested,
+    if (activeAdminDeleteRequested) {
+      saveLCChangeRequest({
+        subject: courseTitle,
+        subjectId: courseId,
+        subjectType: "course",
+        changeType: "archive-course",
+        changeDescription: `Request to archive the course "${courseTitle}".`,
+        reason: "Course archive requested by course admin — submitted for TO Office approval.",
+        urgency: "medium",
+        status: "submitted",
+        submittedBy: "Course Admin",
+      });
+    }
+
+    // Clear draft state for this course
+    setLearningDraftSettingsByCourse((prev) => {
+      const next = { ...prev };
+      delete next[courseId];
+      return next;
+    });
+    setLearningDeleteIntentByCourse((prev) => {
+      const next = { ...prev };
+      delete next[courseId];
+      return next;
     });
 
-    const submittedSet = submitLearningDraftChangeSet(draftSet.id);
-    if (!submittedSet) return;
-
-    const learningRequest = addLearningTORequest({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requesterName: "Amina TO",
-      requesterRole: "Admin",
-      message: `Review requested for ${selectedLearningCourse.courseName}: ${diffs.length} field change(s)${
-        deleteRequested ? " and delete request" : ""
-      }.`,
-    });
-
-    const created = createStage3Request({
-      type: "learning-center",
-      title: `Learning Ops: ${selectedLearningCourse.courseName}`,
-      description:
-        `Escalated from Stage 2 Learning Admin for operational follow-up. ` +
-        `Course: ${selectedLearningCourse.courseName}. ` +
-        `Proposed changes: ${diffs.length}${deleteRequested ? " + delete request" : ""}.`,
-      requester: {
-        name: "Amina TO",
-        email: "amina.to@dtmp.local",
-        department: "Transformation Office",
-        organization: "DTMP",
-      },
-      priority: "medium",
-      estimatedHours: 6,
-      tags: ["learning", "stage2-admin", selectedLearningCourse.id],
-      relatedAssets: [
-        ...(learningRequest ? [`learning-request:${learningRequest.id}`] : []),
-        `learning-change:${submittedSet.id}`,
-      ],
-      notes: [
-        "Created from Learning Stage 2 admin view.",
-        ...diffs.slice(0, 12).map(
-          (diff) => `CHANGE | ${diff.label}: "${diff.before}" -> "${diff.after}"`
-        ),
-        ...(deleteRequested ? ["CHANGE | Course Deletion Requested: Yes"] : []),
-      ],
-    });
-
-    attachStage3RequestToLearningChange(submittedSet.id, created.id);
-
-    navigate("/stage3/new", {
-      state: {
-        fromStage2: true,
-        requestId: created.id,
-      },
-    });
+    const parts: string[] = [];
+    if (diffs.length > 0) parts.push(`${diffs.length} metadata change(s)`);
+    if (activeAdminDeleteRequested) parts.push("archive request");
     setLearningEscalationMessage(
-      `Submitted ${diffs.length} change(s)${
-        deleteRequested ? " + delete request" : ""
-      } to TO Ops.`
+      `Submitted ${parts.join(" + ")} to TO Office for review.`
     );
+  };
+
+  const handleSubmitContentForTOReview = (description: string) => {
+    if (!selectedLearningCourse) return;
+    saveLCChangeRequest({
+      subject: selectedLearningCourse.course.title,
+      subjectId: selectedLearningCourse.course.id,
+      subjectType: "course",
+      changeType: "update-course-content",
+      changeDescription: description,
+      reason: "Course content changes staged by course admin — submitted for TO Office review.",
+      urgency: "medium",
+      status: "submitted",
+      submittedBy: "Course Admin",
+    });
+    setLearningEscalationMessage("Content update request submitted to TO Office for review.");
   };
   const handleAdminDraftSettingsChange = (next: CourseSettings) => {
     if (!selectedLearningCourse) return;
     setLearningDraftSettingsByCourse((prev) => ({
       ...prev,
-      [selectedLearningCourse.id]: next,
+      [selectedLearningCourse.course.id]: next,
     }));
     upsertLearningDraftChangeSet({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requestedBy: "Amina TO",
+      courseId: selectedLearningCourse.course.id,
+      courseName: selectedLearningCourse.course.title,
+      requestedBy: "Course Admin",
       settingsBefore: adminViewData.settings,
       settingsAfter: next,
-      deleteRequested: Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id]),
+      deleteRequested: Boolean(learningDeleteIntentByCourse[selectedLearningCourse.course.id]),
     });
   };
   const handleAdminDeleteRequestedChange = (value: boolean) => {
     if (!selectedLearningCourse) return;
     setLearningDeleteIntentByCourse((prev) => ({
       ...prev,
-      [selectedLearningCourse.id]: value,
+      [selectedLearningCourse.course.id]: value,
     }));
     const nextDraft =
-      learningDraftSettingsByCourse[selectedLearningCourse.id] ?? adminViewData.settings;
+      learningDraftSettingsByCourse[selectedLearningCourse.course.id] ?? adminViewData.settings;
     upsertLearningDraftChangeSet({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requestedBy: "Amina TO",
+      courseId: selectedLearningCourse.course.id,
+      courseName: selectedLearningCourse.course.title,
+      requestedBy: "Course Admin",
       settingsBefore: adminViewData.settings,
       settingsAfter: nextDraft,
       deleteRequested: value,
@@ -2128,400 +2148,174 @@ export default function Stage2AppPage() {
                   activeSubService={activeSubService}
                   onSelectSubService={handleSubServiceClick}
                 />
-              ) : activeService === "Learning Center" ? (
-                <LearningWorkspaceSidebar
-                  viewMode={viewMode}
-                  learningSubServices={learningSubServices}
-                  activeSubService={activeSubService}
-                  onSelectSubService={handleSubServiceClick}
-                />
-              ) : activeService === "Knowledge Center" ? (
-                <KnowledgeWorkspaceSidebar
-                  activeTab={activeKnowledgeTab}
-                  searchQuery={knowledgeSearchQuery}
-                  onSearchChange={setKnowledgeSearchQuery}
-                  onTabChange={handleKnowledgeTabClick}
-                />
-              ) : activeService === "AI DocWriter" ? (
+) : activeService === "Learning Center" ? (
                 <div className="space-y-2">
-                  <button
-                    onClick={() => handleTemplatesTabClick("overview")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "overview"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Overview</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Template workspace summary</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleTemplatesTabClick("library")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "library"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Template Library</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Browse and open templates</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleTemplatesTabClick("new-request")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "new-request"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">New Request</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Generate a new document</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleTemplatesTabClick("my-requests")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeTemplatesTab === "my-requests"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">My Requests</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Track request status</div>
-                    </div>
-                  </button>
-                </div>
-              ) : activeService === "Solutions Specs" ? (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleSpecsTabClick("overview")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "overview"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Overview</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Solutions specs workspace summary</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("blueprints")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "blueprints"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Architecture Library</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Browse architecture blueprints</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("templates")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "templates"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Design Templates</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Reusable design templates</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("patterns")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "patterns"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">Design Patterns</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Pattern library and standards</div>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => handleSpecsTabClick("my-designs")}
-                    className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                      activeSpecsTab === "my-designs"
-                        ? "bg-orange-50 text-orange-700 border border-orange-200"
-                        : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                    }`}
-                  >
-                    <div className="text-left">
-                      <div className="font-medium">My Designs</div>
-                      <div className="text-xs text-gray-500 mt-0.5">Saved and in-progress designs</div>
-                    </div>
-                  </button>
-                </div>
-              ) : activeService === "Lifecycle Management" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Lifecycle Services</h3>
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => handleSubServiceClick('overview')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'overview' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">Overview Dashboard</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Active lifecycles and approvals</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleSubServiceClick('projects')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'projects' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">Projects</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Project lifecycle management</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleSubServiceClick('applications')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'applications' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">Applications</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Application governance</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleSubServiceClick('templates')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'templates' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">Templates Library</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Lifecycle frameworks</div>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleSubServiceClick('approvals')}
-                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'approvals' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                        }`}
-                      >
-                        <div className="text-left">
-                          <div className="font-medium">Pending Approvals</div>
-                          <div className="text-xs text-gray-500 mt-0.5">Gate approvals</div>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : activeService === "Learning Center" ? (
-                <div className="space-y-1">
                   {/* My Courses */}
-                  <div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => handleLCSectionToggle("my-courses")}
-                      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 rounded-lg"
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
                       <div className="flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-gray-500" />
+                        <BookOpen className="w-4 h-4 text-orange-600" />
                         <span>My Courses</span>
-                        <span className="text-xs text-gray-400">({scopedLearningCourses.length})</span>
+                        <span className="text-xs bg-orange-100 text-orange-700 rounded-full px-2 py-0.5">{learningSubServices.length}</span>
                       </div>
-                      <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${openLCSection === "my-courses" ? "rotate-90" : ""}`} />
+                      {openLCSection === "my-courses" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                     </button>
                     {openLCSection === "my-courses" && (
-                      <div className="mt-1 space-y-0.5 pl-2">
-                        {scopedLearningCourses.map((course) => {
-                          const isActive = isLearningCourseWorkspace && activeSubService === course.id;
-                          const statusIcon = course.status === "completed"
-                            ? <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0" />
-                            : course.status === "in-progress"
-                            ? <div className="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0" />
-                            : <div className="w-3 h-3 rounded-full border-2 border-gray-300 flex-shrink-0" />;
-                          return (
-                            <button
-                              key={course.id}
-                              onClick={() => {
-                                setSelectedLCTrackId(null);
-                                setSelectedLCCertId(null);
-                                setSelectedLCBookmarkId(null);
-                                handleSubServiceClick(course.id);
-                              }}
-                              className={`w-full flex items-start gap-2 px-2 py-2 text-xs rounded-lg transition-colors text-left ${
-                                isActive
-                                  ? "bg-orange-50 text-orange-700 border border-orange-200"
-                                  : "text-gray-700 hover:bg-gray-50"
-                              }`}
-                            >
-                              {statusIcon}
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate leading-tight">{course.courseName}</div>
-                                {course.progress > 0 && course.status !== "completed" && (
-                                  <div className="mt-1 w-full bg-gray-200 rounded-full h-1">
-                                    <div className="bg-orange-500 h-1 rounded-full" style={{ width: `${course.progress}%` }} />
-                                  </div>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {learningSubServices.map((course) => (
+                          <button
+                            key={course.id}
+                            onClick={() => {
+                              navigate(`/stage2/learning-center/course/${course.id}/user`, {
+                                state: { ...location.state, learningRole: "learner" },
+                              });
+                            }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                              isLearningCourseWorkspace && activeSubService === course.id
+                                ? "bg-orange-50 text-orange-700 font-medium"
+                                : "text-gray-700 hover:bg-white"
+                            }`}
+                          >
+                            <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="text-left line-clamp-2">{course.name}</span>
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
 
                   {/* My Tracks */}
-                  <div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => handleLCSectionToggle("my-tracks")}
-                      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 rounded-lg"
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
                       <div className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-gray-500" />
+                        <BarChart3 className="w-4 h-4 text-blue-600" />
                         <span>My Tracks</span>
-                        <span className="text-xs text-gray-400">({trackEnrollments.filter(t => t.userId === "user-john-doe").length})</span>
+                        <span className="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">
+                          {trackEnrollments.filter((te) => te.userId === "user-john-doe").length}
+                        </span>
                       </div>
-                      <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${openLCSection === "my-tracks" ? "rotate-90" : ""}`} />
+                      {openLCSection === "my-tracks" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                     </button>
                     {openLCSection === "my-tracks" && (
-                      <div className="mt-1 space-y-0.5 pl-2">
-                        {trackEnrollments.filter(t => t.userId === "user-john-doe").map((enrollment) => {
-                          const track = learningTracks.find(t => t.id === enrollment.trackId);
-                          if (!track) return null;
-                          const isActive = !isLearningCourseWorkspace && selectedLCTrackId === enrollment.trackId;
-                          return (
-                            <button
-                              key={enrollment.id}
-                              onClick={() => {
-                                setSelectedLCTrackId(enrollment.trackId);
-                                setSelectedLCCertId(null);
-                                setSelectedLCBookmarkId(null);
-                              }}
-                              className={`w-full flex items-start gap-2 px-2 py-2 text-xs rounded-lg transition-colors text-left ${
-                                isActive
-                                  ? "bg-orange-50 text-orange-700 border border-orange-200"
-                                  : "text-gray-700 hover:bg-gray-50"
-                              }`}
-                            >
-                              <div className="w-3 h-3 mt-0.5 flex-shrink-0">
-                                <div className="w-full h-full rounded-sm bg-blue-200" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate leading-tight">{track.title}</div>
-                                <div className="mt-1 w-full bg-gray-200 rounded-full h-1">
-                                  <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${enrollment.progress}%` }} />
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {trackEnrollments
+                          .filter((te) => te.userId === "user-john-doe")
+                          .map((te) => {
+                            const track = learningTracks.find((t) => t.id === te.trackId);
+                            if (!track) return null;
+                            return (
+                              <button
+                                key={track.id}
+                                onClick={() => {
+                                  setSelectedLCTrackId(track.id);
+                                  setSelectedLCCertId(null);
+                                  setSelectedLCBookmarkId(null);
+                                  navigate("/stage2/learning-center", { state: location.state });
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                                  selectedLCTrackId === track.id
+                                    ? "bg-blue-50 text-blue-700 font-medium"
+                                    : "text-gray-700 hover:bg-white"
+                                }`}
+                              >
+                                <div className="flex-shrink-0">
+                                  {te.status === "completed"
+                                    ? <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                    : <BarChart3 className="w-3.5 h-3.5 text-blue-500" />}
                                 </div>
-                                <div className="text-gray-400 mt-0.5">{enrollment.progress}% complete</div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                        {trackEnrollments.filter(t => t.userId === "user-john-doe").length === 0 && (
-                          <p className="px-2 py-2 text-xs text-gray-400">No tracks enrolled yet</p>
-                        )}
+                                <span className="text-left line-clamp-2 flex-1">{track.title}</span>
+                                <span className="text-xs text-gray-400 flex-shrink-0">{te.progress}%</span>
+                              </button>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
 
                   {/* Certificates */}
-                  <div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => handleLCSectionToggle("certificates")}
-                      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 rounded-lg"
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
                       <div className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-gray-500" />
+                        <Award className="w-4 h-4 text-green-600" />
                         <span>Certificates</span>
-                        <span className="text-xs text-gray-400">({dashboardCertificates.length})</span>
+                        <span className="text-xs bg-green-100 text-green-700 rounded-full px-2 py-0.5">{dashboardCertificates.length}</span>
                       </div>
-                      <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${openLCSection === "certificates" ? "rotate-90" : ""}`} />
+                      {openLCSection === "certificates" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                     </button>
                     {openLCSection === "certificates" && (
-                      <div className="mt-1 space-y-0.5 pl-2">
-                        {dashboardCertificates.map((cert) => {
-                          const isActive = !isLearningCourseWorkspace && selectedLCCertId === cert.id;
-                          return (
-                            <button
-                              key={cert.id}
-                              onClick={() => {
-                                setSelectedLCCertId(cert.id);
-                                setSelectedLCTrackId(null);
-                                setSelectedLCBookmarkId(null);
-                              }}
-                              className={`w-full flex items-start gap-2 px-2 py-2 text-xs rounded-lg transition-colors text-left ${
-                                isActive
-                                  ? "bg-orange-50 text-orange-700 border border-orange-200"
-                                  : "text-gray-700 hover:bg-gray-50"
-                              }`}
-                            >
-                              <Award className="w-3 h-3 mt-0.5 flex-shrink-0 text-amber-500" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate leading-tight">{cert.courseName}</div>
-                                <div className="text-gray-400">{cert.issueDate}</div>
-                              </div>
-                            </button>
-                          );
-                        })}
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {dashboardCertificates.map((cert) => (
+                          <button
+                            key={cert.id}
+                            onClick={() => {
+                              setSelectedLCCertId(cert.id);
+                              setSelectedLCTrackId(null);
+                              setSelectedLCBookmarkId(null);
+                              navigate("/stage2/learning-center", { state: location.state });
+                            }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                              selectedLCCertId === cert.id
+                                ? "bg-green-50 text-green-700 font-medium"
+                                : "text-gray-700 hover:bg-white"
+                            }`}
+                          >
+                            <Award className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="text-left line-clamp-2">{cert.courseName}</span>
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
 
                   {/* Bookmarks */}
-                  <div>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => handleLCSectionToggle("bookmarks")}
-                      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 rounded-lg"
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
                     >
                       <div className="flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-gray-500" />
+                        <Bookmark className="w-4 h-4 text-purple-600" />
                         <span>Bookmarks</span>
-                        <span className="text-xs text-gray-400">({bookmarkedCourses.length})</span>
+                        <span className="text-xs bg-purple-100 text-purple-700 rounded-full px-2 py-0.5">{lcBookmarks.length}</span>
                       </div>
-                      <ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${openLCSection === "bookmarks" ? "rotate-90" : ""}`} />
+                      {openLCSection === "bookmarks" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                     </button>
                     {openLCSection === "bookmarks" && (
-                      <div className="mt-1 space-y-0.5 pl-2">
-                        {bookmarkedCourses.map((course) => {
-                          const isActive = !isLearningCourseWorkspace && selectedLCBookmarkId === course.id;
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {lcBookmarks.length === 0 ? (
+                          <div className="px-4 py-3 text-xs text-gray-400 italic">
+                            No bookmarks yet. Save courses from the marketplace.
+                          </div>
+                        ) : lcBookmarks.map((bm) => {
+                          const bmCourse = lcCourses.find((c) => c.id === bm.courseId);
                           return (
                             <button
-                              key={course.id}
+                              key={bm.courseId}
                               onClick={() => {
-                                setSelectedLCBookmarkId(course.id);
+                                setSelectedLCBookmarkId(bm.courseId);
                                 setSelectedLCTrackId(null);
                                 setSelectedLCCertId(null);
+                                navigate("/stage2/learning-center", { state: location.state });
                               }}
-                              className={`w-full flex items-start gap-2 px-2 py-2 text-xs rounded-lg transition-colors text-left ${
-                                isActive
-                                  ? "bg-orange-50 text-orange-700 border border-orange-200"
-                                  : "text-gray-700 hover:bg-gray-50"
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                                selectedLCBookmarkId === bm.courseId
+                                  ? "bg-purple-50 text-purple-700 font-medium"
+                                  : "text-gray-700 hover:bg-white"
                               }`}
                             >
-                              <div className="w-3 h-3 mt-0.5 flex-shrink-0 rounded bg-gray-200" />
-                              <div className="font-medium truncate leading-tight">{course.title}</div>
+                              <Bookmark className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="text-left line-clamp-2">
+                                {bmCourse?.title ?? bm.courseId}
+                              </span>
                             </button>
                           );
                         })}
@@ -2731,12 +2525,6 @@ export default function Stage2AppPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {activeService === "Learning Center" && viewMode === "admin" && (
-                <Button size="sm" variant="outline" onClick={handleEscalateLearningToStage3}>
-                  <FileText className="w-4 h-4 mr-2" />
-                  Send To TO Ops
-                </Button>
-              )}
             </div>
           </div>
           {activeService === "Learning Center" && viewMode === "admin" && learningEscalationMessage && (
@@ -2774,27 +2562,47 @@ export default function Stage2AppPage() {
               adminDeleteRequested={activeAdminDeleteRequested}
               onAdminDeleteRequestedChange={handleAdminDeleteRequestedChange}
               adminPendingChangeCount={activeAdminPendingChangeCount}
+              onSubmitSettingsForReview={handleSubmitSettingsForTOReview}
+              onSubmitContentForReview={handleSubmitContentForTOReview}
+              escalationMessage={learningEscalationMessage}
+              settingsDiffs={buildLearningSettingDiffs(activeAdminBaseSettings, activeAdminDraftSettings)}
+              onViewInTOOffice={() => navigate("/stage3/learning-centre/change-requests")}
             />
           ) : activeService === "Learning Center" && selectedLCTrackId ? (
             <LCTrackDetail
               trackId={selectedLCTrackId}
-              onContinueCourse={(courseId) =>
+              onContinueCourse={(courseId) => {
+                const mapped = mapToStage2CourseId(courseId);
+                navigate(`/stage2/learning-center/course/${mapped}/user`, {
+                  state: { ...location.state, learningRole: "learner" },
+                });
+              }}
+            />
+          ) : activeService === "Learning Center" && selectedLCCertId ? (
+            <LCCertificateDetail
+              certId={selectedLCCertId}
+              onViewCourse={(courseId) =>
                 navigate(`/stage2/learning-center/course/${courseId}/user`, {
                   state: { ...location.state, learningRole: "learner" },
                 })
               }
             />
-          ) : activeService === "Learning Center" && selectedLCCertId ? (
-            <LCCertificateDetail certId={selectedLCCertId} />
           ) : activeService === "Learning Center" && selectedLCBookmarkId ? (
             <LCBookmarkDetail
               courseId={selectedLCBookmarkId}
-              onEnrol={(courseId) =>
-                navigate(`/stage2/learning-center/course/${courseId}/user`, {
+              onEnrol={(courseId) => {
+                const mapped = mapToStage2CourseId(courseId);
+                addLCEnrollment(mapped);
+                setLCEnrollments(getEnrollments());
+                navigate(`/stage2/learning-center/course/${mapped}/user`, {
                   state: { ...location.state, learningRole: "learner" },
-                })
-              }
-              onRemove={() => setSelectedLCBookmarkId(null)}
+                });
+              }}
+              onRemove={(courseId) => {
+                const updated = removeLCBookmark(courseId);
+                setLCBookmarks(updated);
+                setSelectedLCBookmarkId(null);
+              }}
             />
           ) : activeService === "Learning Center" ? (
             <div className="flex items-center justify-center h-full text-gray-400 flex-col gap-3">
@@ -2956,10 +2764,9 @@ export default function Stage2AppPage() {
             <div className="h-full">
               {/* Learning Center Course Content */}
               {(() => {
-                const course = enrolledCourses.find(c => c.id === activeSubService);
-                if (!course) return null;
-                
-                return <CourseDetailView course={course} />;
+                const match = enrolledWithCatalog.find(({ course }) => course.id === activeSubService);
+                if (!match) return null;
+                return <CourseDetailView course={match.course as any} />;
               })()}
             </div>
           ) : activeService === "Solution Build" && activeSubService ? (

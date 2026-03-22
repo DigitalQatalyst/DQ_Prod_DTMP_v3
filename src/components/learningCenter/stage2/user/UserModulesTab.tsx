@@ -14,11 +14,19 @@ import {
   RotateCcw,
   Eye,
   ExternalLink,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  addModuleComment,
+  getModuleComments,
+  type ModuleComment,
+} from "@/data/learningCenter/feedback";
 import type {
   CourseModule,
   Lesson,
@@ -238,6 +246,32 @@ const UserModulesTab = ({
   );
   const [showPlayer, setShowPlayer] = useState(false);
   const [activeQuizKey, setActiveQuizKey] = useState<string | null>(null);
+  const [activeCommentModule, setActiveCommentModule] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
+  const [moduleComments, setModuleComments] = useState<ModuleComment[]>(() =>
+    getModuleComments(courseId ?? "")
+  );
+  const [commentToast, setCommentToast] = useState<string | null>(null);
+
+  const showCommentToast = (msg: string) => {
+    setCommentToast(msg);
+    setTimeout(() => setCommentToast(null), 3000);
+  };
+
+  const handleSubmitComment = (mod: { id: string; title: string }) => {
+    if (!commentText.trim()) return;
+    addModuleComment({
+      courseId: courseId ?? "",
+      moduleId: mod.id,
+      moduleTitle: mod.title,
+      comment: commentText.trim(),
+      learnerName: "John Doe",
+    });
+    setModuleComments(getModuleComments(courseId ?? ""));
+    setCommentText("");
+    setActiveCommentModule(null);
+    showCommentToast("Question submitted — the course coordinator will follow up.");
+  };
 
   const resumeModule = useMemo(
     () =>
@@ -262,6 +296,11 @@ const UserModulesTab = ({
 
   return (
     <div className="space-y-4">
+      {commentToast && (
+        <div className="fixed top-6 right-6 z-50 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+          {commentToast}
+        </div>
+      )}
       {modules.map((mod) => {
         const config = statusConfig[mod.status];
         const StatusIcon = config.icon;
@@ -617,6 +656,73 @@ const UserModulesTab = ({
                     })()}
                   </div>
                 )}
+              {/* Module Comment Section */}
+              {!isLocked && (
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  {/* Existing comments for this module */}
+                  {moduleComments
+                    .filter((c) => c.moduleId === mod.id)
+                    .map((c) => (
+                      <div key={c.id} className="mb-2 flex items-start gap-2 bg-gray-50 rounded-lg px-3 py-2">
+                        <MessageSquare className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-700">"{c.comment}"</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-gray-400">
+                              {new Date(c.submittedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                            </span>
+                            {c.resolved ? (
+                              <span className="text-xs text-green-600 font-medium">✓ Resolved</span>
+                            ) : (
+                              <span className="text-xs text-amber-600 font-medium">Pending</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                  {/* Toggle comment box */}
+                  {activeCommentModule === mod.id ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        placeholder="Ask a question or leave a note about this module..."
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        rows={2}
+                        className="resize-none text-sm"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-orange-600 hover:bg-orange-700 text-white"
+                          onClick={() => handleSubmitComment(mod)}
+                          disabled={!commentText.trim()}
+                        >
+                          <Send className="w-3.5 h-3.5 mr-1.5" />
+                          Submit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { setActiveCommentModule(null); setCommentText(""); }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setActiveCommentModule(mod.id)}
+                      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-orange-600 transition-colors"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      Leave a note or ask a question
+                    </button>
+                  )}
+                </div>
+              )}
               </div>
             )}
           </div>

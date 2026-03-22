@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { getAllCourseFeedback } from "@/data/learningCenter/feedback";
+import { courses } from "@/data/learningCenter/courses";
 
 const DATE_RANGES = ["Last 7 days", "Last 30 days", "Last 90 days"] as const;
 type DateRange = (typeof DATE_RANGES)[number];
@@ -48,6 +50,22 @@ export default function LCAnalytics() {
   const [dateRange, setDateRange] = useState<DateRange>("Last 30 days");
 
   const maxEnrolled = Math.max(...topCourses.map((c) => c.enrolled));
+
+  // Live feedback ratings from the feedback store
+  const liveFeedbackRows = useMemo(() => {
+    const feedback = getAllCourseFeedback();
+    return feedback.map((f) => {
+      const course = courses.find((c) => c.id === f.courseId);
+      return {
+        courseId: f.courseId,
+        courseTitle: course?.title ?? f.courseId.replace(/-/g, " "),
+        rating: f.rating,
+        comment: f.comment,
+        learnerName: f.learnerName,
+        submittedAt: f.submittedAt,
+      };
+    }).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+  }, []);
 
   return (
     <div className="p-6 space-y-6">
@@ -226,6 +244,44 @@ export default function LCAnalytics() {
           </div>
         </div>
       </div>
+
+      {/* Live Learner Ratings */}
+      {liveFeedbackRows.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-900">Live Learner Ratings</h3>
+            <p className="text-xs text-gray-500">
+              Actual ratings submitted by learners — {liveFeedbackRows.length} rating{liveFeedbackRows.length !== 1 ? "s" : ""} received
+            </p>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {liveFeedbackRows.map((row) => (
+              <div key={row.courseId} className="px-5 py-3 flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-800 capitalize">{row.courseTitle}</p>
+                  {row.comment && (
+                    <p className="text-xs text-gray-500 italic mt-0.5 line-clamp-1">"{row.comment}"</p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {row.learnerName} ·{" "}
+                    {new Date(row.submittedAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <span key={s} className={`text-sm ${s <= row.rating ? "text-amber-400" : "text-gray-200"}`}>★</span>
+                  ))}
+                  <span className="text-sm font-semibold text-gray-700 ml-1">{row.rating}/5</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Division Breakdown */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">

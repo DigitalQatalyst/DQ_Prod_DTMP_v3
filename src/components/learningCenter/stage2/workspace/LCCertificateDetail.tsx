@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { Download, ArrowLeft } from "lucide-react";
+import { Download, Share2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { dashboardCertificates } from "@/data/learningCenter/stage2/learnerDashboardData";
+import { courses } from "@/data/learningCenter/courses";
 
 interface LCCertificateDetailProps {
   certId: string;
+  onViewCourse?: (courseId: string) => void;
 }
 
-export default function LCCertificateDetail({ certId }: LCCertificateDetailProps) {
+export default function LCCertificateDetail({ certId, onViewCourse }: LCCertificateDetailProps) {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const cert = dashboardCertificates.find((c) => c.id === certId);
+  // Pull course title and category directly from the marketplace catalog
+  const catalogCourse = cert ? courses.find((c) => c.id === cert.courseId) : null;
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -25,11 +29,23 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
     );
   }
 
+  const courseTitle = catalogCourse?.title ?? cert.courseName;
+  const courseCategory = catalogCourse?.category ?? "";
+
   const isTrackCert = cert.type === "Track Completion";
-  const accentColor = isTrackCert ? "#d97706" : "#0ea5e9"; // amber vs sky-blue
+  const accentColor = isTrackCert ? "#d97706" : "#0ea5e9";
   const accentBg = isTrackCert ? "bg-amber-500" : "bg-sky-500";
   const accentText = isTrackCert ? "text-amber-600" : "text-sky-600";
   const accentBorder = isTrackCert ? "border-amber-300" : "border-sky-300";
+
+  const handleShare = () => {
+    const shareText = `I earned a certificate for "${courseTitle}" via DEWA's Digital Transformation & Master Planning platform.`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText).then(() => showToast("Share link copied to clipboard"));
+    } else {
+      showToast("Share link copied to clipboard");
+    }
+  };
 
   return (
     <div className="h-full overflow-y-auto p-6">
@@ -40,7 +56,7 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-5">
         {/* Certificate card */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-md">
           {/* Top bar — DEWA branding */}
@@ -51,7 +67,12 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
                 Dubai Electricity & Water Authority
               </div>
             </div>
-            <div className={`w-1 h-12 rounded-full ${accentBg}`} />
+            <div className="flex flex-col items-end gap-1">
+              <div className={`w-1 h-12 rounded-full ${accentBg}`} />
+              {courseCategory && (
+                <div className="text-xs text-gray-500 mt-1">{courseCategory}</div>
+              )}
+            </div>
           </div>
 
           {/* Certificate body */}
@@ -59,7 +80,7 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
             <div className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400 mb-3">
               {cert.type}
             </div>
-            <div className={`text-3xl font-bold mb-6`} style={{ color: "#1a2332" }}>
+            <div className="text-3xl font-bold mb-6" style={{ color: "#1a2332" }}>
               Certificate of Completion
             </div>
 
@@ -70,7 +91,7 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
 
             <div className="space-y-1 mb-8">
               <div className="text-sm text-gray-500">has successfully completed</div>
-              <div className={`text-lg font-semibold ${accentText}`}>{cert.courseName}</div>
+              <div className={`text-lg font-semibold ${accentText}`}>{courseTitle}</div>
             </div>
 
             <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
@@ -92,13 +113,13 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
             </div>
           </div>
 
-          {/* Footer with seal placeholder */}
+          {/* Footer with seal */}
           <div className="px-8 py-5 bg-gray-50 flex items-center justify-between">
             <div className="text-xs text-gray-400">
               Certificate ID: {cert.id.toUpperCase()}
             </div>
             <div
-              className={`w-14 h-14 rounded-full border-4 ${accentBorder} flex items-center justify-center`}
+              className={`w-14 h-14 rounded-full border-4 flex items-center justify-center`}
               style={{ borderColor: accentColor }}
             >
               <div
@@ -110,23 +131,34 @@ export default function LCCertificateDetail({ certId }: LCCertificateDetailProps
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-3">
+        <div className="flex gap-3">
           <Button
-            className="w-full bg-[#1a2332] hover:bg-[#263548] text-white"
-            onClick={() => showToast("Certificate downloaded")}
+            className="flex-1 bg-[#1a2332] hover:bg-[#263548] text-white"
+            onClick={() => showToast("Certificate downloaded as PDF")}
           >
             <Download className="w-4 h-4 mr-2" />
             Download PDF
           </Button>
           <Button
-            variant="ghost"
-            className="w-full text-gray-500 hover:text-gray-700"
-            onClick={() => window.history.back()}
+            variant="outline"
+            className="flex-1"
+            onClick={handleShare}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Certificates
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
           </Button>
         </div>
+
+        {/* View course link */}
+        {catalogCourse && onViewCourse && (
+          <button
+            onClick={() => onViewCourse(cert.courseId)}
+            className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors py-2"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            View course: {courseTitle}
+          </button>
+        )}
       </div>
     </div>
   );

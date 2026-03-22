@@ -24,15 +24,6 @@ export interface DashboardCertificate {
   courseId: string;
 }
 
-export interface BookmarkedCourse {
-  id: string;
-  title: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
-  divisionTags: string[];
-  duration: string;
-  description: string;
-  provider: string;
-}
 
 export const dashboardCourses: DashboardCourse[] = [
   {
@@ -167,48 +158,6 @@ export const dashboardCertificates: DashboardCertificate[] = [
   },
 ];
 
-export const bookmarkedCourses: BookmarkedCourse[] = [
-  {
-    id: "net-zero-2050-architecture-role",
-    title: "Net-Zero 2050 - Architecture's Role in Sustainability",
-    level: "Beginner",
-    divisionTags: ["All Divisions"],
-    duration: "3 hours",
-    description:
-      "Introduces DEWA's Net-Zero 2050 commitment and explains how enterprise architecture decisions directly contribute to sustainability targets.",
-    provider: "Internal",
-  },
-  {
-    id: "digital-customer-experience-utilities",
-    title: "Designing the Digital Customer Experience for Utilities",
-    level: "Intermediate",
-    divisionTags: ["Customer Services", "Digital DEWA & Moro Hub"],
-    duration: "10 hours",
-    description:
-      "Architecture and design principles for DEWA's customer-facing digital platforms, covering Services 360 and Rammas AI integration.",
-    provider: "Internal",
-  },
-  {
-    id: "cybersecurity-architecture-operational-technology",
-    title: "Cybersecurity Architecture for Operational Technology",
-    level: "Intermediate",
-    divisionTags: ["Generation", "Transmission", "Distribution"],
-    duration: "14 hours",
-    description:
-      "Security architecture principles for utility OT environments, covering SCADA, DCS, and smart metering security.",
-    provider: "Coursera",
-  },
-  {
-    id: "enterprise-architecture-governance-leading-ea-office",
-    title: "Enterprise Architecture Governance - Leading the EA Office",
-    level: "Advanced",
-    divisionTags: ["All Divisions"],
-    duration: "16 hours",
-    description:
-      "Advanced course for EA Office leads on establishing governance frameworks, managing the architecture repository, and reporting to executive leadership.",
-    provider: "Internal",
-  },
-];
 
 export const dashboardStats = {
   coursesInProgress: 4,

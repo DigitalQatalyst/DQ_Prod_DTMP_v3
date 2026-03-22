@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, MessageSquare } from "lucide-react";
 import type { LCChangeRequest } from "@/data/learningCenter/stage3/lcChangeRequests";
 import { lcChangeTypeLabels } from "@/data/learningCenter/stage3/lcChangeRequests";
 import type { SessionRole } from "@/data/sessionRole";
+import { getAllModuleComments } from "@/data/learningCenter/feedback";
 import {
   getStatusBadgeClass,
   getStatusLabel,
@@ -17,6 +18,22 @@ interface Props {
 }
 
 export default function LCGovOverview({ requests, role }: Props) {
+  // Live module comments from the feedback store
+  const allComments = useMemo(() => getAllModuleComments(), []);
+  const unresolvedComments = useMemo(() => allComments.filter((c) => !c.resolved), [allComments]);
+
+  // Group unresolved comments by courseId to find which courses need attention
+  const unresolvedByCourse = useMemo(() => {
+    const map: Record<string, { courseId: string; count: number; sample: string }> = {};
+    unresolvedComments.forEach((c) => {
+      if (!map[c.courseId]) {
+        map[c.courseId] = { courseId: c.courseId, count: 0, sample: c.moduleTitle };
+      }
+      map[c.courseId].count += 1;
+    });
+    return Object.values(map).sort((a, b) => b.count - a.count).slice(0, 4);
+  }, [unresolvedComments]);
+
   const openCount = useMemo(
     () => requests.filter((r) => r.status === "submitted" || r.status === "in-implementation").length,
     [requests]
@@ -108,6 +125,38 @@ export default function LCGovOverview({ requests, role }: Props) {
           </tbody>
         </table>
       </div>
+
+      {/* Unresolved Learner Questions */}
+      {unresolvedComments.length > 0 && (
+        <div className="bg-white border border-amber-200 rounded-xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-amber-100 bg-amber-50 flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-amber-600" />
+            <div>
+              <h3 className="font-semibold text-amber-900">
+                Unresolved Learner Questions ({unresolvedComments.length})
+              </h3>
+              <p className="text-xs text-amber-700">
+                Module-level questions from learners awaiting course admin response
+              </p>
+            </div>
+          </div>
+          <div className="divide-y divide-amber-50">
+            {unresolvedByCourse.map((entry) => (
+              <div key={entry.courseId} className="px-5 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-800 capitalize">
+                    {entry.courseId.replace(/-/g, " ")}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">e.g. in "{entry.sample}"</p>
+                </div>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                  {entry.count} pending
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent Change Requests */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
