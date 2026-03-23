@@ -1759,7 +1759,6 @@ export default function Stage3AppPage() {
               )}
             </>
           )}
-          </>)}
         </div>
       </main>
 
