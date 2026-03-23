@@ -90,6 +90,7 @@ const REQUEST_TYPE_LABELS: Record<string, string> = {
 
 const REQUEST_STATUS_COLORS: Record<TORequestStatus, string> = {
   Open: "bg-amber-100 text-amber-700",
+  Assigned: "bg-purple-100 text-purple-700",
   "In Review": "bg-blue-100 text-blue-700",
   Resolved: "bg-green-100 text-green-700",
 };
