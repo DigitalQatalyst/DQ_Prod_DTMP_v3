@@ -9,16 +9,24 @@ import {
   MoreHorizontal,
   Users,
   AlertTriangle,
+  MessageSquare,
+  CheckCircle2,
+  Send,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { EnrolledStudent, StudentStatus } from "@/data/learningCenter/stage2/types";
+import { getAllModuleComments, resolveModuleComment, type ModuleComment } from "@/data/learningCenter/feedback";
 
 interface AdminEnrollmentsTabProps {
   students: EnrolledStudent[];
+  courseId?: string;
 }
 
 const statusConfig: Record<
@@ -33,8 +41,37 @@ const statusConfig: Record<
 
 const ITEMS_PER_PAGE = 5;
 
-const AdminEnrollmentsTab = ({ students }: AdminEnrollmentsTabProps) => {
+const AdminEnrollmentsTab = ({ students, courseId }: AdminEnrollmentsTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [moduleComments, setModuleComments] = useState<ModuleComment[]>(() =>
+    getAllModuleComments().filter((c) => !courseId || c.courseId === courseId)
+  );
+  const [expandedComment, setExpandedComment] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
+  const [replyToast, setReplyToast] = useState<string | null>(null);
+
+  const showReplyToast = (msg: string) => {
+    setReplyToast(msg);
+    setTimeout(() => setReplyToast(null), 3000);
+  };
+
+  const handleSendReply = (id: string) => {
+    const reply = replyText[id]?.trim();
+    resolveModuleComment(id, reply || undefined);
+    setModuleComments((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, resolved: true, reply: reply || undefined, repliedAt: new Date().toISOString(), repliedBy: "Course Coordinator" }
+          : c
+      )
+    );
+    setExpandedComment(null);
+    setReplyText((prev) => ({ ...prev, [id]: "" }));
+    showReplyToast(reply ? "Reply sent and comment resolved." : "Comment marked as resolved.");
+  };
+
+  const pendingComments = moduleComments.filter((c) => !c.resolved);
+  const resolvedComments = moduleComments.filter((c) => c.resolved);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(
@@ -327,6 +364,135 @@ const AdminEnrollmentsTab = ({ students }: AdminEnrollmentsTabProps) => {
             </Button>
           </div>
         </div>
+      </div>
+      {/* Learner Questions / Module Comments */}
+      {replyToast && (
+        <div className="fixed top-6 right-6 z-50 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+          {replyToast}
+        </div>
+      )}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="w-4 h-4 text-orange-600" />
+          <h3 className="text-sm font-semibold text-gray-900">Learner Questions</h3>
+          {pendingComments.length > 0 && (
+            <span className="text-xs bg-orange-100 text-orange-700 rounded-full px-2 py-0.5 font-medium">
+              {pendingComments.length} pending
+            </span>
+          )}
+        </div>
+
+        {moduleComments.length === 0 ? (
+          <p className="text-sm text-gray-400 italic">No learner questions submitted yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {[...pendingComments, ...resolvedComments].map((c) => {
+              const isExpanded = expandedComment === c.id;
+              return (
+                <div
+                  key={c.id}
+                  className={`border rounded-lg overflow-hidden transition-all ${
+                    c.resolved ? "border-gray-100" : "border-orange-200"
+                  }`}
+                >
+                  {/* Clickable header row */}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedComment(isExpanded ? null : c.id)}
+                    className={`w-full flex items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${
+                      c.resolved ? "bg-gray-50 hover:bg-gray-100" : "bg-orange-50/40 hover:bg-orange-50"
+                    }`}
+                  >
+                    <div className="space-y-0.5 flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                        {c.moduleTitle}
+                      </p>
+                      <p className="text-sm text-gray-800">"{c.comment}"</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <span>{c.learnerName}</span>
+                        <span>·</span>
+                        <span>
+                          {new Date(c.submittedAt).toLocaleDateString("en-GB", {
+                            day: "numeric", month: "short", year: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {c.resolved ? (
+                        <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Resolved
+                        </span>
+                      ) : (
+                        <span className="text-xs text-orange-600 font-medium">Awaiting reply</span>
+                      )}
+                      {isExpanded
+                        ? <ChevronUp className="w-4 h-4 text-gray-400" />
+                        : <ChevronDown className="w-4 h-4 text-gray-400" />
+                      }
+                    </div>
+                  </button>
+
+                  {/* Expanded thread */}
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-3 border-t border-gray-100 space-y-3 bg-white">
+                      {/* Existing reply */}
+                      {c.reply && (
+                        <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 space-y-1">
+                          <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                            {c.repliedBy ?? "Course Coordinator"} replied
+                          </p>
+                          <p className="text-sm text-blue-900">"{c.reply}"</p>
+                          {c.repliedAt && (
+                            <p className="text-xs text-blue-400">
+                              {new Date(c.repliedAt).toLocaleDateString("en-GB", {
+                                day: "numeric", month: "short", year: "numeric",
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Reply input — only if not yet resolved */}
+                      {!c.resolved && (
+                        <div className="space-y-2">
+                          <Textarea
+                            placeholder="Type your reply to the learner..."
+                            value={replyText[c.id] ?? ""}
+                            onChange={(e) =>
+                              setReplyText((prev) => ({ ...prev, [c.id]: e.target.value }))
+                            }
+                            rows={3}
+                            className="resize-none text-sm"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              className="bg-orange-600 hover:bg-orange-700 text-white"
+                              onClick={() => handleSendReply(c.id)}
+                            >
+                              <Send className="w-3.5 h-3.5 mr-1.5" />
+                              Send Reply & Resolve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-gray-500"
+                              onClick={() => handleSendReply(c.id)}
+                            >
+                              Resolve Without Reply
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

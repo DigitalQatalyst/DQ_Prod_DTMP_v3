@@ -4,17 +4,19 @@ import { X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { enrolledCourses } from "@/data/learning";
 import { setUserAuthenticated } from "@/data/sessionAuth";
 import {
   isTOStage3Role,
   setSessionRole,
   type SessionRole,
 } from "@/data/sessionRole";
+import { stage1ToStage2CourseMap } from "@/data/learningCenter/courseIdMap";
+import { addEnrollment } from "@/data/learningCenter/enrollments";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess?: () => void;
   context: {
     marketplace: string;
     tab: string;
@@ -26,23 +28,9 @@ interface LoginModalProps {
     sectionRef?: string;
     requestType?: string;
   };
-  onLoginSuccess?: () => void;
 }
 
-const learningStage1ToStage2CourseMap: Record<string, string> = {
-  "dt-fundamentals": "digital-transformation-fundamentals",
-  "dbp-capability": "dbp-framework-essentials",
-  "4d-model-mastery": "agile-transformation-leadership",
-  "enterprise-arch": "enterprise-architecture-patterns",
-  "change-leadership": "change-management-excellence",
-  "data-driven-decisions": "data-driven-decision-making",
-  "agile-transformation": "agile-transformation-leadership",
-  "cloud-architecture": "cloud-migration-strategies",
-  "transformation-roi": "data-driven-decision-making",
-  "transformation-leadership": "agile-transformation-leadership",
-};
-
-export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, onLoginSuccess, context }: LoginModalProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -84,13 +72,17 @@ export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginMo
       return;
     }
 
+    if (context.action === "bookmark") {
+      onClose();
+      onLoginSuccess?.();
+      return;
+    }
+
     if (context.marketplace === "learning-center") {
-      const fallbackCourseId = enrolledCourses[0]?.id ?? "digital-transformation-fundamentals";
-      const mappedCourseId =
-        learningStage1ToStage2CourseMap[context.cardId] ??
-        (enrolledCourses.some((course) => course.id === context.cardId)
-          ? context.cardId
-          : fallbackCourseId);
+      // Use Stage 1 ID directly — it IS the Stage 2 ID for DEWA courses
+      const mappedCourseId = stage1ToStage2CourseMap[context.cardId] ?? context.cardId;
+      // Register enrollment in persistent store
+      addEnrollment(mappedCourseId);
       const learningRole = resolveLearningRole(email);
       const targetView = learningRole === "admin" ? "admin" : "user";
 
@@ -191,6 +183,8 @@ export function LoginModal({ isOpen, onClose, context, onLoginSuccess }: LoginMo
             ? "Your request has been saved. Log in to track it in your workspace."
             : context.action === "access-platform"
             ? "Log in to access internal platform workspace."
+            : context.action === "bookmark"
+            ? "Please log in to save this course to your bookmarks"
             : "Please log in to continue with your enrollment"}
         </p>
 

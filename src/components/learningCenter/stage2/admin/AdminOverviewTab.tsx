@@ -26,9 +26,10 @@ import type { TrackAnalyticsSnapshot } from "@/data/learningCenter/trackAnalytic
 interface AdminOverviewTabProps {
   data: AdminCourseData;
   trackAnalytics?: TrackAnalyticsSnapshot;
+  onViewAlerts?: () => void;
 }
 
-const AdminOverviewTab = ({ data, trackAnalytics }: AdminOverviewTabProps) => {
+const AdminOverviewTab = ({ data, trackAnalytics, onViewAlerts }: AdminOverviewTabProps) => {
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
@@ -325,7 +326,12 @@ const AdminOverviewTab = ({ data, trackAnalytics }: AdminOverviewTabProps) => {
             ))}
           </div>
           <div className="px-6 py-3 border-t border-gray-100">
-            <Button variant="outline" size="sm" className="w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={onViewAlerts}
+            >
               View All Alerts
             </Button>
           </div>

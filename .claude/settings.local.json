@@ -2,8 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc:*)",
-      "Bash(pandoc C:/Users/Wangare/Downloads/DTMP_DEWA_SolutionSpecs_FullSpec_v1.docx -t markdown)",
       "Read(//c/Users/Wangare/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/c771c95d-c30b-4f6b-868a-cef306a92327/472e6076-6c93-46ac-8cbc-9117ec5f0094/skills/docx/**)",
+      "Bash(pandoc --track-changes=all \"C:\\\\Users\\\\Wangare\\\\Downloads\\\\DTMP_DEWA_LearningCentre_Stage2_Stage3_v1.docx\" -o output.md)",
+      "Bash(python scripts/office/unpack.py \"C:\\\\Users\\\\Wangare\\\\Downloads\\\\DTMP_DEWA_LearningCentre_Stage2_Stage3_v1.docx\" unpacked/)",
+      "Bash(wc -l /c/Users/Wangare/Desktop/\"DEWA Prototype\"/DQ_Prod_DTMP_v3_DEWA_Prototype/src/components/learningCenter/stage2/admin/*.tsx)",
+      "Bash(wc -l /c/Users/Wangare/Desktop/\"DEWA Prototype\"/DQ_Prod_DTMP_v3_DEWA_Prototype/src/components/learningCenter/stage2/user/*.tsx)",
+      "Bash(find '/c/Users/Wangare/Desktop/DEWA Prototype/DQ_Prod_DTMP_v3_DEWA_Prototype/src/data' -type f -name *marketplaces* -o -name *enterprise*)",
+      "Bash(wc -l /c/Users/Wangare/Desktop/\"DEWA Prototype\"/DQ_Prod_DTMP_v3_DEWA_Prototype/src/data/learningCenter/*.ts)",
+      "Bash(wc -l /c/Users/Wangare/Desktop/DEWA Prototype/DQ_Prod_DTMP_v3_DEWA_Prototype/src/components/learningCenter/stage2/**/*.tsx)",
+      "Bash(wc -l /c/Users/Wangare/Desktop/DEWA Prototype/DQ_Prod_DTMP_v3_DEWA_Prototype/src/components/learningCenter/*.tsx)",
+      "Bash(grep -rn \"enrolledCourses\\\\|enrolled_courses\" \"C:\\\\Users\\\\Wangare\\\\Desktop\\\\DEWA Prototype\\\\DQ_Prod_DTMP_v3_DEWA_Prototype\\\\src\\\\data\"\" --include=\"*.ts \")",
+      "Bash(npm run:*)",
+      "Bash(pandoc C:/Users/Wangare/Downloads/DTMP_DEWA_SolutionSpecs_FullSpec_v1.docx -t markdown)",
       "Bash(python scripts/office/unpack.py \"C:/Users/Wangare/Downloads/DTMP_DEWA_SolutionSpecs_FullSpec_v1.docx\" unpacked_spec/)",
       "Read(//c/tmp/**)",
       "Bash(cp \"C:/Users/Wangare/Downloads/DTMP_DEWA_SolutionSpecs_FullSpec_v1.docx\" spec.zip)",
@@ -27,7 +37,8 @@
       "Bash(powershell -Command \"Get-ChildItem -Recurse ''''C:\\\\Users\\\\Wangare\\\\Desktop\\\\DEWA Prototype\\\\DQ_Prod_DTMP_v3_DEWA_Prototype\\\\src'''' -Filter ''''*.tsx'''' | Where-Object { $_Name -match ''''build|stage2|Build|Stage2'''' } | Select-Object FullName\")",
       "Bash(powershell -Command \"Get-ChildItem -Recurse ''C:\\\\Users\\\\Wangare\\\\Desktop\\\\DEWA Prototype\\\\DQ_Prod_DTMP_v3_DEWA_Prototype\\\\src\\\\pages\\\\stage2'' | Select-Object FullName\")",
       "Bash(powershell -Command \"Select-String -Path ''C:\\\\Users\\\\Wangare\\\\Desktop\\\\DEWA Prototype\\\\DQ_Prod_DTMP_v3_DEWA_Prototype\\\\src\\\\App.tsx'' -Pattern ''solution-build|stage3'' | Select-Object LineNumber, Line\")",
-      "Bash(powershell -Command \"Select-String -Path ''C:\\\\Users\\\\Wangare\\\\Desktop\\\\DEWA Prototype\\\\DQ_Prod_DTMP_v3_DEWA_Prototype\\\\src\\\\pages\\\\SolutionBuildPage.tsx'' -Pattern ''requestButton|rightContent|Can.t find|card|icon'' -CaseSensitive:0 | Select-Object LineNumber, Line\")"
+      "Bash(powershell -Command \"Select-String -Path ''C:\\\\Users\\\\Wangare\\\\Desktop\\\\DEWA Prototype\\\\DQ_Prod_DTMP_v3_DEWA_Prototype\\\\src\\\\pages\\\\SolutionBuildPage.tsx'' -Pattern ''requestButton|rightContent|Can.t find|card|icon'' -CaseSensitive:0 | Select-Object LineNumber, Line\")",
+      "Bash(python3:*)"
     ]
   }
 }

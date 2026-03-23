@@ -1,0 +1,850 @@
+
+
+DTMP DEWA · LEARNING CENTRE · STAGE 2 &amp; STAGE 3 · FULL SPECIFICATION
+
+STAGE 2: LEARNER DASHBOARD · STAGE 3: CONTENT GOVERNANCE — ADMIN CHANGE REQUEST FLOW
+
+Learning Centre
+Stage 2 &amp; Stage 3 — Full Specification
+
+Stage 2: My Learning · Enrolled Courses · Progress Tracking · Certificates · Learning Tracks
+
+Stage 3: Content Governance Dashboard · Admin Change Requests · Approval Flow · Analytics
+
+Version 1.0 · March 2026 · Prepared by DigitalQatalyst · For: Hammton / AI Developer
+
+READ THE LEARNING CENTRE CONTEXTUALISATION SPEC (STAGE 1) FIRST. THIS DOCUMENT COVERS STAGE 2 AND STAGE 3 ONLY.
+
+— SECTION 00 —
+
+Context &amp; Scope
+
+WHAT THIS DOCUMENT COVERS
+
+The Learning Centre Contextualisation Spec (March 2026) defined the full Stage 1 marketplace — 30 DEWA courses, 7 learning tracks, 10 reviews, and updated filters. This document defines Stage 2 (the learner&apos;s personal learning dashboard) and Stage 3 (the content governance dashboard for the EA Office) for the Learning Centre.
+
+THE STAGE 3 GOVERNANCE MODEL
+
+Stage 3 for the Learning Centre is not a fulfilment dashboard — it is a content governance dashboard. The EA Office does not directly edit course content. Instead, admins surface content items from the live platform, submit structured change requests (update a title, add a module, remove a course), and those changes are reviewed and approved before being applied. This ensures all content changes are governed and traceable.
+
+WHAT THE EXISTING STAGE 2 AND STAGE 3 CONTAIN
+
+The existing Stage 2 and Stage 3 for Learning Centre are generic versions built before the DEWA contextualisation. They do not reflect the 30 DEWA courses, 7 learning tracks, or division tags defined in the contextualisation spec. Both need to be updated to reflect the DEWA content.
+
+— SECTION 01 —
+
+Stage 2 — My Learning Dashboard
+
+The learner&apos;s personal learning hub — progress, enrolled courses, tracks, and certificates.
+
+1.1 — Layout &amp; Navigation
+
+FIELD
+
+SPECIFICATION
+
+Layout
+
+Three-column LVE layout — same convention as all other Stage 2 dashboards
+
+Column 1
+
+Platform navigation — shared across all marketplaces
+
+Column 2
+
+Learning Centre service hub navigation — see nav items below
+
+Column 3
+
+Main content area
+
+Service hub title
+
+Learning Centre — My Learning
+
+Service hub subtitle
+
+Your courses, tracks, and learning progress
+
+FIELD
+
+SPECIFICATION
+
+Column 2 nav item 1
+
+Overview — Learning summary dashboard
+
+Column 2 nav item 2
+
+My Courses — All enrolled and completed courses
+
+Column 2 nav item 3
+
+My Tracks — Learning tracks enrolled in or completed
+
+Column 2 nav item 4
+
+Certificates — All earned certificates
+
+Column 2 nav item 5
+
+Bookmarks — Courses saved but not yet enrolled
+
+1.2 — Overview Page
+
+FIELD
+
+SPECIFICATION
+
+Metric cards (top row — 4)
+
+Courses In Progress | Courses Completed | Tracks Enrolled | Certificates Earned
+
+Learning Progress bar
+
+A visual overview bar showing: Beginner courses completed vs total, Intermediate completed vs total, Advanced completed vs total. Quick visual of where the learner sits across the curriculum.
+
+Continue Learning
+
+Short list (max 3) of courses currently in progress — course title, level badge, progress percentage, &apos;Continue&apos; button that navigates back to the course in Stage 1
+
+Recommended Next
+
+Short list (max 3) of course recommendations based on completed courses and division tag — e.g. if the user has completed Beginner EA courses, recommend Intermediate ones from their division
+
+Quick Actions
+
+&apos;Browse Courses&apos; (→ Stage 1 Courses tab) | &apos;Browse Tracks&apos; (→ Stage 1 Tracks tab) | &apos;View Certificates&apos; (→ Certificates page)
+
+1.3 — My Courses Page
+
+FIELD
+
+SPECIFICATION
+
+View tabs
+
+In Progress | Completed | All Enrolled
+
+Course entry fields
+
+Course thumbnail / icon | Level badge (Beginner / Intermediate / Advanced) | Division tag pill | Course title | Progress bar (% complete) | Last accessed date | Continue / Review button
+
+In Progress courses
+
+Show progress bar prominently. &apos;Continue&apos; button navigates to the course content in Stage 1.
+
+Completed courses
+
+Show completion date. &apos;Review&apos; button navigates back to course. &apos;View Certificate&apos; button if certificate was issued.
+
+Filters
+
+Level (All / Beginner / Intermediate / Advanced) | Division (All DEWA divisions) | Status (In Progress / Completed)
+
+Sort
+
+Last Accessed | Completion Date | Course Title | Level
+
+Unenrol
+
+Each course entry has an &apos;Unenrol&apos; option — requires confirmation. Removes the course from My Courses. Progress is lost.
+
+1.4 — Course Progress Detail
+
+When a user clicks &apos;Continue&apos; or opens a course from My Courses:
+
+The course detail view in Stage 2 shows a module-level progress breakdown — not just an overall percentage. This helps learners see exactly where they are within a course and which modules remain.
+
+FIELD
+
+SPECIFICATION
+
+Course header
+
+Course title, level badge, division tag, overall progress %
+
+Module list
+
+List of all modules in the course — each shows: module title, status (Not Started / In Progress / Completed), estimated duration, Start/Continue/Review button
+
+Current module highlight
+
+The module the learner is currently on is highlighted with a &apos;Continue Here&apos; CTA
+
+Course completion trigger
+
+When all modules are marked complete, the course status moves to Completed. If the course includes a certificate, it is issued automatically.
+
+Notes panel
+
+Optional — learner can take and save personal notes on each module. Notes are private and visible only to the learner.
+
+1.5 — My Tracks Page
+
+FIELD
+
+SPECIFICATION
+
+Track entry fields
+
+Track thumbnail / icon | Track title | Course count | Duration | Certification badge (if track awards a certificate) | Progress bar (courses completed / total) | Status (Not Started / In Progress / Completed) | Open Track button
+
+Open Track view
+
+Shows the full track — all courses listed in sequence. Each course shows its individual completion status. The learner can enrol in individual courses from here.
+
+Track completion
+
+Track is complete when all required courses within it are completed. Certificate issued automatically if the track awards one.
+
+Enrol in Track
+
+&apos;Enrol in Track&apos; button — enrolls the learner in all courses in the track at once. They can also enrol course by course.
+
+1.6 — Certificates Page
+
+FIELD
+
+SPECIFICATION
+
+Certificate entry fields
+
+Certificate title | Course or Track name | Issue date | Certificate type (Course Completion / Track Completion) | View button | Download PDF button
+
+View certificate
+
+Opens the certificate — a styled digital certificate with DEWA branding, the learner&apos;s name, course/track title, completion date, and the EA Office signature/seal
+
+Download PDF
+
+Downloads the certificate as a formatted PDF for the learner to keep or share
+
+DEWA branding
+
+Certificates use DEWA brand colours (Black Pearl, Sky Blue), the DEWA logo placeholder, and the Dubai Font. They should look like official DEWA learning credentials.
+
+Certificate for courses
+
+Issued on course completion for all 30 DEWA courses
+
+Certificate for tracks
+
+Issued on track completion for the 7 tracks — these are the more prestigious credentials. Track certificates are visually distinguished from course certificates.
+
+1.7 — Bookmarks Page
+
+FIELD
+
+SPECIFICATION
+
+What bookmarks are
+
+Courses the learner has saved from Stage 1 (using the bookmark / save icon on a course card) but has not yet enrolled in
+
+Bookmark entry fields
+
+Course thumbnail | Level badge | Division tag | Course title | Short description | &apos;Enrol Now&apos; button | &apos;Remove Bookmark&apos; button
+
+Enrol from Bookmarks
+
+Clicking &apos;Enrol Now&apos; enrolls the learner in the course and moves it from Bookmarks to My Courses
+
+— SECTION 02 —
+
+Stage 3 — Content Governance Dashboard
+
+The EA Office&apos;s content governance dashboard for the Learning Centre. Admin change request flow.
+
+THE GOVERNANCE MODEL — HOW CONTENT CHANGES WORK
+
+Stage 3 for the Learning Centre operates on a request-approve model. An admin (EA Office content manager) does not directly edit course content in the codebase or database. Instead, they use Stage 3 to surface existing content, identify what needs to change, and submit a structured change request describing the change they want made.
+
+The change request is then reviewed and approved by a designated content approver (typically a senior EA Office member). On approval, the change request becomes an instruction for the developer (Hammton) to implement the change in the codebase. The platform surfaces the request and its approval status clearly.
+
+WHY THIS MODEL
+
+For DEWA&apos;s EA Office, this model ensures: (1) no accidental content changes — everything requires a second pair of eyes, (2) a full audit trail of what was changed, when, why, and who approved it, (3) the admin does not need technical access to the codebase — they describe the change in plain language and the developer implements it.
+
+2.1 — Access Control
+
+FIELD
+
+SPECIFICATION
+
+Who can access Stage 3
+
+EA Office content managers with the TO/Admin role
+
+Content Manager role
+
+Can browse the content catalogue, raise change requests, and view approved changes
+
+Content Approver role
+
+Can do everything a Content Manager can, plus approve or reject change requests
+
+Entry point
+
+TO Contributor card on Learning Centre Stage 1 — routes to /stage3/learning-centre/dashboard
+
+Regular learners
+
+Cannot access Stage 3 — Stage 2 only
+
+2.2 — Layout &amp; Navigation
+
+FIELD
+
+SPECIFICATION
+
+Layout
+
+Three-column LVE layout — same as all Stage 3 dashboards
+
+Column 2 nav item 1
+
+Overview — Content governance summary
+
+Column 2 nav item 2
+
+Content Browser — Browse all courses, tracks, and reviews to surface items for change
+
+Column 2 nav item 3
+
+Change Requests — All submitted change requests with status
+
+Column 2 nav item 4
+
+Pending Approval — Change requests awaiting approval (approver role only)
+
+Column 2 nav item 5
+
+Approved Changes — History of approved and implemented changes
+
+Column 2 nav item 6
+
+Analytics — Learner engagement and course performance data
+
+2.3 — Overview Page
+
+FIELD
+
+SPECIFICATION
+
+Metric cards (top row — 4)
+
+Total Courses Published | Change Requests Open | Pending Approval | Changes Implemented This Month
+
+Content Health summary
+
+A table showing: Courses &amp; Curriculum tab (30 courses, last reviewed date), Learning Tracks tab (7 tracks, last reviewed date), Reviews tab (10 reviews, last reviewed date). Helps the team see which content areas haven&apos;t been reviewed recently.
+
+Recent Change Requests
+
+Last 5 change requests — title, type, status badge, submitted date
+
+Pending Actions
+
+Any change requests awaiting the logged-in user&apos;s approval — prominent callout if the user is a Content Approver
+
+— SECTION 03 —
+
+Stage 3 — Content Browser
+
+Where admins surface existing content to review and initiate change requests.
+
+PURPOSE OF THE CONTENT BROWSER
+
+The Content Browser is a read-only view of all published Learning Centre content — all 30 courses, 7 tracks, and 10 reviews — exactly as they appear in Stage 1, but with additional metadata and a &apos;Raise Change Request&apos; action on every item. The admin uses this to find the content they want to change and initiate a change request directly from that item.
+
+3.1 — Content Browser — Courses &amp; Curriculum
+
+FIELD
+
+SPECIFICATION
+
+View
+
+List of all 30 DEWA courses — same metadata as Stage 1 cards plus additional admin fields
+
+Admin fields shown
+
+Course ID (internal reference) | Last modified date | Number of enrolled learners | Completion rate | Status (Published / Unpublished)
+
+Filters
+
+Level (Beginner / Intermediate / Advanced) | Division Tag | Status (Published / Unpublished)
+
+Actions per course
+
+&apos;View in Stage 1&apos; — opens the course card as a learner would see it (read-only preview) | &apos;Raise Change Request&apos; — opens the change request form pre-filled with this course as the subject
+
+3.2 — Content Browser — Learning Tracks
+
+FIELD
+
+SPECIFICATION
+
+View
+
+List of all 7 DEWA learning tracks — with course list, duration, certification status, enrolled learner count
+
+Admin fields shown
+
+Track ID | Last modified date | Enrolled learners | Completion rate | Certification issued count
+
+Actions per track
+
+&apos;View in Stage 1&apos; | &apos;Raise Change Request&apos;
+
+3.3 — Content Browser — Reviews
+
+FIELD
+
+SPECIFICATION
+
+View
+
+All 10 DEWA reviews — reviewer name, rating, review text, course referenced, published date
+
+Admin fields shown
+
+Review ID | Published date | Status (Visible / Hidden)
+
+Actions per review
+
+&apos;Hide Review&apos; — removes from Stage 1 display without deleting | &apos;Raise Change Request&apos; — for edits or removal
+
+— SECTION 04 — CORE —
+
+Stage 3 — Change Request Flow
+
+How admins submit, approve, and implement content changes in the Learning Centre.
+
+4.1 — Change Request Types
+
+FIELD
+
+SPECIFICATION
+
+Update Course Metadata
+
+Change the title, description, level, division tag, or duration of a course — without changing the course content itself
+
+Update Course Content
+
+Add a module, remove a module, update module content, reorder modules within a course
+
+Add New Course
+
+Request a new course to be added to the Learning Centre — with full course definition: title, level, description, modules, division tag
+
+Unpublish Course
+
+Remove a course from Stage 1 visibility — it remains in the Content Browser but learners can no longer see or enrol in it
+
+Archive Course
+
+Permanently remove a course — cannot be undone. Learners who were enrolled are notified.
+
+Update Learning Track
+
+Change a track&apos;s title, description, course sequence, duration, or certification details
+
+Add New Learning Track
+
+Request a new learning track — with full track definition: title, courses included, sequence, duration, certification details
+
+Update Review
+
+Edit or remove a learner review — requires justification
+
+4.2 — Change Request Form
+
+FIELD
+
+SPECIFICATION
+
+Subject
+
+Pre-filled if raised from Content Browser — shows the course/track/review being changed. Manual entry if raised from the Change Requests page.
+
+Change Type
+
+Dropdown — all types from Section 4.1
+
+Change Description
+
+Textarea (required) — plain language description of exactly what should change. E.g. &apos;Change the course title from X to Y&apos; or &apos;Add a new module after Module 3: [module title and description]&apos; or &apos;Remove Module 5 — content is outdated&apos;.
+
+Reason
+
+Textarea (required) — why this change is needed. E.g. &apos;Course title does not reflect updated DEWA EA 4.0 terminology&apos; or &apos;Module 5 references a system that was decommissioned in Q4 2025&apos;.
+
+Urgency
+
+Dropdown — Low | Medium | High | Critical
+
+Attachments
+
+Optional file upload — admin can attach reference documents, updated content, images, or supporting materials for the developer to use when implementing
+
+Preview of current content
+
+Read-only display of the current content being changed — so the approver can compare current vs requested change side by side
+
+4.3 — Change Request Status Flow
+
+STATUS FLOW
+
+FIELD
+
+SPECIFICATION
+
+Draft
+
+Admin has started but not submitted the change request
+
+Submitted
+
+Change request submitted — awaiting approval. Appears in Pending Approval queue for Content Approvers.
+
+Approved
+
+Content Approver has approved the change. Request is now ready for developer implementation. Developer is notified.
+
+Rejected
+
+Content Approver has rejected the change — with mandatory rejection reason. Admin is notified. Admin can revise and resubmit.
+
+In Implementation
+
+Developer has acknowledged the change and is implementing it
+
+Implemented
+
+Developer has marked the change as implemented. Admin is notified to verify.
+
+Verified
+
+Admin confirms the change has been correctly implemented. Request is closed.
+
+Closed — Not Verified
+
+Admin raises a query — implementation does not match the request. Goes back to In Implementation.
+
+4.4 — Pending Approval Page (Content Approver role)
+
+FIELD
+
+SPECIFICATION
+
+Queue entry fields
+
+Subject (course/track/review title) | Change type badge | Submitted by | Submitted date | Urgency badge | Open button
+
+Open request detail
+
+Shows full change request: current content preview, change description, reason, urgency, attachments
+
+Approve action
+
+Green &apos;Approve&apos; button — required approval note (optional but encouraged). Status: Submitted → Approved. Admin notified. Developer notified.
+
+Reject action
+
+Red &apos;Reject&apos; button — mandatory rejection reason. Status: Submitted → Rejected. Admin notified with reason.
+
+Request Clarification
+
+Amber button — Content Approver can ask the admin a question before deciding. Status: Submitted → Clarification Requested. Admin notified.
+
+4.5 — Developer Implementation View
+
+HOW THE DEVELOPER (HAMMTON) SEES AND ACTS ON APPROVED CHANGES
+
+When a change request is approved, it becomes an implementation instruction for the developer. The platform surfaces approved changes in a clear, actionable format that can be used directly as a coding prompt.
+
+FIELD
+
+SPECIFICATION
+
+Approved change view
+
+Shows: Change Type, Subject, exact Change Description, Reason, Attachments, Approval note, Approved by, Approved date
+
+Implementation prompt
+
+A formatted, copy-ready instruction block that the developer can paste directly into Cursor/Kiro — pre-formatted as a technical instruction based on the change description
+
+Mark as Implemented
+
+Developer clicks &apos;Mark as Implemented&apos; once the change is live. Status: Approved → Implemented. Admin notified to verify.
+
+Implementation notes
+
+Developer can add implementation notes — e.g. &apos;Changed in CoursesData.ts line 47, course ID LC-DEWA-001&apos;
+
+NOTE: For the prototype, the Implementation Prompt block does not need to auto-generate. It can be a styled display of the change description formatted as a developer instruction. The key functional requirement is the Mark as Implemented action and the status update it triggers.
+
+— SECTION 05 —
+
+Stage 3 — Analytics Dashboard
+
+Learner engagement and course performance data for the EA Office.
+
+5.1 — Analytics Page
+
+FIELD
+
+SPECIFICATION
+
+Top row KPIs
+
+Total Enrolled Learners | Courses Completed This Month | Active Learners (logged in this week) | Certificates Issued
+
+Course Performance table
+
+All 30 courses — sorted by enrolment count. Columns: Course title, Level, Division tag, Enrolled, Completed, Completion rate %, Avg rating
+
+Track Performance table
+
+All 7 tracks — Enrolled, Completed, Completion rate %, Certificates issued
+
+Top Courses
+
+Top 5 most enrolled courses — bar chart
+
+Completion Rate by Level
+
+Beginner / Intermediate / Advanced completion rates — shows if learners are dropping off at a particular level
+
+Division Breakdown
+
+Which DEWA divisions have the most active learners — helps EA Office see where learning adoption is strong and where it needs attention
+
+Learning Activity over Time
+
+Line chart — course enrolments and completions per week over the last 90 days
+
+Date range filter
+
+Last 7 days / Last 30 days / Last 90 days / Custom range
+
+NOTE: All analytics data is mock data for the prototype. Real analytics integration is a future phase. Populate with plausible DEWA-contextualised numbers — e.g. &apos;Smart Grid Architecture&apos; and &apos;EA Fundamentals&apos; as top enrolled courses.
+
+— SECTION 06 —
+
+End-to-End Flows
+
+Two flows: (1) Learner journey Stage 1 to Stage 2. (2) Admin content change request flow Stage 3.
+
+FLOW 1 — LEARNER JOURNEY
+
+STEP 1 Browse Learning Centre [Learner]
+
+Learner navigates to Learning Centre Stage 1. Browses courses by tab — Courses &amp; Curriculum, Learning Tracks, or Reviews.
+
+▼
+
+STEP 2 Find a course [Learner]
+
+Learner filters by Division (e.g. Transmission) or Level (Beginner). Finds a relevant course. Clicks the card.
+
+▼
+
+STEP 3 Enrol in course [Learner]
+
+Course detail page opens. Learner clicks &apos;Enrol&apos;. Course added to My Courses in Stage 2. Learner can start immediately.
+
+▼
+
+STEP 4 Track progress in Stage 2 [Learner]
+
+Learner navigates to Stage 2 → My Courses. Sees course with 0% progress. Clicks &apos;Continue&apos; to return to course content.
+
+▼
+
+STEP 5 Complete course [Learner]
+
+Learner works through modules. Progress updates after each module. On final module completion — course marked Complete. Certificate issued if applicable.
+
+▼
+
+STEP 6 View certificate [Learner]
+
+Learner navigates to Stage 2 → Certificates. New certificate visible. Downloads PDF.
+
+▼
+
+STEP 7 Enrol in a Learning Track [Learner]
+
+Learner navigates to Stage 1 → Learning Tracks. Finds DEWA EA Practitioner Pathway. Clicks &apos;Enrol in Track&apos;. All 7 courses added to My Courses.
+
+▼
+
+STEP 8 Track progression in My Tracks [Learner]
+
+Stage 2 → My Tracks shows the track with X of 7 courses complete. Progress bar updates as individual courses are completed.
+
+▼
+
+FLOW 2 — ADMIN CONTENT CHANGE REQUEST
+
+STEP 1 Admin accesses Stage 3 [Admin]
+
+Admin navigates to Learning Centre Stage 1 and clicks the TO Contributor card. Enters Stage 3 Content Governance Dashboard.
+
+▼
+
+STEP 2 Admin browses Content Browser [Admin]
+
+Admin opens Content Browser → Courses &amp; Curriculum. Sees all 30 DEWA courses with admin metadata. Finds a course that needs updating.
+
+▼
+
+STEP 3 Admin raises change request [Admin]
+
+Admin clicks &apos;Raise Change Request&apos; on the course. Change request form opens — subject pre-filled with the course. Admin selects Change Type (e.g. &apos;Update Course Metadata&apos;), describes the change (&apos;Change the course title from X to Y&apos;), gives the reason, sets urgency. Submits.
+
+▼
+
+STEP 4 Request in Pending Approval [System]
+
+Change request appears in Pending Approval queue. Content Approver is notified.
+
+▼
+
+STEP 5 Content Approver reviews [Approver]
+
+Content Approver opens the request. Sees current content and the requested change side by side. Reads the reason. Clicks &apos;Approve&apos;.
+
+▼
+
+STEP 6 Developer notified [System]
+
+Developer (Hammton) is notified of approved change. Change request shows in Approved Changes with the formatted implementation instruction.
+
+▼
+
+STEP 7 Developer implements [Developer]
+
+Developer reads the change instruction, implements the change in the codebase (e.g. updates the course title in CoursesData.ts). Clicks &apos;Mark as Implemented&apos;. Adds implementation note.
+
+▼
+
+STEP 8 Admin verifies [Admin]
+
+Admin is notified. Reviews the change in Stage 1 to confirm it matches the request. Clicks &apos;Verified&apos;. Request is closed.
+
+▼
+
+— SECTION 07 —
+
+Implementation Checklist
+
+STAGE 2 — MY LEARNING
+
+FIELD
+
+SPECIFICATION
+
+Stage 2 hub created
+
+Overview, My Courses, My Tracks, Certificates, Bookmarks — ☐
+
+Overview page
+
+4 metric cards, progress bar, continue learning, recommended next, quick actions — ☐
+
+My Courses — In Progress view
+
+Progress bar, Last accessed, Continue button — ☐
+
+My Courses — Completed view
+
+Completion date, Review button, View Certificate button — ☐
+
+Course progress detail
+
+Module-level breakdown, current module highlight, notes panel — ☐
+
+My Tracks page
+
+Track progress, Enrol in Track, course-by-course completion status — ☐
+
+Track completion certificate
+
+Issued automatically on track completion — ☐
+
+Certificates page
+
+All certificates, DEWA-branded, view and download PDF — ☐
+
+Bookmarks page
+
+Saved courses from Stage 1, Enrol Now and Remove Bookmark actions — ☐
+
+Content aligned to DEWA spec
+
+30 courses, 7 tracks, 10 reviews from Learning Centre Stage 1 spec — ☐
+
+STAGE 3 — CONTENT GOVERNANCE
+
+FIELD
+
+SPECIFICATION
+
+Stage 3 hub created
+
+Overview, Content Browser, Change Requests, Pending Approval, Approved Changes, Analytics — ☐
+
+Role-gating
+
+Content Manager and Content Approver roles only — ☐
+
+Content Browser — Courses
+
+30 courses with admin metadata and Raise Change Request action — ☐
+
+Content Browser — Tracks
+
+7 tracks with admin metadata and Raise Change Request action — ☐
+
+Content Browser — Reviews
+
+10 reviews with hide and Raise Change Request actions — ☐
+
+Change Request form
+
+All 8 change types, change description, reason, urgency, attachments, current content preview — ☐
+
+Change Request status flow
+
+Draft → Submitted → Approved/Rejected → In Implementation → Implemented → Verified — ☐
+
+Pending Approval queue
+
+Approve, Reject, Request Clarification actions — ☐
+
+Developer implementation view
+
+Formatted instruction block, Mark as Implemented, implementation notes — ☐
+
+Admin verification
+
+Verified / Closed Not Verified actions — ☐
+
+Notifications
+
+Admin notified on approval/rejection. Developer notified on approval. Admin notified on implementation. — ☐
+
+Analytics page
+
+All metrics and charts with mock DEWA data — ☐
+
+IMPORTANT: The Stage 2 content (course names, track names, level badges, division tags) must match the DEWA Learning Centre contextualisation spec exactly — 30 courses, 7 tracks, 10 reviews. Scan the Learning Centre Stage 1 spec and the existing codebase to confirm alignment before building Stage 2.
+
+

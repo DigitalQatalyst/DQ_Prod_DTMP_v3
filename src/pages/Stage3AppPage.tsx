@@ -3,12 +3,17 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
   BarChart3,
+  CheckSquare,
+  ClipboardCheck,
   Clock,
   Download,
   Eye,
+  FileEdit,
   Filter,
   Home,
   Inbox,
+  LayoutDashboard,
+  Library,
   ListChecks,
   Search,
   Settings,
@@ -31,6 +36,15 @@ import {
   unassignStage3Request,
 } from "@/data/stage3";
 import { getLearningChangeSetById } from "@/data/learningCenter/changeReviewState";
+import { getSessionRole } from "@/data/sessionRole";
+import { getLCChangeRequests } from "@/data/learningCenter/stage3/lcChangeRequests";
+import type { LCChangeRequest } from "@/data/learningCenter/stage3/lcChangeRequests";
+import LCGovOverview from "@/components/learningCenter/stage3/LCGovOverview";
+import LCContentBrowser from "@/components/learningCenter/stage3/LCContentBrowser";
+import LCChangeRequests from "@/components/learningCenter/stage3/LCChangeRequests";
+import LCPendingApproval from "@/components/learningCenter/stage3/LCPendingApproval";
+import LCApprovedChanges from "@/components/learningCenter/stage3/LCApprovedChanges";
+import LCAnalytics from "@/components/learningCenter/stage3/LCAnalytics";
 import {
   approveDesignReportRequest,
   documentStudioTabMeta,
@@ -79,6 +93,14 @@ type Stage3View =
   | "team-capacity"
   | "analytics";
 type Stage3Scope = "all" | "learning-center" | "knowledge-center" | "solution-specs" | "solution-build";
+
+type LCGovView =
+  | "dashboard"
+  | "content-browser"
+  | "change-requests"
+  | "pending-approval"
+  | "approved-changes"
+  | "analytics";
 
 const viewLabels: Record<Stage3View, string> = {
   dashboard: "Dashboard",
@@ -238,6 +260,11 @@ export default function Stage3AppPage() {
   const [selectedNextStatus, setSelectedNextStatus] = useState<Stage3Request["status"] | "">("");
   const [noteDraft, setNoteDraft] = useState("");
   const [scope, setScope] = useState<Stage3Scope>("all");
+  const role = getSessionRole();
+  const [lcView, setLcView] = useState<LCGovView>("dashboard");
+  const [lcRequests, setLcRequests] = useState<LCChangeRequest[]>([]);
+  const refreshLc = () => setLcRequests(getLCChangeRequests());
+  const lcSubmittedCount = lcRequests.filter((r) => r.status === "submitted").length;
   const [statusFilter, setStatusFilter] = useState<Stage3Request["status"] | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<Stage3Request["priority"] | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
@@ -440,6 +467,39 @@ export default function Stage3AppPage() {
     if (scope === "all") return requests;
     return requests.filter((r) => r.type === scope);
   }, [scope, requests]);
+
+  useEffect(() => {
+    if (!selectedRequestId) return;
+    if (scope === "all") return;
+    const selected = requests.find((request) => request.id === selectedRequestId);
+    if (!selected || selected.type !== scope) {
+      setSelectedRequestId(null);
+    }
+  }, [scope, selectedRequestId, requests]);
+
+  useEffect(() => {
+    if (scope === "learning-center") {
+      setLcRequests(getLCChangeRequests());
+    }
+  }, [scope]);
+
+  useEffect(() => {
+    if (!selectedRequest) {
+      setSelectedMemberId("");
+      setSelectedNextStatus("");
+      setNoteDraft("");
+      return;
+    }
+    const matchingMember = stage3TeamMembers.find(
+      (member) =>
+        member.name === selectedRequest.assignedTo && member.team === selectedRequest.assignedTeam
+    );
+    setSelectedMemberId(matchingMember?.id ?? "");
+    const available = getAvailableStage3Transitions(selectedRequest.status);
+    setSelectedNextStatus(available[0] ?? "");
+    setNoteDraft("");
+  }, [selectedRequest]);
+
 
   const queueKpis = useMemo(() => {
     const statusCounts = scopedRequests.reduce<Record<Stage3Request["status"], number>>(
@@ -696,7 +756,9 @@ export default function Stage3AppPage() {
       <aside className="w-72 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-5 border-b border-gray-200">
           <h2 className="font-semibold text-2xl text-gray-900">TO Operations</h2>
-          <p className="text-sm text-gray-500">Stage 3 — Transformation Office</p>
+          <p className="text-sm text-gray-500">
+            {scope === "learning-center" ? "Learning Centre Governance" : "Stage 3 — Transformation Office"}
+          </p>
         </div>
 
         {/* SB scope: flat nav with count badges */}
@@ -846,6 +908,55 @@ export default function Stage3AppPage() {
               </button>
             </div>
           </nav>
+        ) : scope === "learning-center" ? (
+          <nav className="p-4 space-y-1 flex-1">
+            <div className="p-4 space-y-1">
+              <button
+                onClick={() => navigate("/stage3/dashboard")}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+                  view === "dashboard" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Home className="w-4 h-4" />
+                Dashboard
+              </button>
+            </div>
+            <div className="px-4 pb-3">
+              <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Content Governance</p>
+              <div className="space-y-1">
+                {(
+                  [
+                    { id: "dashboard" as LCGovView, label: "Overview", Icon: LayoutDashboard },
+                    { id: "content-browser" as LCGovView, label: "Content Browser", Icon: Library },
+                    { id: "change-requests" as LCGovView, label: "Change Requests", Icon: FileEdit },
+                    { id: "pending-approval" as LCGovView, label: "Pending Approval", Icon: ClipboardCheck },
+                    { id: "approved-changes" as LCGovView, label: "Approved Changes", Icon: CheckSquare },
+                    { id: "analytics" as LCGovView, label: "Analytics", Icon: BarChart3 },
+                  ]
+                ).map(({ id, label, Icon }) => {
+                  const isActive = lcView === id;
+                  const showBadge = id === "pending-approval" && lcSubmittedCount > 0;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setLcView(id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+                        isActive ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-orange-600" : "text-gray-500"}`} />
+                      <span className="flex-1">{label}</span>
+                      {showBadge && (
+                        <span className="bg-orange-600 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
+                          {lcSubmittedCount}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </nav>
         ) : (
           /* General scope: grouped nav */
           <>
@@ -946,16 +1057,23 @@ export default function Stage3AppPage() {
         <div className="border-b border-gray-200 bg-white px-6 py-5 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-semibold text-gray-900">
-              {isSolutionBuildScope ? sbNavLabels[activeSbView] : isSolutionSpecsScope ? ssNavLabels[activeSsView] : isDocumentStudioScope ? dsNavLabels[activeDsView] : "Request Management"}
+              {scope === "learning-center"
+                ? "Learning Centre"
+                : isSolutionBuildScope ? sbNavLabels[activeSbView]
+                : isSolutionSpecsScope ? ssNavLabels[activeSsView]
+                : isDocumentStudioScope ? dsNavLabels[activeDsView]
+                : "Request Management"}
             </h1>
             <p className="text-sm text-gray-500">
-              {isSolutionBuildScope
-                ? "Solution Build — TO Office"
-                : isSolutionSpecsScope
-                  ? "Solution Specs — TO Office"
-                  : isDocumentStudioScope
-                    ? "Document Studio — TO Office"
-                    : "Transformation Office Operations Dashboard"}
+              {scope === "learning-center"
+                ? "Content Governance · EA Office"
+                : isSolutionBuildScope
+                  ? "Solution Build — TO Office"
+                  : isSolutionSpecsScope
+                    ? "Solution Specs — TO Office"
+                    : isDocumentStudioScope
+                      ? "Document Studio — TO Office"
+                      : "Transformation Office Operations Dashboard"}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -1013,9 +1131,9 @@ export default function Stage3AppPage() {
               size="sm"
               variant={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "learning-center" ? "default" : "outline"}
               className={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "learning-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
-              onClick={() => { navigate("/stage3/all"); setScope("learning-center"); }}
+              onClick={() => { navigate("/stage3/all"); setScope("learning-center"); setLcView("dashboard"); }}
             >
-              Learning Center
+              Learning Centre
             </Button>
             <Button
               size="sm"
@@ -1026,6 +1144,18 @@ export default function Stage3AppPage() {
               Knowledge Center
             </Button>
           </div>
+
+          {/* ── LC Governance views ───────────────────────────────────────── */}
+          {scope === "learning-center" && (
+            <div className="space-y-4">
+              {lcView === "dashboard" && <LCGovOverview requests={lcRequests} role={role} />}
+              {lcView === "content-browser" && <LCContentBrowser onRequestCreated={refreshLc} />}
+              {lcView === "change-requests" && <LCChangeRequests requests={lcRequests} onRefresh={refreshLc} />}
+              {lcView === "pending-approval" && <LCPendingApproval requests={lcRequests} role={role} onRefresh={refreshLc} />}
+              {lcView === "approved-changes" && <LCApprovedChanges requests={lcRequests} role={role} onRefresh={refreshLc} />}
+              {lcView === "analytics" && <LCAnalytics />}
+            </div>
+          )}
 
           {/* ── KPI cards ────────────────────────────────────────────────── */}
           {isSolutionBuildScope ? (

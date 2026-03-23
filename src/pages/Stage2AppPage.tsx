@@ -30,7 +30,9 @@ import {
   Hammer,
   Code,
   Ticket,
-  ClipboardList
+  ClipboardList,
+  Bookmark,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,8 +50,10 @@ import {
   type DocumentStudioTab as DSTab,
 } from "@/data/documentStudio";
 import { applicationPortfolio } from "@/data/portfolio";
-import { enrolledCourses } from "@/data/learning";
 import { learningTracks, trackEnrollments } from "@/data/learningCenter";
+import { courses as lcCatalogCourses } from "@/data/learningCenter/courses";
+import { getEnrollments, addEnrollment as addLCEnrollment, type EnrolledEntry } from "@/data/learningCenter/enrollments";
+import { buildDewaUserCourseData } from "@/data/learningCenter/stage2/userCourseAdapter";
 import {
   buildTrackProgressSnapshots,
   type TrackProgressSnapshot,
@@ -96,6 +100,7 @@ import {
   upsertLearningDraftChangeSet,
 } from "@/data/learningCenter/changeReviewState";
 import { getKnowledgeUsageMetrics } from "@/data/knowledgeCenter/analyticsState";
+import { saveLCChangeRequest } from "@/data/learningCenter/stage3/lcChangeRequests";
 import {
   KnowledgeWorkspaceMain,
   KnowledgeWorkspaceSidebar,
@@ -106,6 +111,13 @@ import {
   LearningWorkspaceMain,
   LearningWorkspaceSidebar,
 } from "@/components/stage2/learning/LearningWorkspacePanels";
+import LCTrackDetail from "@/components/learningCenter/stage2/workspace/LCTrackDetail";
+import LCCertificateDetail from "@/components/learningCenter/stage2/workspace/LCCertificateDetail";
+import LCBookmarkDetail from "@/components/learningCenter/stage2/workspace/LCBookmarkDetail";
+import { dashboardCertificates } from "@/data/learningCenter/stage2/learnerDashboardData";
+import { getBookmarks, removeBookmark as removeLCBookmark, type BookmarkEntry } from "@/data/learningCenter/bookmarks";
+import { courses as lcCourses } from "@/data/learningCenter";
+import { mapToStage2CourseId } from "@/data/learningCenter/courseIdMap";
 import {
   PortfolioWorkspaceMain,
   PortfolioWorkspaceSidebar,
@@ -156,9 +168,11 @@ interface LocationState {
 }
 const EMPTY_LOCATION_STATE: LocationState = {};
 
-type EnrolledCourse = (typeof enrolledCourses)[number];
-type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate";
+type EnrolledCourse = { id: string; [key: string]: unknown };
+type LearningUserTab = "overview" | "modules" | "progress" | "resources" | "certificate" | "feedback";
 type LearningAdminTab = "overview" | "enrollments" | "performance" | "content" | "settings";
+type LCSection = "my-courses" | "my-tracks" | "certificates" | "bookmarks";
+type TemplatesWorkspaceTab = "overview" | "library" | "new-request" | "my-requests";
 type SpecsWorkspaceTab = "overview" | "my-requests" | "my-specs" | "revisions";
 type BuildWorkspaceTab = "overview" | "my-requests" | "deliverables" | "revisions";
 type IntelligenceWorkspaceTab = "overview" | "services" | "my-dashboards" | "requests";
@@ -254,7 +268,7 @@ const buildAdminDataForCourse = (course: EnrolledCourse | undefined) => {
   cloned.recentActivitySummary.earnedCertificates = Math.round(completedCount * 0.01);
   cloned.recentActivitySummary.avgQuizScore = Math.max(
     70,
-    Math.min(98, Math.round(course.stats.averageQuizScore || 82))
+    Math.min(98, Math.round((course as any).stats?.averageQuizScore || 82))
   );
 
   cloned.activityFeed = [
@@ -398,8 +412,8 @@ export default function Stage2AppPage() {
   }>();
   const state = (location.state as LocationState) ?? EMPTY_LOCATION_STATE;
 
-  const isLearningCenterRoute =
-    !!routeCourseId && (routeView === "user" || routeView === "admin");
+  const isLearningCenterRoute = location.pathname.startsWith("/stage2/learning-center");
+  const isLearningCourseWorkspace = isLearningCenterRoute && !!routeCourseId;
   const isKnowledgeCenterRoute = location.pathname.startsWith("/stage2/knowledge");
   const isPortfolioCenterRoute = location.pathname.startsWith("/stage2/portfolio-management");
   const isSolutionSpecsRoute = location.pathname.startsWith("/stage2/specs");
@@ -409,12 +423,12 @@ export default function Stage2AppPage() {
   const learningRole = state.learningRole === "admin" ? "admin" : "learner";
   const canAccessAdminView = learningRole === "admin";
 
-  const fallbackLearningCourseId = enrolledCourses[0]?.id ?? "";
+  const fallbackLearningCourseId = getEnrollments()[0]?.courseId ?? "";
   const matchedLearningCourse = routeCourseId
-    ? enrolledCourses.find((course) => course.id === routeCourseId)
+    ? getEnrollments().find((entry) => entry.courseId === routeCourseId)
     : undefined;
   const resolvedLearningCourseId =
-    matchedLearningCourse?.id || fallbackLearningCourseId;
+    matchedLearningCourse?.courseId || routeCourseId || fallbackLearningCourseId;
   
   const {
     marketplace: stateMarketplace = "portfolio-management",
@@ -437,7 +451,7 @@ export default function Stage2AppPage() {
       : isPortfolioCenterRoute
         ? "portfolio-management"
       : stateMarketplace;
-  const cardId = isLearningCenterRoute ? resolvedLearningCourseId : stateCardId;
+  const cardId = isLearningCourseWorkspace ? resolvedLearningCourseId : stateCardId;
   const serviceName = isLearningCenterRoute
     ? (matchedLearningCourse?.courseName ?? "Learning Course")
     : stateServiceName;
@@ -502,6 +516,15 @@ export default function Stage2AppPage() {
     useState<LearningUserTab>("overview");
   const [activeLearningAdminTab, setActiveLearningAdminTab] =
     useState<LearningAdminTab>("overview");
+  const [openLCSection, setOpenLCSection] = useState<LCSection>("my-courses");
+  const [selectedLCTrackId, setSelectedLCTrackId] = useState<string | null>(null);
+  const [selectedLCCertId, setSelectedLCCertId] = useState<string | null>(null);
+  const [selectedLCBookmarkId, setSelectedLCBookmarkId] = useState<string | null>(null);
+  const [lcBookmarks, setLCBookmarks] = useState<BookmarkEntry[]>(() => getBookmarks());
+
+  const handleLCSectionToggle = (section: LCSection) => {
+    setOpenLCSection((prev) => (prev === section ? prev : section));
+  };
   const [userCourseRuntime, setUserCourseRuntime] = useState<Record<string, typeof userCourseData>>({});
   const [activeKnowledgeTab, setActiveKnowledgeTab] = useState<KnowledgeWorkspaceTab>(
     isKnowledgeWorkspaceTab(routeKnowledgeTab)
@@ -585,7 +608,8 @@ export default function Stage2AppPage() {
 
     if (
       (marketplace === "portfolio-management" || marketplace === "learning-center") &&
-      cardId
+      cardId &&
+      isLearningCourseWorkspace
     ) {
       setActiveSubService(cardId);
       return;
@@ -597,7 +621,7 @@ export default function Stage2AppPage() {
   useEffect(() => {
     if (
       routeView === "admin" &&
-      isLearningCenterRoute &&
+      isLearningCourseWorkspace &&
       !canAccessAdminView
     ) {
       navigate(
@@ -622,13 +646,14 @@ export default function Stage2AppPage() {
     }
   }, [
     routeView,
-    isLearningCenterRoute,
+    isLearningCourseWorkspace,
     canAccessAdminView,
     navigate,
     resolvedLearningCourseId,
     state,
     learningRole,
   ]);
+
 
   const refreshKnowledgeState = () => {
     setSavedKnowledgeIds(getSavedKnowledgeIds());
@@ -848,39 +873,54 @@ export default function Stage2AppPage() {
     complexity: service.complexity
   }));
 
-  const learnerScopedCourses = useMemo(() => {
-    const workedCourses = enrolledCourses.filter(
-      (course) => course.status !== "not-started"
-    );
-    return workedCourses.length > 0 ? workedCourses : enrolledCourses;
-  }, []);
+  // Dynamic enrollment store — seeded with DEWA courses, updated on new enrolments
+  const [lcEnrollments, setLCEnrollments] = useState<EnrolledEntry[]>(() => getEnrollments());
 
-  const scopedLearningCourses =
-    viewMode === "admin" ? enrolledCourses : learnerScopedCourses;
+  // Resolve enrolled entries to full catalog records
+  const enrolledWithCatalog = useMemo(() =>
+    lcEnrollments
+      .map((entry) => ({
+        entry,
+        course: lcCatalogCourses.find((c) => c.id === entry.courseId),
+      }))
+      .filter((item): item is { entry: EnrolledEntry; course: NonNullable<typeof item.course> } =>
+        item.course !== undefined
+      ),
+    [lcEnrollments]
+  );
 
-  // Learning Center sub-services - Role-scoped courses
-  const learningSubServices = scopedLearningCourses.map(course => ({
-    id: course.id,
-    name: course.courseName,
-    description: `${course.instructor} • ${course.duration} • ${course.progress}% complete`,
-    icon: BookOpen,
-    category: course.difficulty,
-    status: course.status,
-    progress: course.progress
-  }));
+  // Learning Center sub-services — Role-scoped courses from DEWA catalog
+  const learningSubServices = useMemo(() =>
+    enrolledWithCatalog.map(({ entry, course }) => ({
+      id: course.id,
+      name: course.title,
+      description: `${course.provider?.name ?? "DEWA"} • ${course.duration} • ${entry.progress}% complete`,
+      icon: BookOpen,
+      category: course.level.toLowerCase(),
+      status: entry.status,
+      progress: entry.progress,
+    })),
+    [enrolledWithCatalog]
+  );
 
-  const selectedLearningCourse = activeSubService
-    ? enrolledCourses.find((course) => course.id === activeSubService)
-    : undefined;
+  const selectedLearningCourse = useMemo(() =>
+    activeSubService
+      ? enrolledWithCatalog.find(({ course }) => course.id === activeSubService)
+      : undefined,
+    [activeSubService, enrolledWithCatalog]
+  );
   useEffect(() => {
     if (activeService !== "Learning Center") return;
+    // Only auto-redirect when already in course workspace — don't force a course
+    // when the user is on the dashboard accordion view.
+    if (!isLearningCourseWorkspace) return;
 
     const hasActiveSelection =
       !!activeSubService &&
-      scopedLearningCourses.some((course) => course.id === activeSubService);
+      learningSubServices.some((course) => course.id === activeSubService);
     if (hasActiveSelection) return;
 
-    const nextCourseId = scopedLearningCourses[0]?.id ?? null;
+    const nextCourseId = learningSubServices[0]?.id ?? null;
     if (!nextCourseId) return;
 
     setActiveSubService(nextCourseId);
@@ -894,7 +934,8 @@ export default function Stage2AppPage() {
   }, [
     activeService,
     activeSubService,
-    scopedLearningCourses,
+    isLearningCourseWorkspace,
+    learningSubServices,
     navigate,
     viewMode,
     state,
@@ -902,29 +943,28 @@ export default function Stage2AppPage() {
   ]);
   useEffect(() => {
     if (!selectedLearningCourse || viewMode !== "user") return;
+    const { course, entry } = selectedLearningCourse;
 
     setUserCourseRuntime((prev) => {
-      if (prev[selectedLearningCourse.id]) return prev;
+      if (prev[course.id]) return prev;
       return {
         ...prev,
-        [selectedLearningCourse.id]: buildUserProgressionData(
-          selectedLearningCourse,
-          userCourseData
-        ),
+        [course.id]: buildDewaUserCourseData(course, entry),
       };
     });
 
-    if (selectedLearningCourse.status === "not-started") {
+    if (entry.status === "not-started") {
       setActiveLearningUserTab("modules");
     }
   }, [selectedLearningCourse, viewMode]);
+
   const learningCourseProgressById = useMemo(
     () =>
-      enrolledCourses.reduce<Record<string, number>>((acc, course) => {
-        acc[course.id] = course.progress;
+      lcEnrollments.reduce<Record<string, number>>((acc, entry) => {
+        acc[entry.courseId] = entry.progress;
         return acc;
       }, {}),
-    []
+    [lcEnrollments]
   );
   const learnerTrackSnapshots = useMemo(
     () =>
@@ -1008,22 +1048,35 @@ export default function Stage2AppPage() {
   }, [activeTrackForAdminAnalytics]);
   const userViewData = useMemo(() => {
     if (!selectedLearningCourse) return buildUserDataForCourse(undefined);
+    const { course, entry } = selectedLearningCourse;
     return (
-      userCourseRuntime[selectedLearningCourse.id] ??
-      buildUserProgressionData(selectedLearningCourse, userCourseData)
+      userCourseRuntime[course.id] ??
+      buildDewaUserCourseData(course, entry)
     );
   }, [selectedLearningCourse, userCourseRuntime]);
-  const adminViewData = useMemo(
-    () => buildAdminDataForCourse(selectedLearningCourse),
-    [selectedLearningCourse]
-  );
+  const adminViewData = useMemo(() => {
+    if (!selectedLearningCourse) return buildAdminDataForCourse(undefined);
+    const { course, entry } = selectedLearningCourse;
+    return buildAdminDataForCourse({
+      id: course.id,
+      courseName: course.title,
+      enrolledCount: course.students ?? 450,
+      progress: entry.progress,
+      rating: course.rating ?? 4.5,
+      stats: {
+        totalModules: entry.totalModules,
+        averageQuizScore: entry.averageQuizScore || 82,
+        timeInvested: entry.timeInvested,
+      },
+    } as any);
+  }, [selectedLearningCourse]);
   const activeAdminBaseSettings = adminViewData.settings;
   const activeAdminDraftSettings = useMemo(() => {
     if (!selectedLearningCourse) return activeAdminBaseSettings;
-    return learningDraftSettingsByCourse[selectedLearningCourse.id] ?? activeAdminBaseSettings;
+    return learningDraftSettingsByCourse[selectedLearningCourse.course.id] ?? activeAdminBaseSettings;
   }, [selectedLearningCourse, learningDraftSettingsByCourse, activeAdminBaseSettings]);
   const activeAdminDeleteRequested = selectedLearningCourse
-    ? Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id])
+    ? Boolean(learningDeleteIntentByCourse[selectedLearningCourse.course.id])
     : false;
   const activeAdminPendingChangeCount = useMemo(() => {
     if (!selectedLearningCourse) return 0;
@@ -1188,17 +1241,14 @@ export default function Stage2AppPage() {
   };
   const handleLessonComplete = (moduleId: string, lessonId: string) => {
     if (!selectedLearningCourse) return;
+    const courseId = selectedLearningCourse.course.id;
     setUserCourseRuntime((prev) => {
       const current =
-        prev[selectedLearningCourse.id] ??
-        buildUserProgressionData(selectedLearningCourse, userCourseData);
+        prev[courseId] ??
+        buildDewaUserCourseData(selectedLearningCourse.course, selectedLearningCourse.entry);
       return {
         ...prev,
-        [selectedLearningCourse.id]: completeLessonAndRecalculate(
-          current,
-          moduleId,
-          lessonId
-        ),
+        [courseId]: completeLessonAndRecalculate(current, moduleId, lessonId),
       };
     });
   };
@@ -1209,19 +1259,14 @@ export default function Stage2AppPage() {
     passThreshold: number
   ) => {
     if (!selectedLearningCourse) return;
+    const courseId = selectedLearningCourse.course.id;
     setUserCourseRuntime((prev) => {
       const current =
-        prev[selectedLearningCourse.id] ??
-        buildUserProgressionData(selectedLearningCourse, userCourseData);
+        prev[courseId] ??
+        buildDewaUserCourseData(selectedLearningCourse.course, selectedLearningCourse.entry);
       return {
         ...prev,
-        [selectedLearningCourse.id]: submitQuizAttemptAndRecalculate(
-          current,
-          moduleId,
-          lessonId,
-          score,
-          passThreshold
-        ),
+        [courseId]: submitQuizAttemptAndRecalculate(current, moduleId, lessonId, score, passThreshold),
       };
     });
   };
@@ -1385,114 +1430,109 @@ export default function Stage2AppPage() {
       }
     );
   };
-  const handleEscalateLearningToStage3 = () => {
-    if (activeService !== "Learning Center" || viewMode !== "admin" || !selectedLearningCourse) {
+  const handleSubmitSettingsForTOReview = () => {
+    if (!selectedLearningCourse) return;
+    const courseId = selectedLearningCourse.course.id;
+    const courseTitle = selectedLearningCourse.course.title;
+    const diffs = buildLearningSettingDiffs(activeAdminBaseSettings, activeAdminDraftSettings);
+
+    if (diffs.length === 0 && !activeAdminDeleteRequested) {
+      setLearningEscalationMessage("No pending changes to submit.");
       return;
     }
 
-    const baseSettings = adminViewData.settings;
-    const draftSettings =
-      learningDraftSettingsByCourse[selectedLearningCourse.id] ?? baseSettings;
-    const deleteRequested = Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id]);
-    const diffs = buildLearningSettingDiffs(baseSettings, draftSettings);
-
-    if (diffs.length === 0 && !deleteRequested) {
-      setLearningEscalationMessage("No pending settings changes to submit.");
-      return;
+    if (diffs.length > 0) {
+      saveLCChangeRequest({
+        subject: courseTitle,
+        subjectId: courseId,
+        subjectType: "course",
+        changeType: "update-course-metadata",
+        changeDescription: diffs
+          .map((d) => `${d.label}: "${d.before}" → "${d.after}"`)
+          .join("; "),
+        reason: "Course settings updated by course admin — submitted for TO Office review.",
+        urgency: "medium",
+        status: "submitted",
+        submittedBy: "Course Admin",
+      });
     }
 
-    const draftSet = upsertLearningDraftChangeSet({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requestedBy: "Amina TO",
-      settingsBefore: baseSettings,
-      settingsAfter: draftSettings,
-      deleteRequested,
+    if (activeAdminDeleteRequested) {
+      saveLCChangeRequest({
+        subject: courseTitle,
+        subjectId: courseId,
+        subjectType: "course",
+        changeType: "archive-course",
+        changeDescription: `Request to archive the course "${courseTitle}".`,
+        reason: "Course archive requested by course admin — submitted for TO Office approval.",
+        urgency: "medium",
+        status: "submitted",
+        submittedBy: "Course Admin",
+      });
+    }
+
+    // Clear draft state for this course
+    setLearningDraftSettingsByCourse((prev) => {
+      const next = { ...prev };
+      delete next[courseId];
+      return next;
+    });
+    setLearningDeleteIntentByCourse((prev) => {
+      const next = { ...prev };
+      delete next[courseId];
+      return next;
     });
 
-    const submittedSet = submitLearningDraftChangeSet(draftSet.id);
-    if (!submittedSet) return;
-
-    const learningRequest = addLearningTORequest({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requesterName: "Amina TO",
-      requesterRole: "Admin",
-      message: `Review requested for ${selectedLearningCourse.courseName}: ${diffs.length} field change(s)${
-        deleteRequested ? " and delete request" : ""
-      }.`,
-    });
-
-    const created = createStage3Request({
-      type: "learning-center",
-      title: `Learning Ops: ${selectedLearningCourse.courseName}`,
-      description:
-        `Escalated from Stage 2 Learning Admin for operational follow-up. ` +
-        `Course: ${selectedLearningCourse.courseName}. ` +
-        `Proposed changes: ${diffs.length}${deleteRequested ? " + delete request" : ""}.`,
-      requester: {
-        name: "Amina TO",
-        email: "amina.to@dtmp.local",
-        department: "Transformation Office",
-        organization: "DTMP",
-      },
-      priority: "medium",
-      estimatedHours: 6,
-      tags: ["learning", "stage2-admin", selectedLearningCourse.id],
-      relatedAssets: [
-        ...(learningRequest ? [`learning-request:${learningRequest.id}`] : []),
-        `learning-change:${submittedSet.id}`,
-      ],
-      notes: [
-        "Created from Learning Stage 2 admin view.",
-        ...diffs.slice(0, 12).map(
-          (diff) => `CHANGE | ${diff.label}: "${diff.before}" -> "${diff.after}"`
-        ),
-        ...(deleteRequested ? ["CHANGE | Course Deletion Requested: Yes"] : []),
-      ],
-    });
-
-    attachStage3RequestToLearningChange(submittedSet.id, created.id);
-
-    navigate("/stage3/new", {
-      state: {
-        fromStage2: true,
-        requestId: created.id,
-      },
-    });
+    const parts: string[] = [];
+    if (diffs.length > 0) parts.push(`${diffs.length} metadata change(s)`);
+    if (activeAdminDeleteRequested) parts.push("archive request");
     setLearningEscalationMessage(
-      `Submitted ${diffs.length} change(s)${
-        deleteRequested ? " + delete request" : ""
-      } to TO Ops.`
+      `Submitted ${parts.join(" + ")} to TO Office for review.`
     );
+  };
+
+  const handleSubmitContentForTOReview = (description: string) => {
+    if (!selectedLearningCourse) return;
+    saveLCChangeRequest({
+      subject: selectedLearningCourse.course.title,
+      subjectId: selectedLearningCourse.course.id,
+      subjectType: "course",
+      changeType: "update-course-content",
+      changeDescription: description,
+      reason: "Course content changes staged by course admin — submitted for TO Office review.",
+      urgency: "medium",
+      status: "submitted",
+      submittedBy: "Course Admin",
+    });
+    setLearningEscalationMessage("Content update request submitted to TO Office for review.");
   };
   const handleAdminDraftSettingsChange = (next: CourseSettings) => {
     if (!selectedLearningCourse) return;
     setLearningDraftSettingsByCourse((prev) => ({
       ...prev,
-      [selectedLearningCourse.id]: next,
+      [selectedLearningCourse.course.id]: next,
     }));
     upsertLearningDraftChangeSet({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requestedBy: "Amina TO",
+      courseId: selectedLearningCourse.course.id,
+      courseName: selectedLearningCourse.course.title,
+      requestedBy: "Course Admin",
       settingsBefore: adminViewData.settings,
       settingsAfter: next,
-      deleteRequested: Boolean(learningDeleteIntentByCourse[selectedLearningCourse.id]),
+      deleteRequested: Boolean(learningDeleteIntentByCourse[selectedLearningCourse.course.id]),
     });
   };
   const handleAdminDeleteRequestedChange = (value: boolean) => {
     if (!selectedLearningCourse) return;
     setLearningDeleteIntentByCourse((prev) => ({
       ...prev,
-      [selectedLearningCourse.id]: value,
+      [selectedLearningCourse.course.id]: value,
     }));
     const nextDraft =
-      learningDraftSettingsByCourse[selectedLearningCourse.id] ?? adminViewData.settings;
+      learningDraftSettingsByCourse[selectedLearningCourse.course.id] ?? adminViewData.settings;
     upsertLearningDraftChangeSet({
-      courseId: selectedLearningCourse.id,
-      courseName: selectedLearningCourse.courseName,
-      requestedBy: "Amina TO",
+      courseId: selectedLearningCourse.course.id,
+      courseName: selectedLearningCourse.course.title,
+      requestedBy: "Course Admin",
       settingsBefore: adminViewData.settings,
       settingsAfter: nextDraft,
       deleteRequested: value,
@@ -1503,13 +1543,13 @@ export default function Stage2AppPage() {
       initials: "AT",
       name: "Amina TO",
       role: "Learner",
-      label: "User View",
+      label: "My Learning",
     },
     admin: {
       initials: "AT",
       name: "Amina TO",
-      role: "Admin",
-      label: "Admin View",
+      role: "Course Coordinator",
+      label: "Course Management",
     },
   } as const;
 
@@ -1524,7 +1564,7 @@ export default function Stage2AppPage() {
     setViewMode(nextMode);
     setProfileMenuOpen(false);
 
-    if (isLearningCenterRoute && resolvedLearningCourseId) {
+    if (isLearningCourseWorkspace && resolvedLearningCourseId) {
       navigate(
         `/stage2/learning-center/course/${resolvedLearningCourseId}/${nextMode}`,
         {
@@ -2125,7 +2165,7 @@ export default function Stage2AppPage() {
                   viewMode === "user" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
                 }`}
               >
-                Amina TO - Learner View
+                My Learning
               </button>
               <button
                 type="button"
@@ -2134,7 +2174,7 @@ export default function Stage2AppPage() {
                   viewMode === "admin" ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700"
                 }`}
               >
-                Amina TO - Admin View
+                Course Management
               </button>
             </div>
           )}
@@ -2335,8 +2375,8 @@ export default function Stage2AppPage() {
                       <button
                         onClick={() => handleSubServiceClick('overview')}
                         className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'overview' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                          activeSubService === 'overview'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
                             : "text-gray-700 hover:bg-gray-50 border border-transparent"
                         }`}
                       >
@@ -2348,8 +2388,8 @@ export default function Stage2AppPage() {
                       <button
                         onClick={() => handleSubServiceClick('projects')}
                         className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'projects' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                          activeSubService === 'projects'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
                             : "text-gray-700 hover:bg-gray-50 border border-transparent"
                         }`}
                       >
@@ -2361,8 +2401,8 @@ export default function Stage2AppPage() {
                       <button
                         onClick={() => handleSubServiceClick('applications')}
                         className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'applications' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                          activeSubService === 'applications'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
                             : "text-gray-700 hover:bg-gray-50 border border-transparent"
                         }`}
                       >
@@ -2374,8 +2414,8 @@ export default function Stage2AppPage() {
                       <button
                         onClick={() => handleSubServiceClick('templates')}
                         className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'templates' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                          activeSubService === 'templates'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
                             : "text-gray-700 hover:bg-gray-50 border border-transparent"
                         }`}
                       >
@@ -2387,8 +2427,8 @@ export default function Stage2AppPage() {
                       <button
                         onClick={() => handleSubServiceClick('approvals')}
                         className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                          activeSubService === 'approvals' 
-                            ? "bg-orange-50 text-orange-700 border border-orange-200" 
+                          activeSubService === 'approvals'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
                             : "text-gray-700 hover:bg-gray-50 border border-transparent"
                         }`}
                       >
@@ -2397,46 +2437,6 @@ export default function Stage2AppPage() {
                           <div className="text-xs text-gray-500 mt-0.5">Gate approvals</div>
                         </div>
                       </button>
-                    </div>
-                  </div>
-                </div>
-              ) : activeService === "Learning Center" ? (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">My Courses</h3>
-                    <div className="space-y-2">
-                      {learningSubServices.map((course) => {
-                        const Icon = course.icon;
-                        const statusColor = course.status === 'completed' ? 'text-green-600' : 
-                                          course.status === 'in-progress' ? 'text-blue-600' : 'text-gray-400';
-                        return (
-                          <button
-                            key={course.id}
-                            onClick={() => handleSubServiceClick(course.id)}
-                            className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
-                              activeSubService === course.id 
-                                ? "bg-orange-50 text-orange-700 border border-orange-200" 
-                                : "text-gray-700 hover:bg-gray-50 border border-transparent"
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${statusColor}`} />
-                            <div className="text-left flex-1">
-                              <div className="font-medium">{course.name}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{course.description}</div>
-                              {course.progress > 0 && (
-                                <div className="mt-2">
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div 
-                                      className="bg-orange-600 h-1.5 rounded-full" 
-                                      style={{ width: `${course.progress}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
                     </div>
                   </div>
                 </div>
@@ -2594,7 +2594,15 @@ export default function Stage2AppPage() {
                     (activeService === "Portfolio Management" 
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.name 
                       : activeService === "Learning Center"
-                      ? learningSubServices.find(s => s.id === activeSubService)?.name
+                      ? (isLearningCourseWorkspace
+                          ? learningSubServices.find(s => s.id === activeSubService)?.name
+                          : selectedLCTrackId
+                          ? (learningTracks.find(t => t.id === selectedLCTrackId)?.title ?? "Learning Centre")
+                          : selectedLCCertId
+                          ? "Certificates"
+                          : selectedLCBookmarkId
+                          ? "Bookmarks"
+                          : "Learning Centre")
                       : activeService === "Lifecycle Management"
                       ? activeSubService.charAt(0).toUpperCase() + activeSubService.slice(1)
                       : activeService === "Solution Build"
@@ -2612,7 +2620,15 @@ export default function Stage2AppPage() {
                     (activeService === "Portfolio Management"
                       ? portfolioSubServices.find(s => s.id === activeSubService)?.description
                       : activeService === "Learning Center"
-                      ? learningSubServices.find(s => s.id === activeSubService)?.description
+                      ? (isLearningCourseWorkspace
+                          ? learningSubServices.find(s => s.id === activeSubService)?.description
+                          : selectedLCTrackId
+                          ? "Learning Track"
+                          : selectedLCCertId
+                          ? "Your earned credentials"
+                          : selectedLCBookmarkId
+                          ? "Saved for later"
+                          : "Your courses, tracks, and learning progress")
                       : activeService === "Solution Build"
                       ? `${solutionBuildSubServices.find(s => s.id === activeSubService)?.solutionType} Solution`
                       : activeService === "Digital Intelligence"
@@ -2626,12 +2642,6 @@ export default function Stage2AppPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {activeService === "Learning Center" && viewMode === "admin" && (
-                <Button size="sm" variant="outline" onClick={handleEscalateLearningToStage3}>
-                  <FileText className="w-4 h-4 mr-2" />
-                  Send To TO Ops
-                </Button>
-              )}
             </div>
           </div>
           {activeService === "Learning Center" && viewMode === "admin" && learningEscalationMessage && (
@@ -2646,7 +2656,7 @@ export default function Stage2AppPage() {
               activeSubService={activeSubService}
               portfolioSubServices={portfolioSubServices}
             />
-          ) : activeService === "Learning Center" && activeSubService ? (
+          ) : activeService === "Learning Center" && isLearningCourseWorkspace && activeSubService ? (
             <LearningWorkspaceMain
               viewMode={viewMode}
               activeTrackSnapshot={activeTrackSnapshot}
@@ -2669,7 +2679,56 @@ export default function Stage2AppPage() {
               adminDeleteRequested={activeAdminDeleteRequested}
               onAdminDeleteRequestedChange={handleAdminDeleteRequestedChange}
               adminPendingChangeCount={activeAdminPendingChangeCount}
+              onSubmitSettingsForReview={handleSubmitSettingsForTOReview}
+              onSubmitContentForReview={handleSubmitContentForTOReview}
+              escalationMessage={learningEscalationMessage}
+              settingsDiffs={buildLearningSettingDiffs(activeAdminBaseSettings, activeAdminDraftSettings)}
+              onViewInTOOffice={() => navigate("/stage3/learning-centre/change-requests")}
             />
+          ) : activeService === "Learning Center" && selectedLCTrackId ? (
+            <LCTrackDetail
+              trackId={selectedLCTrackId}
+              onContinueCourse={(courseId) => {
+                const mapped = mapToStage2CourseId(courseId);
+                navigate(`/stage2/learning-center/course/${mapped}/user`, {
+                  state: { ...location.state, learningRole: "learner" },
+                });
+              }}
+            />
+          ) : activeService === "Learning Center" && selectedLCCertId ? (
+            <LCCertificateDetail
+              certId={selectedLCCertId}
+              onViewCourse={(courseId) =>
+                navigate(`/stage2/learning-center/course/${courseId}/user`, {
+                  state: { ...location.state, learningRole: "learner" },
+                })
+              }
+            />
+          ) : activeService === "Learning Center" && selectedLCBookmarkId ? (
+            <LCBookmarkDetail
+              courseId={selectedLCBookmarkId}
+              onEnrol={(courseId) => {
+                const mapped = mapToStage2CourseId(courseId);
+                addLCEnrollment(mapped);
+                setLCEnrollments(getEnrollments());
+                navigate(`/stage2/learning-center/course/${mapped}/user`, {
+                  state: { ...location.state, learningRole: "learner" },
+                });
+              }}
+              onRemove={(courseId) => {
+                const updated = removeLCBookmark(courseId);
+                setLCBookmarks(updated);
+                setSelectedLCBookmarkId(null);
+              }}
+            />
+          ) : activeService === "Learning Center" ? (
+            <div className="flex items-center justify-center h-full text-gray-400 flex-col gap-3">
+              <BookOpen className="w-10 h-10 text-gray-300" />
+              <div className="text-center">
+                <div className="font-medium text-gray-600 mb-1">Learning Centre</div>
+                <div className="text-sm text-gray-400">Select a course, track, certificate, or bookmark to get started.</div>
+              </div>
+            </div>
           ) : activeService === "Knowledge Center" ? (
             <KnowledgeWorkspaceMain
               activeTab={activeKnowledgeTab}
@@ -3089,10 +3148,9 @@ export default function Stage2AppPage() {
             <div className="h-full">
               {/* Learning Center Course Content */}
               {(() => {
-                const course = enrolledCourses.find(c => c.id === activeSubService);
-                if (!course) return null;
-                
-                return <CourseDetailView course={course} />;
+                const match = enrolledWithCatalog.find(({ course }) => course.id === activeSubService);
+                if (!match) return null;
+                return <CourseDetailView course={match.course as any} />;
               })()}
             </div>
           ) : activeService === "Solution Build" && activeSubService ? (
