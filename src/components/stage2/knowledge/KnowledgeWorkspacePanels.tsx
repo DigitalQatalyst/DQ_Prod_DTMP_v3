@@ -533,6 +533,14 @@ export function KnowledgeWorkspaceMain({
                         year: "numeric",
                       })}
                     </p>
+                    {req.toResponse && (
+                      <div className="mt-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2.5">
+                        <p className="text-[11px] font-semibold text-green-700 uppercase tracking-wide mb-1">
+                          TO Response
+                        </p>
+                        <p className="text-xs text-green-800 leading-relaxed">{req.toResponse}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -1,6 +1,12 @@
 export type TORequestStatus = "Open" | "In Review" | "Resolved";
 export type TORequestType = "clarification" | "outdated-section" | "stale-flag" | "collaboration";
 
+export interface TOActivityEntry {
+  action: string;
+  by: string;
+  at: string;
+}
+
 export interface TORequest {
   id: string;
   itemId: string;
@@ -10,6 +16,8 @@ export interface TORequest {
   message: string;
   sectionRef?: string;
   status: TORequestStatus;
+  toResponse?: string;
+  activityLog?: TOActivityEntry[];
   createdAt: string;
   updatedAt: string;
 }
@@ -84,16 +92,27 @@ export const addTORequest = ({
 
 export const updateTORequestStatus = (
   requestId: string,
-  status: TORequestStatus
+  status: TORequestStatus,
+  options?: { actor?: string; toResponse?: string }
 ): TORequest | null => {
   const requests = readRequests();
   let updated: TORequest | null = null;
+  const now = new Date().toISOString();
+  const actionLabel =
+    status === "In Review" ? "Marked In Review" : "Marked Resolved";
+  const entry: TOActivityEntry = {
+    action: actionLabel,
+    by: options?.actor ?? "TO Team",
+    at: now,
+  };
   const next = requests.map((request) => {
     if (request.id !== requestId) return request;
     updated = {
       ...request,
       status,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
+      toResponse: options?.toResponse?.trim() || request.toResponse,
+      activityLog: [...(request.activityLog ?? []), entry],
     };
     return updated;
   });
