@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import {
   AlertTriangle,
   Bookmark,
@@ -293,6 +293,8 @@ function buildArtefactSections(
 export default function KnowledgeCenterDetailPage() {
   const { tab, cardId } = useParams<{ tab: string; cardId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isStage2 = location.pathname.startsWith("/stage2/");
   const [contentTab, setContentTab] = useState<DetailTab>("about");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const normalizedTab = validTabs.includes(tab as KnowledgeTab)
@@ -580,7 +582,7 @@ export default function KnowledgeCenterDetailPage() {
               <Bookmark className="w-4 h-4 mr-2" />
               {isSaved ? "Saved" : "Save to Workspace"}
             </Button>
-            <Button
+            {isStage2 && <Button
               variant="outline"
               onClick={() => {
                 setShowRequestPanel((v) => !v);
@@ -592,11 +594,11 @@ export default function KnowledgeCenterDetailPage() {
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Request Clarification
-            </Button>
+            </Button>}
           </div>
 
-          {/* ── Request Clarification panel ────────────────────────────────── */}
-          {showRequestPanel && (
+          {/* ── Request Clarification panel (Stage 2 only) ──────────────────── */}
+          {isStage2 && showRequestPanel && (
             <div className="mt-4 bg-gray-50 border border-gray-200 rounded-xl p-5 max-w-2xl">
               {requestSubmitted ? (
                 <div className="flex items-center gap-2 text-green-700">
@@ -669,7 +671,7 @@ export default function KnowledgeCenterDetailPage() {
         <div className="bg-white border-b-2 border-gray-200">
           <div className="max-w-7xl mx-auto">
             <TabsList className="h-auto bg-transparent p-0 gap-1 overflow-x-auto flex justify-start px-4 lg:px-8">
-              {(["about", "implementation", "examples", "resources", "discussion"] as DetailTab[]).map(
+              {(["about", "implementation", "examples", "resources", ...(isStage2 ? ["discussion"] : [])] as DetailTab[]).map(
                 (entry) => (
                   <TabsTrigger
                     key={entry}
