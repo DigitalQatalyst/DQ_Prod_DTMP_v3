@@ -2225,12 +2225,180 @@ export default function Stage2AppPage() {
                   onSelectSubService={handleSubServiceClick}
                 />
               ) : activeService === "Learning Center" ? (
-                <LearningWorkspaceSidebar
-                  viewMode={viewMode}
-                  learningSubServices={learningSubServices}
-                  activeSubService={activeSubService}
-                  onSelectSubService={handleSubServiceClick}
-                />
+                <div className="space-y-2">
+                  {/* My Courses */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => handleLCSectionToggle("my-courses")}
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4 text-orange-600" />
+                        <span>My Courses</span>
+                        <span className="text-xs bg-orange-100 text-orange-700 rounded-full px-2 py-0.5">{learningSubServices.length}</span>
+                      </div>
+                      {openLCSection === "my-courses" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                    </button>
+                    {openLCSection === "my-courses" && (
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {learningSubServices.map((course) => (
+                          <button
+                            key={course.id}
+                            onClick={() => {
+                              navigate(`/stage2/learning-center/course/${course.id}/user`, {
+                                state: { ...location.state, learningRole: "learner" },
+                              });
+                            }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                              isLearningCourseWorkspace && activeSubService === course.id
+                                ? "bg-orange-50 text-orange-700 font-medium"
+                                : "text-gray-700 hover:bg-white"
+                            }`}
+                          >
+                            <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="text-left line-clamp-2">{course.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* My Tracks */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => handleLCSectionToggle("my-tracks")}
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-blue-600" />
+                        <span>My Tracks</span>
+                        <span className="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">
+                          {trackEnrollments.filter((te) => te.userId === "user-john-doe").length}
+                        </span>
+                      </div>
+                      {openLCSection === "my-tracks" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                    </button>
+                    {openLCSection === "my-tracks" && (
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {trackEnrollments
+                          .filter((te) => te.userId === "user-john-doe")
+                          .map((te) => {
+                            const track = learningTracks.find((t) => t.id === te.trackId);
+                            if (!track) return null;
+                            return (
+                              <button
+                                key={track.id}
+                                onClick={() => {
+                                  setSelectedLCTrackId(track.id);
+                                  setSelectedLCCertId(null);
+                                  setSelectedLCBookmarkId(null);
+                                  navigate("/stage2/learning-center", { state: location.state });
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                                  selectedLCTrackId === track.id
+                                    ? "bg-blue-50 text-blue-700 font-medium"
+                                    : "text-gray-700 hover:bg-white"
+                                }`}
+                              >
+                                <div className="flex-shrink-0">
+                                  {te.status === "completed"
+                                    ? <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                                    : <BarChart3 className="w-3.5 h-3.5 text-blue-500" />}
+                                </div>
+                                <span className="text-left line-clamp-2 flex-1">{track.title}</span>
+                                <span className="text-xs text-gray-400 flex-shrink-0">{te.progress}%</span>
+                              </button>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Certificates */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => handleLCSectionToggle("certificates")}
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Award className="w-4 h-4 text-green-600" />
+                        <span>Certificates</span>
+                        <span className="text-xs bg-green-100 text-green-700 rounded-full px-2 py-0.5">{dashboardCertificates.length}</span>
+                      </div>
+                      {openLCSection === "certificates" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                    </button>
+                    {openLCSection === "certificates" && (
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {dashboardCertificates.map((cert) => (
+                          <button
+                            key={cert.id}
+                            onClick={() => {
+                              setSelectedLCCertId(cert.id);
+                              setSelectedLCTrackId(null);
+                              setSelectedLCBookmarkId(null);
+                              navigate("/stage2/learning-center", { state: location.state });
+                            }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                              selectedLCCertId === cert.id
+                                ? "bg-green-50 text-green-700 font-medium"
+                                : "text-gray-700 hover:bg-white"
+                            }`}
+                          >
+                            <Award className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="text-left line-clamp-2">{cert.courseName}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bookmarks */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => handleLCSectionToggle("bookmarks")}
+                      className="w-full flex items-center justify-between p-3 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Bookmark className="w-4 h-4 text-purple-600" />
+                        <span>Bookmarks</span>
+                        <span className="text-xs bg-purple-100 text-purple-700 rounded-full px-2 py-0.5">{lcBookmarks.length}</span>
+                      </div>
+                      {openLCSection === "bookmarks" ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                    </button>
+                    {openLCSection === "bookmarks" && (
+                      <div className="border-t border-gray-100 bg-gray-50">
+                        {lcBookmarks.length === 0 ? (
+                          <div className="px-4 py-3 text-xs text-gray-400 italic">
+                            No bookmarks yet. Save courses from the marketplace.
+                          </div>
+                        ) : lcBookmarks.map((bm) => {
+                          const bmCourse = lcCourses.find((c) => c.id === bm.courseId);
+                          return (
+                            <button
+                              key={bm.courseId}
+                              onClick={() => {
+                                setSelectedLCBookmarkId(bm.courseId);
+                                setSelectedLCTrackId(null);
+                                setSelectedLCCertId(null);
+                                navigate("/stage2/learning-center", { state: location.state });
+                              }}
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                                selectedLCBookmarkId === bm.courseId
+                                  ? "bg-purple-50 text-purple-700 font-medium"
+                                  : "text-gray-700 hover:bg-white"
+                              }`}
+                            >
+                              <Bookmark className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="text-left line-clamp-2">
+                                {bmCourse?.title ?? bm.courseId}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
               ) : activeService === "Knowledge Center" ? (
                 <KnowledgeWorkspaceSidebar
                   activeTab={activeKnowledgeTab}
