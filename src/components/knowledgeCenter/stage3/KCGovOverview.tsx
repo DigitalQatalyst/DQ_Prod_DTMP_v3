@@ -9,15 +9,24 @@ import { knowledgeItems } from "@/data/knowledgeCenter/knowledgeItems";
 
 interface KCGovOverviewProps {
   role: "admin" | "viewer";
+  onViewAll?: () => void;
 }
+
+const REQUEST_TYPE_LABELS: Record<string, string> = {
+  clarification: "Clarification",
+  "outdated-section": "Outdated Section",
+  "stale-flag": "Stale Flag",
+  collaboration: "Collaboration",
+};
 
 const REQUEST_TYPE_COLORS: Record<string, string> = {
   clarification: "bg-blue-100 text-blue-700",
   "outdated-section": "bg-amber-100 text-amber-700",
+  "stale-flag": "bg-red-100 text-red-700",
   collaboration: "bg-green-100 text-green-700",
 };
 
-export default function KCGovOverview({ role }: KCGovOverviewProps) {
+export default function KCGovOverview({ role, onViewAll }: KCGovOverviewProps) {
   const metrics = useMemo(() => getKnowledgeUsageMetrics(), []);
   const allRequests = useMemo(() => getTORequests(), []);
   const openRequests = allRequests.filter((r) => r.status === "Open");
@@ -146,10 +155,14 @@ export default function KCGovOverview({ role }: KCGovOverviewProps) {
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-semibold text-gray-900">Incoming Requests</h3>
-          {openRequests.length > 4 && (
-            <span className="text-sm text-orange-600 font-medium">
-              View All ({openRequests.length}) →
-            </span>
+          {onViewAll && (
+            <button
+              type="button"
+              onClick={onViewAll}
+              className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+            >
+              View all ({allRequests.length}) →
+            </button>
           )}
         </div>
         {openRequests.length === 0 ? (
@@ -159,22 +172,27 @@ export default function KCGovOverview({ role }: KCGovOverviewProps) {
             {openRequests.slice(0, 4).map((req) => {
               const item = itemById.get(req.itemId);
               return (
-                <div key={req.id} className="px-6 py-4 flex items-start gap-4">
+                <div key={req.id} className="px-6 py-4 flex items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {item?.title ?? req.itemId}
                     </p>
-                    <p className="text-xs text-gray-500 mt-0.5">{req.requesterName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {req.requesterName} · {req.requesterRole}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{req.message}</p>
                   </div>
-                  <Badge className={`text-xs flex-shrink-0 ${REQUEST_TYPE_COLORS[req.type] ?? "bg-gray-100 text-gray-700"}`}>
-                    {req.type}
-                  </Badge>
-                  <span className="text-xs text-gray-400 flex-shrink-0">
-                    {new Date(req.createdAt).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
+                  <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                    <Badge className={`text-xs ${REQUEST_TYPE_COLORS[req.type] ?? "bg-gray-100 text-gray-700"}`}>
+                      {REQUEST_TYPE_LABELS[req.type] ?? req.type}
+                    </Badge>
+                    <span className="text-xs text-gray-400">
+                      {new Date(req.createdAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </span>
+                  </div>
                 </div>
               );
             })}

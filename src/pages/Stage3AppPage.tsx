@@ -1214,12 +1214,15 @@ export default function Stage3AppPage() {
           {/* ── KC Governance views ───────────────────────────────────────── */}
           {scope === "knowledge-center" && (
             <div className="space-y-4">
-              {kcGovView === "dashboard" && <KCGovOverview role={sessionRole} />}
+              {kcGovView === "dashboard" && <KCGovOverview role={sessionRole} onViewAll={() => setKcGovView("incoming-requests")} />}
               {kcGovView === "content-browser" && <KCContentBrowser role={sessionRole} />}
               {kcGovView === "incoming-requests" && <KCIncomingRequests role={sessionRole} />}
               {kcGovView === "analytics" && <KCAnalytics role={sessionRole} />}
             </div>
           )}
+
+          {/* General TO platform views — fully hidden when KC or LC governance scope is active */}
+          {scope !== "knowledge-center" && scope !== "learning-center" && <>
 
           {/* ── KPI cards ────────────────────────────────────────────────── */}
           {isSolutionBuildScope ? (
@@ -1823,6 +1826,7 @@ export default function Stage3AppPage() {
               )}
             </>
           )}
+          </>}
         </div>
       </main>
 
