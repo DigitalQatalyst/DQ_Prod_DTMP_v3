@@ -329,6 +329,16 @@ export default function KnowledgeCenterDetailPage() {
   const [showArtefact, setShowArtefact] = useState(false);
   const [downloadToast, setDownloadToast] = useState(false);
 
+  // ── Artefact viewer — collaboration panel ─────────────────────────────────
+  const [artefactCommentDraft, setArtefactCommentDraft] = useState("");
+  const [artefactCommentSubmitted, setArtefactCommentSubmitted] = useState(false);
+  const [artefactRequestType, setArtefactRequestType] = useState<TORequestType>("clarification");
+  const [artefactRequestDraft, setArtefactRequestDraft] = useState("");
+  const [artefactRequestSectionRef, setArtefactRequestSectionRef] = useState("");
+  const [artefactRequestSubmitted, setArtefactRequestSubmitted] = useState(false);
+  const [artefactActivePanel, setArtefactActivePanel] = useState<"comment" | "request">("comment");
+  const [loginModalAction, setLoginModalAction] = useState<"comment" | "request">("comment");
+
   const designReports = useMemo(() => getDesignReports(), []);
 
   const item = useMemo(() => {
@@ -507,6 +517,42 @@ export default function KnowledgeCenterDetailPage() {
     { value: "clarification", label: "Clarification" },
     { value: "outdated-section", label: "Report Outdated Section" },
   ];
+
+  // ── Artefact viewer collaboration handlers ────────────────────────────────
+  const handleArtefactCommentSubmit = () => {
+    if (!knowledgeItem || !artefactCommentDraft.trim()) return;
+    addKnowledgeComment({
+      itemId: knowledgeItem.id,
+      authorName: "John Doe",
+      authorRole: "Transformation Analyst",
+      body: artefactCommentDraft,
+    });
+    setArtefactCommentSubmitted(true);
+    setArtefactCommentDraft("");
+    if (!isStage2) {
+      setLoginModalAction("comment");
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleArtefactRequestSubmit = () => {
+    if (!knowledgeItem || !artefactRequestDraft.trim()) return;
+    addTORequest({
+      itemId: knowledgeItem.id,
+      requesterName: "John Doe",
+      requesterRole: "Transformation Analyst",
+      type: artefactRequestType,
+      message: artefactRequestDraft,
+      sectionRef: artefactRequestSectionRef || undefined,
+    });
+    setArtefactRequestSubmitted(true);
+    setArtefactRequestDraft("");
+    setArtefactRequestSectionRef("");
+    if (!isStage2) {
+      setLoginModalAction("request");
+      setShowLoginModal(true);
+    }
+  };
 
   // Determine button icon for View Resource
   const showExternalIcon = isDesignReport && !!document?.liveUrl;
@@ -1061,6 +1107,135 @@ export default function KnowledgeCenterDetailPage() {
                   )}
                 </div>
               ))}
+
+              {/* ── Collaboration panel ───────────────────────────────────── */}
+              <div className="mt-12 border-t-2 border-gray-100 pt-10">
+                <h2 className="text-xl font-bold text-gray-900 mb-1">Questions & Comments</h2>
+                <p className="text-sm text-gray-500 mb-6">
+                  Leave a question or flag something to the Transformation Office.
+                  {!isStage2 && " You'll be asked to log in when you submit."}
+                </p>
+
+                {/* Panel switcher */}
+                <div className="flex gap-2 mb-6">
+                  {[
+                    { key: "comment" as const, label: "Leave a Comment" },
+                    { key: "request" as const, label: "Request Clarification" },
+                  ].map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setArtefactActivePanel(key)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        artefactActivePanel === key
+                          ? "bg-orange-600 text-white border-orange-600"
+                          : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Comment panel */}
+                {artefactActivePanel === "comment" && (
+                  <div className="space-y-3">
+                    {artefactCommentSubmitted ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700 font-medium">
+                        ✓ Comment submitted{!isStage2 ? " — log in to track it in your workspace." : "."}
+                      </div>
+                    ) : (
+                      <>
+                        <Textarea
+                          placeholder="Add a comment... use @Name to mention a colleague"
+                          value={artefactCommentDraft}
+                          onChange={(e) => setArtefactCommentDraft(e.target.value)}
+                          rows={4}
+                          className="text-sm bg-white"
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          {collaborators.map((name) => (
+                            <button
+                              key={name}
+                              type="button"
+                              onClick={() =>
+                                setArtefactCommentDraft((prev) => {
+                                  const t = prev.trimEnd();
+                                  return t ? `${t} @${name} ` : `@${name} `;
+                                })
+                              }
+                              className="px-2 py-1 text-xs rounded-md bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition-colors"
+                            >
+                              @{name}
+                            </button>
+                          ))}
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={handleArtefactCommentSubmit}
+                          disabled={!artefactCommentDraft.trim()}
+                          className="bg-orange-600 hover:bg-orange-700 text-white"
+                        >
+                          Post Comment
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Request panel */}
+                {artefactActivePanel === "request" && (
+                  <div className="space-y-4">
+                    {artefactRequestSubmitted ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700 font-medium">
+                        ✓ Request submitted — TO team will respond within 2 business days.
+                        {!isStage2 && " Log in to track progress in your workspace."}
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex flex-wrap gap-2">
+                          {requestTypeOptions.map(({ value, label }) => (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => setArtefactRequestType(value)}
+                              className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                                artefactRequestType === value
+                                  ? "bg-orange-600 text-white border-orange-600"
+                                  : "bg-white text-gray-700 border-gray-200 hover:border-orange-300"
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                        <Textarea
+                          placeholder="Describe your request or question..."
+                          value={artefactRequestDraft}
+                          onChange={(e) => setArtefactRequestDraft(e.target.value)}
+                          rows={4}
+                          className="text-sm bg-white"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Which section does this relate to? (optional)"
+                          value={artefactRequestSectionRef}
+                          onChange={(e) => setArtefactRequestSectionRef(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleArtefactRequestSubmit}
+                          disabled={!artefactRequestDraft.trim()}
+                          className="bg-orange-600 hover:bg-orange-700 text-white"
+                        >
+                          Submit Request
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
