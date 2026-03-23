@@ -13,6 +13,7 @@ import {
   Star,
   ThumbsDown,
   ThumbsUp,
+  X,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -99,6 +100,196 @@ function highlightMentions(text: string): React.ReactNode {
   );
 }
 
+interface ArtefactSection {
+  heading: string;
+  body: string;
+}
+
+function buildArtefactSections(
+  tab: KnowledgeTab,
+  item: { title?: string; description?: string; tags?: string[] } | undefined,
+  knowledgeItem: { audience?: string; updatedAt?: string; author?: string } | undefined,
+  document: DewaDocumentItem | null
+): ArtefactSection[] {
+  const description =
+    item && "description" in item && typeof (item as Record<string, unknown>).description === "string"
+      ? (item as { description: string }).description
+      : "";
+  const tags: string[] =
+    knowledgeItem && "tags" in knowledgeItem
+      ? ((knowledgeItem as unknown as { tags: string[] }).tags ?? [])
+      : item && "tags" in item
+      ? ((item as unknown as { tags: string[] }).tags ?? [])
+      : [];
+  const audience = knowledgeItem?.audience;
+
+  switch (tab) {
+    case "best-practices":
+      return [
+        { heading: "Practice Overview", body: description },
+        {
+          heading: "Key Principles",
+          body:
+            "This best practice establishes the following foundational principles for DEWA's transformation programmes:\n\n• " +
+            tags.join("\n• "),
+        },
+        {
+          heading: "Implementation Guidance",
+          body: "Applying this practice within DEWA's context requires alignment with the 4D Governance Model and the Digital Blueprint Programme. Teams should validate applicability against their division's current maturity level before adoption.",
+        },
+        {
+          heading: "DEWA Application Context",
+          body: `This resource is applicable across ${audience ?? "all"} stakeholders within DEWA. It has been assessed against DEWA's transformation architecture requirements and approved for reference use within active programme workstreams.`,
+        },
+      ];
+
+    case "testimonials":
+      return [
+        { heading: "Organisation Background", body: description },
+        {
+          heading: "Challenge Statement",
+          body: "The organisation faced significant challenges in aligning transformation initiatives with operational continuity requirements — a pattern consistent with DEWA's own digital transformation journey under the DTMP framework.",
+        },
+        {
+          heading: "Outcomes Achieved",
+          body:
+            "Post-implementation signals indicated measurable improvement across the target domains. Key outcomes include:\n\n• " +
+            tags.join("\n• "),
+        },
+        {
+          heading: "DEWA Relevance Signal",
+          body: `This testimonial has been reviewed and classified as a high-relevance reference for DEWA's ${audience ?? "programme teams"}. TO teams should consider this signal when developing similar transformation strategies.`,
+        },
+      ];
+
+    case "playbooks":
+      return [
+        { heading: "Playbook Overview", body: description },
+        {
+          heading: "Step-by-Step Guidance",
+          body: "This playbook follows a structured delivery sequence. Practitioners should adapt each step to the DEWA operating model, ensuring alignment with active programme governance requirements.\n\nStep 1 — Assess current state against the playbook's baseline criteria.\nStep 2 — Identify gaps and map them to DEWA's transformation priorities.\nStep 3 — Execute playbook activities with TO oversight.\nStep 4 — Validate outcomes against the defined success metrics.",
+        },
+        {
+          heading: "Tools & Templates",
+          body:
+            "Supporting tools for this playbook are available through the DTMP platform. Key topics covered: " +
+            tags.join(", "),
+        },
+        {
+          heading: "Success Metrics",
+          body: `Outcomes should be measured against DEWA's programme KPIs. Audience: ${knowledgeItem?.audience ?? "Programme teams"}. Last validated: ${knowledgeItem?.updatedAt ?? "2025"}`,
+        },
+      ];
+
+    case "policies-procedures":
+      return [
+        { heading: "Policy Statement", body: description },
+        {
+          heading: "Scope & Applicability",
+          body: `This policy applies to all ${knowledgeItem?.audience ?? "DEWA staff"} involved in transformation programme delivery. Exceptions must be approved by the Transformation Office.`,
+        },
+        {
+          heading: "Responsibilities",
+          body: "• Transformation Office: Policy ownership and governance\n• Division Leads: Implementation and compliance\n• Programme Teams: Adherence to procedure steps\n• Audit Function: Compliance verification",
+        },
+        {
+          heading: "Procedure Steps",
+          body: "1. Review this policy in the context of the relevant programme workstream.\n2. Confirm applicability with your Division Lead.\n3. Document compliance in the programme governance log.\n4. Escalate exceptions to the TO within 5 business days.\n5. Review annually or when triggered by a programme change event.",
+        },
+        {
+          heading: "Compliance & Review",
+          body: `Non-compliance with this policy must be reported to the Transformation Office. This document is reviewed annually. Version: ${document?.version ?? "v1.0"}. Status: ${document?.statusBadge ?? "Active"}`,
+        },
+      ];
+
+    case "executive-summaries":
+      return [
+        { heading: "Executive Summary", body: description },
+        {
+          heading: "Context",
+          body: `This summary has been prepared for ${knowledgeItem?.audience ?? "DEWA executive leadership"} and presents key findings relevant to the DTMP transformation programme.`,
+        },
+        {
+          heading: "Key Findings",
+          body:
+            "The analysis covers the following domains: " +
+            tags.join(", ") +
+            ". Each domain was assessed against DEWA's strategic objectives and the 4D Governance Model benchmarks.",
+        },
+        {
+          heading: "Recommendations",
+          body: "The Transformation Office recommends the following actions:\n1. Prioritise alignment of the findings with active programme roadmaps.\n2. Engage division leads for domain-specific implementation planning.\n3. Schedule a review with the TO within 30 days of reading this summary.",
+        },
+      ];
+
+    case "strategy-docs":
+      return [
+        { heading: "Strategic Context", body: description },
+        {
+          heading: "Objectives",
+          body:
+            "This strategy document sets out the following objectives for DEWA's transformation programme:\n• " +
+            tags.slice(0, 3).join("\n• "),
+        },
+        {
+          heading: "Key Initiatives",
+          body: "The following initiatives are outlined within this strategy. Each should be tracked through DEWA's programme management framework with TO oversight.",
+        },
+        {
+          heading: "Roadmap Alignment",
+          body: "This document aligns with DEWA's multi-year Digital Transformation Master Plan. Implementation timelines should be coordinated with the DTMP programme calendar.",
+        },
+        {
+          heading: "KPIs & Governance",
+          body: `Success will be measured against approved KPIs. Audience: ${knowledgeItem?.audience ?? "Leadership"}. Review cadence: Quarterly.`,
+        },
+      ];
+
+    case "architecture-standards":
+      return [
+        { heading: "Standard Overview", body: description },
+        {
+          heading: "Technical Requirements",
+          body:
+            "Compliance with this architecture standard requires adherence to the following:\n• " +
+            tags.slice(0, 4).join("\n• ") +
+            "\n\nAll exceptions require formal TO approval and must be documented in the programme architecture log.",
+        },
+        {
+          heading: "Implementation Guidelines",
+          body: "Implementation of this standard must be coordinated with the Enterprise Architecture function. Teams should validate technical designs against this standard prior to solution sign-off.",
+        },
+        {
+          heading: "Governance & Compliance",
+          body: `This standard is governed by the DEWA Transformation Office. Non-conformance must be escalated through the programme architecture review process. Last reviewed: ${knowledgeItem?.updatedAt ?? "2025"}`,
+        },
+      ];
+
+    case "governance-frameworks":
+      return [
+        { heading: "Framework Purpose", body: description },
+        {
+          heading: "Governance Structure",
+          body: "This framework establishes a clear governance hierarchy for the relevant domain:\n• Strategic level: TO Leadership\n• Programme level: Division Governance Boards\n• Operational level: Programme Managers\n• Assurance level: Audit & Compliance Function",
+        },
+        {
+          heading: "Processes & Accountabilities",
+          body:
+            "Key processes governed by this framework: " +
+            tags.join(", ") +
+            ". Each process owner is accountable to the Transformation Office for delivery and compliance.",
+        },
+        {
+          heading: "Implementation Pathway",
+          body: `Adoption of this framework follows a phased approach aligned to DEWA's transformation maturity model. Audience: ${knowledgeItem?.audience ?? "Governance teams"}.`,
+        },
+      ];
+
+    default:
+      return [{ heading: "Overview", body: description }];
+  }
+}
+
 export default function KnowledgeCenterDetailPage() {
   const { tab, cardId } = useParams<{ tab: string; cardId: string }>();
   const navigate = useNavigate();
@@ -131,6 +322,10 @@ export default function KnowledgeCenterDetailPage() {
   );
   const [commentDraft, setCommentDraft] = useState("");
   const collaborators = useMemo(() => getCollaboratorDirectory(), []);
+
+  // ── Artefact viewer ───────────────────────────────────────────────────────
+  const [showArtefact, setShowArtefact] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(false);
 
   const designReports = useMemo(() => getDesignReports(), []);
 
@@ -242,11 +437,12 @@ export default function KnowledgeCenterDetailPage() {
   };
 
   const handleViewResource = () => {
-    if (document?.liveUrl) {
+    if (isDesignReport && document?.liveUrl) {
       window.open(document.liveUrl, "_blank", "noopener,noreferrer");
       return;
     }
-    navigate(`/marketplaces/knowledge-center?tab=${normalizedTab}`);
+    if (isDesignReport && document?.comingSoon) return; // already disabled
+    setShowArtefact(true);
   };
 
   const handleHelpfulVote = (vote: "yes" | "no") => {
@@ -308,8 +504,15 @@ export default function KnowledgeCenterDetailPage() {
   const requestTypeOptions: { value: TORequestType; label: string }[] = [
     { value: "clarification", label: "Clarification" },
     { value: "outdated-section", label: "Report Outdated Section" },
-    { value: "collaboration", label: "Request Collaboration" },
   ];
+
+  // Determine button icon for View Resource
+  const showExternalIcon = isDesignReport && !!document?.liveUrl;
+
+  // Build artefact sections
+  const artefactSections = normalizedTab
+    ? buildArtefactSections(normalizedTab, item as Record<string, unknown> & { title?: string; description?: string; tags?: string[] }, knowledgeItem, document)
+    : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -366,10 +569,10 @@ export default function KnowledgeCenterDetailPage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button onClick={handleViewResource} disabled={!!document?.comingSoon}>
-              {document?.liveUrl ? (
+              {showExternalIcon ? (
                 <ExternalLink className="w-4 h-4 mr-2" />
               ) : (
-                <Download className="w-4 h-4 mr-2" />
+                <FileText className="w-4 h-4 mr-2" />
               )}
               {document?.comingSoon ? "Coming Soon" : "View Resource"}
             </Button>
@@ -785,6 +988,88 @@ export default function KnowledgeCenterDetailPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Artefact viewer overlay ───────────────────────────────────────── */}
+      {showArtefact && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col">
+          {/* Sticky toolbar */}
+          <div className="sticky top-0 h-14 bg-white border-b border-gray-200 shadow-sm px-6 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <FileText className="w-5 h-5 text-orange-600 flex-shrink-0" />
+              <span className="font-semibold text-gray-900 truncate">{title}</span>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setDownloadToast(true);
+                  setTimeout(() => setDownloadToast(false), 2500);
+                }}
+              >
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </Button>
+              <button
+                type="button"
+                onClick={() => setShowArtefact(false)}
+                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
+                aria-label="Close viewer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Document body */}
+          <div className="overflow-y-auto flex-1">
+            <div className="max-w-3xl mx-auto py-12 px-8">
+              {/* Document header block */}
+              <div className="mb-8">
+                <span className="inline-block bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">
+                  {tabLabels[normalizedTab]}
+                </span>
+                <h1 className="text-3xl font-bold text-gray-900 mb-3">{title}</h1>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                  {(knowledgeItem?.author ?? document?.author) && (
+                    <span>{knowledgeItem?.author ?? document?.author}</span>
+                  )}
+                  {(knowledgeItem?.author ?? document?.author) &&
+                    (knowledgeItem?.audience ?? "All Roles") && (
+                      <span className="text-gray-300">|</span>
+                    )}
+                  <span>{knowledgeItem?.audience ?? "All Roles"}</span>
+                  {(knowledgeItem?.updatedAt ?? document?.year) && (
+                    <>
+                      <span className="text-gray-300">|</span>
+                      <span>Updated: {knowledgeItem?.updatedAt ?? document?.year}</span>
+                    </>
+                  )}
+                </div>
+                <hr className="border-gray-200 my-8" />
+              </div>
+
+              {/* Sections */}
+              {artefactSections.map((section, index) => (
+                <div key={section.heading}>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.heading}</h2>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{section.body}</p>
+                  {index < artefactSections.length - 1 && (
+                    <hr className="border-gray-100 my-6" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Download toast ────────────────────────────────────────────────── */}
+      {downloadToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-amber-100 border border-amber-300 text-amber-800 rounded-lg px-4 py-2 text-sm shadow-lg">
+          Download not available in demo — document is illustrative only.
+        </div>
+      )}
 
       <LoginModal
         isOpen={showLoginModal}
