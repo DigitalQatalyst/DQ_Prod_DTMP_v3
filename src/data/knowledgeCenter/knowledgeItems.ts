@@ -1,25 +1,26 @@
 import { bestPractices, type BestPractice } from "./bestPractices";
 import { testimonials, type Testimonial } from "./testimonials";
 import { playbooks, type Playbook } from "./playbooks";
-import { libraryItems, type LibraryItem } from "./library";
-import { policyReports, type PolicyReport } from "./policyReports";
-import { procedureReports, type ProcedureReport } from "./procedureReports";
-import { executiveSummaries, type ExecutiveSummary } from "./executiveSummaries";
-import { strategyDocs, type StrategyDoc } from "./strategyDocs";
 import {
-  mapBestPracticeToDepartment,
-  mapIndustryToDepartment,
-} from "./departmentMapping";
+  designReports,
+  policiesProcedures,
+  executiveSummaries,
+  strategyDocs,
+  architectureStandards,
+  governanceFrameworks,
+  type DewaDocumentItem,
+} from "./dewaDocuments";
 
 export type KnowledgeTab =
   | "best-practices"
   | "testimonials"
   | "playbooks"
-  | "library"
-  | "policy-reports"
-  | "procedure-reports"
+  | "design-reports"
+  | "policies-procedures"
   | "executive-summaries"
-  | "strategy-docs";
+  | "strategy-docs"
+  | "architecture-standards"
+  | "governance-frameworks";
 
 export interface KnowledgeItem {
   id: string;
@@ -37,21 +38,6 @@ export interface KnowledgeItem {
   author: string;
 }
 
-const toIsoDate = (value: string): string => {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-  return parsed.toISOString().slice(0, 10);
-};
-
-const toMockIsoDateFromId = (value: string): string => {
-  const hash = value
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const month = (hash % 12) + 1;
-  const day = (hash % 27) + 1;
-  return `2024-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-};
-
 const mapBestPractice = (item: BestPractice): KnowledgeItem => ({
   id: `best-practices:${item.id}`,
   sourceId: item.id,
@@ -59,11 +45,11 @@ const mapBestPractice = (item: BestPractice): KnowledgeItem => ({
   title: item.title,
   description: item.summary,
   type: item.contentType,
-  department: mapBestPracticeToDepartment(item),
+  department: item.divisionTags.join(", "),
   tags: [item.domain, item.category, ...item.impactAreas],
   audience: "Practitioner",
-  difficulty: `${item.maturityLevel} (${item.complexity})`,
-  phase: "Discern",
+  difficulty: `${item.maturityBand} (${item.complexity})`,
+  phase: item.maturityLevel,
   updatedAt: item.dateAdded,
   author: "Transformation Office",
 });
@@ -75,12 +61,12 @@ const mapTestimonial = (item: Testimonial): KnowledgeItem => ({
   title: item.title,
   description: item.quote,
   type: "Case Study",
-  department: mapIndustryToDepartment(item.industry),
-  tags: [item.organizationType, ...item.outcomeType, ...item.outcomes],
+  department: item.department,
+  tags: [item.sectorTag, ...item.outcomes],
   audience: "All Roles",
   difficulty: "Applied",
   phase: item.phase,
-  updatedAt: toIsoDate(item.date),
+  updatedAt: item.date,
   author: item.speaker.name,
 });
 
@@ -91,114 +77,47 @@ const mapPlaybook = (item: Playbook): KnowledgeItem => ({
   title: item.title,
   description: item.description,
   type: item.type,
-  department: mapIndustryToDepartment(item.industry),
-  tags: item.topics,
+  department: item.departmentTag,
+  tags: [...item.topics, item.dewaRelevanceTag],
   audience: item.scope,
-  difficulty: "Intermediate",
+  difficulty: item.format,
   phase: "Design",
-  updatedAt: toMockIsoDateFromId(item.id),
+  updatedAt: "2026-03-01",
   author: item.contributor,
 });
 
-const mapLibraryItem = (item: LibraryItem): KnowledgeItem => ({
-  id: `library:${item.id}`,
+const mapDocument = (tab: KnowledgeTab, item: DewaDocumentItem): KnowledgeItem => ({
+  id: `${tab}:${item.id}`,
   sourceId: item.id,
-  sourceTab: "library",
+  sourceTab: tab,
   title: item.title,
   description: item.description,
-  type: item.contentType,
-  department: "Cross-Department",
-  tags: item.topics,
-  audience: item.audience,
-  difficulty: item.length,
+  type: item.docTypeLabel ?? item.documentSubType ?? item.domainLabel,
+  department: item.division ?? item.domainLabel,
+  tags: item.topicPills,
+  audience: item.audienceTag,
+  difficulty: item.pageCount,
   phase: "Discern",
-  updatedAt: toIsoDate(item.datePublished),
+  updatedAt: item.publishedDate ?? item.year,
   author: item.author,
-});
-
-const mapPolicyReport = (item: PolicyReport): KnowledgeItem => ({
-  id: `policy-reports:${item.id}`,
-  sourceId: item.id,
-  sourceTab: "policy-reports",
-  title: item.title,
-  description: item.description,
-  type: item.policyType,
-  department: item.category,
-  tags: [item.category, item.aiGeneration, item.specialFeature],
-  audience: "All Roles",
-  difficulty: item.complexity,
-  phase: "Design",
-  updatedAt: "2024-01-15",
-  author: "Transformation Office",
-});
-
-const mapProcedureReport = (item: ProcedureReport): KnowledgeItem => ({
-  id: `procedure-reports:${item.id}`,
-  sourceId: item.id,
-  sourceTab: "procedure-reports",
-  title: item.title,
-  description: item.description,
-  type: item.procedureType,
-  department: item.category,
-  tags: [item.category, item.aiGeneration, item.specialFeature],
-  audience: "All Roles",
-  difficulty: item.complexity,
-  phase: "Design",
-  updatedAt: "2024-01-15",
-  author: "Transformation Office",
-});
-
-const mapExecutiveSummary = (item: ExecutiveSummary): KnowledgeItem => ({
-  id: `executive-summaries:${item.id}`,
-  sourceId: item.id,
-  sourceTab: "executive-summaries",
-  title: item.title,
-  description: item.description,
-  type: item.summaryType,
-  department: item.category,
-  tags: [item.category, item.aiGeneration, item.specialFeature],
-  audience: item.audience,
-  difficulty: item.format,
-  phase: "Design",
-  updatedAt: "2024-01-15",
-  author: "Transformation Office",
-});
-
-const mapStrategyDoc = (item: StrategyDoc): KnowledgeItem => ({
-  id: `strategy-docs:${item.id}`,
-  sourceId: item.id,
-  sourceTab: "strategy-docs",
-  title: item.title,
-  description: item.description,
-  type: item.strategyType,
-  department: item.category,
-  tags: [item.category, item.aiGeneration, item.specialFeature],
-  audience: item.scopeLevel,
-  difficulty: item.timeHorizon,
-  phase: "Design",
-  updatedAt: "2024-01-15",
-  author: "Transformation Office",
 });
 
 export const knowledgeItems: KnowledgeItem[] = [
   ...bestPractices.map(mapBestPractice),
   ...testimonials.map(mapTestimonial),
   ...playbooks.map(mapPlaybook),
-  ...libraryItems.map(mapLibraryItem),
-  ...policyReports.map(mapPolicyReport),
-  ...procedureReports.map(mapProcedureReport),
-  ...executiveSummaries.map(mapExecutiveSummary),
-  ...strategyDocs.map(mapStrategyDoc),
+  ...designReports.map((item) => mapDocument("design-reports", item)),
+  ...policiesProcedures.map((item) => mapDocument("policies-procedures", item)),
+  ...executiveSummaries.map((item) => mapDocument("executive-summaries", item)),
+  ...strategyDocs.map((item) => mapDocument("strategy-docs", item)),
+  ...architectureStandards.map((item) => mapDocument("architecture-standards", item)),
+  ...governanceFrameworks.map((item) => mapDocument("governance-frameworks", item)),
 ];
 
-const knowledgeItemsByCompositeId = new Map(
-  knowledgeItems.map((item) => [item.id, item])
-);
+const knowledgeItemsByCompositeId = new Map(knowledgeItems.map((item) => [item.id, item]));
 
-export const getKnowledgeItem = (
-  tab: KnowledgeTab,
-  sourceId: string
-): KnowledgeItem | undefined => knowledgeItemsByCompositeId.get(`${tab}:${sourceId}`);
+export const getKnowledgeItem = (tab: KnowledgeTab, sourceId: string): KnowledgeItem | undefined =>
+  knowledgeItemsByCompositeId.get(`${tab}:${sourceId}`);
 
 export const getKnowledgeItemsByTab = (tab: KnowledgeTab): KnowledgeItem[] =>
   knowledgeItems.filter((item) => item.sourceTab === tab);
@@ -222,18 +141,11 @@ export const getRelatedKnowledgeItems = (
   const base = getKnowledgeItem(tab, sourceId);
   if (!base) return [];
 
-  const ranked = knowledgeItems
+  return knowledgeItems
     .filter((item) => item.id !== base.id)
     .map((item) => ({ item, score: scoreRelatedness(base, item) }))
     .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score);
-
-  const sameTab = ranked
-    .filter((entry) => entry.item.sourceTab === base.sourceTab)
-    .map((entry) => entry.item);
-  const crossTab = ranked
-    .filter((entry) => entry.item.sourceTab !== base.sourceTab)
-    .map((entry) => entry.item);
-
-  return [...sameTab, ...crossTab].slice(0, limit);
+    .sort((a, b) => b.score - a.score)
+    .map((entry) => entry.item)
+    .slice(0, limit);
 };

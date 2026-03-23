@@ -128,7 +128,7 @@ export default function Stage2Layout() {
             )}
             
             <button 
-              onClick={() => navigate('/stage2/templates/overview')}
+              onClick={() => navigate('/stage2/document-studio/overview')}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg ${isActiveService('AI DocWriter')}`}
               title="AI DocWriter"
             >

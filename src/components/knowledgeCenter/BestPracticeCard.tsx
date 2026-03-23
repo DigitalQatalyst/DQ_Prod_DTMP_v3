@@ -41,6 +41,12 @@ export function BestPracticeCard({ practice, onClick }: BestPracticeCardProps) {
         </span>
       </div>
 
+      <div className="mb-3">
+        <span className="inline-flex rounded-full border border-orange-300 bg-white px-2 py-1 text-xs font-semibold text-orange-700">
+          {practice.divisionTags.join(", ")}
+        </span>
+      </div>
+
       <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
         {practice.title}
       </h3>

@@ -104,7 +104,7 @@ export const contributors: Contributor[] = [
       "Access build and delivery resources",
     ],
     ctaLabel: "Access Project Workspace",
-    ctaRoute: "/stage2/templates/overview",
+    ctaRoute: "/stage2/document-studio/overview",
   },
   {
     id: "ops-security",

@@ -1,7 +1,5 @@
 import { BookOpen, MonitorPlay, FileText, Video, Presentation, User } from "lucide-react";
 import { Playbook } from "@/data/knowledgeCenter/playbooks";
-import { mapIndustryToDepartment } from "@/data/knowledgeCenter/departmentMapping";
-
 interface PlaybookCardProps {
   playbook: Playbook;
   onClick: () => void;
@@ -28,7 +26,7 @@ export function PlaybookCard({ playbook, onClick }: PlaybookCardProps) {
       >
         <BookOpen className="w-16 h-16 text-white/30" />
         <span className="absolute top-3 right-3 bg-white/90 text-gray-900 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-          {mapIndustryToDepartment(playbook.industry)}
+          {playbook.departmentTag}
         </span>
       </div>
 
@@ -49,6 +47,12 @@ export function PlaybookCard({ playbook, onClick }: PlaybookCardProps) {
         <p className="text-sm text-gray-600 mb-4 line-clamp-2">
           {playbook.description}
         </p>
+
+        <div className="mb-4">
+          <span className="inline-flex rounded-full border border-orange-300 bg-white px-2 py-1 text-xs font-semibold text-orange-700">
+            {playbook.dewaRelevanceTag}
+          </span>
+        </div>
 
         <div className="mb-4">
           <p className="text-xs font-semibold text-gray-700 uppercase mb-2">

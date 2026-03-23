@@ -37,34 +37,68 @@ export const solutionSpecsFilters: FilterConfig[] = [
     label: 'Has Diagrams',
     type: 'checkbox',
     options: [{ value: 'true', label: 'Yes' }]
+  },
+  {
+    key: 'divisionRelevance',
+    label: 'Division Relevance',
+    type: 'checkbox',
+    options: [
+      { value: 'Generation', label: 'Generation' },
+      { value: 'Transmission', label: 'Transmission' },
+      { value: 'Distribution', label: 'Distribution' },
+      { value: 'Water Services', label: 'Water Services' },
+      { value: 'Customer Services', label: 'Customer Services' },
+      { value: 'Digital DEWA & Moro Hub', label: 'Digital DEWA & Moro Hub' },
+      { value: 'All Divisions', label: 'All Divisions' }
+    ]
+  },
+  {
+    key: 'stream',
+    label: 'DBP Stream',
+    type: 'checkbox',
+    options: [
+      { value: 'DBP', label: 'DBP' },
+      { value: 'DXP', label: 'DXP' },
+      { value: 'DWS', label: 'DWS' },
+      { value: 'DIA', label: 'DIA' },
+      { value: 'SDO', label: 'SDO' }
+    ]
   }
 ];
 
 export const solutionBuildFilters: FilterConfig[] = [
   {
-    key: 'buildComplexity',
-    label: 'Build Complexity',
+    key: 'complexity',
+    label: 'Complexity',
     type: 'checkbox',
     options: [
-      { value: 'basic', label: 'Basic' },
-      { value: 'intermediate', label: 'Intermediate' },
-      { value: 'advanced', label: 'Advanced' }
-    ]
+      { label: 'Low', value: 'Low' },
+      { label: 'Medium', value: 'Medium' },
+      { label: 'High', value: 'High' },
+    ],
   },
   {
-    key: 'automationLevel',
-    label: 'Automation Level',
+    key: 'divisionRelevance',
+    label: 'Division Relevance',
     type: 'checkbox',
     options: [
-      { value: 'manual', label: 'Manual' },
-      { value: 'semi-automated', label: 'Semi-Automated' },
-      { value: 'fully-automated', label: 'Fully Automated' }
-    ]
+      { label: 'Generation', value: 'Generation' },
+      { label: 'Transmission', value: 'Transmission' },
+      { label: 'Distribution', value: 'Distribution' },
+      { label: 'Water Services', value: 'Water Services' },
+      { label: 'Customer Services', value: 'Customer Services' },
+      { label: 'Digital DEWA & Moro Hub', value: 'Digital DEWA & Moro Hub' },
+      { label: 'All Divisions', value: 'All Divisions' },
+    ],
   },
   {
-    key: 'hasCodeSamples',
-    label: 'Has Code Samples',
+    key: 'timeline',
+    label: 'Timeline',
     type: 'checkbox',
-    options: [{ value: 'true', label: 'Yes' }]
-  }
+    options: [
+      { label: 'Short  (≤ 8 weeks)', value: 'short' },
+      { label: 'Medium (9–16 weeks)', value: 'medium' },
+      { label: 'Long   (17+ weeks)', value: 'long' },
+    ],
+  },
 ];

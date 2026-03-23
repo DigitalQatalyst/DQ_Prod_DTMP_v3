@@ -30,7 +30,6 @@ interface LoginModalProps {
   };
 }
 
-
 export function LoginModal({ isOpen, onClose, onLoginSuccess, context }: LoginModalProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -58,6 +57,12 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess, context }: LoginMo
     setUserAuthenticated(true);
     const sessionRole = resolveSessionRole(email);
     setSessionRole(sessionRole);
+
+    if (onLoginSuccess) {
+      onLoginSuccess();
+      onClose();
+      return;
+    }
 
     if (context.action === "access-platform") {
       if (isTOStage3Role(sessionRole)) {
@@ -112,12 +117,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess, context }: LoginMo
         context.marketplace === "templates" ||
         context.marketplace === "document-studio"
       ) {
-        // For document studio, go directly to new request page with template pre-selected
-        navigate("/stage2/templates/new-request", {
-          state: {
-            templateId: context.cardId,
-            ...context,
-          },
+        navigate(`/marketplaces/document-studio/request/${context.tab}/${context.cardId}`, {
+          state: context,
         });
       } else {
         navigate("/stage2", {
@@ -178,6 +179,8 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess, context }: LoginMo
             ? `Please log in to access the ${context.serviceName} dashboard`
             : context.marketplace === "solution-specs"
             ? "Log in to complete your request."
+            : context.marketplace === "solution-build"
+            ? "Your request has been saved. Log in to track it in your workspace."
             : context.action === "access-platform"
             ? "Log in to access internal platform workspace."
             : context.action === "bookmark"

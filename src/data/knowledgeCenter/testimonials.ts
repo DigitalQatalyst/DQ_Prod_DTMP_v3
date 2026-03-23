@@ -1,9 +1,9 @@
-import { dtmpDepartments } from "../departments";
-
 export interface Testimonial {
   id: string;
   organization: string;
   industry: string;
+  department: string;
+  sectorTag: string;
   title: string;
   quote: string;
   speaker: {
@@ -21,388 +21,170 @@ export interface Testimonial {
 export const testimonials: Testimonial[] = [
   {
     id: "testimonial-001",
-    organization: "GlobalBank Corporation",
-    industry: "Financial Services",
-    title: "40% Improvement in Digital Maturity in 12 Months",
-    quote: "The DBP framework transformed how we approach digital initiatives. Moving from siloed projects to a unified platform mindset delivered measurable results across 8 capability domains.",
-    speaker: {
-      name: "Maria Chen",
-      role: "Chief Digital Officer"
-    },
-    outcomes: [
-      "40% maturity increase",
-      "$12M cost savings",
-      "95% user adoption"
-    ],
-    phase: "Drive",
+    organization: "Abu Dhabi Distribution Company (ADDC)",
+    industry: "Electricity Utility",
+    department: "Operations",
+    sectorTag: "Electricity Utility",
+    title: "Smart Grid Deployment Reduced Outage Duration by 52%",
+    quote: "Deploying an enterprise architecture-governed smart grid programme reduced our average outage duration by 52% and improved fault detection response time significantly.",
+    speaker: { name: "Aisha Al Mansoori", role: "Chief Operations Officer" },
+    outcomes: ["52% reduction in outage duration", "Real-time fault detection", "EA-governed delivery"],
+    phase: "Deploy",
     verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Cost Reduction", "Efficiency Gain"],
-    date: "January 2024"
+    organizationType: "Utility Enterprise",
+    outcomeType: ["Reliability", "Efficiency"],
+    date: "Q3 2024",
   },
   {
     id: "testimonial-002",
-    organization: "MediCare Health Systems",
-    industry: "Healthcare",
-    title: "Unified 15 Applications into Cohesive DBP",
-    quote: "We consolidated 15 fragmented applications into a unified digital platform, reducing operational costs by 35% while improving patient and clinician experiences.",
-    speaker: {
-      name: "Dr. James Patterson",
-      role: "VP of Digital Health"
-    },
-    outcomes: [
-      "35% cost reduction",
-      "15 apps consolidated",
-      "Improved experiences"
-    ],
-    phase: "Deploy",
+    organization: "Saudi Electricity Company (SEC)",
+    industry: "Electricity Utility",
+    department: "Digital Transformation",
+    sectorTag: "Electricity Utility",
+    title: "EA 4.0 Practice Enabled Organisation-wide Digital Alignment",
+    quote: "Adopting an EA 4.0 governance model gave us the framework to align 14 business units to a single digital transformation roadmap for the first time.",
+    speaker: { name: "Mohammed Al Qahtani", role: "Chief Digital Officer" },
+    outcomes: ["14 business units aligned", "Single transformation roadmap", "40% faster delivery"],
+    phase: "Drive",
     verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Cost Reduction", "Customer Experience"],
-    date: "December 2023"
+    organizationType: "Utility Enterprise",
+    outcomeType: ["Alignment", "Delivery"],
+    date: "Q2 2024",
   },
   {
     id: "testimonial-003",
-    organization: "ShopSmart Retail",
-    industry: "Retail",
-    title: "Seamless Omnichannel Experience Across 12 Channels",
-    quote: "The 4D model guided us from fragmented touchpoints to a truly unified omnichannel experience. Customer satisfaction scores increased 28% within 6 months.",
-    speaker: {
-      name: "Lisa Wong",
-      role: "Head of Digital Experience"
-    },
-    outcomes: [
-      "28% CSAT increase",
-      "12 channels unified",
-      "Revenue growth"
-    ],
+    organization: "Dubai Municipality",
+    industry: "Government Authority",
+    department: "Technology",
+    sectorTag: "Government Authority",
+    title: "Digital Services Platform Achieved 94% Citizen Satisfaction",
+    quote: "Implementing a DBP-aligned digital experience platform unified our citizen services across 23 touchpoints and drove a 94% satisfaction rating within 12 months.",
+    speaker: { name: "Fatima Al Rashidi", role: "VP Digital Services" },
+    outcomes: ["94% citizen satisfaction", "23 touchpoints unified", "12-month delivery"],
     phase: "Deploy",
     verified: true,
-    organizationType: "Mid-Market (1k-10k)",
-    outcomeType: ["Customer Experience", "Revenue Growth"],
-    date: "February 2024"
+    organizationType: "Public Sector",
+    outcomeType: ["Customer Experience", "Delivery"],
+    date: "Q1 2024",
   },
   {
     id: "testimonial-004",
-    organization: "IndustryCo Manufacturing",
-    industry: "Manufacturing",
-    title: "50% Efficiency Gain Through Digital Twin Implementation",
-    quote: "Implementing end-to-end digital operations with the DBP framework delivered a 50% improvement in operational efficiency and dramatically reduced downtime.",
-    speaker: {
-      name: "Robert Kim",
-      role: "COO"
-    },
-    outcomes: [
-      "50% efficiency gain",
-      "Digital twin deployed",
-      "Reduced downtime"
-    ],
+    organization: "Kahramaa",
+    industry: "Water & Electricity Utility",
+    department: "Operations",
+    sectorTag: "Water & Electricity Utility",
+    title: "IT/OT Convergence Architecture Reduced Security Incidents by 67%",
+    quote: "Implementing a zero trust IT/OT convergence architecture eliminated our OT security blind spots and reduced security incidents by 67% in the first year.",
+    speaker: { name: "Khalid Al Muhannadi", role: "Chief Information Security Officer" },
+    outcomes: ["67% fewer security incidents", "Zero trust OT architecture", "IEC 62443 compliant"],
     phase: "Drive",
     verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Efficiency Gain"],
-    date: "November 2023"
+    organizationType: "Utility Enterprise",
+    outcomeType: ["Security", "Risk Mitigation"],
+    date: "Q4 2023",
   },
   {
     id: "testimonial-005",
-    organization: "Metro City Government",
-    industry: "Public Sector",
-    title: "Transformed Citizen Services with Integrated Platform",
-    quote: "Our digital transformation improved citizen satisfaction by 42% and reduced service delivery times by 60% through platform integration.",
-    speaker: {
-      name: "Amanda Foster",
-      role: "Chief Technology Officer"
-    },
-    outcomes: [
-      "42% satisfaction increase",
-      "60% faster delivery",
-      "Platform integration"
-    ],
-    phase: "Deploy",
+    organization: "Abu Dhabi Water & Electricity Authority (ADWEA)",
+    industry: "Water & Electricity Utility",
+    department: "Strategy",
+    sectorTag: "Water & Electricity Utility",
+    title: "Portfolio Governance Framework Aligned AED 2.4B Technology Investment",
+    quote: "Establishing an EA-governed portfolio management framework gave us a clearer investment picture, accelerated executive decisions, and tightened architecture compliance across the portfolio.",
+    speaker: { name: "Omar Al Nuaimi", role: "Executive Director - Strategy" },
+    outcomes: ["AED 2.4B aligned", "Faster executive decisions", "Improved compliance"],
+    phase: "Drive",
     verified: true,
-    organizationType: "Public Sector",
-    outcomeType: ["Customer Experience", "Efficiency Gain"],
-    date: "January 2024"
+    organizationType: "Utility Enterprise",
+    outcomeType: ["Governance", "Investment"],
+    date: "Q4 2024",
   },
   {
     id: "testimonial-006",
-    organization: "TechStart Solutions",
-    industry: "Technology",
-    title: "From Startup to Scalable Platform in 18 Months",
-    quote: "The capability-based planning approach helped us build a scalable platform from day one. We grew 300% without technical debt.",
-    speaker: {
-      name: "David Park",
-      role: "CTO & Co-Founder"
-    },
-    outcomes: [
-      "300% growth",
-      "Zero technical debt",
-      "Scalable architecture"
-    ],
+    organization: "Dubai Airports",
+    industry: "Government Authority",
+    department: "Customer Experience",
+    sectorTag: "Smart City",
+    title: "Unified Digital Experience Architecture Improved Service Adoption",
+    quote: "Reframing our service channels around a unified architecture model improved digital uptake materially and gave delivery teams a shared reference point for design decisions.",
+    speaker: { name: "Rana Al Suwaidi", role: "Director of Digital Experience" },
+    outcomes: ["Higher digital adoption", "Shared architecture baseline", "Better service consistency"],
     phase: "Design",
     verified: true,
-    organizationType: "SMB (<1k employees)",
-    outcomeType: ["Revenue Growth"],
-    date: "October 2023"
+    organizationType: "Public Sector",
+    outcomeType: ["Customer Experience", "Architecture"],
+    date: "Q2 2024",
   },
   {
     id: "testimonial-007",
-    organization: "UniversityTech Education",
-    industry: "Education",
-    title: "Digital Learning Platform Serving 50,000 Students",
-    quote: "We built a comprehensive digital learning platform that seamlessly supports 50,000 students across hybrid learning models.",
-    speaker: {
-      name: "Dr. Sarah Mitchell",
-      role: "VP of Academic Technology"
-    },
-    outcomes: [
-      "50k students served",
-      "Hybrid learning enabled",
-      "96% uptime"
-    ],
-    phase: "Drive",
+    organization: "Moro Hub",
+    industry: "Technology & Cloud",
+    department: "Cloud Platform",
+    sectorTag: "Government Authority",
+    title: "Cloud Governance Model Reduced Platform Sprawl",
+    quote: "A tighter governance model around cloud patterns and data residency reduced unnecessary platform variation and made architectural reviews more decisive.",
+    speaker: { name: "Salem Al Marri", role: "Cloud Governance Lead" },
+    outcomes: ["Reduced platform sprawl", "Stronger review quality", "Clearer cloud standards"],
+    phase: "Design",
     verified: true,
-    organizationType: "Mid-Market (1k-10k)",
-    outcomeType: ["Customer Experience"],
-    date: "September 2023"
+    organizationType: "Technology Provider",
+    outcomeType: ["Governance", "Cloud"],
+    date: "Q3 2024",
   },
   {
     id: "testimonial-008",
-    organization: "EnergyFlow Utilities",
-    industry: "Energy & Utilities",
-    title: "Smart Grid Integration Reduced Outages by 45%",
-    quote: "Digital platform integration enabled predictive maintenance and reduced power outages by 45%, significantly improving customer satisfaction.",
-    speaker: {
-      name: "Michael Torres",
-      role: "Chief Operating Officer"
-    },
-    outcomes: [
-      "45% fewer outages",
-      "Predictive maintenance",
-      "Customer satisfaction"
-    ],
-    phase: "Drive",
+    organization: "Sharjah Electricity, Water and Gas Authority",
+    industry: "Water & Electricity Utility",
+    department: "Operations",
+    sectorTag: "Water & Electricity Utility",
+    title: "Operational Data Architecture Improved Grid Visibility",
+    quote: "Our data architecture programme gave operations teams better visibility across field assets and made incident triage significantly more consistent.",
+    speaker: { name: "Hamad Al Suwaidi", role: "Director of Operations Technology" },
+    outcomes: ["Better grid visibility", "Improved incident triage", "Data architecture alignment"],
+    phase: "Deploy",
     verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Customer Experience", "Efficiency Gain"],
-    date: "December 2023"
+    organizationType: "Utility Enterprise",
+    outcomeType: ["Data", "Operations"],
+    date: "Q1 2025",
   },
   {
     id: "testimonial-009",
-    organization: "SecureBank Financial",
-    industry: "Financial Services",
-    title: "Zero-Trust Security Across Enterprise Platform",
-    quote: "Implementing zero-trust architecture across our DBP reduced security incidents by 78% while enabling faster feature delivery.",
-    speaker: {
-      name: "Jennifer Lee",
-      role: "CISO"
-    },
-    outcomes: [
-      "78% fewer incidents",
-      "Zero-trust implemented",
-      "Faster delivery"
-    ],
-    phase: "Deploy",
+    organization: "Dubai Silicon Oasis Authority",
+    industry: "Government Authority",
+    department: "Innovation",
+    sectorTag: "Smart City",
+    title: "AI Governance Controls Accelerated Responsible Innovation",
+    quote: "By formalising AI governance early, we enabled faster experimentation with clearer guardrails, better auditability, and stronger executive confidence.",
+    speaker: { name: "Mariam Al Falasi", role: "Chief Innovation Officer" },
+    outcomes: ["Faster experimentation", "Better auditability", "Higher executive confidence"],
+    phase: "Design",
     verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Risk Mitigation"],
-    date: "February 2024"
+    organizationType: "Public Sector",
+    outcomeType: ["AI", "Governance"],
+    date: "Q4 2024",
   },
   {
     id: "testimonial-010",
-    organization: "HealthPlus Insurance",
-    industry: "Healthcare",
-    title: "API-First Platform Enabled Partner Ecosystem",
-    quote: "Our API-first platform strategy enabled integration with 50+ healthcare partners, creating new revenue streams worth $25M annually.",
-    speaker: {
-      name: "Thomas Anderson",
-      role: "Chief Innovation Officer"
-    },
-    outcomes: [
-      "$25M new revenue",
-      "50+ partners integrated",
-      "API-first success"
-    ],
-    phase: "Deploy",
-    verified: true,
-    organizationType: "Mid-Market (1k-10k)",
-    outcomeType: ["Revenue Growth"],
-    date: "November 2023"
-  },
-  {
-    id: "testimonial-011",
-    organization: "LogiChain Corp",
-    industry: "Manufacturing",
-    title: "Real-Time Supply Chain Visibility Platform",
-    quote: "End-to-end supply chain visibility reduced delays by 52% and improved inventory accuracy to 99.2%.",
-    speaker: {
-      name: "Patricia Garcia",
-      role: "VP of Operations"
-    },
-    outcomes: [
-      "52% fewer delays",
-      "99.2% inventory accuracy",
-      "Real-time visibility"
-    ],
+    organization: "Abu Dhabi Department of Energy",
+    industry: "Government Authority",
+    department: "Strategy",
+    sectorTag: "Government Authority",
+    title: "Executive Architecture Reporting Improved Board-Level Oversight",
+    quote: "Bringing architecture maturity, investment alignment, and delivery risk into one executive reporting cadence changed the quality of governance conversations.",
+    speaker: { name: "Yousef Al Hammadi", role: "Director of Strategy and Governance" },
+    outcomes: ["Improved board oversight", "Clearer risk visibility", "Better portfolio decisions"],
     phase: "Drive",
-    verified: true,
-    organizationType: "Mid-Market (1k-10k)",
-    outcomeType: ["Efficiency Gain"],
-    date: "January 2024"
-  },
-  {
-    id: "testimonial-012",
-    organization: "CitiServe Municipal",
-    industry: "Public Sector",
-    title: "Mobile-First Citizen Engagement Platform",
-    quote: "Our mobile-first platform increased citizen engagement by 65% and reduced call center volume by 40%.",
-    speaker: {
-      name: "Kevin White",
-      role: "Director of Digital Services"
-    },
-    outcomes: [
-      "65% more engagement",
-      "40% fewer calls",
-      "Mobile-first success"
-    ],
-    phase: "Deploy",
     verified: true,
     organizationType: "Public Sector",
-    outcomeType: ["Customer Experience", "Cost Reduction"],
-    date: "October 2023"
+    outcomeType: ["Governance", "Reporting"],
+    date: "Q1 2025",
   },
-  {
-    id: "testimonial-013",
-    organization: "RetailMax Group",
-    industry: "Retail",
-    title: "Personalization Engine Boosted Conversion 33%",
-    quote: "AI-powered personalization across our digital platform increased conversion rates by 33% and average order value by 24%.",
-    speaker: {
-      name: "Linda Martinez",
-      role: "Chief Marketing Officer"
-    },
-    outcomes: [
-      "33% conversion increase",
-      "24% higher AOV",
-      "AI personalization"
-    ],
-    phase: "Drive",
-    verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Revenue Growth"],
-    date: "December 2023"
-  },
-  {
-    id: "testimonial-014",
-    organization: "FinTech Innovations",
-    industry: "Financial Services",
-    title: "Cloud-Native Platform Reduced Time-to-Market 70%",
-    quote: "Migration to cloud-native architecture reduced feature delivery time by 70% while improving system reliability.",
-    speaker: {
-      name: "Christopher Lee",
-      role: "Head of Engineering"
-    },
-    outcomes: [
-      "70% faster delivery",
-      "Cloud-native migration",
-      "Improved reliability"
-    ],
-    phase: "Deploy",
-    verified: true,
-    organizationType: "SMB (<1k employees)",
-    outcomeType: ["Efficiency Gain"],
-    date: "November 2023"
-  },
-  {
-    id: "testimonial-015",
-    organization: "WellCare Hospitals",
-    industry: "Healthcare",
-    title: "Patient Portal Improved Satisfaction by 48%",
-    quote: "Our integrated patient portal improved satisfaction scores by 48% and reduced administrative overhead by $3.5M annually.",
-    speaker: {
-      name: "Dr. Angela Rodriguez",
-      role: "Chief Medical Information Officer"
-    },
-    outcomes: [
-      "48% satisfaction boost",
-      "$3.5M savings",
-      "Portal integration"
-    ],
-    phase: "Drive",
-    verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Customer Experience", "Cost Reduction"],
-    date: "January 2024"
-  },
-  {
-    id: "testimonial-016",
-    organization: "AeroLink Logistics",
-    industry: "Manufacturing",
-    title: "Control Tower Platform Reduced Exception Handling by 41%",
-    quote: "By integrating planning, execution, and incident workflows on one platform, we reduced exception resolution times dramatically.",
-    speaker: {
-      name: "Naomi Reid",
-      role: "Director of Supply Chain Technology"
-    },
-    outcomes: [
-      "41% fewer unresolved exceptions",
-      "Faster coordination",
-      "Improved fulfillment confidence"
-    ],
-    phase: "Drive",
-    verified: true,
-    organizationType: "Mid-Market (1k-10k)",
-    outcomeType: ["Efficiency Gain", "Customer Experience"],
-    date: "March 2024"
-  },
-  {
-    id: "testimonial-017",
-    organization: "CivicOne Services",
-    industry: "Public Sector",
-    title: "Digital Intake Workflow Cut Case Processing Time by 55%",
-    quote: "Workflow standardization and automation gave our teams consistent service delivery and better transparency for residents.",
-    speaker: {
-      name: "Helen Brooks",
-      role: "Head of Service Transformation"
-    },
-    outcomes: [
-      "55% faster processing",
-      "Service consistency improved",
-      "Lower rework rates"
-    ],
-    phase: "Deploy",
-    verified: true,
-    organizationType: "Public Sector",
-    outcomeType: ["Efficiency Gain", "Cost Reduction"],
-    date: "February 2024"
-  },
-  {
-    id: "testimonial-018",
-    organization: "Northstar Insurance",
-    industry: "Financial Services",
-    title: "Platform Modernization Lifted Digital Sales Conversion by 22%",
-    quote: "Unified journeys and API-driven underwriting allowed us to launch product changes faster and increase conversion rates.",
-    speaker: {
-      name: "Ibrahim Malik",
-      role: "VP, Digital Distribution"
-    },
-    outcomes: [
-      "22% conversion increase",
-      "Faster product launches",
-      "Improved advisor productivity"
-    ],
-    phase: "Drive",
-    verified: true,
-    organizationType: "Enterprise (10k+ employees)",
-    outcomeType: ["Revenue Growth", "Efficiency Gain"],
-    date: "March 2024"
-  }
 ];
 
 export const testimonialsFilters = {
-  organizationType: ["Enterprise (10k+ employees)", "Mid-Market (1k-10k)", "SMB (<1k employees)", "Public Sector", "Non-Profit"],
-  department: [...dtmpDepartments],
-  transformationPhase: ["Discern", "Design", "Deploy", "Drive", "All Phases"],
-  outcomeType: ["Cost Reduction", "Revenue Growth", "Efficiency Gain", "Customer Experience", "Employee Experience", "Risk Mitigation"],
-  datePublished: ["Last month", "Last 3 months", "Last 6 months", "Last year", "All time"]
+  organizationType: ["Utility Enterprise", "Public Sector", "Technology Provider"],
+  department: ["Operations", "Digital Transformation", "Technology", "Strategy", "Customer Experience", "Cloud Platform", "Innovation"],
+  transformationPhase: ["All Phases", "Discern", "Design", "Deploy", "Drive"],
+  outcomeType: ["Reliability", "Efficiency", "Customer Experience", "Security", "Governance", "Investment", "AI", "Cloud", "Data", "Reporting"],
+  datePublished: ["Last month", "Last 3 months", "Last 6 months", "Last year", "All time"],
 };

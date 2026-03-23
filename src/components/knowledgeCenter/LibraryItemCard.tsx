@@ -2,10 +2,24 @@ import {
   FileText, BookOpen, Video, Image, Code, BarChart3, Presentation, Shield, 
   User, Clock, Calendar, Download 
 } from "lucide-react";
-import { LibraryItem } from "@/data/knowledgeCenter/library";
 
 interface LibraryItemCardProps {
-  item: LibraryItem;
+  item: {
+    id: string;
+    title: string;
+    description: string;
+    contentType: string;
+    format: string;
+    typeIcon: string;
+    author: string;
+    length: string;
+    datePublished: string;
+    topics: string[];
+    audience: string;
+    statusBadge?: string;
+    version?: string;
+    subType?: string;
+  };
   onClick: () => void;
   showAccessIcon?: boolean;
   showAccessLabel?: boolean;
@@ -37,14 +51,39 @@ export function LibraryItemCard({
     >
       <div className="flex items-center justify-between mb-4">
         <TypeIcon className="w-10 h-10 text-blue-600" />
-        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
-          {item.format}
-        </span>
+        <div className="flex items-center gap-2">
+          {item.version && (
+            <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-medium">
+              {item.version}
+            </span>
+          )}
+          <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
+            {item.format}
+          </span>
+        </div>
       </div>
 
-      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-semibold inline-block mb-2">
-        {item.contentType}
-      </span>
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-semibold inline-block">
+          {item.contentType}
+        </span>
+        {item.subType && (
+          <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-semibold">
+            {item.subType}
+          </span>
+        )}
+        {item.statusBadge && (
+          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+            item.statusBadge === "Approved"
+              ? "bg-green-100 text-green-700"
+              : item.statusBadge === "Draft"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-red-100 text-red-700"
+          }`}>
+            {item.statusBadge}
+          </span>
+        )}
+      </div>
 
       <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
         {item.title}

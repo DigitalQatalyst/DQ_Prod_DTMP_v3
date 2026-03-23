@@ -23,8 +23,8 @@ import {
   toggleSavedKnowledgeItem,
 } from "@/data/knowledgeCenter/userKnowledgeState";
 
-const TEST_TAB = "library" as const;
-const TEST_SOURCE_ID = "api-first-patterns";
+const TEST_TAB = "best-practices" as const;
+const TEST_SOURCE_ID = "api-first-integration-architecture";
 const TEST_ITEM_ID = `${TEST_TAB}:${TEST_SOURCE_ID}`;
 
 describe("Knowledge Center state modules", () => {

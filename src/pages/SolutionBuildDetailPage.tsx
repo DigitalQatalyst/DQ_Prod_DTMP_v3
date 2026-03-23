@@ -2,73 +2,93 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ChevronRight,
-  ArrowLeft,
-  Code,
-  Wrench,
-  Zap,
-  Calendar,
-  User,
-  ExternalLink,
+  Clock,
+  BarChart3,
+  Rocket,
+  Link2,
+  CheckCircle2,
   FileX,
-  Cpu,
+  AlertCircle,
+  Users,
+  Calendar,
 } from "lucide-react";
-import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
-import { SolutionType } from "@/data/blueprints/solutionSpecs";
+import { solutionBuilds, STREAM_COLORS, DEWA_DIVISIONS } from "@/data/blueprints/solutionBuilds";
+import type { DewaDivision } from "@/data/blueprints/solutionBuilds";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LoginModal } from "@/components/learningCenter/LoginModal";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { createBuildRequest } from "@/data/solutionBuildWorkspace";
+import type { BuildRequestDraft, BuildRequestPriority, BuildTimeline } from "@/data/solutionBuildWorkspace";
+import { isUserAuthenticated } from "@/data/sessionAuth";
+import { LoginModal } from "@/components/learningCenter/LoginModal";
 
-const SOLUTION_TYPE_COLORS: Record<SolutionType, { bg: string; text: string; border: string }> = {
-  DBP: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
-  DXP: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
-  DWS: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200" },
-  DIA: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
-  SDO: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
-};
-
-const COMPLEXITY_LABELS: Record<string, string> = {
-  basic: "Basic",
-  intermediate: "Intermediate",
-  advanced: "Advanced",
-};
-
-const AUTOMATION_LABELS: Record<string, string> = {
-  manual: "Manual",
-  "semi-automated": "Semi-Automated",
-  "fully-automated": "Fully Automated",
+const COMPLEXITY_COLORS = {
+  Low: "bg-green-100 text-green-700",
+  Medium: "bg-amber-100 text-amber-700",
+  High: "bg-red-100 text-red-700",
 };
 
 export function SolutionBuildDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showLogin, setShowLogin] = useState(false);
 
-  // Find the solution build
-  const build = solutionBuilds.find((b) => b.id === id);
+  const build = solutionBuilds.find(b => b.id === id);
 
-  // Handle 404 state
+  // Request form state
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const [form, setForm] = useState<{
+    dewaDivision: DewaDivision;
+    programme: string;
+    customisationSelections: string[];
+    businessNeed: string;
+    currentState: string;
+    keyRequirements: string;
+    timelinePreference: BuildTimeline;
+    plannedStartDate: string;
+    priority: BuildRequestPriority;
+    additionalRequirements: string;
+  }>({
+    dewaDivision: DEWA_DIVISIONS[0],
+    programme: build?.programme ?? "",
+    customisationSelections: [],
+    businessNeed: "",
+    currentState: "",
+    keyRequirements: "",
+    timelinePreference: "Standard",
+    plannedStartDate: "",
+    priority: "High",
+    additionalRequirements: "",
+  });
+
+  // 404 state
   if (!build) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="flex-1 flex items-center justify-center py-16" id="main-content">
+        <main className="flex-1 flex items-center justify-center py-16">
           <div className="text-center max-w-md mx-auto px-4">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <FileX className="w-10 h-10 text-gray-400" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
-              Solution Build Not Found
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">Solution Build Not Found</h1>
             <p className="text-gray-600 mb-8">
               The solution build you are looking for does not exist or may have been moved.
             </p>
-            <Button
-              onClick={() => navigate("/marketplaces/solution-build")}
-              className="inline-flex items-center gap-2"
-            >
-              <ArrowLeft size={18} />
+            <Button onClick={() => navigate("/marketplaces/solution-build")}>
+              <ArrowLeft size={18} className="mr-2" />
               Back to Solution Build
             </Button>
           </div>
@@ -78,279 +98,598 @@ export function SolutionBuildDetailPage() {
     );
   }
 
-  const colors = SOLUTION_TYPE_COLORS[build.solutionType];
-
-  // Find related builds (same solution type, excluding current)
+  const colors = STREAM_COLORS[build.solutionType] ?? STREAM_COLORS["DBP"];
   const relatedBuilds = solutionBuilds
-    .filter((b) => b.solutionType === build.solutionType && b.id !== build.id)
+    .filter(b => b.solutionType === build.solutionType && b.id !== build.id)
     .slice(0, 3);
 
-  const handleBackClick = () => {
-    navigate("/marketplaces/solution-build");
+  const toggleCustomisation = (optionId: string) => {
+    setForm(f => ({
+      ...f,
+      customisationSelections: f.customisationSelections.includes(optionId)
+        ? f.customisationSelections.filter(id => id !== optionId)
+        : [...f.customisationSelections, optionId],
+    }));
   };
 
-  const handleRequestResource = () => {
-    setShowLogin(true);
-  };
-
-  const loginContext = {
-    marketplace: "solution-build",
-    tab: "builds",
-    cardId: build?.id || "",
-    serviceName: build?.title || "",
-    action: "request",
+  const handleSubmit = () => {
+    if (!form.businessNeed.trim()) return;
+    setSubmitting(true);
+    try {
+      const draft: BuildRequestDraft = {
+        dewaDivision: form.dewaDivision,
+        programme: form.programme,
+        customisationSelections: form.customisationSelections,
+        businessNeed: form.businessNeed,
+        currentState: form.currentState,
+        keyRequirements: form.keyRequirements,
+        timelinePreference: form.timelinePreference,
+        plannedStartDate: form.plannedStartDate || undefined,
+        priority: form.priority,
+        additionalRequirements: form.additionalRequirements,
+        fromSpecId: build.fromSpecId,
+        fromSpecTitle: build.fromSpecTitle,
+      };
+      // Always save the request first (localStorage persists regardless of auth state)
+      createBuildRequest(build.id, draft);
+      setShowRequestDialog(false);
+      if (isUserAuthenticated()) {
+        // Already logged in — go straight to My Requests
+        navigate("/stage2/solution-build/my-requests");
+      } else {
+        // Not logged in — pop the login modal; on success navigate to My Requests
+        setShowLoginModal(true);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8" id="main-content">
-        {/* Breadcrumb Navigation */}
-        <nav
-          aria-label="Breadcrumb"
-          className="flex items-center gap-2 text-sm text-gray-600 mb-6 flex-wrap"
-        >
-          <Link to="/" className="hover:text-[hsl(var(--orange))] transition-colors">
-            Home
-          </Link>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-gray-600 mb-6 flex-wrap" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-[hsl(var(--orange))] transition-colors">Home</Link>
           <ChevronRight size={16} aria-hidden="true" />
-          <Link
-            to="/marketplaces/solution-build"
-            className="hover:text-[hsl(var(--orange))] transition-colors"
-          >
+          <Link to="/marketplaces/solution-build" className="hover:text-[hsl(var(--orange))] transition-colors">
             Solution Build
           </Link>
           <ChevronRight size={16} aria-hidden="true" />
-          <span className="text-gray-900 font-medium" aria-current="page">
-            {build.title}
-          </span>
+          <span className="text-gray-900 font-medium truncate max-w-[300px]" aria-current="page">{build.title}</span>
         </nav>
 
-        {/* Back Button */}
-        <button
-          onClick={handleBackClick}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-[hsl(var(--orange))] transition-colors mb-6 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--orange))] focus:ring-offset-2 rounded px-2 py-1"
-        >
-          <ArrowLeft size={16} />
-          Back to Solution Build
-        </button>
-
-        {/* Build Header */}
+        {/* Hero — full width */}
         <div className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
-          {/* Solution Type Badge */}
-          <div className="flex items-center gap-3 mb-4">
-            <Badge
-              className={`${colors.bg} ${colors.text} ${colors.border} border font-semibold`}
-              variant="outline"
-            >
+          {/* Thin stream accent line */}
+          <div className={`w-12 h-1 rounded-full ${colors.headerBg} mb-5`} />
+
+          {/* Badge row */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Badge className={`${colors.bg} ${colors.text} ${colors.border} border font-semibold`} variant="outline">
               {build.solutionType}
             </Badge>
-            <Code className="w-5 h-5 text-gray-400" aria-hidden="true" />
+            <Badge variant="outline" className="text-gray-600">DEPLOY</Badge>
+            <Badge className={`${COMPLEXITY_COLORS[build.complexity]} text-xs font-semibold`} variant="outline">
+              {build.complexity} Complexity
+            </Badge>
           </div>
 
-          {/* Title */}
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3 leading-tight">
             {build.title}
           </h1>
-
-          {/* Description */}
-          <p className="text-gray-600 text-lg leading-relaxed mb-6">
-            {build.description}
+          <p className="text-gray-600 text-base lg:text-lg leading-relaxed mb-6">
+            {build.fullDescription}
           </p>
 
-          {/* Key Metadata Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6 pb-6 border-b border-gray-200">
-            {/* Build Complexity */}
+          {/* 5-column metadata strip */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pb-6 border-b border-gray-100">
             <div>
-              <dt className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase mb-2">
-                <Cpu className="w-4 h-4" />
-                Complexity
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Clock className="w-3 h-3" />Timeline
               </dt>
-              <dd className="text-sm text-gray-900 font-medium">
-                {COMPLEXITY_LABELS[build.buildComplexity]}
-              </dd>
+              <dd className="text-sm font-medium text-gray-900">{build.timeline}</dd>
             </div>
-
-            {/* Automation Level */}
             <div>
-              <dt className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase mb-2">
-                <Zap className="w-4 h-4" />
-                Automation
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <BarChart3 className="w-3 h-3" />Complexity
               </dt>
-              <dd className="text-sm text-gray-900 font-medium">
-                {AUTOMATION_LABELS[build.automationLevel]}
-              </dd>
+              <dd className="text-sm font-medium text-gray-900">{build.complexity}</dd>
             </div>
-
-            {/* Code Samples */}
             <div>
-              <dt className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase mb-2">
-                <Wrench className="w-4 h-4" />
-                Code Samples
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Rocket className="w-3 h-3" />Deployments
               </dt>
-              <dd className="text-sm text-gray-900 font-medium">
-                {build.codeSamples ? "Available" : "Not Available"}
-              </dd>
+              <dd className="text-sm font-medium text-gray-900">{build.deploymentCount}</dd>
             </div>
-
-            {/* Last Updated */}
             <div>
-              <dt className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase mb-2">
-                <Calendar className="w-4 h-4" />
-                Updated
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Users className="w-3 h-3" />Programme
               </dt>
-              <dd className="text-sm text-gray-900 font-medium">
-                {new Date(build.lastUpdated).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
+              <dd className="text-sm font-medium text-gray-900 line-clamp-2">{build.programme}</dd>
+            </div>
+            <div>
+              <dt className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase mb-1">
+                <Calendar className="w-3 h-3" />Updated
+              </dt>
+              <dd className="text-sm font-medium text-gray-900">
+                {new Date(build.lastUpdated).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" })}
               </dd>
             </div>
           </div>
-
-          {/* Author */}
-          <div className="mb-6">
-            <dt className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase mb-2">
-              <User className="w-4 h-4" />
-              Author
-            </dt>
-            <dd className="text-sm text-gray-900 font-medium">{build.author}</dd>
-          </div>
-
-          {/* Technology Stack */}
-          {build.technologyStack.length > 0 && (
-            <div className="mb-6">
-              <dt className="text-xs font-semibold text-gray-500 uppercase mb-3">
-                Technology Stack
-              </dt>
-              <dd className="flex flex-wrap gap-2">
-                {build.technologyStack.map((tech) => (
-                  <span
-                    key={tech}
-                    className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </dd>
-            </div>
-          )}
 
           {/* Tags */}
-          {build.tags.length > 0 && (
-            <div>
-              <dt className="text-xs font-semibold text-gray-500 uppercase mb-3">Tags</dt>
-              <dd className="flex flex-wrap gap-2">
-                {build.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-secondary text-secondary-foreground px-3 py-1 rounded-lg text-xs font-medium"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </dd>
-            </div>
-          )}
-
-          {/* Request Resource Button */}
-          {build.repositoryUrl && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <Button
-                onClick={handleRequestResource}
-                className="inline-flex items-center gap-2 bg-[hsl(var(--orange))] hover:bg-[hsl(var(--orange))]/90 text-white"
-              >
-                <ExternalLink size={18} />
-                Request Resource
-              </Button>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 pt-4">
+            {build.tags.map(tag => (
+              <span key={tag} className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-medium">
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {/* Code Samples Section */}
-        {build.codeSamples && (
-          <section className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Code className="w-6 h-6" />
-              Code Samples & Resources
-            </h2>
-            <p className="text-gray-600 mb-4">
-              This solution build includes comprehensive code samples, configuration files,
-              and implementation resources to help you get started quickly.
-            </p>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-700">
-                Access the complete code repository and documentation using the "View
-                Repository" button above.
-              </p>
-            </div>
-          </section>
-        )}
+        {/* Two-column: tabs | sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_384px] gap-8">
 
-        {/* Related Builds Section */}
-        {relatedBuilds.length > 0 && (
-          <section className="bg-white border border-gray-200 rounded-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Builds</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedBuilds.map((relatedBuild) => {
-                const relatedColors = SOLUTION_TYPE_COLORS[relatedBuild.solutionType];
-                return (
-                  <article
-                    key={relatedBuild.id}
-                    onClick={() => navigate(`/marketplaces/solution-build/${relatedBuild.id}`)}
-                    className="border border-gray-200 rounded-lg p-6 hover:border-[hsl(var(--orange))] hover:shadow-md transition-all cursor-pointer group"
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        navigate(`/marketplaces/solution-build/${relatedBuild.id}`);
-                      }
-                    }}
-                    aria-label={`View ${relatedBuild.title}`}
-                  >
-                    <Badge
-                      className={`${relatedColors.bg} ${relatedColors.text} ${relatedColors.border} border font-semibold mb-3`}
-                      variant="outline"
+          {/* Left — tabs */}
+          <div>
+            {/* Tabs */}
+            <Tabs defaultValue="overview" className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+              <div className="border-b border-gray-200 px-6 pt-4">
+                <TabsList className="bg-transparent h-auto p-0 gap-0">
+                  {[
+                    { value: "overview", label: "Overview" },
+                    { value: "deliverables", label: "Deliverables" },
+                    { value: "requirements", label: "Requirements" },
+                    { value: "customisation", label: "Customisation" },
+                    { value: "context", label: "DEWA Context" },
+                  ].map(tab => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 data-[state=active]:bg-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                      {relatedBuild.solutionType}
-                    </Badge>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[hsl(var(--orange))] transition-colors">
-                      {relatedBuild.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                      {relatedBuild.description}
-                    </p>
-                    <div className="flex gap-4 text-xs text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Cpu className="w-3 h-3" />
-                        {COMPLEXITY_LABELS[relatedBuild.buildComplexity]}
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              {/* Overview */}
+              <TabsContent value="overview" className="p-6 space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">What's Included</h3>
+                  <ul className="space-y-2">
+                    {build.whatIncluded.map(item => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-gray-700">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Key Deliverables</h3>
+                  <ul className="space-y-2">
+                    {build.keyDeliverables.map(item => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-gray-700">
+                        <Rocket className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Division Relevance</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {build.divisionRelevance.map(div => (
+                      <span key={div} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">
+                        {div}
                       </span>
-                      {relatedBuild.codeSamples && (
-                        <span className="flex items-center gap-1 text-green-600">
-                          <Code className="w-3 h-3" />
-                          Code samples
-                        </span>
-                      )}
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Deliverables */}
+              <TabsContent value="deliverables" className="p-6">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Key Deliverables</h3>
+                <div className="space-y-3">
+                  {build.keyDeliverables.map((item, i) => (
+                    <div key={item} className="flex items-start gap-3 p-4 rounded-lg border border-gray-100 bg-gray-50">
+                      <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        {i + 1}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{item}</p>
+                      </div>
                     </div>
-                  </article>
+                  ))}
+                </div>
+                {build.techSpecs && (
+                  <div className="mt-6">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Tech Specifications</h3>
+                    <div className="rounded-lg bg-gray-50 border border-gray-200 p-4">
+                      <p className="text-sm text-gray-700">{build.techSpecs}</p>
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Requirements */}
+              <TabsContent value="requirements" className="p-6">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Dependencies & Prerequisites</h3>
+                <div className="space-y-2">
+                  {build.dependencies.map(dep => (
+                    <div key={dep} className="flex items-start gap-2 p-3 rounded-lg border border-gray-100">
+                      <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-700">{dep}</span>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Customisation */}
+              <TabsContent value="customisation" className="p-6">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Customisation Options</h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {build.customisationOptions.map(opt => (
+                    <div key={opt.id} className="p-4 rounded-lg border border-gray-200 bg-white hover:border-orange-200 transition-colors">
+                      <p className="text-sm font-semibold text-gray-900 mb-1">{opt.label}</p>
+                      <p className="text-xs text-gray-500">{opt.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* DEWA Context */}
+              <TabsContent value="context" className="p-6 space-y-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Division Relevance</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {build.divisionRelevance.map(div => (
+                      <span key={div} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">
+                        {div}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2 uppercase tracking-wide">Programme</h3>
+                  <p className="text-sm text-gray-700">{build.programme}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2 uppercase tracking-wide">Delivery Team</h3>
+                  <p className="text-sm text-gray-700">{build.deliveryTeam}</p>
+                </div>
+                {build.fromSpecId && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2 uppercase tracking-wide">From Solution Spec</h3>
+                    <button
+                      onClick={() => navigate(`/marketplaces/solution-specs/${build.fromSpecId}`)}
+                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      <Link2 className="w-4 h-4" />
+                      {build.fromSpecTitle}
+                    </button>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+
+          </div>
+
+          {/* Right — sticky sidebar */}
+          <aside className="lg:w-96 flex-shrink-0">
+            <div className="lg:sticky lg:top-24 space-y-5">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
+                <h3 className="text-base font-semibold text-foreground mb-4">Build Details</h3>
+
+                <table className="w-full mb-6">
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><Clock className="h-3.5 w-3.5" />Timeline</span>
+                      </td>
+                      <td className="text-sm font-medium text-foreground py-3">{build.timeline}</td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><BarChart3 className="h-3.5 w-3.5" />Complexity</span>
+                      </td>
+                      <td className="py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${COMPLEXITY_COLORS[build.complexity]}`}>
+                          {build.complexity}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><Rocket className="h-3.5 w-3.5" />Deployments</span>
+                      </td>
+                      <td className="text-sm font-medium text-foreground py-3">{build.deploymentCount}</td>
+                    </tr>
+                    <tr className={build.fromSpecId ? "border-b border-gray-100" : ""}>
+                      <td className="text-sm text-muted-foreground py-3 pr-4">
+                        <span className="flex items-center gap-2"><Users className="h-3.5 w-3.5" />Delivery Team</span>
+                      </td>
+                      <td className="text-sm font-medium text-foreground py-3">{build.deliveryTeam}</td>
+                    </tr>
+                    {build.fromSpecId && (
+                      <tr>
+                        <td className="text-sm text-muted-foreground py-3 pr-4">
+                          <span className="flex items-center gap-2"><Link2 className="h-3.5 w-3.5" />From Spec</span>
+                        </td>
+                        <td className="py-3">
+                          <button
+                            onClick={() => navigate(`/marketplaces/solution-specs/${build.fromSpecId}`)}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium text-left"
+                          >
+                            {build.fromSpecTitle}
+                          </button>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                <div className="border-t border-gray-200 pt-5 mb-6">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Key Deliverables:</h4>
+                  <ul className="space-y-2">
+                    {build.keyDeliverables.map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button
+                  onClick={() => setShowRequestDialog(true)}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 text-base font-semibold transition-all hover:shadow-xl"
+                >
+                  Request Build
+                  <Rocket className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      {/* Related Builds — full-width bottom section, same pattern as Sol Specs */}
+      {relatedBuilds.length > 0 && (
+        <section className="bg-gray-50 py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-2xl font-bold text-foreground mb-8">Related Builds — {build.solutionType} Stream</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedBuilds.map(rel => {
+                const relColors = STREAM_COLORS[rel.solutionType] ?? STREAM_COLORS["DBP"];
+                return (
+                  <button
+                    key={rel.id}
+                    onClick={() => navigate(`/marketplaces/solution-build/${rel.id}`)}
+                    className="bg-white border border-gray-200 rounded-xl p-5 text-left transition-all hover:border-orange-300 hover:shadow-lg hover:-translate-y-0.5 duration-200 w-full"
+                    aria-label={`View ${rel.title}`}
+                  >
+                    <div className={`mb-3 inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${relColors.bg} ${relColors.text} ${relColors.border}`}>
+                      {rel.solutionType}
+                    </div>
+                    <div className="text-base font-bold text-gray-900 mb-2 line-clamp-2">{rel.title}</div>
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">{rel.shortDescription}</p>
+                    <div className="flex gap-3 text-xs text-gray-400">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{rel.timeline}</span>
+                      <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" />{rel.complexity}</span>
+                    </div>
+                  </button>
                 );
               })}
             </div>
-          </section>
-        )}
-      </main>
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={showLogin}
-        onClose={() => setShowLogin(false)}
-        context={loginContext}
-      />
+          </div>
+        </section>
+      )}
 
       <Footer />
+
+      {/* Request Build Dialog */}
+      <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sticky top-0 bg-white pb-3 border-b mb-4">
+            <DialogTitle>Request Build</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1">{build.title}</p>
+          </DialogHeader>
+
+          <div className="space-y-4">
+              {/* Pre-filled read-only fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Solution</label>
+                  <div className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700 truncate">
+                    {build.title}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Stream</label>
+                  <div className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                    {build.solutionType}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">DEWA Division *</label>
+                  <select
+                    value={form.dewaDivision}
+                    onChange={e => setForm(f => ({ ...f, dewaDivision: e.target.value as DewaDivision }))}
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    {DEWA_DIVISIONS.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Programme / Initiative</label>
+                  <Input
+                    placeholder="e.g. Digital DEWA Programme"
+                    value={form.programme}
+                    onChange={e => setForm(f => ({ ...f, programme: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Customisation Options */}
+              {build.customisationOptions.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Customisation Options (select all that apply)
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {build.customisationOptions.map(opt => (
+                      <label
+                        key={opt.id}
+                        className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                          form.customisationSelections.includes(opt.id)
+                            ? "border-orange-300 bg-orange-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.customisationSelections.includes(opt.id)}
+                          onChange={() => toggleCustomisation(opt.id)}
+                          className="mt-0.5 accent-orange-600"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{opt.label}</p>
+                          <p className="text-xs text-gray-500">{opt.description}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Business Need *</label>
+                <Textarea
+                  placeholder="Describe the business problem or opportunity this build will address..."
+                  value={form.businessNeed}
+                  onChange={e => setForm(f => ({ ...f, businessNeed: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Current State</label>
+                <Textarea
+                  placeholder="Describe the current situation, pain points, or gap..."
+                  value={form.currentState}
+                  onChange={e => setForm(f => ({ ...f, currentState: e.target.value }))}
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Key Requirements</label>
+                <Textarea
+                  placeholder="List any specific technical or business requirements..."
+                  value={form.keyRequirements}
+                  onChange={e => setForm(f => ({ ...f, keyRequirements: e.target.value }))}
+                  rows={2}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Timeline Preference</label>
+                  <select
+                    value={form.timelinePreference}
+                    onChange={e => setForm(f => ({ ...f, timelinePreference: e.target.value as BuildTimeline }))}
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="ASAP (expedited)">ASAP (expedited)</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Planned">Planned</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Priority</label>
+                  <select
+                    value={form.priority}
+                    onChange={e => setForm(f => ({ ...f, priority: e.target.value as BuildRequestPriority }))}
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Planned Start Date (optional)</label>
+                <Input
+                  type="date"
+                  value={form.plannedStartDate}
+                  onChange={e => setForm(f => ({ ...f, plannedStartDate: e.target.value }))}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Additional Requirements (optional)</label>
+                <Textarea
+                  placeholder="Any additional context, constraints, or requirements..."
+                  value={form.additionalRequirements}
+                  onChange={e => setForm(f => ({ ...f, additionalRequirements: e.target.value }))}
+                  rows={2}
+                />
+              </div>
+
+              {build.fromSpecId && (
+                <div className="rounded-lg border border-blue-100 bg-blue-50 p-3">
+                  <p className="text-xs text-blue-700">
+                    <span className="font-semibold">Based on Spec: </span>
+                    {build.fromSpecTitle}
+                  </p>
+                </div>
+              )}
+
+              <div className="sticky bottom-0 bg-white pt-3 pb-1 border-t flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowRequestDialog(false)}>Cancel</Button>
+                <Button
+                  className="bg-orange-600 hover:bg-orange-700"
+                  disabled={!form.businessNeed.trim() || submitting}
+                  onClick={handleSubmit}
+                >
+                  {submitting ? "Submitting..." : "Submit Build Request"}
+                </Button>
+              </div>
+            </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Login modal — shown after request is saved, when user isn't authenticated */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        context={{
+          marketplace: "solution-build",
+          tab: "my-requests",
+          cardId: build?.id ?? "",
+          serviceName: build?.title ?? "Solution Build",
+          action: "request-build",
+        }}
+        onLoginSuccess={() => {
+          setShowLoginModal(false);
+          navigate("/stage2/solution-build/my-requests");
+        }}
+      />
     </div>
   );
 }
