@@ -2907,6 +2907,7 @@ export default function Stage2AppPage() {
               savedItems={filteredSavedKnowledgeItems}
               historyItems={filteredKnowledgeHistoryItems}
               formatViewedAt={formatKnowledgeViewedAt}
+              onTabChange={handleKnowledgeTabClick}
               onNotificationClick={handleKnowledgeNotificationClick}
               onAdvanceRequestStatus={handleKnowledgeAdvanceRequestStatus}
               getNextRequestStatus={getNextKnowledgeRequestStatus}
