@@ -1,5 +1,5 @@
 export type TORequestStatus = "Open" | "In Review" | "Resolved";
-export type TORequestType = "clarification" | "outdated-section" | "collaboration";
+export type TORequestType = "clarification" | "outdated-section" | "stale-flag" | "collaboration";
 
 export interface TORequest {
   id: string;

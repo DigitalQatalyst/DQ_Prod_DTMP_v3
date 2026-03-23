@@ -2911,7 +2911,7 @@ export default function Stage2AppPage() {
               onAdvanceRequestStatus={handleKnowledgeAdvanceRequestStatus}
               getNextRequestStatus={getNextKnowledgeRequestStatus}
               onOpenItem={(sourceTab, sourceId) =>
-                navigate(`/stage2/knowledge/${sourceTab}/${sourceId}`)
+                navigate(`/stage2/knowledge/${sourceTab}/${sourceId}?view=artefact`)
               }
               onToggleSave={handleKnowledgeToggleSave}
             />

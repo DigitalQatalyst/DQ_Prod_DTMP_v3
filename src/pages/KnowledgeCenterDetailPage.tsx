@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, useSearchParams, Link } from "react-router-dom";
 import {
   AlertTriangle,
   Bookmark,
@@ -49,6 +49,8 @@ import {
   recordHelpfulVoteMetric,
   recordReadingDepthMetric,
   recordStaleFlagMetric,
+  getUserHelpfulVote,
+  persistUserHelpfulVote,
 } from "@/data/knowledgeCenter/analyticsState";
 import {
   addTORequest,
@@ -294,6 +296,7 @@ export default function KnowledgeCenterDetailPage() {
   const { tab, cardId } = useParams<{ tab: string; cardId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const isStage2 = location.pathname.startsWith("/stage2/");
   const [contentTab, setContentTab] = useState<DetailTab>("about");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -305,11 +308,16 @@ export default function KnowledgeCenterDetailPage() {
   const [readingDepth, setReadingDepth] = useState(0);
   const lastReportedDepth = useRef(0);
 
-  // ── Helpful voting ────────────────────────────────────────────────────────
-  const [helpfulVote, setHelpfulVote] = useState<"yes" | "no" | null>(null);
+  // ── Helpful voting — initialise from persisted user choice ───────────────
+  const [helpfulVote, setHelpfulVote] = useState<"yes" | "no" | null>(() =>
+    cardId ? getUserHelpfulVote(cardId) : null
+  );
 
-  // ── Stale flag ────────────────────────────────────────────────────────────
+  // ── Stale flag — inline context form ─────────────────────────────────────
   const [flagged, setFlagged] = useState(false);
+  const [showFlagForm, setShowFlagForm] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
+  const [flagAssumptions, setFlagAssumptions] = useState("");
 
   // ── Request clarification panel ───────────────────────────────────────────
   const [showRequestPanel, setShowRequestPanel] = useState(false);
@@ -325,8 +333,8 @@ export default function KnowledgeCenterDetailPage() {
   const [commentDraft, setCommentDraft] = useState("");
   const collaborators = useMemo(() => getCollaboratorDirectory(), []);
 
-  // ── Artefact viewer ───────────────────────────────────────────────────────
-  const [showArtefact, setShowArtefact] = useState(false);
+  // ── Artefact viewer — auto-open when coming from saved item ──────────────
+  const [showArtefact, setShowArtefact] = useState(() => searchParams.get("view") === "artefact");
   const [downloadToast, setDownloadToast] = useState(false);
 
   // ── Artefact viewer — collaboration panel ─────────────────────────────────
@@ -458,23 +466,26 @@ export default function KnowledgeCenterDetailPage() {
   };
 
   const handleHelpfulVote = (vote: "yes" | "no") => {
-    if (helpfulVote !== null) return;
+    if (helpfulVote !== null || !knowledgeItem) return;
     setHelpfulVote(vote);
-    if (vote === "yes" && knowledgeItem) {
-      recordHelpfulVoteMetric(knowledgeItem.id);
-    }
+    persistUserHelpfulVote(knowledgeItem.id, vote);
+    if (vote === "yes") recordHelpfulVoteMetric(knowledgeItem.id);
   };
 
-  const handleFlagOutdated = () => {
-    if (flagged || !knowledgeItem) return;
+  const handleFlagOutdatedSubmit = () => {
+    if (!knowledgeItem || !flagReason.trim()) return;
     setFlagged(true);
+    setShowFlagForm(false);
     recordStaleFlagMetric(knowledgeItem.id);
+    const fullMessage = flagAssumptions.trim()
+      ? `${flagReason.trim()}\n\nAssumptions: ${flagAssumptions.trim()}`
+      : flagReason.trim();
     addTORequest({
       itemId: knowledgeItem.id,
       requesterName: "John Doe",
       requesterRole: "Transformation Analyst",
-      type: "outdated-section",
-      message: "User flagged this content as potentially outdated.",
+      type: "stale-flag",
+      message: fullMessage,
     });
   };
 
@@ -945,10 +956,59 @@ export default function KnowledgeCenterDetailPage() {
                     <AlertTriangle className="w-4 h-4" />
                     Flagged — TO team notified
                   </p>
+                ) : showFlagForm ? (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-amber-700 flex items-center gap-1">
+                      <AlertTriangle className="w-4 h-4" />
+                      Flag as Outdated
+                    </p>
+                    <div>
+                      <label className="text-xs text-gray-500 font-medium mb-1 block">
+                        What has changed, or why do you think this is outdated? <span className="text-red-500">*</span>
+                      </label>
+                      <Textarea
+                        placeholder="e.g. This references the 2022 regulatory framework — updated in Q1 2025"
+                        value={flagReason}
+                        onChange={(e) => setFlagReason(e.target.value)}
+                        rows={3}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 font-medium mb-1 block">
+                        What were you expecting to find? <span className="text-gray-400">(optional)</span>
+                      </label>
+                      <Textarea
+                        placeholder="e.g. Expected the SAP-integrated workflow introduced post-upgrade"
+                        value={flagAssumptions}
+                        onChange={(e) => setFlagAssumptions(e.target.value)}
+                        rows={2}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
+                        onClick={handleFlagOutdatedSubmit}
+                        disabled={!flagReason.trim()}
+                      >
+                        Submit Flag
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs"
+                        onClick={() => { setShowFlagForm(false); setFlagReason(""); setFlagAssumptions(""); }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
                   <button
                     type="button"
-                    onClick={handleFlagOutdated}
+                    onClick={() => setShowFlagForm(true)}
                     className="text-sm text-amber-600 hover:text-amber-700 underline underline-offset-2 flex items-center gap-1"
                   >
                     <AlertTriangle className="w-4 h-4" />

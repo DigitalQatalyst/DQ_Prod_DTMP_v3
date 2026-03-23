@@ -7,6 +7,7 @@ import {
   updateTORequestStatus,
   type TORequest,
   type TORequestStatus,
+  type TORequestType,
 } from "@/data/knowledgeCenter/requestState";
 import { knowledgeItems } from "@/data/knowledgeCenter/knowledgeItems";
 
@@ -15,10 +16,19 @@ interface KCIncomingRequestsProps {
 }
 
 type FilterStatus = "All" | TORequestStatus;
+type FilterType = "All Types" | TORequestType;
+
+const REQUEST_TYPE_LABELS: Record<string, string> = {
+  clarification: "Clarification",
+  "outdated-section": "Outdated Section",
+  "stale-flag": "Stale Flag",
+  collaboration: "Collaboration",
+};
 
 const REQUEST_TYPE_COLORS: Record<string, string> = {
   clarification: "bg-blue-100 text-blue-700",
   "outdated-section": "bg-amber-100 text-amber-700",
+  "stale-flag": "bg-red-100 text-red-700",
   collaboration: "bg-green-100 text-green-700",
 };
 
@@ -30,6 +40,7 @@ const REQUEST_STATUS_COLORS: Record<TORequestStatus, string> = {
 
 export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
   const [filter, setFilter] = useState<FilterStatus>("All");
+  const [typeFilter, setTypeFilter] = useState<FilterType>("All Types");
   const [requests, setRequests] = useState<TORequest[]>(() => getTORequests());
 
   const itemById = useMemo(() => {
@@ -37,9 +48,12 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
   }, []);
 
   const filtered = useMemo(() => {
-    if (filter === "All") return requests;
-    return requests.filter((r) => r.status === filter);
-  }, [requests, filter]);
+    return requests.filter((r) => {
+      const statusMatch = filter === "All" || r.status === filter;
+      const typeMatch = typeFilter === "All Types" || r.type === typeFilter;
+      return statusMatch && typeMatch;
+    });
+  }, [requests, filter, typeFilter]);
 
   const handleStatusChange = (requestId: string, status: TORequestStatus) => {
     updateTORequestStatus(requestId, status);
@@ -47,29 +61,51 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
   };
 
   const filterOptions: FilterStatus[] = ["All", "Open", "In Review", "Resolved"];
+  const typeFilterOptions: FilterType[] = ["All Types", "clarification", "outdated-section", "stale-flag"];
 
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mr-2">
-          Filter:
-        </span>
-        {filterOptions.map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setFilter(option)}
-            className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-              filter === option
-                ? "bg-orange-600 text-white border-orange-600"
-                : "bg-white text-gray-700 border-gray-200 hover:border-orange-300"
-            }`}
-          >
-            {option}
-          </button>
-        ))}
-        <span className="ml-auto text-sm text-gray-500">{filtered.length} request(s)</span>
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mr-2 w-16">
+            Status:
+          </span>
+          {filterOptions.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setFilter(option)}
+              className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                filter === option
+                  ? "bg-orange-600 text-white border-orange-600"
+                  : "bg-white text-gray-700 border-gray-200 hover:border-orange-300"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide mr-2 w-16">
+            Type:
+          </span>
+          {typeFilterOptions.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setTypeFilter(option)}
+              className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                typeFilter === option
+                  ? "bg-gray-800 text-white border-gray-800"
+                  : "bg-white text-gray-700 border-gray-200 hover:border-gray-400"
+              }`}
+            >
+              {option === "All Types" ? "All Types" : REQUEST_TYPE_LABELS[option] ?? option}
+            </button>
+          ))}
+          <span className="ml-auto text-sm text-gray-500">{filtered.length} request(s)</span>
+        </div>
       </div>
 
       {/* Request list */}
@@ -106,7 +142,7 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                         REQUEST_TYPE_COLORS[req.type] ?? "bg-gray-100 text-gray-700"
                       }`}
                     >
-                      {req.type}
+                      {REQUEST_TYPE_LABELS[req.type] ?? req.type}
                     </Badge>
                     <Badge className={`text-xs ${REQUEST_STATUS_COLORS[req.status]}`}>
                       {req.status}
