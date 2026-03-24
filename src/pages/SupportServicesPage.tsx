@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Headphones, Briefcase } from "lucide-react";
+import { Headphones, Briefcase, BookOpen } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MarketplaceHeader } from "@/components/supportServices/MarketplaceHeader";
@@ -225,54 +225,58 @@ export default function SupportServicesPage() {
       <main className="flex-1" id="main-content">
         <div className="max-w-7xl mx-auto px-4 py-12">
           {/* Tabs Navigation */}
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6">
-            <TabsList
-              className="w-full justify-start bg-white border border-gray-200 rounded-lg p-1 h-auto"
-              aria-label="Support service categories"
-            >
-              <TabsTrigger
-                value="technical-support"
-                className="flex-1 lg:flex-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[hsl(var(--orange))] rounded-none px-6 py-3 min-h-[44px]"
-                aria-label="Technical Support, 18 services"
-              >
-                <div className="flex items-center gap-2">
-                  <Headphones size={20} aria-hidden="true" />
-                  <span className="hidden sm:inline">Technical Support</span>
-                  <span className="sm:hidden">Support</span>
-                  <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-semibold ml-2" aria-label="18 services">
-                    {technicalSupport.length}
-                  </span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger
-                value="expert-consultancy"
-                className="flex-1 lg:flex-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[hsl(var(--orange))] rounded-none px-6 py-3 min-h-[44px]"
-                aria-label="Expert Consultancy, 16 services"
-              >
-                <div className="flex items-center gap-2">
-                  <Briefcase size={20} aria-hidden="true" />
-                  <span className="hidden sm:inline">Expert Consultancy</span>
-                  <span className="sm:hidden">Consultancy</span>
-                  <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-semibold ml-2" aria-label="16 services">
-                    {expertConsultancy.length}
-                  </span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger
-                value="knowledge-base"
-                className="flex-1 lg:flex-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[hsl(var(--orange))] rounded-none px-6 py-3 min-h-[44px]"
-                aria-label={`Knowledge Base, ${knowledgeArticles.length} articles`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="hidden sm:inline">Knowledge Base</span>
-                  <span className="sm:hidden">Knowledge</span>
-                  <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-semibold ml-2" aria-label={`${knowledgeArticles.length} articles`}>
-                    {knowledgeArticles.length}
-                  </span>
-                </div>
-              </TabsTrigger>
-            </TabsList>
+          <div className="bg-white border-b-2 border-gray-200 mb-6">
+            <div className="max-w-7xl mx-auto px-4">
+              <Tabs value={activeTab} onValueChange={handleTabChange}>
+                <TabsList className="h-auto bg-transparent p-0 flex gap-0 overflow-x-auto justify-start" aria-label="Support service categories">
+                  <TabsTrigger
+                    value="technical-support"
+                    className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy bg-transparent"
+                    aria-label="Technical Support, 18 services"
+                  >
+                    <Headphones size={20} aria-hidden="true" />
+                    <span className="hidden sm:inline">Technical Support</span>
+                    <span className="sm:hidden">Support</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ml-2 ${
+                      activeTab === "technical-support" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"
+                    }`} aria-label="18 services">
+                      {technicalSupport.length}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="expert-consultancy"
+                    className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy bg-transparent"
+                    aria-label="Expert Consultancy, 16 services"
+                  >
+                    <Briefcase size={20} aria-hidden="true" />
+                    <span className="hidden sm:inline">Expert Consultancy</span>
+                    <span className="sm:hidden">Consultancy</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ml-2 ${
+                      activeTab === "expert-consultancy" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"
+                    }`} aria-label="16 services">
+                      {expertConsultancy.length}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="knowledge-base"
+                    className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy bg-transparent"
+                    aria-label={`Knowledge Base, ${knowledgeArticles.length} articles`}
+                  >
+                    <BookOpen size={20} aria-hidden="true" />
+                    <span className="hidden sm:inline">Knowledge Base</span>
+                    <span className="sm:hidden">Knowledge</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ml-2 ${
+                      activeTab === "knowledge-base" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-700"
+                    }`} aria-label={`${knowledgeArticles.length} articles`}>
+                      {knowledgeArticles.length}
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
 
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsContent value={activeTab} className="mt-6">
               {activeTab === "knowledge-base" ? (
                 <div className="space-y-4">
