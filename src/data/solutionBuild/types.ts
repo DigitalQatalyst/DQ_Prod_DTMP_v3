@@ -29,6 +29,9 @@ export interface BuildPhase {
   tasks: Task[];
 }
 
+// Build Lifecycle Phase (for timeline visualization)
+export type BuildLifecyclePhase = 'Scoping' | 'Configuration' | 'Build' | 'UAT' | 'Go-Live';
+
 // Task
 export interface Task {
   id: string;
@@ -150,6 +153,7 @@ export interface BuildRequest {
   queuePosition?: number;
   estimatedDelivery?: string;
   progress: number;
+  currentPhase?: BuildLifecyclePhase;
   phases: BuildPhase[];
   currentSprint?: Sprint;
   blockers: Blocker[];
@@ -162,6 +166,7 @@ export interface BuildRequest {
   linkedSpecId?: string;
   linkedInitiativeId?: string;
   createdAppId?: string;
+  stage3RequestId?: string;
 }
 
 // Pre-Built Solution
@@ -187,6 +192,7 @@ export interface DeliveryTeam {
   id: string;
   name: 'Alpha' | 'Beta' | 'Gamma' | 'Delta';
   specialty: string;
+  lead: string;
   skills: string[];
   capacity: number; // max concurrent builds
   currentLoad: number; // current builds
