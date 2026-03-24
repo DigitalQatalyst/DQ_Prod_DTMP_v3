@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Lock,
   MessageSquare,
+  Pencil,
   Send,
   X,
 } from "lucide-react";
@@ -350,14 +351,32 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                       <p className="text-xs text-gray-400 italic">No usage data yet</p>
                     )}
                     {selectedItem && (
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/marketplaces/knowledge-center/${selectedItem.sourceTab}/${selectedItem.sourceId}`)}
-                        className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-700 hover:border-orange-300 hover:text-orange-700 rounded-lg text-xs font-medium transition-colors"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        Open Article
-                      </button>
+                      <div className="flex flex-col gap-1.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => window.open(
+                            `/marketplaces/knowledge-center/${selectedItem.sourceTab}/${selectedItem.sourceId}?mode=edit`,
+                            "_blank",
+                            "noopener,noreferrer"
+                          )}
+                          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 rounded-lg text-xs font-semibold transition-colors"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          Edit Article
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => window.open(
+                            `/marketplaces/knowledge-center/${selectedItem.sourceTab}/${selectedItem.sourceId}`,
+                            "_blank",
+                            "noopener,noreferrer"
+                          )}
+                          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700 rounded-lg text-xs font-medium transition-colors"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          View only
+                        </button>
+                      </div>
                     )}
                   </div>
 

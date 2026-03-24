@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, useSearchParams, Link } from "reac
 import {
   AlertTriangle,
   Bookmark,
+  CheckCircle,
   ChevronRight,
   Clock,
   Download,
@@ -10,6 +11,7 @@ import {
   FileText,
   Image,
   MessageSquare,
+  Pencil,
   Star,
   ThumbsDown,
   ThumbsUp,
@@ -56,6 +58,11 @@ import {
   addTORequest,
   type TORequestType,
 } from "@/data/knowledgeCenter/requestState";
+import {
+  getArticleEdit,
+  saveArticleEdit,
+  clearArticleEdit,
+} from "@/data/knowledgeCenter/articleEdits";
 import {
   addKnowledgeComment,
   getCollaboratorDirectory,
@@ -298,6 +305,7 @@ export default function KnowledgeCenterDetailPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isStage2 = location.pathname.startsWith("/stage2/");
+  const isEditMode = searchParams.get("mode") === "edit";
   const [contentTab, setContentTab] = useState<DetailTab>("about");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const normalizedTab = validTabs.includes(tab as KnowledgeTab)
@@ -333,9 +341,19 @@ export default function KnowledgeCenterDetailPage() {
   const [commentDraft, setCommentDraft] = useState("");
   const collaborators = useMemo(() => getCollaboratorDirectory(), []);
 
-  // ── Artefact viewer — auto-open when coming from saved item ──────────────
-  const [showArtefact, setShowArtefact] = useState(() => searchParams.get("view") === "artefact");
+  // ── Artefact viewer — auto-open when coming from saved item or in edit mode
+  const [showArtefact, setShowArtefact] = useState(
+    () => searchParams.get("view") === "artefact" || searchParams.get("mode") === "edit"
+  );
   const [downloadToast, setDownloadToast] = useState(false);
+
+  // ── Edit mode state ───────────────────────────────────────────────────────
+  const [editedSections, setEditedSections] = useState<Record<string, string>>(() => {
+    if (!cardId) return {};
+    return getArticleEdit(cardId)?.sections ?? {};
+  });
+  const [editSaved, setEditSaved] = useState(false);
+  const [editDirty, setEditDirty] = useState(false);
 
   // ── Artefact viewer — collaboration panel ─────────────────────────────────
   const [artefactCommentDraft, setArtefactCommentDraft] = useState("");
@@ -346,6 +364,25 @@ export default function KnowledgeCenterDetailPage() {
   const [artefactRequestSubmitted, setArtefactRequestSubmitted] = useState(false);
   const [artefactActivePanel, setArtefactActivePanel] = useState<"comment" | "request">("comment");
   const [loginModalAction, setLoginModalAction] = useState<"comment" | "request">("comment");
+
+  const handleSaveEdits = () => {
+    if (!cardId) return;
+    saveArticleEdit(cardId, {
+      sections: editedSections,
+      editedBy: "Sarah Miller",
+      editedAt: new Date().toISOString(),
+    });
+    setEditSaved(true);
+    setEditDirty(false);
+    setTimeout(() => setEditSaved(false), 3000);
+  };
+
+  const handleDiscardEdits = () => {
+    if (!cardId) return;
+    clearArticleEdit(cardId);
+    setEditedSections({});
+    setEditDirty(false);
+  };
 
   const designReports = useMemo(() => getDesignReports(), []);
 
@@ -1101,33 +1138,89 @@ export default function KnowledgeCenterDetailPage() {
       {showArtefact && (
         <div className="fixed inset-0 z-50 bg-white flex flex-col">
           {/* Sticky toolbar */}
-          <div className="sticky top-0 h-14 bg-white border-b border-gray-200 shadow-sm px-6 flex items-center justify-between flex-shrink-0">
+          <div className={`sticky top-0 h-14 border-b shadow-sm px-6 flex items-center justify-between flex-shrink-0 ${isEditMode ? "bg-orange-600 border-orange-700" : "bg-white border-gray-200"}`}>
             <div className="flex items-center gap-3 min-w-0">
-              <FileText className="w-5 h-5 text-orange-600 flex-shrink-0" />
-              <span className="font-semibold text-gray-900 truncate">{title}</span>
+              {isEditMode
+                ? <Pencil className="w-5 h-5 text-white flex-shrink-0" />
+                : <FileText className="w-5 h-5 text-orange-600 flex-shrink-0" />
+              }
+              <span className={`font-semibold truncate ${isEditMode ? "text-white" : "text-gray-900"}`}>
+                {title}
+              </span>
+              {isEditMode && (
+                <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full font-medium flex-shrink-0">
+                  TO Edit Mode
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setDownloadToast(true);
-                  setTimeout(() => setDownloadToast(false), 2500);
-                }}
-              >
-                <Download className="w-4 h-4 mr-1" />
-                Download
-              </Button>
-              <button
-                type="button"
-                onClick={() => setShowArtefact(false)}
-                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
-                aria-label="Close viewer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {isEditMode ? (
+                <>
+                  {editSaved && (
+                    <span className="flex items-center gap-1 text-xs text-white/90 font-medium">
+                      <CheckCircle className="w-3.5 h-3.5" /> Saved
+                    </span>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/30 text-white hover:bg-white/10 hover:text-white"
+                    onClick={handleDiscardEdits}
+                    disabled={!editDirty}
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-white text-orange-700 hover:bg-orange-50"
+                    onClick={handleSaveEdits}
+                    disabled={!editDirty}
+                  >
+                    Save Changes
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => window.close()}
+                    className="p-1.5 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                    aria-label="Close editor"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setDownloadToast(true);
+                      setTimeout(() => setDownloadToast(false), 2500);
+                    }}
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Download
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setShowArtefact(false)}
+                    className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors"
+                    aria-label="Close viewer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
+
+          {/* Edit mode hint bar */}
+          {isEditMode && (
+            <div className="bg-orange-50 border-b border-orange-200 px-6 py-2 flex-shrink-0">
+              <p className="text-xs text-orange-700">
+                <strong>TO Edit Mode</strong> — Edit the sections below and click <strong>Save Changes</strong>. Updates will be visible to all users. This tab was opened from an incoming request.
+              </p>
+            </div>
+          )}
 
           {/* Document body */}
           <div className="overflow-y-auto flex-1">
@@ -1157,16 +1250,42 @@ export default function KnowledgeCenterDetailPage() {
                 <hr className="border-gray-200 my-8" />
               </div>
 
-              {/* Sections */}
-              {artefactSections.map((section, index) => (
-                <div key={section.heading}>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.heading}</h2>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{section.body}</p>
-                  {index < artefactSections.length - 1 && (
-                    <hr className="border-gray-100 my-6" />
-                  )}
+              {/* TO edit badge in read mode */}
+              {!isEditMode && cardId && getArticleEdit(cardId) && (
+                <div className="mb-6 flex items-center gap-2 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                  <Pencil className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>
+                    <strong>Edited by TO office</strong> · {new Date(getArticleEdit(cardId)!.editedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} · {getArticleEdit(cardId)!.editedBy}
+                  </span>
                 </div>
-              ))}
+              )}
+
+              {/* Sections */}
+              {artefactSections.map((section, index) => {
+                const displayBody = editedSections[section.heading] ?? section.body;
+                return (
+                  <div key={section.heading}>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.heading}</h2>
+                    {isEditMode ? (
+                      <textarea
+                        value={editedSections[section.heading] ?? section.body}
+                        onChange={(e) => {
+                          setEditedSections((prev) => ({ ...prev, [section.heading]: e.target.value }));
+                          setEditDirty(true);
+                          setEditSaved(false);
+                        }}
+                        rows={Math.max(6, displayBody.split("\n").length + 2)}
+                        className="w-full text-gray-700 text-base leading-relaxed border border-orange-200 rounded-lg px-4 py-3 resize-y focus:outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50/30"
+                      />
+                    ) : (
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">{displayBody}</p>
+                    )}
+                    {index < artefactSections.length - 1 && (
+                      <hr className="border-gray-100 my-6" />
+                    )}
+                  </div>
+                );
+              })}
 
               {/* ── Collaboration panel ───────────────────────────────────── */}
               <div className="mt-12 border-t-2 border-gray-100 pt-10">
