@@ -64,6 +64,10 @@ import {
   clearArticleEdit,
 } from "@/data/knowledgeCenter/articleEdits";
 import {
+  getUserArticle,
+  type UserArticle,
+} from "@/data/knowledgeCenter/userArticlesState";
+import {
   addKnowledgeComment,
   getCollaboratorDirectory,
   getCommentsForKnowledgeItem,
@@ -415,6 +419,9 @@ export default function KnowledgeCenterDetailPage() {
   const relatedItems =
     normalizedTab && cardId ? getRelatedKnowledgeItems(normalizedTab, cardId, 3) : [];
 
+  // ── User-created article fallback ─────────────────────────────────────────
+  const userArticle: UserArticle | null = (!item && cardId) ? getUserArticle(cardId) : null;
+
   // ── Record view on mount ──────────────────────────────────────────────────
   useEffect(() => {
     if (knowledgeItem && normalizedTab && cardId) {
@@ -442,7 +449,7 @@ export default function KnowledgeCenterDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [knowledgeItem]);
 
-  if (!item || !normalizedTab || !cardId) {
+  if ((!item && !userArticle) || !normalizedTab || !cardId) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -452,6 +459,146 @@ export default function KnowledgeCenterDetailPage() {
             Back to Knowledge Centre
           </Button>
         </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // ── User-created article detail page ────────────────────────────────────
+  if (userArticle && !item) {
+    const tabLabel = tabLabels[userArticle.sourceTab] ?? userArticle.sourceTab;
+    const uaDisplaySections: ArtefactSection[] = [
+      { heading: "Summary", body: editedSections["Summary"] ?? userArticle.description },
+      { heading: "Content", body: editedSections["Content"] ?? userArticle.body },
+    ];
+    const uaSaved = getArticleEdit(cardId);
+
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+
+        {/* Hero */}
+        <section className="bg-gradient-to-b from-blue-50 to-white py-8 lg:py-10">
+          <div className="max-w-7xl mx-auto px-4">
+            <nav className="flex items-center text-sm text-muted-foreground mb-4 flex-wrap gap-1">
+              <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <Link to="/marketplaces/knowledge-center" className="hover:text-foreground transition-colors">Knowledge Centre</Link>
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <Link to={`/marketplaces/knowledge-center?tab=${userArticle.sourceTab}`} className="hover:text-foreground transition-colors">{tabLabel}</Link>
+              <ChevronRight className="w-4 h-4 mx-1" />
+              <span className="font-medium text-foreground">{userArticle.title}</span>
+            </nav>
+
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                TO Created
+              </span>
+              {userArticle.department && (
+                <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-full">{userArticle.department}</span>
+              )}
+              {userArticle.audience && (
+                <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">{userArticle.audience}</span>
+              )}
+              {uaSaved && (
+                <span className="bg-orange-50 text-orange-600 text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <Pencil className="w-3 h-3" />
+                  Edited by TO · {new Date(uaSaved.editedAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+
+            <h1 className="text-2xl lg:text-3xl font-bold text-primary-navy mb-2">{userArticle.title}</h1>
+
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
+              {userArticle.author && <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" />{userArticle.author}</span>}
+              <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" />{userArticle.createdAt.slice(0, 10)}</span>
+              {userArticle.type && <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5" />{userArticle.type}</span>}
+            </div>
+
+            {userArticle.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {userArticle.tags.map((tag) => (
+                  <span key={tag} className="bg-orange-50 text-orange-700 text-xs px-2.5 py-1 rounded-full">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Content */}
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {isEditMode && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-orange-600" />
+                <span className="text-sm font-semibold text-orange-700">TO Edit Mode</span>
+                {editSaved && <span className="text-xs text-green-600 font-medium">✓ Saved</span>}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs border-orange-200 text-orange-700 hover:bg-orange-50"
+                  onClick={handleDiscardEdits}
+                  disabled={!editDirty}
+                >
+                  Discard
+                </Button>
+                <Button
+                  size="sm"
+                  className="text-xs bg-orange-600 hover:bg-orange-700 text-white"
+                  onClick={handleSaveEdits}
+                  disabled={!editDirty}
+                >
+                  Save Changes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs text-gray-500"
+                  onClick={() => window.close()}
+                >
+                  <X className="w-3 h-3 mr-1" /> Close
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-8">
+            {uaDisplaySections.map((section) => (
+              <div key={section.heading}>
+                <h2 className="text-base font-semibold text-gray-800 mb-2 pb-1 border-b border-gray-100">
+                  {section.heading}
+                </h2>
+                {isEditMode ? (
+                  <Textarea
+                    value={editedSections[section.heading] ?? section.body}
+                    onChange={(e) => {
+                      setEditedSections((prev) => ({ ...prev, [section.heading]: e.target.value }));
+                      setEditDirty(true);
+                    }}
+                    rows={section.heading === "Content" ? 12 : 4}
+                    className="text-sm text-gray-700 border-orange-200 focus:border-orange-400 focus:ring-orange-400 resize-none"
+                  />
+                ) : (
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{section.body}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 pt-4 border-t border-gray-100">
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/marketplaces/knowledge-center?tab=${userArticle.sourceTab}`)}
+            >
+              ← Back to {tabLabel}
+            </Button>
+          </div>
+        </div>
+
         <Footer />
       </div>
     );
