@@ -21,6 +21,7 @@ export const buildRequests: BuildRequest[] = [
       { id: 'req-003', description: 'Customer segmentation engine', status: 'pending', priority: 'medium' }
     ],
     progress: 0,
+    currentPhase: 'Scoping',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'not-started', progress: 0, tasks: [] },
       { id: 'phase-2', name: 'Design', status: 'not-started', progress: 0, tasks: [] },
@@ -53,6 +54,7 @@ export const buildRequests: BuildRequest[] = [
       { id: 'req-005', description: 'Automated testing integration', status: 'pending', priority: 'high' }
     ],
     progress: 0,
+    currentPhase: 'Scoping',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'not-started', progress: 0, tasks: [] },
       { id: 'phase-2', name: 'Design', status: 'not-started', progress: 0, tasks: [] },
@@ -86,6 +88,7 @@ export const buildRequests: BuildRequest[] = [
       { id: 'req-008', description: 'Continuous verification', status: 'pending', priority: 'high' }
     ],
     progress: 5,
+    currentPhase: 'Scoping',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'in-progress', progress: 25, tasks: [
         { id: 'task-001', title: 'Security assessment', completed: true },
@@ -139,6 +142,7 @@ export const buildRequests: BuildRequest[] = [
     queuePosition: 2,
     estimatedDelivery: '2026-04-10',
     progress: 10,
+    currentPhase: 'Configuration',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'completed', progress: 100, tasks: [
         { id: 'task-003', title: 'Performance analysis', completed: true },
@@ -198,6 +202,7 @@ export const buildRequests: BuildRequest[] = [
     assignedTeam: 'team-beta',
     estimatedDelivery: '2026-03-10',
     progress: 65,
+    currentPhase: 'Build',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'completed', progress: 100, startDate: '2025-12-11', endDate: '2025-12-22', tasks: [
         { id: 'task-007', title: 'Requirements workshop', completed: true },
@@ -286,6 +291,7 @@ export const buildRequests: BuildRequest[] = [
     assignedTeam: 'team-alpha',
     estimatedDelivery: '2026-02-25',
     progress: 90,
+    currentPhase: 'UAT',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'completed', progress: 100, startDate: '2025-10-16', endDate: '2025-10-27', tasks: [] },
       { id: 'phase-2', name: 'Design', status: 'completed', progress: 100, startDate: '2025-10-28', endDate: '2025-11-17', tasks: [] },
@@ -347,6 +353,7 @@ export const buildRequests: BuildRequest[] = [
     assignedTeam: 'team-gamma',
     estimatedDelivery: '2026-01-10',
     progress: 100,
+    currentPhase: 'Go-Live',
     phases: [
       { id: 'phase-1', name: 'Discovery', status: 'completed', progress: 100, startDate: '2025-08-06', endDate: '2025-08-24', tasks: [] },
       { id: 'phase-2', name: 'Design', status: 'completed', progress: 100, startDate: '2025-08-25', endDate: '2025-09-21', tasks: [] },

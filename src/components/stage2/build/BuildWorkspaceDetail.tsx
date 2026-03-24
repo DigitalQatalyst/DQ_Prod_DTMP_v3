@@ -13,9 +13,13 @@ import {
   FileText,
   Rocket,
   Activity,
+  Users,
+  X,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { type BuildRequest } from "@/data/solutionBuild";
+import { Textarea } from "@/components/ui/textarea";
+import { type BuildRequest, deliveryTeams } from "@/data/solutionBuild";
+import { BuildPhaseTimeline } from "./BuildPhaseTimeline";
 
 interface BuildWorkspaceDetailProps {
   selectedRequest: BuildRequest | null;
@@ -29,9 +33,31 @@ export function BuildWorkspaceDetail({ selectedRequest }: BuildWorkspaceDetailPr
     communication: true,
     deliverables: true,
   });
+  const [uatSignOffMode, setUatSignOffMode] = useState<"idle" | "concern">("idle");
+  const [uatConcernText, setUatConcernText] = useState("");
 
   const toggleSection = (section: string) =>
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+
+  const handleSignOff = (action: "accepted" | "concern") => {
+    if (!selectedRequest) return;
+
+    if (action === "accepted") {
+      alert("✅ UAT approved! Your solution is now moving to Go-Live.");
+      // In a real app, this would update the request via API
+      window.location.reload();
+    } else {
+      setUatSignOffMode("concern");
+    }
+  };
+
+  const submitConcern = () => {
+    if (!uatConcernText.trim()) return;
+    alert("Your concern has been submitted to the delivery team.");
+    setUatSignOffMode("idle");
+    setUatConcernText("");
+    // In a real app, this would update the request via API
+  };
 
   const getStatusColor = (status: BuildRequest["status"]) => {
     const map: Record<string, string> = {
@@ -152,6 +178,104 @@ export function BuildWorkspaceDetail({ selectedRequest }: BuildWorkspaceDetailPr
           </div>
 
           {getStageCard(selectedRequest)}
+
+          {selectedRequest.currentPhase && (
+            <div className="bg-white rounded-lg border p-6">
+              <h3 className="font-semibold text-gray-900 mb-2">Build Lifecycle</h3>
+              <BuildPhaseTimeline currentPhase={selectedRequest.currentPhase} />
+            </div>
+          )}
+
+          {/* UAT Sign-off Flow - R7 */}
+          {selectedRequest.currentPhase === "UAT" && !selectedRequest.uatApproval && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 overflow-visible">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-amber-900 mb-1">Your build is ready for testing</h4>
+                  <p className="text-sm text-amber-800 mb-4">
+                    The delivery team has completed the build and it is ready for your User Acceptance Testing.
+                    Please test the solution in the provided environment and confirm acceptance or raise any concerns.
+                  </p>
+                  {uatSignOffMode === "idle" ? (
+                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                      <button
+                        type="button"
+                        onClick={() => handleSignOff("accepted")}
+                        style={{ backgroundColor: '#16a34a', color: '#ffffff' }}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 hover:opacity-90 font-medium rounded-md text-sm transition-colors min-h-[40px]"
+                      >
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                        <span className="whitespace-nowrap">Accept & Confirm Go-Live</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSignOff("concern")}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 border-2 border-amber-600 bg-white hover:bg-amber-50 text-amber-900 font-medium rounded-md text-sm transition-colors min-h-[40px]"
+                      >
+                        <span className="whitespace-nowrap">Raise a Concern</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 w-full">
+                      <div>
+                        <label className="text-sm font-medium text-amber-900 mb-2 block">
+                          Describe your concern:
+                        </label>
+                        <Textarea
+                          value={uatConcernText}
+                          onChange={(e) => setUatConcernText(e.target.value)}
+                          placeholder="Please describe the issue or concern you've identified during UAT..."
+                          className="min-h-[100px] bg-white w-full"
+                        />
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          type="button"
+                          onClick={submitConcern}
+                          disabled={!uatConcernText.trim()}
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Submit Concern
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUatSignOffMode("idle");
+                            setUatConcernText("");
+                          }}
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 font-medium rounded-md text-sm transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delivery Team - R6 */}
+          {selectedRequest.assignedTeam && (() => {
+            const assignedTeam = deliveryTeams.find(t => t.id === selectedRequest.assignedTeam);
+            return assignedTeam ? (
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-primary-navy mb-2">Your Delivery Team</h4>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Team {assignedTeam.name}</p>
+                    <p className="text-xs text-muted-foreground">{assignedTeam.specialty}</p>
+                    <p className="text-xs text-muted-foreground">Lead: {assignedTeam.lead}</p>
+                  </div>
+                </div>
+              </div>
+            ) : null;
+          })()}
 
           <div className="bg-white rounded-lg border">
             <button

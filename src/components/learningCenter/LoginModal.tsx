@@ -207,13 +207,19 @@ export function LoginModal({
 
         {/* Description */}
         <p className="text-base text-muted-foreground text-center mb-8">
-          {context.marketplace === "solution-specs" && context.action === "Make Request"
-            ? `Log in to submit your request for "${context.serviceName}".`
-            : context.marketplace === "solution-specs"
-              ? "Log in to access this solution specification."
-              : context.marketplace === "digital-intelligence"
-                ? `Log in to submit your request for "${context.dashboardName || context.serviceName || "Digital Intelligence"}".`
-                : "Please log in to continue with your enrollment"}
+          {context.marketplace === "solution-build"
+            ? `Log in to request deployment of "${context.serviceName}".`
+            : context.marketplace === "solution-specs" && context.action === "Make Request"
+              ? `Log in to submit your request for "${context.serviceName}".`
+              : context.marketplace === "solution-specs"
+                ? "Log in to access this solution specification."
+                : context.marketplace === "digital-intelligence"
+                  ? `Log in to submit your request for "${context.dashboardName || context.serviceName || "Digital Intelligence"}".`
+                  : context.marketplace === "knowledge-center"
+                    ? "Log in to save this item to your Knowledge Centre workspace."
+                    : (context.marketplace === "document-studio" || context.marketplace === "templates") && context.serviceName
+                      ? `Log in to request an AI-generated document for "${context.serviceName}".`
+                      : "Please log in to continue with your enrollment"}
         </p>
 
         {/* Form */}
@@ -259,7 +265,15 @@ export function LoginModal({
         {/* Signup Link */}
         <p className="text-sm text-center text-muted-foreground">
           Don't have an account?{" "}
-          <button className="text-orange-600 hover:text-orange-700 font-medium">
+          <button 
+            type="button"
+            onClick={() => {
+              console.log('Sign up clicked - navigating to registration');
+              // TODO: Implement registration flow or navigate to registration page
+              // navigate('/register');
+            }}
+            className="text-orange-600 hover:text-orange-700 font-medium"
+          >
             Sign up
           </button>
         </p>

@@ -15,10 +15,15 @@ import {
   FileText,
   Rocket,
   Activity,
+  Users,
+  X,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { buildRequests, type BuildRequest } from "@/data/solutionBuild";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { buildRequests, deliveryTeams, type BuildRequest } from "@/data/solutionBuild";
 import { BuildWorkspaceSidebar, type BuildWorkspaceTab } from "@/components/stage2/build/BuildWorkspacePanels";
+import { BuildPhaseTimeline } from "@/components/stage2/build/BuildPhaseTimeline";
 
 export default function SolutionBuildWorkspacePage() {
   const navigate = useNavigate();
@@ -40,6 +45,8 @@ export default function SolutionBuildWorkspacePage() {
     deliverables: true,
   });
   const [leftView, setLeftView] = useState<BuildWorkspaceTab>("overview");
+  const [uatSignOffMode, setUatSignOffMode] = useState<"idle" | "concern">("idle");
+  const [uatConcernText, setUatConcernText] = useState("");
 
   // Load from localStorage (picks up any newly submitted requests)
   useEffect(() => {
@@ -104,6 +111,90 @@ export default function SolutionBuildWorkspacePage() {
 
   const toggleSection = (section: string) =>
     setSbExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+
+  const handleSignOff = (action: "accepted" | "concern") => {
+    if (!selectedBuildRequest) return;
+
+    if (action === "accepted") {
+      // Update request status to completed
+      const updatedRequests = allBuildRequests.map((req) =>
+        req.id === selectedBuildRequest.id
+          ? {
+              ...req,
+              status: "deployed" as const,
+              currentPhase: "Go-Live" as const,
+              progress: 100,
+              uatApproval: {
+                approver: "Current User",
+                approvedAt: new Date().toISOString(),
+                feedback: "UAT approved - ready for Go-Live",
+                approved: true,
+              },
+            }
+          : req
+      );
+      setAllBuildRequests(updatedRequests);
+      setSelectedBuildRequest(updatedRequests.find((r) => r.id === selectedBuildRequest.id) || null);
+      
+      // Update localStorage
+      const stored = JSON.parse(localStorage.getItem("buildRequests") || "[]");
+      const updatedStored = stored.map((req: BuildRequest) =>
+        req.id === selectedBuildRequest.id
+          ? updatedRequests.find((r) => r.id === selectedBuildRequest.id)
+          : req
+      );
+      localStorage.setItem("buildRequests", JSON.stringify(updatedStored));
+      
+      alert("✅ UAT approved! Your solution is now moving to Go-Live.");
+    } else {
+      setUatSignOffMode("concern");
+    }
+  };
+
+  const submitConcern = () => {
+    if (!selectedBuildRequest || !uatConcernText.trim()) return;
+
+    // Update request with concern
+    const updatedRequests = allBuildRequests.map((req) =>
+      req.id === selectedBuildRequest.id
+        ? {
+            ...req,
+            status: "in-progress" as const,
+            uatApproval: {
+              approver: "Current User",
+              rejectedAt: new Date().toISOString(),
+              feedback: uatConcernText,
+              approved: false,
+            },
+            messages: [
+              {
+                id: `msg-${Date.now()}`,
+                sender: "Current User",
+                content: `UAT Concern: ${uatConcernText}`,
+                timestamp: new Date().toISOString(),
+                mentions: [],
+              },
+              ...req.messages,
+            ],
+          }
+        : req
+    );
+    setAllBuildRequests(updatedRequests);
+    setSelectedBuildRequest(updatedRequests.find((r) => r.id === selectedBuildRequest.id) || null);
+    
+    // Update localStorage
+    const stored = JSON.parse(localStorage.getItem("buildRequests") || "[]");
+    const updatedStored = stored.map((req: BuildRequest) =>
+      req.id === selectedBuildRequest.id
+        ? updatedRequests.find((r) => r.id === selectedBuildRequest.id)
+        : req
+    );
+    localStorage.setItem("buildRequests", JSON.stringify(updatedStored));
+    
+    setUatSignOffMode("idle");
+    setUatConcernText("");
+    alert("Your concern has been submitted to the delivery team.");
+  };
 
   // Helpers
   const getStatusColor = (status: BuildRequest["status"]) => {
@@ -303,6 +394,28 @@ export default function SolutionBuildWorkspacePage() {
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="h-full flex overflow-hidden">
+      {/* Left Sidebar */}
+      <div className="w-80 border-r bg-gray-50 flex-shrink-0 overflow-y-auto p-4">
+        <BuildWorkspaceSidebar
+          activeTab={leftView}
+          onTabChange={setLeftView}
+          searchQuery={sbSearchQuery}
+          onSearchChange={setSbSearchQuery}
+          statusFilter={sbStatusFilter}
+          onStatusFilterChange={setSbStatusFilter}
+          priorityFilter={sbPriorityFilter}
+          onPriorityFilterChange={setSbPriorityFilter}
+          showFilters={sbShowFilters}
+          onToggleFilters={() => setSbShowFilters(!sbShowFilters)}
+          activeFiltersCount={activeFiltersCount}
+          onClearFilters={clearFilters}
+          requests={filteredRequests}
+          selectedRequest={selectedBuildRequest}
+          onSelectRequest={setSelectedBuildRequest}
+          getStatusColor={getStatusColor}
+        />
+      </div>
+
       {/* Main content - request detail */}
       <div className="flex-1 flex flex-col min-w-0">
         {selectedBuildRequest ? (
@@ -355,6 +468,104 @@ export default function SolutionBuildWorkspacePage() {
 
                 {/* Stage-specific card */}
                 {getStageCard(selectedBuildRequest)}
+
+                {/* Phase Timeline */}
+                {selectedBuildRequest.currentPhase && (
+                  <div className="bg-white rounded-lg border p-6">
+                    <h3 className="font-semibold text-gray-900 mb-2">Build Lifecycle</h3>
+                    <BuildPhaseTimeline currentPhase={selectedBuildRequest.currentPhase} />
+                  </div>
+                )}
+
+                {/* UAT Sign-off Flow */}
+                {(() => {
+                  console.log('Debug UAT Card:', {
+                    currentPhase: selectedBuildRequest.currentPhase,
+                    hasUatApproval: !!selectedBuildRequest.uatApproval,
+                    shouldShow: selectedBuildRequest.currentPhase === "UAT" && !selectedBuildRequest.uatApproval
+                  });
+                  return selectedBuildRequest.currentPhase === "UAT" && !selectedBuildRequest.uatApproval;
+                })() && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-amber-900 mb-1">Your build is ready for testing</h4>
+                        <p className="text-sm text-amber-800 mb-4">
+                          The delivery team has completed the build and it is ready for your User Acceptance Testing.
+                          Please test the solution in the provided environment and confirm acceptance or raise any concerns.
+                        </p>
+                        {uatSignOffMode === "idle" ? (
+                          <div className="flex gap-3">
+                            <Button
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => handleSignOff("accepted")}
+                            >
+                              <CheckCircle2 className="w-4 h-4 mr-2" />
+                              Accept & Confirm Go-Live
+                            </Button>
+                            <Button variant="outline" onClick={() => handleSignOff("concern")}>
+                              Raise a Concern
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-medium text-amber-900 mb-2 block">
+                                Describe your concern:
+                              </label>
+                              <Textarea
+                                value={uatConcernText}
+                                onChange={(e) => setUatConcernText(e.target.value)}
+                                placeholder="Please describe the issue or concern you've identified during UAT..."
+                                className="min-h-[100px] bg-white"
+                              />
+                            </div>
+                            <div className="flex gap-3">
+                              <Button
+                                onClick={submitConcern}
+                                disabled={!uatConcernText.trim()}
+                                className="bg-amber-600 hover:bg-amber-700 text-white"
+                              >
+                                Submit Concern
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                onClick={() => {
+                                  setUatSignOffMode("idle");
+                                  setUatConcernText("");
+                                }}
+                              >
+                                <X className="w-4 h-4 mr-2" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivery Team */}
+                {selectedBuildRequest.assignedTeam && (() => {
+                  const assignedTeam = deliveryTeams.find(t => t.id === selectedBuildRequest.assignedTeam);
+                  return assignedTeam ? (
+                    <div className="bg-white border border-gray-200 rounded-xl p-4">
+                      <h4 className="text-sm font-semibold text-primary-navy mb-2">Your Delivery Team</h4>
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center">
+                          <Users className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Team {assignedTeam.name}</p>
+                          <p className="text-xs text-muted-foreground">{assignedTeam.specialty}</p>
+                          <p className="text-xs text-muted-foreground">Lead: {assignedTeam.lead}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
 
                 {/* Business Need */}
                 <div className="bg-white rounded-lg border">

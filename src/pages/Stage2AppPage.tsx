@@ -126,7 +126,7 @@ import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
 import ApprovalsPage from "./lifecycle/ApprovalsPage";
 import ProjectsPage from "./lifecycle/ProjectsPage";
 import ApplicationsPage from "./lifecycle/ApplicationsPage";
-import { type BuildRequest, deliveryTeams } from "@/data/solutionBuild";
+import { type BuildRequest, deliveryTeams, buildRequests as importedBuildRequests } from "@/data/solutionBuild";
 import { Progress } from "@/components/ui/progress";
 import IntelligenceWorkspacePage from "@/pages/stage2/intelligence/IntelligenceWorkspacePage";
 import { type ServiceRequest, type SupportTicket } from "@/data/supportData";
@@ -533,94 +533,15 @@ export default function Stage2AppPage() {
   const [sbActiveTab, setSbActiveTab] = useState<"overview" | "my-requests">("overview");
   const [sbShowFilters, setSbShowFilters] = useState(false);
   const [buildRequests, setBuildRequests] = useState<BuildRequest[]>(() => {
-    const stored = JSON.parse(localStorage.getItem('buildRequests') || '[]');
-    return [
-      ...stored,
-      {
-        id: 'BLD-2026-001',
-        name: 'Customer 360 Data Platform',
-        status: 'intake',
-        progress: 0,
-        department: 'Marketing',
-        priority: 'high',
-        requestedDate: '2026-01-05',
-        targetDate: '2026-04-30',
-        requestedBy: 'Sarah Johnson',
-        businessNeed: 'Unified customer data platform',
-        description: 'Build comprehensive customer 360 platform',
-        assignedTeam: 'Data Platform Team'
-      },
-      {
-        id: 'BLD-2026-003',
-        name: 'Zero Trust Network Implementation',
-        status: 'triage',
-        progress: 5,
-        department: 'Security',
-        priority: 'critical',
-        requestedDate: '2026-01-08',
-        targetDate: '2026-05-15',
-        requestedBy: 'Sarah Johnson',
-        businessNeed: 'Enhanced security posture',
-        description: 'Implement zero trust network architecture',
-        assignedTeam: 'Security Team'
-      },
-      {
-        id: 'BLD-2026-004',
-        name: 'API Gateway Performance Optimization',
-        status: 'queue',
-        progress: 10,
-        department: 'Platform',
-        priority: 'medium',
-        requestedDate: '2026-01-10',
-        targetDate: '2026-03-20',
-        requestedBy: 'Sarah Johnson',
-        businessNeed: 'Improve API performance',
-        description: 'Optimize API gateway for better throughput',
-        assignedTeam: 'Platform Team'
-      },
-      {
-        id: 'BLD-2025-089',
-        name: 'Real-Time Analytics Dashboard',
-        status: 'in-progress',
-        progress: 65,
-        department: 'Executive',
-        priority: 'high',
-        requestedDate: '2025-11-15',
-        targetDate: '2026-02-28',
-        requestedBy: 'Sarah Johnson',
-        businessNeed: 'Real-time business insights',
-        description: 'Build real-time analytics dashboard',
-        assignedTeam: 'Analytics Team'
-      },
-      {
-        id: 'BLD-2025-067',
-        name: 'Microservices Platform Deployment',
-        status: 'testing',
-        progress: 90,
-        department: 'Engineering',
-        priority: 'high',
-        requestedDate: '2025-09-20',
-        targetDate: '2026-01-31',
-        requestedBy: 'Sarah Johnson',
-        businessNeed: 'Scalable microservices architecture',
-        description: 'Deploy microservices platform',
-        assignedTeam: 'Engineering Team'
-      },
-      {
-        id: 'BLD-2025-034',
-        name: 'Customer Portal Platform',
-        status: 'deployed',
-        progress: 100,
-        department: 'Customer Success',
-        priority: 'medium',
-        requestedDate: '2025-06-10',
-        targetDate: '2025-12-15',
-        requestedBy: 'Sarah Johnson',
-        businessNeed: 'Self-service customer portal',
-        description: 'Deploy customer self-service portal',
-        assignedTeam: 'Customer Success Team'
+    const stored = JSON.parse(localStorage.getItem('dtmp.solutionBuild.buildRequests') || '[]');
+    // Migrate old requests to add currentPhase if missing
+    const migrated = stored.map((req: BuildRequest) => {
+      if (!req.currentPhase) {
+        return { ...req, currentPhase: 'Scoping' as const };
       }
-    ];
+      return req;
+    });
+    return [...migrated, ...importedBuildRequests];
   });
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
   const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
@@ -1251,10 +1172,21 @@ export default function Stage2AppPage() {
 
   useEffect(() => {
     if (state.newBuildRequest) {
-      setBuildRequests(prev => [state.newBuildRequest, ...prev]);
+      // Request is already in localStorage from createBuildRequestStage3Intake
+      // Just select it and switch to the right tab
       setActiveBuildRequestId(state.newBuildRequest.id);
       setSbActiveTab('my-requests');
       setActiveService('Solution Build');
+      
+      // Reload from localStorage to get the latest data
+      const stored = JSON.parse(localStorage.getItem('dtmp.solutionBuild.buildRequests') || '[]');
+      const migrated = stored.map((req: BuildRequest) => {
+        if (!req.currentPhase) {
+          return { ...req, currentPhase: 'Scoping' as const };
+        }
+        return req;
+      });
+      setBuildRequests([...migrated, ...importedBuildRequests]);
       
       const { newBuildRequest, ...cleanState } = state;
       navigate(location.pathname, { replace: true, state: cleanState });

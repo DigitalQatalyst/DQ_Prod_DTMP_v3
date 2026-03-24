@@ -19,7 +19,7 @@ import { LoginModal } from "@/components/learningCenter/LoginModal";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { isUserAuthenticated } from "@/data/sessionAuth";
-import { createSolutionBuildStage3Intake } from "@/data/stage3/intake";
+import { createBuildRequestStage3Intake } from "@/data/stage3/intake";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -120,62 +120,61 @@ export function SolutionBuildDetailPage() {
       return;
     }
     
-    // Create Stage 3 intake
-    createSolutionBuildStage3Intake({
-      buildId: solution.id,
-      buildTitle: solution.name,
-      requesterName: "Current User",
-      requesterEmail: "user@dtmp.local",
-      requesterRole: formData.department,
-      message: `Pre-built solution request: ${solution.name}${formData.additionalRequirements ? '. Additional requirements: ' + formData.additionalRequirements : ''}`,
-      priority: formData.priority as any,
-    });
-    
-    // Store the request in localStorage
-    const newRequest = {
-      id: `BLD-2026-${String(Date.now()).slice(-3)}`,
+    // Create the build request object
+    const newRequest: any = {
+      id: `BLD-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100).padStart(3, '0')}`,
       type: 'pre-built' as const,
       status: 'intake' as const,
       priority: formData.priority,
       name: solution.name,
       businessNeed: `Pre-built solution request: ${solution.name}${formData.additionalRequirements ? '. Additional requirements: ' + formData.additionalRequirements : ''}`,
       requestedBy: 'Current User',
-      sponsor: 'N/A',
+      sponsor: '',
       department: formData.department,
-      submittedAt: new Date().toISOString(),
-      progress: 0,
+      submittedAt: new Date().toISOString().split('T')[0],
+      requestedDate: new Date().toISOString().split('T')[0],
+      targetDate: undefined,
       budget: { approved: 0, spent: 0 },
       requirements: [],
+      progress: 0,
+      currentPhase: 'Scoping' as const,
       phases: [
-        { id: '1', name: 'Discovery', status: 'not-started' as const, progress: 0, tasks: [] },
-        { id: '2', name: 'Design', status: 'not-started' as const, progress: 0, tasks: [] },
-        { id: '3', name: 'Development', status: 'not-started' as const, progress: 0, tasks: [] },
-        { id: '4', name: 'Testing', status: 'not-started' as const, progress: 0, tasks: [] },
-        { id: '5', name: 'Deployment', status: 'not-started' as const, progress: 0, tasks: [] },
+        { id: 'phase-1', name: 'Discovery' as const, status: 'not-started' as const, progress: 0, tasks: [] },
+        { id: 'phase-2', name: 'Design' as const, status: 'not-started' as const, progress: 0, tasks: [] },
+        { id: 'phase-3', name: 'Development' as const, status: 'not-started' as const, progress: 0, tasks: [] },
+        { id: 'phase-4', name: 'Testing' as const, status: 'not-started' as const, progress: 0, tasks: [] },
+        { id: 'phase-5', name: 'Deployment' as const, status: 'not-started' as const, progress: 0, tasks: [] }
       ],
       blockers: [],
       deliverables: [],
       documents: [],
-      messages: [],
+      messages: [
+        { id: 'msg-001', sender: 'System', content: 'Request submitted successfully. Our team will review within 2 business days.', timestamp: new Date().toISOString(), mentions: [] }
+      ],
+      description: `Pre-built solution request: ${solution.name}${formData.additionalRequirements ? '. Additional requirements: ' + formData.additionalRequirements : ''}`,
+      assignedTeam: undefined,
       customizations: formData.customizations,
       additionalRequirements: formData.additionalRequirements,
       solutionId: solution.id,
     };
     
-    const existingRequests = JSON.parse(localStorage.getItem('buildRequests') || '[]');
-    const updatedRequests = [newRequest, ...existingRequests];
-    localStorage.setItem('buildRequests', JSON.stringify(updatedRequests));
-    
-    // Dispatch custom event to notify Stage2 page to refresh
-    window.dispatchEvent(new CustomEvent('buildRequestAdded', { detail: newRequest }));
-    
-    navigate('/stage2', { 
-      state: { 
-        marketplace: 'solution-build',
-        tab: 'my-requests',
-        autoSelectRequest: newRequest.id
-      } 
+    // Create build request AND Stage 3 request atomically
+    const result = createBuildRequestStage3Intake({
+      buildRequest: newRequest,
+      requesterEmail: 'user@dtmp.local',
+      requesterDepartment: newRequest.department,
+      priority: newRequest.priority
     });
+
+    if (result) {
+      navigate('/stage2', {
+        state: {
+          marketplace: 'solution-build',
+          newBuildRequest: result.request,
+          selectedRequestId: result.request.id
+        }
+      });
+    }
   };
 
   return (

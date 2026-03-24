@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LoginModal } from "@/components/learningCenter/LoginModal";
 import { FilterPanel, MobileFilterButton } from "@/components/learningCenter/FilterPanel";
+import { isUserAuthenticated } from "@/data/sessionAuth";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ export function SolutionBuildPage() {
   const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>('catalog');
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(isUserAuthenticated());
   const [showLogin, setShowLogin] = useState(false);
   const [selectedSolutionId, setSelectedSolutionId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -130,6 +132,18 @@ export function SolutionBuildPage() {
   };
 
   const handleCustomBuildClick = () => {
+    if (!isLoggedIn) {
+      setShowLogin(true);
+      return;
+    }
+    setViewMode('custom-wizard');
+    setWizardStep(1);
+    window.scrollTo(0, 0);
+  };
+
+  const handleLoginSuccessForWizard = () => {
+    setShowLogin(false);
+    setIsLoggedIn(true);
     setViewMode('custom-wizard');
     setWizardStep(1);
     window.scrollTo(0, 0);
@@ -165,7 +179,7 @@ export function SolutionBuildPage() {
       return;
     }
 
-    setShowLogin(true);
+    handleLoginSuccess();
   };
 
   const handleWizardSubmit = () => {
@@ -177,10 +191,11 @@ export function SolutionBuildPage() {
       return;
     }
 
-    setShowLogin(true);
+    handleLoginSuccess();
   };
 
   const handleLoginSuccess = () => {
+    // User submitted form, create request
     const newRequest: any = {
       id: `BLD-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100).padStart(3, '0')}`,
       type: viewMode === 'custom-wizard' ? (wizardFormData.type as BuildRequestType) : 'pre-built',
@@ -204,6 +219,7 @@ export function SolutionBuildPage() {
         { id: 'phase-4', name: 'Testing' as const, status: 'not-started' as const, progress: 0, tasks: [] },
         { id: 'phase-5', name: 'Deployment' as const, status: 'not-started' as const, progress: 0, tasks: [] }
       ],
+      currentPhase: 'Scoping' as const,
       blockers: [],
       deliverables: [],
       documents: [],
@@ -214,15 +230,23 @@ export function SolutionBuildPage() {
       assignedTeam: undefined
     };
 
-    // Store in localStorage for persistence
-    const stored = JSON.parse(localStorage.getItem('buildRequests') || '[]');
-    localStorage.setItem('buildRequests', JSON.stringify([newRequest, ...stored]));
+    // Create build request AND Stage 3 request atomically
+    import('@/data/stage3/intake').then(({ createBuildRequestStage3Intake }) => {
+      const result = createBuildRequestStage3Intake({
+        buildRequest: newRequest,
+        requesterEmail: 'user@dtmp.local',
+        requesterDepartment: newRequest.department,
+        priority: newRequest.priority
+      });
 
-    navigate('/stage2', {
-      state: {
-        marketplace: 'solution-build',
-        newBuildRequest: newRequest,
-        selectedRequestId: newRequest.id
+      if (result) {
+        navigate('/stage2', {
+          state: {
+            marketplace: 'solution-build',
+            newBuildRequest: result.request,
+            selectedRequestId: result.request.id
+          }
+        });
       }
     });
   };

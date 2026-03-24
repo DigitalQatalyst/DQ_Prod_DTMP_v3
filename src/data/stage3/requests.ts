@@ -580,9 +580,136 @@ const defaultStage3Requests: Stage3Request[] = [
     slaStatus: "on-track",
     customerSatisfaction: 5,
   },
+  {
+    id: "req-stage3-017",
+    requestNumber: "REQ-2026-017",
+    type: "solution-build",
+    title: "Build Request: Zero Trust Network Implementation",
+    description:
+      "Implement zero trust security model to meet new compliance requirements by Q2. Complex security implementation requiring Delta team expertise.",
+    requester: {
+      name: "Current User",
+      email: "user@dtmp.local",
+      department: "Security",
+      organization: "DTMP",
+    },
+    status: "assigned",
+    priority: "critical",
+    assignedTo: "Sarah Miller",
+    assignedTeam: "Team Delta",
+    createdAt: new Date(now.getTime() - 3 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - day).toISOString(),
+    dueDate: new Date(now.getTime() + 10 * day).toISOString(),
+    estimatedHours: 480,
+    actualHours: 20,
+    tags: ["solution-build", "custom", "security", "zero-trust"],
+    relatedAssets: ["solution-build-request:BLD-2026-003"],
+    notes: [
+      "Build request submitted by Current User.",
+      "Build type: custom.",
+      "Department: Security.",
+      "Target date: 2026-04-30.",
+      "Sponsor: Jennifer Lee.",
+    ],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Build request received from Stage 1 submission.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Sarah Miller (Team Delta)."),
+      createActivityEntry("status-changed", "Status moved to assigned."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-018",
+    requestNumber: "REQ-2026-018",
+    type: "solution-build",
+    title: "Build Request: Real-Time Analytics Dashboard",
+    description:
+      "Executive dashboard with real-time KPIs for data-driven decision making. Analytics expertise required, Beta team ideal fit.",
+    requester: {
+      name: "Current User",
+      email: "user@dtmp.local",
+      department: "Executive",
+      organization: "DTMP",
+    },
+    status: "in-progress",
+    priority: "high",
+    assignedTo: "Michael Chen",
+    assignedTeam: "Team Beta",
+    createdAt: new Date(now.getTime() - 50 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 15 * day).toISOString(),
+    estimatedHours: 400,
+    actualHours: 260,
+    tags: ["solution-build", "custom", "executive", "analytics", "dashboard"],
+    relatedAssets: ["solution-build-request:BLD-2025-089"],
+    notes: [
+      "Build request submitted by Current User.",
+      "Build type: custom.",
+      "Department: Executive.",
+      "Target date: 2026-03-15.",
+      "Sponsor: Thomas Wilson.",
+      "Sprint 12 in progress.",
+    ],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Build request received from Stage 1 submission.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Michael Chen (Team Beta)."),
+      createActivityEntry("status-changed", "Status moved to in-progress."),
+    ],
+    slaStatus: "on-track",
+  },
+  {
+    id: "req-stage3-019",
+    requestNumber: "REQ-2026-019",
+    type: "solution-build",
+    title: "Build Request: Microservices Platform Deployment",
+    description:
+      "Modernize monolithic application to microservices architecture for better scalability. Pre-built solution with customization.",
+    requester: {
+      name: "Current User",
+      email: "user@dtmp.local",
+      department: "Engineering",
+      organization: "DTMP",
+    },
+    status: "pending-review",
+    priority: "medium",
+    assignedTo: "Lisa Wang",
+    assignedTeam: "Team Alpha",
+    createdAt: new Date(now.getTime() - 135 * day).toISOString(),
+    updatedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(now.getTime() + 5 * day).toISOString(),
+    estimatedHours: 560,
+    actualHours: 520,
+    tags: ["solution-build", "pre-built", "engineering", "microservices"],
+    relatedAssets: ["solution-build-request:BLD-2025-067"],
+    notes: [
+      "Build request submitted by Current User.",
+      "Build type: pre-built.",
+      "Department: Engineering.",
+      "Target date: 2026-02-28.",
+      "Testing phase in progress.",
+    ],
+    activityLog: [
+      createActivityEntry(
+        "created",
+        "Build request received from Stage 1 submission.",
+        INTAKE_ACTIVITY_ACTOR
+      ),
+      createActivityEntry("assigned", "Assigned to Lisa Wang (Team Alpha)."),
+      createActivityEntry("status-changed", "Status moved to pending-review."),
+    ],
+    slaStatus: "on-track",
+  },
 ];
 
-const STAGE3_DATA_VERSION = 4;
+const STAGE3_DATA_VERSION = 5;
 
 const loadStage3Requests = (): Stage3Request[] => {
   const storedVersion = localStorage.getItem('stage3RequestsVersion');
