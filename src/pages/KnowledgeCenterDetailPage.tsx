@@ -1287,8 +1287,8 @@ export default function KnowledgeCenterDetailPage() {
                 );
               })}
 
-              {/* ── Collaboration panel ───────────────────────────────────── */}
-              <div className="mt-12 border-t-2 border-gray-100 pt-10">
+              {/* ── Collaboration panel — hidden in edit mode ─────────────── */}
+              {!isEditMode && <div className="mt-12 border-t-2 border-gray-100 pt-10">
                 <h2 className="text-xl font-bold text-gray-900 mb-1">Questions & Comments</h2>
                 <p className="text-sm text-gray-500 mb-6">
                   Leave a question or flag something to the Transformation Office.
@@ -1414,7 +1414,7 @@ export default function KnowledgeCenterDetailPage() {
                     )}
                   </div>
                 )}
-              </div>
+              </div>}
             </div>
           </div>
         </div>
