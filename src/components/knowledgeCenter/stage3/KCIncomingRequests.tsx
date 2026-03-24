@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertTriangle,
@@ -183,6 +183,14 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
     refresh();
   };
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelectedId(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedId]);
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -220,11 +228,8 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
         <span className="ml-auto text-sm text-gray-400">{filtered.length} request(s)</span>
       </div>
 
-      {/* ── List + detail ───────────────────────────────────────────────── */}
-      <div className="flex gap-4 items-start">
-
-        {/* ── Request list ─────────────────────────────────────────────── */}
-        <div className={`space-y-2 min-w-0 transition-all duration-200 ${selectedId ? "w-[42%] flex-shrink-0" : "w-full"}`}>
+      {/* ── Request list — always full width ───────────────────────────── */}
+      <div className="space-y-2">
           {filtered.length === 0 ? (
             <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-10 text-center">
               <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-3" />
@@ -273,14 +278,21 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
               );
             })
           )}
-        </div>
+      </div>
 
-        {/* ── Detail panel ──────────────────────────────────────────────── */}
-        {selectedReq && (
-          <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl overflow-hidden sticky top-4 shadow-sm">
+      {/* ── Slide-over overlay ─────────────────────────────────────────────── */}
+      {selectedReq && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px]"
+          onClick={() => setSelectedId(null)}
+        >
+          <aside
+            className="absolute right-0 top-0 h-full w-full max-w-[820px] bg-white border-l border-gray-200 shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
 
             {/* Header */}
-            <div className="px-5 py-4 border-b border-gray-100">
+            <div className="px-6 py-5 border-b border-gray-100 flex-shrink-0">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex items-center flex-wrap gap-2">
                   <Badge className={`text-xs ${REQUEST_TYPE_COLORS[selectedReq.type] ?? "bg-gray-100 text-gray-700"}`}>
@@ -310,8 +322,8 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
             </div>
 
             {/* Scrollable body */}
-            <div className="overflow-y-auto max-h-[calc(100vh-280px)]">
-              <div className="p-5 space-y-5">
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6 space-y-5">
 
                 {/* ── Two info cards ───────────────────────────────────── */}
                 <div className="grid grid-cols-2 gap-3">
@@ -599,9 +611,9 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
 
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
