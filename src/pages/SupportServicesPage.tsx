@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Headphones, Briefcase } from "lucide-react";
+import { Headphones, Briefcase, BookOpen } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MarketplaceHeader } from "@/components/supportServices/MarketplaceHeader";
@@ -262,6 +262,7 @@ export default function SupportServicesPage() {
                     className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy bg-transparent"
                     aria-label={`Knowledge Base, ${knowledgeArticles.length} articles`}
                   >
+                    <BookOpen size={20} aria-hidden="true" />
                     <span className="hidden sm:inline">Knowledge Base</span>
                     <span className="sm:hidden">Knowledge</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs ml-2 ${
