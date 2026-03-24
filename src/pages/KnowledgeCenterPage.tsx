@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ChevronRight, BookOpen, Users, Award, Lightbulb, Quote, Map, FileText, ScrollText, ShieldCheck, Scale } from "lucide-react";
-import { getUserArticles, type UserArticle } from "@/data/knowledgeCenter/userArticlesState";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -100,30 +99,6 @@ export default function KnowledgeCenterPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const designReports = useMemo(() => getDesignReports(), []);
-
-  // ── User-created articles (TO office) ──────────────────────────────────────
-  const [userArticles, setUserArticles] = useState<UserArticle[]>(() => getUserArticles());
-  useEffect(() => {
-    setUserArticles(getUserArticles());
-  }, [activeTab]);
-
-  const toUserArticleCardItem = (article: UserArticle) => ({
-    id: article.id,
-    title: article.title,
-    description: article.description,
-    contentType: article.type || "Article",
-    format: "Article",
-    typeIcon: "FileText" as const,
-    author: article.author || article.createdBy,
-    length: "",
-    datePublished: article.createdAt.slice(0, 10),
-    topics: article.tags,
-    audience: article.audience,
-    statusBadge: "TO Created",
-  });
-
-  const activeTabUserArticles = userArticles.filter((a) => a.sourceTab === activeTab);
-
   const totalResourceCount =
     bestPractices.length +
     testimonials.length +
@@ -364,7 +339,7 @@ export default function KnowledgeCenterPage() {
           </p>
 
           <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-            <span className="flex items-center gap-2"><BookOpen className="w-4 h-4" />{totalResourceCount + userArticles.length} Total Resources</span>
+            <span className="flex items-center gap-2"><BookOpen className="w-4 h-4" />{totalResourceCount} Total Resources</span>
             <span className="flex items-center gap-2"><Users className="w-4 h-4" />Enterprise-wide Access</span>
             <span className="flex items-center gap-2"><Award className="w-4 h-4" />Expert-Validated Content</span>
           </div>
@@ -407,13 +382,7 @@ export default function KnowledgeCenterPage() {
           <div className="flex-1 min-w-0">
             <div className="bg-gray-50 border-b border-gray-200 px-4 lg:px-8 py-3">
               <p className="text-sm text-muted-foreground">
-                Showing <span className="font-semibold text-foreground">{activeItems.length + activeTabUserArticles.length}</span> items
-                {activeTabUserArticles.length > 0 && (
-                  <span className="ml-2 inline-flex items-center gap-1 text-green-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-                    {activeTabUserArticles.length} TO Created
-                  </span>
-                )}
+                Showing <span className="font-semibold text-foreground">{activeItems.length}</span> items
               </p>
             </div>
 
@@ -510,33 +479,7 @@ export default function KnowledgeCenterPage() {
                 </div>
               </TabsContent>
 
-              {/* TO-created articles for the active tab */}
-              {activeTabUserArticles.length > 0 && (
-                <div className="mt-6 pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                    <h3 className="text-xs font-semibold text-green-700 uppercase tracking-wide">
-                      TO Created Articles
-                    </h3>
-                    <span className="flex-1 border-t border-green-100" />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {activeTabUserArticles.map((article) => (
-                      <LibraryItemCard
-                        key={article.id}
-                        item={toUserArticleCardItem(article)}
-                        onClick={() =>
-                          navigate(
-                            `/marketplaces/knowledge-center/${article.sourceTab}/${article.id}`
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {activeItems.length === 0 && activeTabUserArticles.length === 0 && (
+              {activeItems.length === 0 && (
                 <p className="text-sm text-muted-foreground">No items match your current search and filters.</p>
               )}
 

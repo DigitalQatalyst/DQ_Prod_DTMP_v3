@@ -96,31 +96,3 @@ export const recordStaleFlagMetric = (itemId: string): KnowledgeUsageMetric =>
   mutateMetric(itemId, (metric) => {
     metric.staleFlags += 1;
   });
-
-// ── Per-user helpful vote persistence ────────────────────────────────────────
-// Stored separately from aggregate metrics so the voter's own choice survives
-// page reloads and prevents double-voting.
-const VOTES_KEY = "dtmp.knowledge.userVotes";
-
-const readVotes = (): Record<string, "yes" | "no"> => {
-  if (!isBrowser) return {};
-  return parseJson<Record<string, "yes" | "no">>(
-    window.localStorage.getItem(VOTES_KEY),
-    {}
-  );
-};
-
-export const getUserHelpfulVote = (itemId: string): "yes" | "no" | null => {
-  const votes = readVotes();
-  return votes[itemId] ?? null;
-};
-
-export const persistUserHelpfulVote = (
-  itemId: string,
-  vote: "yes" | "no"
-): void => {
-  if (!isBrowser) return;
-  const votes = readVotes();
-  votes[itemId] = vote;
-  window.localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
-};
