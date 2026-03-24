@@ -268,7 +268,7 @@ export default function Stage3AppPage() {
   const [noteDraft, setNoteDraft] = useState("");
   const [scope, setScope] = useState<Stage3Scope>("all");
   const role = getSessionRole();
-  const sessionRole: "admin" | "viewer" = role === "admin" ? "admin" : "viewer";
+  const sessionRole: "admin" | "viewer" = (role === "to-admin" || role === "to-ops") ? "admin" : "viewer";
   const [lcView, setLcView] = useState<LCGovView>("dashboard");
   const [lcRequests, setLcRequests] = useState<LCChangeRequest[]>([]);
   const refreshLc = () => setLcRequests(getLCChangeRequests());
