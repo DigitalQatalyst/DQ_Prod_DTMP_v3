@@ -45,11 +45,6 @@ import LCChangeRequests from "@/components/learningCenter/stage3/LCChangeRequest
 import LCPendingApproval from "@/components/learningCenter/stage3/LCPendingApproval";
 import LCApprovedChanges from "@/components/learningCenter/stage3/LCApprovedChanges";
 import LCAnalytics from "@/components/learningCenter/stage3/LCAnalytics";
-import KCGovOverview from "@/components/knowledgeCenter/stage3/KCGovOverview";
-import KCContentBrowser from "@/components/knowledgeCenter/stage3/KCContentBrowser";
-import KCIncomingRequests from "@/components/knowledgeCenter/stage3/KCIncomingRequests";
-import KCAnalytics from "@/components/knowledgeCenter/stage3/KCAnalytics";
-import { getTORequests } from "@/data/knowledgeCenter/requestState";
 import {
   approveDesignReportRequest,
   documentStudioTabMeta,
@@ -106,8 +101,6 @@ type LCGovView =
   | "pending-approval"
   | "approved-changes"
   | "analytics";
-
-type KCGovView = "dashboard" | "content-browser" | "incoming-requests" | "analytics";
 
 const viewLabels: Record<Stage3View, string> = {
   dashboard: "Dashboard",
@@ -268,19 +261,10 @@ export default function Stage3AppPage() {
   const [noteDraft, setNoteDraft] = useState("");
   const [scope, setScope] = useState<Stage3Scope>("all");
   const role = getSessionRole();
-  const sessionRole: "admin" | "viewer" = (role === "to-admin" || role === "to-ops") ? "admin" : "viewer";
   const [lcView, setLcView] = useState<LCGovView>("dashboard");
   const [lcRequests, setLcRequests] = useState<LCChangeRequest[]>([]);
   const refreshLc = () => setLcRequests(getLCChangeRequests());
   const lcSubmittedCount = lcRequests.filter((r) => r.status === "submitted").length;
-  const [kcGovView, setKcGovView] = useState<KCGovView>("dashboard");
-  const kcOpenRequestCount = getTORequests().filter((r) => r.status === "Open").length;
-  // Articles with unresolved content-affecting requests (stale-flag or outdated-section)
-  const kcContentAttentionCount = new Set(
-    getTORequests()
-      .filter((r) => r.status !== "Resolved" && (r.type === "stale-flag" || r.type === "outdated-section"))
-      .map((r) => r.itemId)
-  ).size;
   const [statusFilter, setStatusFilter] = useState<Stage3Request["status"] | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<Stage3Request["priority"] | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
@@ -773,11 +757,7 @@ export default function Stage3AppPage() {
         <div className="p-5 border-b border-gray-200">
           <h2 className="font-semibold text-2xl text-gray-900">TO Operations</h2>
           <p className="text-sm text-gray-500">
-            {scope === "learning-center"
-              ? "Learning Centre Governance"
-              : scope === "knowledge-center"
-              ? "Knowledge Centre Governance"
-              : "Stage 3 — Transformation Office"}
+            {scope === "learning-center" ? "Learning Centre Governance" : "Stage 3 — Transformation Office"}
           </p>
         </div>
 
@@ -977,48 +957,6 @@ export default function Stage3AppPage() {
               </div>
             </div>
           </nav>
-        ) : scope === "knowledge-center" ? (
-          <nav className="p-4 space-y-1 flex-1">
-            <div className="px-4 pb-3">
-              <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Content Governance</p>
-              <div className="space-y-1">
-                {(
-                  [
-                    { id: "dashboard" as KCGovView, label: "Overview", Icon: LayoutDashboard },
-                    { id: "content-browser" as KCGovView, label: "Content Browser", Icon: Library },
-                    { id: "incoming-requests" as KCGovView, label: "Incoming Requests", Icon: Inbox },
-                    { id: "analytics" as KCGovView, label: "Analytics", Icon: BarChart3 },
-                  ]
-                ).map(({ id, label, Icon }) => {
-                  const isActive = kcGovView === id;
-                  const badgeCount =
-                    id === "incoming-requests" ? kcOpenRequestCount
-                    : id === "content-browser" ? kcContentAttentionCount
-                    : 0;
-                  const showBadge = badgeCount > 0;
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => setKcGovView(id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
-                        isActive ? "bg-orange-50 text-orange-700 font-medium" : "text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-orange-600" : "text-gray-500"}`} />
-                      <span className="flex-1">{label}</span>
-                      {showBadge && (
-                        <span className={`text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none ${
-                          id === "content-browser" ? "bg-amber-500" : "bg-orange-600"
-                        }`}>
-                          {badgeCount}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </nav>
         ) : (
           /* General scope: grouped nav */
           <>
@@ -1121,8 +1059,6 @@ export default function Stage3AppPage() {
             <h1 className="text-4xl font-semibold text-gray-900">
               {scope === "learning-center"
                 ? "Learning Centre"
-                : scope === "knowledge-center"
-                ? "Knowledge Centre"
                 : isSolutionBuildScope ? sbNavLabels[activeSbView]
                 : isSolutionSpecsScope ? ssNavLabels[activeSsView]
                 : isDocumentStudioScope ? dsNavLabels[activeDsView]
@@ -1130,8 +1066,6 @@ export default function Stage3AppPage() {
             </h1>
             <p className="text-sm text-gray-500">
               {scope === "learning-center"
-                ? "Content Governance · EA Office"
-                : scope === "knowledge-center"
                 ? "Content Governance · EA Office"
                 : isSolutionBuildScope
                   ? "Solution Build — TO Office"
@@ -1205,7 +1139,7 @@ export default function Stage3AppPage() {
               size="sm"
               variant={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "knowledge-center" ? "default" : "outline"}
               className={!isDocumentStudioScope && !isSolutionSpecsScope && !isSolutionBuildScope && scope === "knowledge-center" ? "bg-orange-600 hover:bg-orange-700" : ""}
-              onClick={() => { navigate("/stage3/all"); setScope("knowledge-center"); setKcGovView("dashboard"); }}
+              onClick={() => { navigate("/stage3/all"); setScope("knowledge-center"); }}
             >
               Knowledge Center
             </Button>
@@ -1222,19 +1156,6 @@ export default function Stage3AppPage() {
               {lcView === "analytics" && <LCAnalytics />}
             </div>
           )}
-
-          {/* ── KC Governance views ───────────────────────────────────────── */}
-          {scope === "knowledge-center" && (
-            <div className="space-y-4">
-              {kcGovView === "dashboard" && <KCGovOverview role={sessionRole} onViewAll={() => setKcGovView("incoming-requests")} />}
-              {kcGovView === "content-browser" && <KCContentBrowser role={sessionRole} />}
-              {kcGovView === "incoming-requests" && <KCIncomingRequests role={sessionRole} />}
-              {kcGovView === "analytics" && <KCAnalytics role={sessionRole} />}
-            </div>
-          )}
-
-          {/* General TO platform views — fully hidden when KC or LC governance scope is active */}
-          {scope !== "knowledge-center" && scope !== "learning-center" && <>
 
           {/* ── KPI cards ────────────────────────────────────────────────── */}
           {isSolutionBuildScope ? (
@@ -1838,7 +1759,6 @@ export default function Stage3AppPage() {
               )}
             </>
           )}
-          </>}
         </div>
       </main>
 

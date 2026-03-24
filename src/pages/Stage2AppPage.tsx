@@ -566,11 +566,11 @@ export default function Stage2AppPage() {
   const [dsStatusFilter, setDsStatusFilter] = useState<"all" | DocumentStudioRequestStatus>("all");
   const [dsTabFilter, setDsTabFilter] = useState<"all" | DSTab>("all");
   const [knowledgeSearchQuery, setKnowledgeSearchQuery] = useState("");
-  const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>(() => getSavedKnowledgeIds());
-  const [knowledgeHistory, setKnowledgeHistory] = useState<KnowledgeHistoryEntry[]>(() => getKnowledgeHistory());
+  const [savedKnowledgeIds, setSavedKnowledgeIds] = useState<string[]>([]);
+  const [knowledgeHistory, setKnowledgeHistory] = useState<KnowledgeHistoryEntry[]>([]);
   const [knowledgeMentionNotifications, setKnowledgeMentionNotifications] =
-    useState<MentionNotification[]>(() => getMentionNotifications("John Doe"));
-  const [knowledgeRequests, setKnowledgeRequests] = useState<TORequest[]>(() => getTORequests("John Doe"));
+    useState<MentionNotification[]>([]);
+  const [knowledgeRequests, setKnowledgeRequests] = useState<TORequest[]>([]);
   const [knowledgeUsageSignals, setKnowledgeUsageSignals] = useState<
     Array<(typeof knowledgeItems)[number] & { views: number; staleFlags: number; helpfulVotes: number }>
   >([]);
@@ -2907,12 +2907,11 @@ export default function Stage2AppPage() {
               savedItems={filteredSavedKnowledgeItems}
               historyItems={filteredKnowledgeHistoryItems}
               formatViewedAt={formatKnowledgeViewedAt}
-              onTabChange={handleKnowledgeTabClick}
               onNotificationClick={handleKnowledgeNotificationClick}
               onAdvanceRequestStatus={handleKnowledgeAdvanceRequestStatus}
               getNextRequestStatus={getNextKnowledgeRequestStatus}
               onOpenItem={(sourceTab, sourceId) =>
-                navigate(`/stage2/knowledge/${sourceTab}/${sourceId}?view=artefact`)
+                navigate(`/stage2/knowledge/${sourceTab}/${sourceId}`)
               }
               onToggleSave={handleKnowledgeToggleSave}
             />
