@@ -1,323 +1,410 @@
+import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import {
+  BookOpen, Zap, Shield, Brain, BarChart2, Users, Settings,
+  ArrowRight, Layers, Target, TrendingUp, Activity, Star,
+  Database, Globe, ChevronRight, Sparkles, Building2, Cpu,
+  Droplets, HeartHandshake, Bot
+} from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
 import {
   divisionalLandingData,
   isDivisionId,
 } from "@/data/divisions/divisionalLandingData";
 
-const divisionAccent: Record<string, string> = {
-  generation: "#D97706",
-  transmission: "#0EA5E9",
-  distribution: "#16A34A",
-  "water-services": "#0D9488",
-  "customer-services": "#7C3AED",
-  "digital-dewa-moro-hub": "#0369A1",
+// ── accent / hero config ──────────────────────────────────────────────────────
+const divisionConfig: Record<string, { accent: string; heroGradient: string; icon: React.ReactNode }> = {
+  "water-services": {
+    accent: "#0D9488",
+    heroGradient: "linear-gradient(135deg, #0f2027 0%, #1a3a4a 40%, #0D9488 100%)",
+    icon: <Droplets size={22} className="text-white" />,
+  },
+  "customer-services": {
+    accent: "#7C3AED",
+    heroGradient: "linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #7C3AED 100%)",
+    icon: <HeartHandshake size={22} className="text-white" />,
+  },
+  "digital-dewa-moro-hub": {
+    accent: "#0369A1",
+    heroGradient: "linear-gradient(135deg, #0c1445 0%, #1e3a5f 40%, #0369A1 100%)",
+    icon: <Bot size={22} className="text-white" />,
+  },
+  generation: {
+    accent: "#D97706",
+    heroGradient: "linear-gradient(135deg, #1c0a00 0%, #3d1f00 40%, #D97706 100%)",
+    icon: <Zap size={22} className="text-white" />,
+  },
+  transmission: {
+    accent: "#0EA5E9",
+    heroGradient: "linear-gradient(135deg, #0c1a2e 0%, #0f3460 40%, #0EA5E9 100%)",
+    icon: <Activity size={22} className="text-white" />,
+  },
+  distribution: {
+    accent: "#16A34A",
+    heroGradient: "linear-gradient(135deg, #052e16 0%, #14532d 40%, #16A34A 100%)",
+    icon: <Globe size={22} className="text-white" />,
+  },
 };
 
-const divisionHeroImage: Record<string, string> = {
-  generation:
-    "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1800&q=80",
-  transmission:
-    "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1800&q=80",
-  distribution:
-    "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1800&q=80",
-  "water-services":
-    "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1800&q=80",
-  "customer-services":
-    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1800&q=80",
-  "digital-dewa-moro-hub":
-    "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1800&q=80",
+// gradient icon badge (matches reference design)
+const iconGradient = "linear-gradient(135deg, #6d28d9 0%, #db2777 60%, #ea580c 100%)";
+
+const phaseColors: Record<string, string> = {
+  Discern: "#6d28d9",
+  Design: "#0369A1",
+  Deploy: "#16A34A",
+  Drive: "#D97706",
 };
 
+const priorityIcons = [Target, TrendingUp, Layers, Shield, BarChart2, Star];
+const roleIcons = [Brain, BarChart2, Cpu, Users, Activity, Shield];
+const marketplaceIcons = [BookOpen, Database, Settings, Zap, Building2, Globe];
+
+// ── Pill label ────────────────────────────────────────────────────────────────
+function SectionPill({ label }: { label: string }) {
+  return (
+    <div className="flex justify-center mb-4">
+      <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-300 bg-white text-xs font-semibold uppercase tracking-widest text-slate-500">
+        <Sparkles size={12} className="text-violet-500" />
+        {label}
+      </span>
+    </div>
+  );
+}
+
+// ── Gradient icon badge ───────────────────────────────────────────────────────
+function IconBadge({ icon, size = 40 }: { icon: React.ReactNode; size?: number }) {
+  return (
+    <div
+      className="flex items-center justify-center rounded-xl flex-shrink-0"
+      style={{ width: size, height: size, background: iconGradient }}
+    >
+      {icon}
+    </div>
+  );
+}
+
+// ── Stat card ─────────────────────────────────────────────────────────────────
+function StatCard({ value, label, sub }: { value: string; label: string; sub: string }) {
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+      <p className="text-3xl font-bold mb-1" style={{ color: "#6d28d9" }}>{value}</p>
+      <p className="font-semibold text-slate-800 text-sm mb-1">{label}</p>
+      <p className="text-xs text-slate-500 leading-relaxed">{sub}</p>
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function DivisionalLandingPage() {
   const { divisionId } = useParams<{ divisionId?: string }>();
+  const [activePhase, setActivePhase] = useState<string>("All");
 
   if (!isDivisionId(divisionId)) return <Navigate to="/" replace />;
 
   const data = divisionalLandingData[divisionId];
-  const accent = divisionAccent[divisionId];
-  const hero = divisionHeroImage[divisionId];
+  const cfg = divisionConfig[divisionId] ?? divisionConfig["transmission"];
+  const phases = ["All", "Discern", "Design", "Deploy", "Drive"];
+  const filteredMarketplaces =
+    activePhase === "All"
+      ? data.marketplaces
+      : data.marketplaces.filter((m) => m.phase === activePhase);
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
+
+        {/* ── HERO ── */}
         <section
-          className="relative py-16 lg:py-24 overflow-hidden flex items-center"
-          style={{
-            backgroundImage: `linear-gradient(to right, rgba(6,25,39,0.85) 45%, rgba(6,25,39,0.45) 100%), url('${hero}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            minHeight: "560px",
-          }}
+          className="relative py-20 lg:py-28 flex items-center overflow-hidden"
+          style={{ background: cfg.heroGradient, minHeight: 520 }}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <p className="text-xs uppercase tracking-widest text-blue-accent mb-3">{data.divisionLabel} Divisional Landing Page</p>
-            <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4 text-left">{data.heroTitle}</h1>
-            <p className="text-slate-200 text-lg max-w-3xl mb-6">{data.heroSubtitle}</p>
-            <div className="flex flex-wrap gap-3 mb-6">
-              {data.heroFacts.map((fact) => (
-                <span
-                  key={fact}
-                  className="inline-flex items-center rounded-full px-4 py-2 text-xs text-white font-medium"
-                  style={{ border: `1.5px solid ${accent}` }}
-                >
-                  {fact}
-                </span>
-              ))}
+          {/* subtle radial glow */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse 70% 60% at 60% 50%, rgba(255,255,255,0.04) 0%, transparent 70%)" }} />
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center">
+            {/* pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6"
+              style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              {cfg.icon}
+              <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+                {data.divisionLabel} — DTMP
+              </span>
             </div>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-center justify-start mb-8">
-              <Link to="/marketplaces">
-                <Button className="cta-primary inline-flex items-center gap-2">
-                  Enter the Platform
-                  <ArrowRight size={18} />
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                onClick={() => document.getElementById("division-roles")?.scrollIntoView({ behavior: "smooth" })}
-                className="cta-secondary"
-              >
-                Find Your Role
-              </Button>
-              <button
-                onClick={() => document.getElementById("marketplaces")?.scrollIntoView({ behavior: "smooth" })}
-                className="cta-primary bg-transparent border-0 text-white hover:text-blue-accent font-bold text-[16px] px-4 py-2 rounded-md hover:bg-blue-accent/10 transition-colors"
-              >
-                → Explore Marketplaces
-              </button>
+            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-5 leading-tight">
+              {data.heroTitle}
+            </h1>
+            <p className="text-white/70 text-lg max-w-2xl mx-auto mb-8">
+              {data.heroSubtitle}
+            </p>
+            {/* search bar */}
+            <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 max-w-xl mx-auto mb-8 shadow-lg">
+              <Sparkles size={18} className="text-violet-500 flex-shrink-0" />
+              <span className="text-slate-400 text-sm flex-1 text-left">
+                Ask me anything about {data.shortTitle}... What do you need help with?
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                EA Ready
+              </span>
             </div>
-          </div>
-        </section>
-
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-10">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-1 w-12 bg-orange-500"></div>
-                <p className="text-sm font-bold text-orange-500 uppercase tracking-wider">Divisional Context</p>
-                <div className="h-1 flex-1 bg-orange-500"></div>
-              </div>
-              <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-6">{data.contextTitle}</h2>
-              <p className="text-lg italic text-slate-600 mb-8 max-w-4xl">
-                {data.contextOverview[0]}
-              </p>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div className="bg-gradient-to-br from-amber-900 to-amber-800 text-white p-6 rounded-xl">
-                  <h3 className="text-lg font-bold mb-4 text-amber-100">Division Overview</h3>
-                  <div className="space-y-3 text-sm leading-relaxed">
-                    {data.contextOverview.slice(1).map((paragraph, idx) => (
-                      <p key={idx} className="text-amber-50">{paragraph}</p>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl">
-                  <h3 className="text-lg font-bold mb-4 text-slate-200">Why DTMP Matters Here</h3>
-                  <ul className="space-y-2 text-sm">
-                    {data.whyItMatters.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-slate-200">
-                        <span className="text-orange-400 mt-1">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <div className="bg-orange-500 text-white px-6 py-2 rounded-lg font-bold text-sm uppercase tracking-wider">
-                  EA Initiative: {data.initiative}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 section-alt">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-1 w-12 bg-orange-500"></div>
-              <p className="text-sm font-bold text-orange-500 uppercase tracking-wider">Divisional Priorities</p>
-              <div className="h-1 flex-1 bg-orange-500"></div>
-            </div>
-            <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-2">Four Strategic Priorities</h2>
-            <p className="section-subheading mb-8 italic">The measurable outcomes DTMP is configured to deliver for this division.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {data.priorities.map((priority, idx) => (
-                <article
-                  key={`priority-${idx}`}
-                  className="text-slate-800 rounded-xl p-6 shadow-lg h-full flex flex-col"
-                  style={{
-                    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                    borderTop: `4px solid ${idx === 0 ? '#0ea5e9' : idx === 1 ? '#f59e0b' : idx === 2 ? '#22c55e' : '#a855f7'}`,
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-6xl font-bold opacity-20">
-                      {String(idx + 1).padStart(2, "0")}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-bold uppercase tracking-wider opacity-60">Priority</p>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">{priority.title}</h3>
-                  <p className="text-sm mb-4 leading-relaxed opacity-80 flex-grow">{priority.description}</p>
-                  <div className="border-t border-slate-200 pt-3 mt-auto">
-                    <span className="text-xs font-semibold uppercase tracking-wider opacity-60">{priority.kpi}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="marketplaces" className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-1 w-12 bg-orange-500"></div>
-              <p className="text-sm font-bold text-orange-500 uppercase tracking-wider">Marketplaces</p>
-              <div className="h-1 flex-1 bg-orange-500"></div>
-            </div>
-            <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-2">Six Integrated EA Marketplaces</h2>
-            <p className="section-subheading mb-8 italic">All six marketplaces available — with content and services scoped to your division.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.marketplaces.map((marketplace, idx) => (
-                <article
-                  key={`marketplace-${idx}`}
-                  className="text-slate-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 h-full flex flex-col"
-                  style={{
-                    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                    borderTop: `4px solid ${
-                      marketplace.phase === "Discern" ? '#0ea5e9' :
-                      marketplace.phase === "Design" ? '#f59e0b' :
-                      marketplace.phase === "Deploy" ? '#22c55e' :
-                      '#ef4444'
-                    }`,
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-xs font-bold uppercase tracking-wider opacity-60">
-                      {marketplace.phase}
-                    </p>
-                  </div>
-                  <h3 className="text-lg font-bold mb-3">{marketplace.name}</h3>
-                  <p className="text-sm mb-4 leading-relaxed opacity-80 flex-grow">{marketplace.description}</p>
-                  <p className="text-xs mb-4 opacity-60">For: {marketplace.audience}</p>
-                  <div className="border-t border-slate-200 pt-3 mt-auto">
-                    <Link
-                      to={marketplace.route}
-                      className="text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors inline-flex items-center gap-1"
-                    >
-                      → {marketplace.cta}
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className="mt-12 text-center bg-slate-100 rounded-xl p-8">
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Explore All Marketplaces →</h3>
-              <p className="text-slate-600 mb-4">Enter the full DTMP marketplace for your division</p>
-              <Link to="/marketplaces">
-                <Button className="cta-primary inline-flex items-center gap-2">
-                  Explore All Marketplaces
-                  <ArrowRight size={16} />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section id="division-roles" className="py-16 section-alt">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-1 w-12 bg-orange-500"></div>
-              <p className="text-sm font-bold text-orange-500 uppercase tracking-wider">User Journeys</p>
-              <div className="h-1 flex-1 bg-orange-500"></div>
-            </div>
-            <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-2">Who This Experience Serves</h2>
-            <p className="section-subheading mb-8 italic">Role-based entry points for every stakeholder in this division.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.roles.map((role, idx) => (
-                <article
-                  key={`role-${idx}`}
-                  className="text-slate-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 h-full flex flex-col"
-                  style={{
-                    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                    borderTop: `4px solid ${
-                      idx === 0 ? '#f59e0b' :
-                      idx === 1 ? '#0ea5e9' :
-                      idx === 2 ? '#f59e0b' :
-                      idx === 3 ? '#22c55e' :
-                      idx === 4 ? '#a855f7' :
-                      '#ef4444'
-                    }`,
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  <div className="mb-4">
-                    <p className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2">
-                      {role.name.includes("EA") ? "GENERATION EA LEAD" : 
-                       role.name.includes("Strategy") ? "GENERATION STRATEGY & LEADERSHIP" :
-                       role.name.includes("Solar") ? "SOLAR & RENEWABLE ENERGY ARCHITECTS" :
-                       role.name.includes("Project") ? "GENERATION PROJECT TEAMS" :
-                       role.name.includes("Asset") ? "ASSET & LIFECYCLE OPERATIONS" :
-                       "OT SECURITY & DEVOPS"}
-                    </p>
-                    <h3 className="text-lg font-bold mb-3">{role.name}</h3>
-                  </div>
-                  <p className="text-sm mb-4 leading-relaxed opacity-80 flex-grow">{role.summary}</p>
-                  <div className="mb-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-2">Key Actions:</p>
-                    <ul className="space-y-1 text-sm opacity-80">
-                      {role.actions.map((action, actionIdx) => (
-                        <li key={actionIdx} className="flex items-start gap-2">
-                          <span className="text-slate-400 mt-1">•</span>
-                          <span>{action}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="border-t border-slate-200 pt-3 mt-auto">
-                    <Link to={role.route} className="text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors">
-                      → {role.cta}
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 bg-white border-t border-[#E2E8F0]">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="bg-slate-100 rounded-xl p-8 mb-8">
-              <p className="text-sm font-bold text-sky-600 uppercase tracking-wider mb-2">
-                Ready to Govern Generation's Digital Transformation?
-              </p>
-              <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-4">
-                Start Governing. Start Delivering.
-              </h2>
-              <p className="text-lg text-slate-600 mb-6">
-                The DTMP experience scoped for Generation — built on DEWA's enterprise architecture platform.
-              </p>
-            </div>
+            {/* CTAs */}
             <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/marketplaces">
-                <Button className="cta-primary">Enter Marketplace</Button>
+              <Link
+                to="/marketplaces/learning-center"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all"
+                style={{ background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.3)", color: "#fff" }}
+              >
+                <BookOpen size={16} /> Learn to work with DTMP today
               </Link>
-              <Link to="/" className="bg-transparent border-2 border-[#0EA5E9] text-[#0EA5E9] font-bold rounded-md px-4 py-2 hover:bg-[#0EA5E9] hover:text-white transition-colors inline-flex items-center text-sm">
-                Back to Enterprise Platform
+              <Link
+                to="/marketplaces"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-all"
+                style={{ background: cfg.accent }}
+              >
+                Explore Marketplaces <ArrowRight size={16} />
               </Link>
             </div>
           </div>
         </section>
+
+        {/* ── CONTEXT — 3 feature cards ── */}
+        <section className="py-20" style={{ background: "#EEF2FF" }}>
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <SectionPill label="Division Context" />
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+              {data.contextTitle}
+            </h2>
+            <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
+              {data.contextOverview[0]}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {data.whyItMatters.slice(0, 3).map((item, i) => (
+                <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                  <IconBadge icon={[<Brain />, <Zap />, <Shield />][i % 3]} />
+                  <h3 className="font-bold text-slate-800 mt-4 mb-2 text-base">{item.split(" ").slice(0, 4).join(" ")}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{item}</p>
+                </div>
+              ))}
+            </div>
+            {data.contextOverview[1] && (
+              <p className="text-slate-500 text-center max-w-3xl mx-auto mt-10 text-sm leading-relaxed">
+                {data.contextOverview[1]}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* ── STATS ── */}
+        <section className="py-20 bg-white">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <SectionPill label="Why DTMP Matters Here" />
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+              From Fragmented Architecture to Enterprise Advantage
+            </h2>
+            <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm">
+              Architecture only scales when it's governed, contextual, and measured end-to-end.
+            </p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+              {data.whyItMatters.slice(3).map((item, i) => {
+                const vals = ["85%", "92%", "78%", "96%"];
+                const labels = ["Architecture Coverage", "Governance Adoption", "Lifecycle Compliance", "Risk Reduction"];
+                return (
+                  <StatCard
+                    key={i}
+                    value={vals[i] ?? "—"}
+                    label={labels[i] ?? item.split(" ").slice(0, 3).join(" ")}
+                    sub={item}
+                  />
+                );
+              })}
+            </div>
+            <div className="text-center">
+              <Link
+                to="/marketplaces"
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white transition-all"
+                style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+              >
+                Explore the Unified EA Architecture <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── PRIORITIES — numbered grid ── */}
+        <section className="py-20" style={{ background: "#EEF2FF" }}>
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <SectionPill label="Strategic Priorities" />
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+              The {data.priorities.length} {data.shortTitle} Imperatives
+            </h2>
+            <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm">
+              Structural priorities that transform architecture from governance into measurable, value-generating outcomes.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {data.priorities.map((p, i) => {
+                const Icon = priorityIcons[i % priorityIcons.length];
+                return (
+                  <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative">
+                    <span className="absolute top-4 right-4 text-xs font-bold text-slate-300">{i + 1}</span>
+                    <IconBadge icon={<Icon size={18} className="text-white" />} />
+                    <h3 className="font-bold text-slate-800 mt-4 mb-2 text-base">{p.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed mb-4">{p.description}</p>
+                    <p className="text-xs font-semibold text-violet-600">{p.kpi}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── ROLES ── */}
+        <section className="py-20 bg-white">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <SectionPill label="User Journeys" />
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+              EA Solutions for Every Role
+            </h2>
+            <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm">
+              Role-based environments that preserve accountability while scaling architecture capability with governance and measurable value.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {data.roles.map((role, i) => {
+                const Icon = roleIcons[i % roleIcons.length];
+                const categoryLabel = role.name.toUpperCase().split(" ").slice(0, 3).join(" ");
+                return (
+                  <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
+                    <IconBadge icon={<Icon size={18} className="text-white" />} />
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mt-4 mb-1">{categoryLabel}</p>
+                    <h3 className="font-bold text-slate-800 mb-2 text-base">{role.name}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed flex-1 mb-4">{role.summary}</p>
+                    <Link
+                      to={role.route}
+                      className="text-sm font-semibold inline-flex items-center gap-1 transition-colors"
+                      style={{ color: cfg.accent }}
+                    >
+                      {role.cta} <ChevronRight size={14} />
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="text-center mt-10">
+              <Link
+                to="/marketplaces"
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white transition-all"
+                style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+              >
+                Explore EA Collaboration Framework <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── MARKETPLACES — tabbed ── */}
+        <section className="py-20" style={{ background: "#EEF2FF" }}>
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <SectionPill label="Marketplace" />
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+              The 4D EA Marketplace Architecture
+            </h2>
+            <p className="text-slate-500 text-center max-w-2xl mx-auto mb-8 text-sm">
+              A structured capability spanning Discern, Design, Deploy, and Drive — from literacy to scale.
+            </p>
+            {/* phase tabs */}
+            <div className="flex flex-wrap justify-center gap-2 mb-10">
+              {phases.map((phase) => (
+                <button
+                  key={phase}
+                  onClick={() => setActivePhase(phase)}
+                  className="px-5 py-2 rounded-full text-sm font-semibold transition-all"
+                  style={
+                    activePhase === phase
+                      ? { background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)", color: "#fff" }
+                      : { background: "#fff", color: "#64748b", border: "1.5px solid #e2e8f0" }
+                  }
+                >
+                  {phase === "All" ? "All Capabilities" : `0${phases.indexOf(phase)} ${phase}`}
+                </button>
+              ))}
+            </div>
+            {/* phase group header */}
+            {activePhase !== "All" && (
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-1 h-10 rounded-full" style={{ background: phaseColors[activePhase] }} />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                    Class 0{phases.indexOf(activePhase)}
+                  </p>
+                  <p className="font-bold text-slate-800 text-lg uppercase">{activePhase}</p>
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMarketplaces.map((mp, i) => {
+                const Icon = marketplaceIcons[i % marketplaceIcons.length];
+                return (
+                  <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
+                    <IconBadge icon={<Icon size={18} className="text-white" />} />
+                    <p className="text-xs font-bold uppercase tracking-widest mt-4 mb-1"
+                      style={{ color: phaseColors[mp.phase] }}>
+                      {mp.phase}
+                    </p>
+                    <h3 className="font-bold text-slate-800 mb-2 text-base">{mp.name}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed flex-1 mb-2">{mp.description}</p>
+                    <p className="text-xs text-slate-400 mb-4">For: {mp.audience}</p>
+                    <Link
+                      to={mp.route}
+                      className="text-sm font-semibold inline-flex items-center gap-1 transition-colors"
+                      style={{ color: cfg.accent }}
+                    >
+                      {mp.cta} <ChevronRight size={14} />
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA BAND ── */}
+        <section
+          className="py-16"
+          style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #7c2d12 100%)" }}
+        >
+          <div className="max-w-6xl mx-auto px-6 lg:px-8 flex flex-col lg:flex-row items-start lg:items-center gap-10">
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Enter the{" "}
+                <span style={{ color: cfg.accent }}>{data.shortTitle} DTMP</span>
+              </h2>
+              <div className="w-10 h-0.5 bg-white/30 mb-4" />
+              <p className="text-white/60 text-sm">
+                Govern, design, and deliver {data.shortTitle} architecture at enterprise scale.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 w-full lg:w-96">
+              {[
+                { icon: <BookOpen size={16} />, label: "Learn to work with DTMP today", route: "/marketplaces/learning-center" },
+                { icon: <Layers size={16} />, label: "Explore EA Marketplaces", route: "/marketplaces" },
+                { icon: <ArrowRight size={16} />, label: "Submit Architecture Service Request", route: "/marketplaces/document-studio" },
+              ].map((item, i) => (
+                <Link
+                  key={i}
+                  to={item.route}
+                  className="flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-semibold text-white transition-all hover:bg-white/20"
+                  style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}
+                >
+                  <span className="flex items-center gap-3">{item.icon}{item.label}</span>
+                  <ChevronRight size={16} className="text-white/50" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
       </main>
       <Footer />
     </div>
