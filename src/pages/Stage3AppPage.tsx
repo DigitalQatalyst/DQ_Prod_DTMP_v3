@@ -275,6 +275,12 @@ export default function Stage3AppPage() {
   const lcSubmittedCount = lcRequests.filter((r) => r.status === "submitted").length;
   const [kcGovView, setKcGovView] = useState<KCGovView>("dashboard");
   const kcOpenRequestCount = getTORequests().filter((r) => r.status === "Open").length;
+  // Articles with unresolved content-affecting requests (stale-flag or outdated-section)
+  const kcContentAttentionCount = new Set(
+    getTORequests()
+      .filter((r) => r.status !== "Resolved" && (r.type === "stale-flag" || r.type === "outdated-section"))
+      .map((r) => r.itemId)
+  ).size;
   const [statusFilter, setStatusFilter] = useState<Stage3Request["status"] | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<Stage3Request["priority"] | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
@@ -985,7 +991,11 @@ export default function Stage3AppPage() {
                   ]
                 ).map(({ id, label, Icon }) => {
                   const isActive = kcGovView === id;
-                  const showBadge = id === "incoming-requests" && kcOpenRequestCount > 0;
+                  const badgeCount =
+                    id === "incoming-requests" ? kcOpenRequestCount
+                    : id === "content-browser" ? kcContentAttentionCount
+                    : 0;
+                  const showBadge = badgeCount > 0;
                   return (
                     <button
                       key={id}
@@ -997,8 +1007,10 @@ export default function Stage3AppPage() {
                       <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-orange-600" : "text-gray-500"}`} />
                       <span className="flex-1">{label}</span>
                       {showBadge && (
-                        <span className="bg-orange-600 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
-                          {kcOpenRequestCount}
+                        <span className={`text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none ${
+                          id === "content-browser" ? "bg-amber-500" : "bg-orange-600"
+                        }`}>
+                          {badgeCount}
                         </span>
                       )}
                     </button>
