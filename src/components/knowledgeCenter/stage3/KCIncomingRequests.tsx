@@ -113,7 +113,7 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
   const [requests, setRequests] = useState<TORequest[]>(() => getTORequests());
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Per-panel compose state
+  // Per-panel compose / workflow state
   const [composeDraft, setComposeDraft] = useState("");
   const [composeKind, setComposeKind] = useState<"reply" | "internal">("reply");
   const [assigneeDraft, setAssigneeDraft] = useState("");
@@ -152,7 +152,13 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
       at: e.at,
     }));
     const all: TOThreadEntry[] = [
-      { id: "submit", kind: "system", text: "Request submitted", by: selectedReq.requesterName, at: selectedReq.createdAt },
+      {
+        id: "submit",
+        kind: "system",
+        text: "Request submitted",
+        by: selectedReq.requesterName,
+        at: selectedReq.createdAt,
+      },
       ...legacy,
       ...(selectedReq.thread ?? []),
     ];
@@ -324,7 +330,7 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
         {selectedReq && (
           <div className="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl overflow-hidden sticky top-4 shadow-sm">
 
-            {/* Panel header */}
+            {/* ── Panel header: article context ─────────────────────── */}
             <div className="px-5 py-4 border-b border-gray-100">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center flex-wrap gap-2">
@@ -359,7 +365,6 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                 </button>
               </div>
 
-              {/* Article title + meta */}
               <p className="font-semibold text-gray-900 text-sm leading-snug">
                 {selectedItem?.title ?? selectedReq.itemId}
               </p>
@@ -369,7 +374,6 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                 </p>
               )}
 
-              {/* Impact strip */}
               {selectedMetric && (selectedMetric.views > 0 || selectedMetric.saves > 0) && (
                 <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 flex flex-wrap gap-3">
                   <span className="flex items-center gap-1 text-xs text-blue-700">
@@ -385,116 +389,198 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
               )}
             </div>
 
-            {/* Scrollable body */}
+            {/* ── Scrollable body ───────────────────────────────────── */}
             <div className="overflow-y-auto max-h-[calc(100vh-330px)]">
 
-              {/* ── Workflow stepper ──────────────────────────────────── */}
-              <div className="px-5 py-4 border-b border-gray-100">
-                <div className="flex items-center">
-                  {STATUS_STEPS.map((step, i) => {
-                    const currentIdx = STATUS_STEPS.indexOf(selectedReq.status);
-                    const done = i < currentIdx;
-                    const current = i === currentIdx;
-                    return (
-                      <div key={step} className="flex items-center flex-1">
-                        <div className="flex flex-col items-center">
-                          <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-colors ${
-                              done
-                                ? "bg-green-500 border-green-500 text-white"
-                                : current
-                                ? "bg-orange-500 border-orange-500 text-white"
-                                : "bg-white border-gray-200 text-gray-400"
-                            }`}
-                          >
-                            {done ? "✓" : i + 1}
+              {/* ══ STEPPER + STEP ACTION BOX ══════════════════════════ */}
+              <div className="border-b border-gray-100">
+
+                {/* Stepper track */}
+                <div className="px-5 pt-4 pb-2">
+                  <div className="flex items-center">
+                    {STATUS_STEPS.map((step, i) => {
+                      const currentIdx = STATUS_STEPS.indexOf(selectedReq.status);
+                      const done = i < currentIdx;
+                      const current = i === currentIdx;
+                      return (
+                        <div key={step} className="flex items-center flex-1">
+                          <div className="flex flex-col items-center">
+                            <div
+                              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-colors ${
+                                done
+                                  ? "bg-green-500 border-green-500 text-white"
+                                  : current
+                                  ? "bg-orange-500 border-orange-500 text-white"
+                                  : "bg-white border-gray-200 text-gray-400"
+                              }`}
+                            >
+                              {done ? "✓" : i + 1}
+                            </div>
+                            <p
+                              className={`text-[9px] mt-1 font-semibold whitespace-nowrap tracking-wide ${
+                                current ? "text-orange-600" : done ? "text-green-600" : "text-gray-400"
+                              }`}
+                            >
+                              {step}
+                            </p>
                           </div>
-                          <p
-                            className={`text-[9px] mt-1 font-semibold whitespace-nowrap tracking-wide ${
-                              current ? "text-orange-600" : done ? "text-green-600" : "text-gray-400"
-                            }`}
-                          >
-                            {step}
-                          </p>
+                          {i < STATUS_STEPS.length - 1 && (
+                            <div
+                              className={`flex-1 h-0.5 mx-1 mb-4 transition-colors ${
+                                i < currentIdx ? "bg-green-400" : "bg-gray-200"
+                              }`}
+                            />
+                          )}
                         </div>
-                        {i < STATUS_STEPS.length - 1 && (
-                          <div
-                            className={`flex-1 h-0.5 mx-1 mb-4 transition-colors ${
-                              i < currentIdx ? "bg-green-400" : "bg-gray-200"
-                            }`}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              <div className="p-5 space-y-6">
+                {/* ── Step action box — context changes per step ─────── */}
+                {role === "admin" && (
+                  <div className="mx-4 mb-4 rounded-xl overflow-hidden border border-gray-200">
 
-                {/* ── Assignment ──────────────────────────────────────── */}
-                {role === "admin" && selectedReq.status !== "Resolved" && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      Assignment
-                    </p>
-                    {selectedReq.assignee ? (
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                          {selectedReq.assignee.charAt(0)}
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 flex-1">
-                          {selectedReq.assignee}
-                        </span>
-                        {selectedReq.assignee !== ACTOR && (
-                          <button
-                            type="button"
-                            onClick={() => handleAssign(ACTOR)}
-                            className="text-xs text-orange-600 hover:text-orange-700 font-medium"
+                    {/* STEP 1 — Open: assign */}
+                    {selectedReq.status === "Open" && (
+                      <div className="bg-orange-50 px-4 py-3">
+                        <p className="text-xs font-semibold text-orange-800 mb-0.5">Step 1 of 4 — Assign</p>
+                        <p className="text-xs text-orange-700 mb-3">
+                          Assign this request to a team member to begin processing.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={assigneeDraft}
+                            onChange={(e) => setAssigneeDraft(e.target.value)}
+                            className="flex-1 border border-orange-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-orange-400"
                           >
-                            Reassign to me
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={assigneeDraft}
-                          onChange={(e) => setAssigneeDraft(e.target.value)}
-                          className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-orange-400"
-                        >
-                          <option value="">Select team member…</option>
-                          {TO_TEAM.map((m) => (
-                            <option key={m} value={m}>{m}</option>
-                          ))}
-                        </select>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-orange-200 text-orange-700 hover:bg-orange-50 flex-shrink-0"
-                          onClick={() => handleAssign(assigneeDraft)}
-                          disabled={!assigneeDraft}
-                        >
-                          Assign
-                        </Button>
+                            <option value="">Select team member…</option>
+                            {TO_TEAM.map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                          <Button
+                            size="sm"
+                            className="bg-orange-600 hover:bg-orange-700 text-white flex-shrink-0"
+                            onClick={() => handleAssign(assigneeDraft)}
+                            disabled={!assigneeDraft}
+                          >
+                            Assign
+                          </Button>
+                        </div>
                         <button
                           type="button"
                           onClick={() => handleAssign(ACTOR)}
-                          className="text-xs text-orange-600 hover:text-orange-700 font-medium flex-shrink-0 whitespace-nowrap"
+                          className="mt-2 text-xs text-orange-700 hover:text-orange-900 font-medium underline underline-offset-2"
                         >
                           Assign to me
                         </button>
                       </div>
                     )}
+
+                    {/* STEP 2 — Assigned: mark in review */}
+                    {selectedReq.status === "Assigned" && (
+                      <div className="bg-purple-50 px-4 py-3">
+                        <p className="text-xs font-semibold text-purple-800 mb-0.5">Step 2 of 4 — In Review</p>
+                        <div className="flex items-center gap-2.5 mb-3">
+                          <div className="w-7 h-7 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            {selectedReq.assignee!.charAt(0)}
+                          </div>
+                          <p className="text-xs text-purple-800">
+                            Assigned to <span className="font-semibold">{selectedReq.assignee}</span>
+                          </p>
+                          {selectedReq.assignee !== ACTOR && (
+                            <button
+                              type="button"
+                              onClick={() => handleAssign(ACTOR)}
+                              className="ml-auto text-xs text-purple-700 hover:text-purple-900 font-medium underline underline-offset-2"
+                            >
+                              Reassign to me
+                            </button>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                          onClick={() => handleAdvanceStatus("In Review")}
+                        >
+                          <Clock className="w-3.5 h-3.5 mr-1.5" />
+                          Mark In Review
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* STEP 3 — In Review: resolve */}
+                    {selectedReq.status === "In Review" && (
+                      <div className="bg-amber-50 px-4 py-3 space-y-2.5">
+                        <div>
+                          <p className="text-xs font-semibold text-amber-800 mb-0.5">Step 3 of 4 — Resolve</p>
+                          <p className="text-xs text-amber-700">
+                            Select how this was resolved, then optionally send a final response to the requester.
+                          </p>
+                        </div>
+                        <select
+                          value={resolutionType}
+                          onChange={(e) => setResolutionType(e.target.value as TOResolutionType | "")}
+                          className="w-full border border-amber-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-orange-400"
+                        >
+                          <option value="">Resolution type (optional)…</option>
+                          {RESOLUTION_TYPES.map((t) => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                        <Textarea
+                          placeholder="Final response to requester (optional — they'll see this in My Requests)"
+                          value={toResponseDraft}
+                          onChange={(e) => setToResponseDraft(e.target.value)}
+                          rows={3}
+                          className="text-sm border-amber-200 focus-visible:ring-orange-400"
+                        />
+                        <Button
+                          size="sm"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          onClick={handleResolve}
+                        >
+                          <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                          Mark Resolved
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* STEP 4 — Resolved */}
+                    {selectedReq.status === "Resolved" && (
+                      <div className="bg-green-50 px-4 py-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <p className="text-sm font-semibold text-green-800">Request resolved</p>
+                          {selectedReq.resolutionType && (
+                            <span className="ml-auto text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full font-medium">
+                              {selectedReq.resolutionType}
+                            </span>
+                          )}
+                        </div>
+                        {selectedReq.toResponse ? (
+                          <div className="bg-white border border-green-200 rounded-lg px-3 py-2">
+                            <p className="text-[10px] font-semibold text-green-700 uppercase tracking-wide mb-1">
+                              Response sent to user
+                            </p>
+                            <p className="text-xs text-green-900 leading-relaxed">{selectedReq.toResponse}</p>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-green-700">No response was sent to the requester.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
+              </div>
+
+              <div className="p-5 space-y-6">
 
                 {/* ── Priority ────────────────────────────────────────── */}
                 {role === "admin" && selectedReq.status !== "Resolved" && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      Priority
-                    </p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Priority</p>
                     <div className="flex gap-2">
                       {(["High", "Medium", "Low"] as TORequestPriority[]).map((p) => (
                         <button
@@ -514,7 +600,7 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                   </div>
                 )}
 
-                {/* ── Submitted by ────────────────────────────────────── */}
+                {/* ── Submitted by + message ───────────────────────────── */}
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                     Submitted by
@@ -557,9 +643,7 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
 
                 {/* ── Thread ──────────────────────────────────────────── */}
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                    Thread
-                  </p>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Thread</p>
 
                   {/* Timeline */}
                   <div className="space-y-2.5 mb-4">
@@ -610,10 +694,9 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                     })}
                   </div>
 
-                  {/* Compose box — admin only, not resolved */}
+                  {/* Compose — admin, not resolved */}
                   {role === "admin" && selectedReq.status !== "Resolved" && (
                     <div className="border border-gray-200 rounded-xl overflow-hidden">
-                      {/* Tab toggle */}
                       <div className="flex border-b border-gray-200">
                         {(["reply", "internal"] as const).map((k) => (
                           <button
@@ -664,82 +747,6 @@ export default function KCIncomingRequests({ role }: KCIncomingRequestsProps) {
                     </div>
                   )}
                 </div>
-
-                {/* ── Advance Status ──────────────────────────────────── */}
-                {role === "admin" && selectedReq.status !== "Resolved" && (
-                  <div className="border-t border-gray-100 pt-5 space-y-3">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                      Advance Status
-                    </p>
-
-                    {(selectedReq.status === "Open" || selectedReq.status === "Assigned") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full border-orange-200 text-orange-700 hover:bg-orange-50"
-                        onClick={() => handleAdvanceStatus("In Review")}
-                      >
-                        <Clock className="w-3.5 h-3.5 mr-1.5" />
-                        Mark In Review
-                      </Button>
-                    )}
-
-                    {selectedReq.status === "In Review" && (
-                      <div className="space-y-2.5">
-                        <select
-                          value={resolutionType}
-                          onChange={(e) => setResolutionType(e.target.value as TOResolutionType | "")}
-                          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-orange-400"
-                        >
-                          <option value="">Resolution type (optional)…</option>
-                          {RESOLUTION_TYPES.map((t) => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
-                        <Textarea
-                          placeholder="Final response to requester (optional — they'll see this in their My Requests tab)"
-                          value={toResponseDraft}
-                          onChange={(e) => setToResponseDraft(e.target.value)}
-                          rows={3}
-                          className="text-sm"
-                        />
-                        <Button
-                          size="sm"
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          onClick={handleResolve}
-                        >
-                          <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                          Mark Resolved
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* ── Resolved banner ─────────────────────────────────── */}
-                {selectedReq.status === "Resolved" && (
-                  <div className="border-t border-gray-100 pt-5 space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-                      <CheckCircle className="w-4 h-4" />
-                      Request resolved
-                      {selectedReq.resolutionType && (
-                        <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                          {selectedReq.resolutionType}
-                        </span>
-                      )}
-                    </div>
-                    {selectedReq.toResponse && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
-                        <p className="text-xs font-semibold text-green-700 mb-1">
-                          Final response sent to user
-                        </p>
-                        <p className="text-sm text-green-800 leading-relaxed">
-                          {selectedReq.toResponse}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
 
               </div>
             </div>
