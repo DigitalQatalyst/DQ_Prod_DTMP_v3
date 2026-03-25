@@ -85,7 +85,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                <img src="/dewa-logo.webp" alt="DEWA logo" className="w-8 h-8 object-contain" />
+                <img src="/dewa-logo-new.webp" alt="DEWA logo" className="w-8 h-8 object-contain" />
               </div>
               <span className="text-xl font-bold text-white tracking-tight">DEWA</span>
             </Link>
@@ -94,10 +94,10 @@ export function Header() {
             <div className="hidden lg:flex items-center" ref={exploreRef}>
             <button
               onClick={() => setShowExplore((v) => !v)}
-              className="flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
+              className="flex items-center gap-1.5 text-sm font-semibold text-white transition-all px-4 py-1.5 rounded-full border border-white/30 hover:border-white/60 hover:bg-white/10"
             >
               Explore
-              <ChevronDown size={15} className={`transition-transform ${showExplore ? "rotate-180" : ""}`} />
+              <ChevronDown size={14} className={`transition-transform ${showExplore ? "rotate-180" : ""}`} />
             </button>
 
             {/* Explore dropdown panel */}
@@ -200,7 +200,7 @@ export function Header() {
             <div className="flex items-center justify-between px-4 h-16 border-b border-white/10">
               <Link to="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                  <img src="/dewa-logo.webp" alt="DEWA logo" className="w-8 h-8 object-contain" />
+                  <img src="/dewa-logo-new.webp" alt="DEWA logo" className="w-8 h-8 object-contain" />
                 </div>
                 <span className="text-xl font-bold text-white">DEWA</span>
               </Link>
