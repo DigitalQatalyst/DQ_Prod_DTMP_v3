@@ -42,7 +42,7 @@ export function DBPOverview() {
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <SectionPill label="Platform Overview" />
         <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
-          The World&apos;s Most Advanced Utility, Governed by One Architecture Platform.
+          Governing the World&apos;s Most Advanced Utility.
         </h2>
         <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
           DEWA serves 1.27 million customers with 0.94 customer minutes lost per year. DTMP is the
