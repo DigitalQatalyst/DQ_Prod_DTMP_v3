@@ -986,26 +986,87 @@ export const incidentResponseDetail = {
 
 
 import { generateTechnicalSupportDetail, generateExpertConsultancyDetail } from "./detailsGenerator";
+import {
+  // Technical Support Details
+  performanceOptimizationDetail,
+  securityIncidentSupportDetail,
+  integrationTroubleshootingDetail,
+  databaseSupportDetail,
+  cloudMigrationSupportDetail,
+  applicationTroubleshootingDetail,
+  disasterRecoverySupportDetail,
+  configurationAssistanceDetail,
+  upgradeAssistanceDetail,
+  monitoringSetupDetail,
+  capacityPlanningSupportDetail,
+  backupRestoreSupportDetail,
+  apiGatewaySupportDetail,
+  containerOrchestrationSupportDetail,
+  networkConnectivitySupportDetail,
+  devopsPipelineSupportDetail,
+  
+  // Expert Consultancy Details
+  transformationCoachingDetail,
+  portfolioOptimizationConsultingDetail,
+  dataStrategyConsultingDetail,
+  changeManagementConsultingDetail,
+  cloudArchitectureAdvisoryDetail,
+  securityArchitectureReviewDetail,
+  agileTransformationCoachingDetail,
+  apiStrategyConsultingDetail,
+  devopsTransformationConsultingDetail,
+  integrationArchitectureWorkshopDetail,
+  technologySelectionAdvisoryDetail,
+  microservicesArchitectureConsultingDetail,
+  platformModernizationConsultingDetail,
+  processAutomationConsultingDetail,
+  executiveTransformationBriefingsDetail,
+} from "./allServiceDetails";
 
 // Helper function to get detail by ID
 export const getSupportServiceDetail = (id: string) => {
-  // Check if we have a manually created detail
-  const manualDetails: Record<string, typeof platform24x7SupportDetail | typeof architectureAdvisoryDetail | typeof incidentResponseDetail> = {
+  // All service details mapped by ID
+  const allDetails: Record<string, any> = {
+    // Existing manually created details
     "24x7-platform-support": platform24x7SupportDetail,
     "architecture-advisory": architectureAdvisoryDetail,
     "incident-response": incidentResponseDetail,
+    
+    // Technical Support Services
+    "performance-optimization": performanceOptimizationDetail,
+    "security-incident-support": securityIncidentSupportDetail,
+    "integration-troubleshooting": integrationTroubleshootingDetail,
+    "database-support": databaseSupportDetail,
+    "cloud-migration-support": cloudMigrationSupportDetail,
+    "application-troubleshooting": applicationTroubleshootingDetail,
+    "disaster-recovery-support": disasterRecoverySupportDetail,
+    "configuration-assistance": configurationAssistanceDetail,
+    "upgrade-assistance": upgradeAssistanceDetail,
+    "monitoring-setup": monitoringSetupDetail,
+    "capacity-planning-support": capacityPlanningSupportDetail,
+    "backup-restore-support": backupRestoreSupportDetail,
+    "api-gateway-support": apiGatewaySupportDetail,
+    "container-orchestration-support": containerOrchestrationSupportDetail,
+    "network-connectivity-support": networkConnectivitySupportDetail,
+    "devops-pipeline-support": devopsPipelineSupportDetail,
+    
+    // Expert Consultancy Services
+    "transformation-coaching": transformationCoachingDetail,
+    "portfolio-optimization-consulting": portfolioOptimizationConsultingDetail,
+    "data-strategy-consulting": dataStrategyConsultingDetail,
+    "change-management-consulting": changeManagementConsultingDetail,
+    "cloud-architecture-advisory": cloudArchitectureAdvisoryDetail,
+    "security-architecture-review": securityArchitectureReviewDetail,
+    "agile-transformation-coaching": agileTransformationCoachingDetail,
+    "api-strategy-consulting": apiStrategyConsultingDetail,
+    "devops-transformation-consulting": devopsTransformationConsultingDetail,
+    "integration-architecture-workshop": integrationArchitectureWorkshopDetail,
+    "technology-selection-advisory": technologySelectionAdvisoryDetail,
+    "microservices-architecture-consulting": microservicesArchitectureConsultingDetail,
+    "platform-modernization-consulting": platformModernizationConsultingDetail,
+    "process-automation-consulting": processAutomationConsultingDetail,
+    "executive-transformation-briefings": executiveTransformationBriefingsDetail,
   };
   
-  if (manualDetails[id]) {
-    return manualDetails[id];
-  }
-  
-  // Generate detail data dynamically
-  const techDetail = generateTechnicalSupportDetail(id);
-  if (techDetail) return techDetail;
-  
-  const consultancyDetail = generateExpertConsultancyDetail(id);
-  if (consultancyDetail) return consultancyDetail;
-  
-  return null;
+  return allDetails[id] || null;
 };

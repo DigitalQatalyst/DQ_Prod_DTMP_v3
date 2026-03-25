@@ -1,27 +1,31 @@
-import { Headphones, Clock, Users } from "lucide-react";
+import { Headphones, Clock, Users, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { technicalSupport, expertConsultancy } from "@/data/supportServices";
 
 export function MarketplaceHeader() {
+  const totalServices = technicalSupport.length + expertConsultancy.length;
+  
   return (
     <section className="bg-gradient-to-b from-blue-50 to-white py-8 lg:py-12">
       <div className="max-w-7xl mx-auto px-4">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-gray-600 mb-4 flex-wrap">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="hover:text-[hsl(var(--orange))] transition-colors duration-300 min-h-[44px] px-2 flex items-center focus:outline-none focus:ring-2 focus:ring-[hsl(var(--orange))] focus:ring-offset-2 rounded"
             aria-label="Go to home page"
           >
             Home
-          </a>
-          <span className="mx-2" aria-hidden="true">/</span>
-          <a
-            href="/marketplaces"
+          </Link>
+          <ChevronRight size={16} className="text-gray-400 mx-1" />
+          <Link
+            to="/marketplaces"
             className="hover:text-[hsl(var(--orange))] transition-colors duration-300 min-h-[44px] px-2 flex items-center focus:outline-none focus:ring-2 focus:ring-[hsl(var(--orange))] focus:ring-offset-2 rounded"
             aria-label="Go to marketplaces"
           >
             Marketplaces
-          </a>
-          <span className="mx-2" aria-hidden="true">/</span>
+          </Link>
+          <ChevronRight size={16} className="text-gray-400 mx-1" />
           <span className="text-gray-900 font-medium" aria-current="page">
             Support Services
           </span>
@@ -44,7 +48,7 @@ export function MarketplaceHeader() {
           <div className="flex flex-wrap gap-6 text-sm text-gray-500">
             <span className="flex items-center gap-2">
               <Headphones size={18} aria-hidden="true" />
-              34 Support Services
+              {totalServices} Support Services
             </span>
             <span className="flex items-center gap-2">
               <Clock size={18} aria-hidden="true" />
