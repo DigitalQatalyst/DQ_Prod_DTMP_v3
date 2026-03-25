@@ -19,7 +19,7 @@ export function HeroSection() {
         }}
       />
 
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center w-full">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10 text-center w-full">
         {/* pill */}
         <div
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8"
@@ -30,12 +30,12 @@ export function HeroSection() {
         >
           <span className="w-1.5 h-1.5 rounded-full bg-white/40 inline-block" />
           <span className="text-xs font-semibold uppercase tracking-widest text-white/50">
-            DEWA Corporate EA &amp; Transformation Office
+            DTMP — The Transformation Hub
           </span>
         </div>
 
         <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-          One Platform.{" "}
+          The Enterprise Architecture Platform{" "}
           <span
             style={{
               background: "linear-gradient(90deg, #a78bfa 0%, #f472b6 100%)",
@@ -43,18 +43,17 @@ export function HeroSection() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            One Direction.
+            for DEWA&apos;s Digital Transformation.
           </span>
         </h1>
 
-        <p className="text-white/60 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-          The enterprise architecture platform designed, deployed, and governed by
-          DEWA&apos;s Corporate EA Office — accelerating every division&apos;s journey
+        <p className="text-white/60 text-lg max-w-3xl mx-auto mb-10 leading-relaxed">
+          One governed platform for every division — accelerating DEWA&apos;s journey
           to a Digital-First, Net-Zero utility.
         </p>
 
         {/* search bar */}
-        <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 max-w-xl mx-auto mb-8 shadow-lg">
+        <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 max-w-2xl mx-auto mb-8 shadow-lg">
           <Sparkles size={18} className="text-violet-500 flex-shrink-0" />
           <span className="text-slate-400 text-sm flex-1 text-left">
             Ask me anything about DTMP... What do you need help with?
@@ -85,21 +84,6 @@ export function HeroSection() {
           >
             Explore Marketplaces <ArrowRight size={16} />
           </Link>
-        </div>
-
-        {/* fact pills */}
-        <div className="flex flex-wrap justify-center gap-3 mt-8">
-          {["4D Governance Model", "EA 4.0 Corporate Practice", "Digital DEWA Aligned", "Net-Zero 2050 Vision"].map(
-            (item) => (
-              <span
-                key={item}
-                className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium text-white/70"
-                style={{ border: "1px solid rgba(255,255,255,0.18)" }}
-              >
-                {item}
-              </span>
-            )
-          )}
         </div>
       </div>
     </section>
