@@ -84,9 +84,7 @@ export function Header() {
           {/* Left — Logo + Explore */}
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                <img src="/dewa-logo-v2.png" alt="DEWA logo" className="w-8 h-8 object-contain" />
-              </div>
+              <img src="/dewa-logo-v2.png" alt="DEWA logo" className="w-9 h-9 object-contain" />
               <span className="text-2xl font-bold text-white tracking-tight">DEWA</span>
             </Link>
 
@@ -97,7 +95,7 @@ export function Header() {
               className="flex items-center gap-1.5 text-base font-semibold text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
             >
               Explore
-              <ChevronDown size={15} className={`transition-transform ${showExplore ? "rotate-180" : ""}`} />
+              <ChevronDown size={17} className={`transition-transform ${showExplore ? "rotate-180" : ""}`} />
             </button>
 
             {/* Explore dropdown panel */}
@@ -124,7 +122,7 @@ export function Header() {
             <div className="relative" ref={helpRef}>
               <button
                 onClick={() => setShowHelp((v) => !v)}
-                className="flex items-center gap-1.5 text-base font-semibold text-white border border-white/30 hover:border-white/60 hover:bg-white/10 transition-all px-4 py-2 rounded-lg"
+                className="flex items-center gap-1.5 text-base font-semibold text-white/80 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
               >
                 <HelpCircle size={16} />
                 Get Help
@@ -163,12 +161,6 @@ export function Header() {
               <ArrowRight size={15} />
             </Button>
 
-            <button
-              className="text-white/40 hover:text-white/80 transition-colors ml-1"
-              aria-label="Close"
-            >
-              <X size={18} />
-            </button>
           </div>
 
           {/* Mobile Menu Button */}
