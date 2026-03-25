@@ -35,7 +35,7 @@ export function HeroSection() {
         </div>
 
         <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-          The Enterprise Architecture Platform{" "}
+          The EA Platform{" "}
           <span
             style={{
               background: "linear-gradient(90deg, #a78bfa 0%, #f472b6 100%)",
