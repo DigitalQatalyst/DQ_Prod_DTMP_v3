@@ -6,7 +6,7 @@ import { SectionPill } from "@/components/landing/shared";
 
 export function Contributors() {
   return (
-    <section className="py-20" style={{ background: "#EEF2FF" }}>
+    <section className="py-20 bg-white">
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <SectionPill label="Contributors" />
         <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
