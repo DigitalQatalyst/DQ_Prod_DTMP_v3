@@ -85,19 +85,19 @@ export function Header() {
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2.5 shrink-0">
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                <img src="/dewa-logo-new.webp" alt="DEWA logo" className="w-8 h-8 object-contain" />
+                <img src="/dewa-logo-v2.png" alt="DEWA logo" className="w-8 h-8 object-contain" />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">DEWA</span>
+              <span className="text-2xl font-bold text-white tracking-tight">DEWA</span>
             </Link>
 
             {/* Desktop — Explore dropdown */}
             <div className="hidden lg:flex items-center" ref={exploreRef}>
             <button
               onClick={() => setShowExplore((v) => !v)}
-              className="flex items-center gap-1.5 text-sm font-semibold text-white transition-all px-4 py-1.5 rounded-full border border-white/30 hover:border-white/60 hover:bg-white/10"
+              className="flex items-center gap-1.5 text-base font-semibold text-white/90 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
             >
               Explore
-              <ChevronDown size={14} className={`transition-transform ${showExplore ? "rotate-180" : ""}`} />
+              <ChevronDown size={15} className={`transition-transform ${showExplore ? "rotate-180" : ""}`} />
             </button>
 
             {/* Explore dropdown panel */}
@@ -124,9 +124,9 @@ export function Header() {
             <div className="relative" ref={helpRef}>
               <button
                 onClick={() => setShowHelp((v) => !v)}
-                className="flex items-center gap-1.5 text-sm font-semibold text-white border border-white/30 hover:border-white/60 hover:bg-white/10 transition-all px-4 py-2 rounded-lg"
+                className="flex items-center gap-1.5 text-base font-semibold text-white border border-white/30 hover:border-white/60 hover:bg-white/10 transition-all px-4 py-2 rounded-lg"
               >
-                <HelpCircle size={15} />
+                <HelpCircle size={16} />
                 Get Help
               </button>
 
@@ -157,7 +157,7 @@ export function Header() {
             <Button
               variant="default"
               onClick={handleAccessPlatform}
-              className="bg-accent hover:bg-orange-hover text-accent-foreground px-5 py-2.5 rounded-lg font-semibold inline-flex items-center gap-2 text-sm"
+              className="bg-accent hover:bg-orange-hover text-accent-foreground px-5 py-2.5 rounded-lg font-semibold inline-flex items-center gap-2 text-base"
             >
               Enter the Platform
               <ArrowRight size={15} />
