@@ -3,8 +3,8 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import {
   BookOpen, Zap, Shield, Brain, BarChart2, Users, Settings,
   ArrowRight, Layers, Target, TrendingUp, Activity, Star,
-  Database, Globe, ChevronRight, Sparkles, Building2, Cpu,
-  Droplets, HeartHandshake, Bot
+  Database, Globe, ChevronRight, Building2, Cpu,
+  Droplets, HeartHandshake, Bot, Sparkles
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -12,6 +12,7 @@ import {
   divisionalLandingData,
   isDivisionId,
 } from "@/data/divisions/divisionalLandingData";
+import { SectionPill, IconBadge, StatCard } from "@/components/landing/shared";
 
 // ── accent / hero config ──────────────────────────────────────────────────────
 const divisionConfig: Record<string, { accent: string; heroGradient: string; icon: React.ReactNode }> = {
@@ -47,9 +48,6 @@ const divisionConfig: Record<string, { accent: string; heroGradient: string; ico
   },
 };
 
-// gradient icon badge (matches reference design)
-const iconGradient = "linear-gradient(135deg, #6d28d9 0%, #db2777 60%, #ea580c 100%)";
-
 const phaseColors: Record<string, string> = {
   Discern: "#6d28d9",
   Design: "#0369A1",
@@ -60,41 +58,6 @@ const phaseColors: Record<string, string> = {
 const priorityIcons = [Target, TrendingUp, Layers, Shield, BarChart2, Star];
 const roleIcons = [Brain, BarChart2, Cpu, Users, Activity, Shield];
 const marketplaceIcons = [BookOpen, Database, Settings, Zap, Building2, Globe];
-
-// ── Pill label ────────────────────────────────────────────────────────────────
-function SectionPill({ label }: { label: string }) {
-  return (
-    <div className="flex justify-center mb-4">
-      <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-300 bg-white text-xs font-semibold uppercase tracking-widest text-slate-500">
-        <Sparkles size={12} className="text-violet-500" />
-        {label}
-      </span>
-    </div>
-  );
-}
-
-// ── Gradient icon badge ───────────────────────────────────────────────────────
-function IconBadge({ icon, size = 40 }: { icon: React.ReactNode; size?: number }) {
-  return (
-    <div
-      className="flex items-center justify-center rounded-xl flex-shrink-0"
-      style={{ width: size, height: size, background: iconGradient }}
-    >
-      {icon}
-    </div>
-  );
-}
-
-// ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ value, label, sub }: { value: string; label: string; sub: string }) {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-      <p className="text-3xl font-bold mb-1" style={{ color: "#6d28d9" }}>{value}</p>
-      <p className="font-semibold text-slate-800 text-sm mb-1">{label}</p>
-      <p className="text-xs text-slate-500 leading-relaxed">{sub}</p>
-    </div>
-  );
-}
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function DivisionalLandingPage() {

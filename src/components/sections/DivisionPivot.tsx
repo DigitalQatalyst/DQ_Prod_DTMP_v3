@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { ChevronRight, Building2 } from "lucide-react";
+import { SectionPill } from "@/components/landing/shared";
 
 const divisions = [
   {
@@ -60,66 +62,79 @@ const corporateTeams = [
 
 export function DivisionPivot() {
   return (
-    <section className="py-16 lg:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-[#0369A1] text-xs font-bold uppercase tracking-[0.08em] mb-2">
-            Enterprise-Exclusive Feature
-          </p>
-          <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-2">Find Your DTMP Experience</h2>
-          <p className="section-subheading max-w-4xl mx-auto">
-            Select your DEWA division to enter a tailored DTMP context while staying
-            inside one unified enterprise platform.
-          </p>
-        </div>
+    <section className="py-20" style={{ background: "#EEF2FF" }}>
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        <SectionPill label="User Journeys" />
+        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+          Find Your DTMP Experience
+        </h2>
+        <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
+          Select your DEWA division to enter a tailored DTMP context while staying
+          inside one unified enterprise platform.
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {divisions.map((division) => (
-              <Link
-                key={division.name}
-                to={`/divisions/${division.slug}`}
-                className="block bg-white border border-[#E2E8F0] rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] hover:[border-top-width:6px]"
-                style={{ borderTop: `4px solid ${division.accent}` }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mr-3"
-                    style={{ backgroundColor: division.accent }}
-                  >
-                    {division.name[0]}
-                  </div>
-                  <h3 className="text-[18px] font-bold flex-1" style={{ color: division.accent }}>
-                    {division.name}
-                  </h3>
+          {divisions.map((division) => (
+            <Link
+              key={division.name}
+              to={`/divisions/${division.slug}`}
+              className="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all flex flex-col"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                  style={{ backgroundColor: division.accent }}
+                >
+                  {division.name[0]}
                 </div>
-                <p className="text-[15px] text-[#334155] mb-4">{division.description}</p>
-                <ul className="list-disc list-inside text-[14px] text-[#64748B] space-y-1 mb-4">
-                  {division.teams.map((team) => (
-                    <li key={team}>{team}</li>
-                  ))}
-                </ul>
-                <span className="text-sm font-semibold" style={{ color: division.accent }}>→ Enter {division.name} DTMP</span>
-              </Link>
-            ))}
-          </div>
-
-          <article
-            className="bg-white border border-[#E2E8F0] rounded-xl p-7 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
-            style={{ borderTop: "4px solid #061927" }}
-          >
-            <h3 className="text-2xl font-bold mb-2 text-[#061927]">Corporate & Strategy</h3>
-            <p className="text-slate-700 mb-4">
-              Entry point for DEWA corporate leadership and cross-divisional governance roles.
-            </p>
-            <ul className="list-disc list-inside text-sm text-slate-700 space-y-1 mb-5">
-              {corporateTeams.map((team) => (
-                <li key={team}>{team}</li>
-              ))}
-            </ul>
-            <Link to="/stage3/dashboard" className="cta-tertiary text-sm">
-              → Enter Corporate & Strategy DTMP
+                <h3 className="font-bold text-slate-800 text-base">{division.name}</h3>
+              </div>
+              <p className="text-slate-500 text-sm leading-relaxed mb-4 flex-1">{division.description}</p>
+              <ul className="space-y-1 mb-4">
+                {division.teams.map((team) => (
+                  <li key={team} className="text-xs text-slate-400 flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-slate-300 inline-block" />
+                    {team}
+                  </li>
+                ))}
+              </ul>
+              <span
+                className="text-sm font-semibold inline-flex items-center gap-1"
+                style={{ color: division.accent }}
+              >
+                Enter {division.name} DTMP <ChevronRight size={14} />
+              </span>
             </Link>
-          </article>
+          ))}
+        </div>
+
+        {/* Corporate strip */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center gap-6">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-800">
+              <Building2 size={18} className="text-white" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-800">Corporate &amp; Strategy</p>
+              <p className="text-xs text-slate-400">Cross-divisional governance roles</p>
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="flex flex-wrap gap-2">
+              {corporateTeams.map((team) => (
+                <span key={team} className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
+                  {team}
+                </span>
+              ))}
+            </div>
+          </div>
+          <Link
+            to="/stage3/dashboard"
+            className="text-sm font-semibold text-slate-700 inline-flex items-center gap-1 flex-shrink-0"
+          >
+            Enter Corporate DTMP <ChevronRight size={14} />
+          </Link>
+        </div>
       </div>
     </section>
   );
