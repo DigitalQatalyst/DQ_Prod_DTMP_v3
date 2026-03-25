@@ -77,15 +77,14 @@ export function HeroSection() {
         </div>
 
         {/* AI chat bar */}
-        <div ref={containerRef} className="w-full mb-8 relative">
+        <div
+          ref={containerRef}
+          className={`w-full mb-8 bg-white transition-all overflow-hidden ${
+            focused ? "rounded-2xl ring-2 ring-slate-900 shadow-xl" : "rounded-2xl shadow-lg"
+          }`}
+        >
           {/* Input row */}
-          <div
-            className={`bg-white px-6 py-5 flex items-center gap-4 transition-all ${
-              focused
-                ? "rounded-t-2xl border-b border-slate-100 ring-2 ring-violet-400 ring-offset-0 shadow-xl"
-                : "rounded-2xl shadow-lg border border-transparent"
-            }`}
-          >
+          <div className={`px-6 py-5 flex items-center gap-4 ${focused ? "border-b border-slate-100" : ""}`}>
             <Sparkles size={20} className="text-violet-500 flex-shrink-0" />
             <input
               type="text"
@@ -105,7 +104,7 @@ export function HeroSection() {
 
           {/* Expanded panel */}
           {focused && (
-            <div className="bg-white rounded-b-2xl shadow-lg px-6 pt-4 pb-5 text-left">
+            <div className="px-6 pt-4 pb-5 text-left">
               <p className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-3">
                 <Sparkles size={13} className="text-violet-400" />
                 EA Assistant Examples:
