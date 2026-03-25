@@ -1,4 +1,5 @@
-import { Sun, Network, Bot, Building2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sun, Network, Bot, Building2, ArrowRight } from "lucide-react";
 import { SectionPill, IconBadge, StatCard } from "@/components/landing/shared";
 
 const contextPillars = [
@@ -59,10 +60,19 @@ export function DBPOverview() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {stats.map((stat) => (
             <StatCard key={stat.label} value={stat.value} label={stat.label} sub={stat.sub} />
           ))}
+        </div>
+        <div className="text-center">
+          <Link
+            to="/marketplaces"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+          >
+            Explore the Unified EA Architecture <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChevronRight, Building2 } from "lucide-react";
+import { ChevronRight, Building2, ArrowRight } from "lucide-react";
 import { SectionPill } from "@/components/landing/shared";
 
 const divisions = [
@@ -109,6 +109,7 @@ export function DivisionPivot() {
         </div>
 
         {/* Corporate strip */}
+
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex items-center gap-3 flex-shrink-0">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-800">
@@ -133,6 +134,15 @@ export function DivisionPivot() {
             className="text-sm font-semibold text-slate-700 inline-flex items-center gap-1 flex-shrink-0"
           >
             Enter Corporate DTMP <ChevronRight size={14} />
+          </Link>
+        </div>
+        <div className="text-center mt-8">
+          <Link
+            to="/marketplaces"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+          >
+            Explore EA Collaboration Framework <ArrowRight size={16} />
           </Link>
         </div>
       </div>

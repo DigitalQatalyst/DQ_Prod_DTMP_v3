@@ -1,5 +1,6 @@
+import { Link } from "react-router-dom";
 import {
-  Shield, Globe, Zap, BarChart2, Brain, Star
+  Shield, Globe, Zap, BarChart2, Brain, Star, ArrowRight
 } from "lucide-react";
 import { SectionPill, IconBadge } from "@/components/landing/shared";
 
@@ -93,6 +94,15 @@ export function StrategicPriorities() {
               </div>
             );
           })}
+        </div>
+        <div className="text-center mt-10">
+          <Link
+            to="/marketplaces"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #6d28d9 0%, #0369A1 100%)" }}
+          >
+            Explore EA Architecture Strategy <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

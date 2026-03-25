@@ -35,7 +35,8 @@ export function HeroSection() {
         </div>
 
         <h1 className="text-4xl lg:text-6xl font-bold text-white mb-5 leading-tight">
-          One Platform. One Direction.{" "}
+          One Platform. One Direction.
+          <br />
           <span
             style={{
               background: "linear-gradient(90deg, #a78bfa 0%, #f472b6 60%, #fb923c 100%)",
@@ -43,7 +44,7 @@ export function HeroSection() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Governing All of DEWA&apos;s Digital Transformation.
+            Governing Every Division of DEWA.
           </span>
         </h1>
 

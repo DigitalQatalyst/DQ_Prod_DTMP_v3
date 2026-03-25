@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { StreamCard } from "@/components/cards/StreamCard";
 import { executionStreams } from "@/data/executionStreams";
 import { SectionPill } from "@/components/landing/shared";
@@ -14,10 +16,19 @@ export function ExecutionStreams() {
           These live programmes define DEWA&apos;s digital future. DTMP provides the
           architecture governance layer that keeps all four aligned to one enterprise direction.
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {executionStreams.map((stream) => (
             <StreamCard key={stream.id} stream={stream} />
           ))}
+        </div>
+        <div className="text-center">
+          <Link
+            to="/marketplaces/knowledge-center"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+          >
+            Explore Digital DEWA Programmes <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

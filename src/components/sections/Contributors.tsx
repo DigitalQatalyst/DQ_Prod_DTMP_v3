@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { ContributorCard } from "@/components/cards/ContributorCard";
 import { contributors } from "@/data/contributors";
 import { SectionPill } from "@/components/landing/shared";
@@ -14,10 +16,19 @@ export function Contributors() {
           Enterprise-wide stakeholders across all divisions and leadership levels,
           working toward DEWA&apos;s single digital destination.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {contributors.map((contributor) => (
             <ContributorCard key={contributor.id} contributor={contributor} />
           ))}
+        </div>
+        <div className="text-center">
+          <Link
+            to="/marketplaces"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+          >
+            Explore EA Collaboration Framework <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>
