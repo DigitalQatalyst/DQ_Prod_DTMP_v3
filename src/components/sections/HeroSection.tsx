@@ -27,7 +27,7 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative py-20 lg:py-28 flex items-center overflow-hidden"
+      className="relative py-10 lg:py-14 flex items-center overflow-hidden"
       style={{
         background: "linear-gradient(135deg, #0f0c29 0%, #1a1a4e 40%, #0c2340 70%, #0f2027 100%)",
         minHeight: 580,
