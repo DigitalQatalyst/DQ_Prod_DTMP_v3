@@ -19,7 +19,7 @@ export function HeroSection() {
         }}
       />
 
-      <div className="max-w-6xl mx-auto px-6 lg:px-8 relative z-10 text-center w-full">
+      <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center w-full">
         {/* pill */}
         <div
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8"
