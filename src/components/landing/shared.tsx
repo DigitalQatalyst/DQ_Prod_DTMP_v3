@@ -13,7 +13,7 @@ export function SectionPill({ label }: { label: string }) {
   );
 }
 
-export function IconBadge({ icon, size = 40 }: { icon: React.ReactNode; size?: number }) {
+export function IconBadge({ icon, size = 60 }: { icon: React.ReactNode; size?: number }) {
   return (
     <div
       className="flex items-center justify-center rounded-xl flex-shrink-0"
@@ -26,9 +26,9 @@ export function IconBadge({ icon, size = 40 }: { icon: React.ReactNode; size?: n
 
 export function StatCard({ value, label, sub }: { value: string; label: string; sub: string }) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-      <p className="text-3xl font-bold mb-1" style={{ color: "#6d28d9" }}>{value}</p>
-      <p className="font-semibold text-slate-800 text-sm mb-1">{label}</p>
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all">
+      <p className="text-3xl font-bold mb-1" style={{ background: "linear-gradient(90deg, #6d28d9 0%, #db2777 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{value}</p>
+      <p className="font-semibold text-slate-800 text-sm mb-2">{label}</p>
       <p className="text-xs text-slate-500 leading-relaxed">{sub}</p>
     </div>
   );

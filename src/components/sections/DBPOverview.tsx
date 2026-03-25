@@ -30,10 +30,10 @@ const contextPillars = [
 ];
 
 const stats = [
-  { value: "1.27M", label: "Customer Accounts", sub: "Served with world-class reliability" },
-  { value: "0.94", label: "Customer Minutes Lost / Year", sub: "Best-in-class utility benchmark" },
-  { value: "8,000", label: "MW Solar by 2030", sub: "MBR Solar Park portfolio" },
-  { value: "36%", label: "Clean Energy Target 2030", sub: "Aligned to Net-Zero 2050" },
+  { value: "1.27M", label: "Customer Accounts", sub: "DEWA serves 1.27 million accounts across Dubai with award-winning reliability and digital-first service delivery." },
+  { value: "0.94", label: "Customer Minutes Lost / Year", sub: "One of the world's lowest utility outage rates — DTMP governs the architecture sustaining this benchmark." },
+  { value: "8,000", label: "MW Solar by 2030", sub: "The Mohammed Bin Rashid Solar Park will deliver 8,000 MW of clean energy — every architecture decision aligned through DTMP." },
+  { value: "36%", label: "Clean Energy Target 2030", sub: "DEWA is on track for 36% clean energy by 2030 as part of its Net-Zero 2050 pathway, governed end-to-end through DTMP." },
 ];
 
 export function DBPOverview() {
@@ -52,8 +52,8 @@ export function DBPOverview() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {contextPillars.map((pillar) => (
-            <div key={pillar.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <IconBadge icon={<pillar.icon size={18} className="text-white" />} />
+            <div key={pillar.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all">
+              <IconBadge icon={<pillar.icon size={26} className="text-white" />} />
               <h3 className="font-bold text-slate-800 mt-4 mb-2 text-base">{pillar.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{pillar.description}</p>
             </div>
