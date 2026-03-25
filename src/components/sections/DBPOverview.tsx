@@ -52,7 +52,7 @@ export function DBPOverview() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {contextPillars.map((pillar) => (
-            <div key={pillar.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all">
+            <div key={pillar.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 transition-all duration-200" onMouseEnter={e => (e.currentTarget.style.boxShadow = "6px 8px 24px rgba(0,0,0,0.13)")} onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}>
               <IconBadge icon={<pillar.icon size={26} className="text-white" />} />
               <h3 className="font-bold text-slate-800 mt-4 mb-2 text-base">{pillar.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{pillar.description}</p>
