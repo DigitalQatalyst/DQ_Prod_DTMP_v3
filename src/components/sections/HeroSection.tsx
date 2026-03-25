@@ -80,8 +80,10 @@ export function HeroSection() {
         <div ref={containerRef} className="w-full mb-8 relative">
           {/* Input row */}
           <div
-            className={`bg-white px-6 py-5 flex items-center gap-4 shadow-lg transition-all ${
-              focused ? "rounded-t-2xl border-b border-slate-100" : "rounded-2xl"
+            className={`bg-white px-6 py-5 flex items-center gap-4 transition-all ${
+              focused
+                ? "rounded-t-2xl border-b border-slate-100 ring-2 ring-violet-400 ring-offset-0 shadow-xl"
+                : "rounded-2xl shadow-lg border border-transparent"
             }`}
           >
             <Sparkles size={20} className="text-violet-500 flex-shrink-0" />
