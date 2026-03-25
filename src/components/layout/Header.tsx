@@ -1,18 +1,60 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ArrowRight, ChevronDown, HelpCircle, UserPlus, Navigation, MessageSquare, Phone, AlertCircle } from "lucide-react";
+import { Menu, X, ArrowRight, ChevronDown, HelpCircle, UserPlus, Navigation, MessageSquare, Phone, AlertCircle, BookOpen, GraduationCap, FileText, Wrench, ClipboardList, BarChart2, Briefcase, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginModal } from "@/components/learningCenter/LoginModal";
 import { isUserAuthenticated } from "@/data/sessionAuth";
 import { getSessionRole, isTOStage3Role } from "@/data/sessionRole";
 
-const navLinks = [
-  { name: "DBP", sectionId: "dbp-overview" },
-  { name: "4D Model", sectionId: "governance-model" },
-  { name: "Digital DEWA", sectionId: "execution-streams" },
-  { name: "Divisions", sectionId: "division-pivot" },
-  { name: "Marketplaces", sectionId: "marketplaces" },
-  { name: "EA Office", sectionId: "to-value" },
+const exploreItems = [
+  {
+    icon: BookOpen,
+    name: "Knowledge Centre",
+    desc: "Standards, patterns, and governance documentation",
+    path: "/marketplaces/knowledge-center",
+  },
+  {
+    icon: GraduationCap,
+    name: "Learning Centre",
+    desc: "Training resources and capability development",
+    path: "/marketplaces/learning-center",
+  },
+  {
+    icon: FileText,
+    name: "Document Studio",
+    desc: "AI-assisted document creation and specification",
+    path: "/marketplaces/document-studio",
+  },
+  {
+    icon: Wrench,
+    name: "Solution Build",
+    desc: "Collaborative workspace for solution design",
+    path: "/marketplaces/solution-build",
+  },
+  {
+    icon: ClipboardList,
+    name: "Solution Specs",
+    desc: "Architecture specifications and requirements",
+    path: "/marketplaces/solution-specs",
+  },
+  {
+    icon: BarChart2,
+    name: "Lifecycle Management",
+    desc: "Portfolio and programme lifecycle tracking",
+    path: "/marketplaces/lifecycle-management",
+  },
+  {
+    icon: Briefcase,
+    name: "Portfolio Management",
+    desc: "Enterprise portfolio oversight and governance",
+    path: "/marketplaces/portfolio-management",
+  },
+  {
+    icon: Building2,
+    name: "EA Office",
+    desc: "Corporate architecture governance and standards",
+    path: "/stage3/dashboard",
+  },
 ];
 
 const helpOptions = [
@@ -43,19 +85,8 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const scrollToSection = (sectionId: string) => {
-    if (location.pathname !== "/") {
-      navigate("/");
-      setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    } else {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const handleNavClick = (sectionId: string) => {
-    scrollToSection(sectionId);
+  const handleExploreNav = (path: string) => {
+    navigate(path);
     setShowExplore(false);
     setIsMobileMenuOpen(false);
   };
@@ -100,16 +131,28 @@ export function Header() {
 
             {/* Explore dropdown panel */}
             {showExplore && (
-              <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
-                {navLinks.map((link) => (
-                  <button
-                    key={link.sectionId}
-                    onClick={() => handleNavClick(link.sectionId)}
-                    className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    {link.name}
-                  </button>
-                ))}
+              <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden">
+                {/* Header */}
+                <div className="px-5 pt-5 pb-3 border-b border-slate-100">
+                  <p className="text-base font-bold text-slate-900">Explore DEWA EA Platform</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Marketplaces, workspaces and governance tools</p>
+                </div>
+                {/* Items */}
+                <div className="py-2 max-h-96 overflow-y-auto">
+                  {exploreItems.map((item) => (
+                    <button
+                      key={item.path}
+                      onClick={() => handleExploreNav(item.path)}
+                      className="w-full flex items-start gap-3 px-5 py-3 hover:bg-slate-50 transition-colors text-left"
+                    >
+                      <item.icon size={17} className="mt-0.5 text-orange-500 shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{item.name}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             </div>
@@ -204,13 +247,14 @@ export function Header() {
             <nav className="flex-1 px-4 py-6 overflow-y-auto">
               <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3 px-2">Explore</p>
               <div className="space-y-1 mb-8">
-                {navLinks.map((link) => (
+                {exploreItems.map((item) => (
                   <button
-                    key={link.sectionId}
-                    onClick={() => handleNavClick(link.sectionId)}
-                    className="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white/80 hover:bg-white/10 transition-colors"
+                    key={item.path}
+                    onClick={() => handleExploreNav(item.path)}
+                    className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg text-base font-medium text-white/80 hover:bg-white/10 transition-colors"
                   >
-                    {link.name}
+                    <item.icon size={16} className="text-orange-400 shrink-0" />
+                    {item.name}
                   </button>
                 ))}
               </div>
