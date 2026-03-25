@@ -22,33 +22,32 @@ export function HeroSection() {
       <div className="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center w-full">
         {/* pill */}
         <div
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8"
           style={{
-            background: "rgba(255,255,255,0.10)",
-            border: "1px solid rgba(255,255,255,0.20)",
+            background: "rgba(255,255,255,0.07)",
+            border: "1px solid rgba(255,255,255,0.14)",
           }}
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-          <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+          <span className="w-1.5 h-1.5 rounded-full bg-white/40 inline-block" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-white/50">
             DEWA Corporate EA &amp; Transformation Office
           </span>
         </div>
 
-        <h1 className="text-4xl lg:text-6xl font-bold text-white mb-5 leading-tight">
-          One Platform. One Direction.
-          <br />
+        <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+          One Platform.{" "}
           <span
             style={{
-              background: "linear-gradient(90deg, #a78bfa 0%, #f472b6 60%, #fb923c 100%)",
+              background: "linear-gradient(90deg, #a78bfa 0%, #f472b6 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
           >
-            Governing Every Division of DEWA.
+            One Direction.
           </span>
         </h1>
 
-        <p className="text-white/70 text-lg max-w-2xl mx-auto mb-8">
+        <p className="text-white/60 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
           The enterprise architecture platform designed, deployed, and governed by
           DEWA&apos;s Corporate EA Office — accelerating every division&apos;s journey
           to a Digital-First, Net-Zero utility.
