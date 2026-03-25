@@ -48,8 +48,7 @@ export function HeroSection() {
         </h1>
 
         <p className="text-white/60 text-lg max-w-3xl mx-auto mb-10 leading-relaxed">
-          One governed platform for every division — accelerating DEWA&apos;s journey
-          to a Digital-First, Net-Zero utility.
+          Governed architecture tools, knowledge resources, and delivery marketplaces — empowering DEWA to design, align, and accelerate enterprise-wide digital transformation.
         </p>
 
         {/* search bar */}
