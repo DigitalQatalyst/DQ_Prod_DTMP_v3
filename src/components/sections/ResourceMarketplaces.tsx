@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  BookOpen, Database, Settings, Zap, Building2, Globe, ChevronRight, ArrowRight
+  BookOpen, Database, Settings, Zap, Building2, Globe, ChevronRight, ArrowRight,
+  Briefcase, BarChart3, HelpCircle
 } from "lucide-react";
 import { SectionPill, IconBadge } from "@/components/landing/shared";
 
@@ -18,7 +19,7 @@ const marketplaces = [
     phase: "Discern",
     icon: BookOpen,
     name: "DTMP Learning Centre",
-    description: "Technology and sustainability learning tracks for all DEWA divisions and roles.",
+    description: "Structured learning tracks for EA literacy, digital transformation, and DEWA architecture standards — built for every role across all divisions.",
     audience: "All DEWA staff",
     cta: "Explore Learning Centre",
     route: "/marketplaces/learning-center",
@@ -28,8 +29,8 @@ const marketplaces = [
     phase: "Discern",
     icon: Database,
     name: "DTMP Knowledge Centre",
-    description: "Knowledge standards, design patterns, and governance policies enterprise-wide.",
-    audience: "Architects & analysts",
+    description: "DEWA-specific architecture references, governance frameworks, strategy documents, and published design standards — accessible enterprise-wide.",
+    audience: "Architects, analysts & EA practitioners",
     cta: "Browse Knowledge Centre",
     route: "/marketplaces/knowledge-center",
   },
@@ -38,8 +39,8 @@ const marketplaces = [
     phase: "Design",
     icon: Settings,
     name: "DTMP Document Studio",
-    description: "AI-generated assessments for visualisation and documentation of architecture.",
-    audience: "EA practitioners",
+    description: "AI-powered document generation fulfilled by the Corporate EA Office — architecture assessments, application profiles, and governance documents with defined SLAs.",
+    audience: "EA practitioners, project teams",
     cta: "Open Document Studio",
     route: "/marketplaces/document-studio",
   },
@@ -48,8 +49,8 @@ const marketplaces = [
     phase: "Design",
     icon: Globe,
     name: "DTMP Solution Specs",
-    description: "Resources for diagnostic integration, sensors, and field-ready specs.",
-    audience: "Solution architects",
+    description: "Standardised architecture blueprints and solution specifications — reusable reference designs and patterns applicable across all DEWA divisions and programmes.",
+    audience: "Solution architects, integration leads",
     cta: "Browse Solution Specs",
     route: "/marketplaces/solution-specs",
   },
@@ -58,8 +59,8 @@ const marketplaces = [
     phase: "Deploy",
     icon: Zap,
     name: "DTMP Solution Build",
-    description: "Support for diagnostic-capable solution and programme transformation.",
-    audience: "Delivery teams",
+    description: "Build resources, delivery capacity, and implementation support — for projects across all DEWA divisions governed through the EA Office intake process.",
+    audience: "Delivery teams, project managers",
     cta: "Request Build Support",
     route: "/marketplaces/solution-build",
   },
@@ -68,10 +69,40 @@ const marketplaces = [
     phase: "Drive",
     icon: Building2,
     name: "DTMP Lifecycle Management",
-    description: "In-cycle management for water transformation and operations initiatives.",
-    audience: "Programme managers",
+    description: "Govern initiatives through stage gates, compliance checkpoints, and architecture reviews across enterprise programmes.",
+    audience: "Programme managers, EA Office",
     cta: "Open Lifecycle Dashboard",
     route: "/marketplaces/lifecycle-management",
+  },
+  {
+    id: "portfolio-management",
+    phase: "Drive",
+    icon: Briefcase,
+    name: "DTMP Portfolio Management",
+    description: "Centralised oversight for application and project portfolios — tracking investment, progress, and strategic alignment across all divisions.",
+    audience: "Portfolio managers, Division leads",
+    cta: "View Portfolio",
+    route: "/marketplaces/portfolio-management",
+  },
+  {
+    id: "digital-intelligence",
+    phase: "Drive",
+    icon: BarChart3,
+    name: "DTMP Digital Intelligence",
+    description: "AI-powered maturity insights, system analytics, and project intelligence — turning architecture data into decision-ready visibility.",
+    audience: "EA Office, Leadership, Analysts",
+    cta: "View Intelligence Dashboard",
+    route: "/marketplaces/digital-intelligence",
+  },
+  {
+    id: "support-services",
+    phase: "Drive",
+    icon: HelpCircle,
+    name: "DTMP Support Services",
+    description: "Technical support and expert EA consultancy — from architecture queries to hands-on delivery assistance across all DEWA divisions.",
+    audience: "All DEWA staff",
+    cta: "Get Support",
+    route: "/marketplaces/support-services",
   },
 ];
 
@@ -93,7 +124,7 @@ export function ResourceMarketplaces() {
           The 4D EA Marketplace Architecture
         </h2>
         <p className="text-slate-500 text-center max-w-2xl mx-auto mb-8 text-sm leading-relaxed">
-          A structured capability spanning Discern, Design, Deploy, and Drive — from literacy to scale.
+          A specialised environment for every stage of architecture work — whether you're building capability, designing solutions, or governing delivery, there's a marketplace built for exactly that.
         </p>
 
         {/* phase tabs */}
@@ -109,7 +140,7 @@ export function ResourceMarketplaces() {
                   : { background: "#f1f5f9", color: "#64748b" }
               }
             >
-              {phase === "All" ? "All Capabilities" : `${phase}`}
+              {phase === "All" ? "All Phases" : `${phase}`}
             </button>
           ))}
         </div>
@@ -118,8 +149,13 @@ export function ResourceMarketplaces() {
           {filtered.map((mp) => {
             const Icon = mp.icon;
             return (
-              <div key={mp.id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
-                <IconBadge icon={<Icon size={18} className="text-white" />} />
+              <div
+                key={mp.id}
+                className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col transition-all"
+                onMouseEnter={e => (e.currentTarget.style.boxShadow = "8px 12px 32px rgba(0,0,0,0.18)")}
+                onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}
+              >
+                <IconBadge icon={<Icon size={18} className="text-white transition-transform group-hover:scale-110" />} />
                 <p
                   className="text-xs font-bold uppercase tracking-widest mt-4 mb-1"
                   style={{ color: phaseColors[mp.phase] }}

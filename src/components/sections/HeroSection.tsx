@@ -29,16 +29,31 @@ export function HeroSection() {
     <section
       className="relative py-10 lg:py-14 flex items-center overflow-hidden"
       style={{
-        background: "linear-gradient(135deg, #0f0c29 0%, #1a1a4e 40%, #0c2340 70%, #0f2027 100%)",
+        background: "linear-gradient(135deg, #0a0f2c 0%, #1a1f4d 40%, #2a1f6f 70%, #1a103a 100%)",
         minHeight: 580,
       }}
     >
-      {/* radial glow */}
+      {/* soft grid pattern */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 70% 60% at 55% 50%, rgba(99,102,241,0.12) 0%, transparent 70%)",
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
+      {/* center radial glow behind headline */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(circle at 50% 42%, rgba(255,255,255,0.08) 0%, transparent 58%)",
+        }}
+      />
+      {/* vignette — darker edges */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.45) 100%)",
         }}
       />
 
@@ -79,7 +94,7 @@ export function HeroSection() {
         {/* AI chat bar */}
         <div
           ref={containerRef}
-          className={`w-full mb-8 bg-white transition-all overflow-hidden ${
+          className={`max-w-2xl mx-auto w-full mb-8 bg-white/95 transition-all overflow-hidden ${
             focused ? "rounded-2xl ring-2 ring-slate-900 shadow-xl" : "rounded-2xl shadow-lg"
           }`}
         >

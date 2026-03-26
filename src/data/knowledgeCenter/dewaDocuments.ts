@@ -406,6 +406,19 @@ export const executiveSummaries: DewaDocumentItem[] = [
 
 export const strategyDocs: DewaDocumentItem[] = [
   {
+    id: "dewa-dtmp-organisation-roles",
+    domainLabel: "Organisation",
+    title: "DEWA DTMP: Organisational Structure & Roles",
+    description: "A reference guide to DEWA's organisational structure and how every role — from the Corporate EA Office to project delivery teams — engages with the Digital Transformation Master Plan.",
+    author,
+    pageCount: "12-16 pages",
+    year: "2025",
+    topicPills: ["Org Structure", "DTMP Roles", "EA Governance", "Division Structure", "Role Framework"],
+    audienceTag: "All Roles",
+    format: "PDF",
+    aiGenerationBadge: "Full AI Generation",
+  },
+  {
     id: "dewa-digital-transformation-strategy-2025-2030",
     domainLabel: "Transformation",
     title: "DEWA Digital Transformation Strategy 2025-2030",
@@ -422,7 +435,7 @@ export const strategyDocs: DewaDocumentItem[] = [
     id: "dewa-enterprise-architecture-strategy",
     domainLabel: "Architecture",
     title: "DEWA Enterprise Architecture Strategy",
-    description: "DEWA operates as one of the world's most advanced utilities — serving 1.27 million customer accounts across Dubai with a customer minutes lost rate of 0.94 per year, a benchmark recognised globally as best-in-class. Sustaining and advancing this performance while simultaneously executing one of the region's most ambitious digital transformation programmes requires a single, unified architecture discipline.\n\nThe DEWA Enterprise Architecture Strategy defines that discipline. It establishes the Corporate EA Office as the authoritative body governing all architecture decisions across DEWA's six operating divisions — Water Services, Electricity Generation, Electricity Networks, Customer Affairs, Digital DEWA, and Corporate Services. The strategy operationalises DEWA's status as an EA 4.0 practitioner — the highest recognised level of enterprise architecture maturity — and sets the trajectory for sustaining that maturity through the Digital Transformation Master Plan (DTMP) horizon of 2025–2030.\n\nAt its core, this strategy governs four strategic programmes simultaneously: the Digital DEWA initiative spanning Solar Power, Energy Storage, AI, and Digital Services; the AED 7 billion Smart Grid 2021–2035 programme; DEWA's Net-Zero 2050 commitment anchored by the 36% clean energy target by 2030 and the Mohammed Bin Rashid Al Maktoum Solar Park (targeting 8,000 MW capacity); and the enterprise-wide transformation of customer service delivery through Rammas and Services 360. Each programme generates architectural decisions that, without unified governance, would create fragmentation, technical debt, and misalignment with DEWA's long-term capability targets.",
+    description: "The authoritative architecture strategy governing all enterprise-wide technology and transformation decisions across DEWA's six operating divisions. Establishes the Corporate EA Office mandate, the 4D Governance Model, and DEWA's trajectory as an EA 4.0 practitioner through the 2025–2030 DTMP horizon.",
     author,
     pageCount: "20-28 pages",
     year: "2025",

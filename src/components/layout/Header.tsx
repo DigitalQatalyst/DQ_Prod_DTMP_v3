@@ -70,10 +70,20 @@ export function Header() {
   const [showAccessLogin, setShowAccessLogin] = useState(false);
   const [showExplore, setShowExplore] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const exploreRef = useRef<HTMLDivElement>(null);
   const helpRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-aware navbar state
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 10);
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -106,11 +116,17 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-white/10"
-      style={{ background: "linear-gradient(90deg, #312e81 0%, #1a1a4e 45%, #0c2340 100%)" }}
+      className="sticky top-0 z-50"
+      style={{
+        background: scrolled ? "rgba(10, 15, 40, 0.92)" : "#0a0f2c",
+        backdropFilter: scrolled ? "blur(10px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(10px)" : "none",
+        borderBottom: scrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.05)",
+        transition: "background 0.3s ease, border-color 0.3s ease",
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-18">
+        <div className="flex items-center justify-between h-14 lg:h-16">
 
           {/* Left — Logo + Explore */}
           <div className="flex items-center gap-3">

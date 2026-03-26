@@ -19,9 +19,11 @@ export function GovernanceCard({ phase }: GovernanceCardProps) {
   const accent = phaseColors[name] ?? "#6d28d9";
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all flex flex-col">
+    <div className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 transition-all flex flex-col" onMouseEnter={e => (e.currentTarget.style.boxShadow = "6px 8px 24px rgba(0,0,0,0.13)")} onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}>
       <div className="flex items-start gap-4 mb-4">
-        <IconBadge icon={<Icon size={18} className="text-white" />} />
+        <div className="transition-transform group-hover:scale-110 origin-left w-fit">
+          <IconBadge icon={<Icon size={18} className="text-white" />} />
+        </div>
         <div>
           <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Phase</p>
           <h3 className="font-bold text-slate-800 text-lg">{name}</h3>

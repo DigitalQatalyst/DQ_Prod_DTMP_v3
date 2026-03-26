@@ -30,7 +30,7 @@ export const governancePhases: GovernancePhase[] = [
       "Digital DEWA programme intelligence",
     ],
     ctaLabel: "View Discern Marketplaces",
-    route: "/marketplaces",
+    route: "/marketplaces#discern",
   },
   {
     id: "design",
@@ -48,7 +48,7 @@ export const governancePhases: GovernancePhase[] = [
       "Operating model design",
     ],
     ctaLabel: "View Design Marketplaces",
-    route: "/marketplaces",
+    route: "/marketplaces#design",
   },
   {
     id: "deploy",
@@ -66,7 +66,7 @@ export const governancePhases: GovernancePhase[] = [
       "AI and automation readiness",
     ],
     ctaLabel: "View Deploy Marketplaces",
-    route: "/marketplaces",
+    route: "/marketplaces#deploy",
   },
   {
     id: "drive",
@@ -84,6 +84,6 @@ export const governancePhases: GovernancePhase[] = [
       "Investment performance measurement",
     ],
     ctaLabel: "View Drive Marketplaces",
-    route: "/marketplaces",
+    route: "/marketplaces#drive",
   },
 ];

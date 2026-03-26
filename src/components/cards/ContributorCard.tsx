@@ -11,8 +11,8 @@ export function ContributorCard({ contributor }: ContributorCardProps) {
   const { icon: Icon, name, role, description, contributions, ctaLabel, ctaRoute } = contributor;
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all flex flex-col">
-      <IconBadge icon={<Icon size={18} className="text-white" />} />
+    <div className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 transition-all flex flex-col" onMouseEnter={e => (e.currentTarget.style.boxShadow = "8px 12px 32px rgba(0,0,0,0.18)")} onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}>
+      <IconBadge icon={<Icon size={18} className="text-white transition-transform group-hover:scale-110" />} />
       <h3 className="font-bold text-slate-800 mt-4 mb-1 text-base">{name}</h3>
       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{role}</p>
       <p className="text-sm text-slate-500 leading-relaxed mb-4 flex-1">{description}</p>

@@ -67,7 +67,7 @@ export function DBPOverview() {
         </div>
         <div className="text-center">
           <Link
-            to="/marketplaces/knowledge-center/strategy-docs/dewa-enterprise-architecture-strategy"
+            to="/marketplaces/knowledge-center/strategy-docs/dewa-enterprise-architecture-strategy?view=artefact"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
             style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
           >

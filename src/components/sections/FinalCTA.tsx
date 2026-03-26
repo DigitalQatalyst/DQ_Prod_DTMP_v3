@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, Layers, ChevronRight } from "lucide-react";
+import { BookOpen, Layers, ChevronRight, BarChart2 } from "lucide-react";
 
 export function FinalCTA() {
   return (
@@ -31,9 +31,9 @@ export function FinalCTA() {
               route: "/marketplaces",
             },
             {
-              icon: <ChevronRight size={16} />,
-              label: "Submit Architecture Service Request",
-              route: "/marketplaces/document-studio",
+              icon: <BarChart2 size={16} />,
+              label: "View Active Architecture Portfolio",
+              route: "/marketplaces/portfolio-management",
             },
           ].map((item) => (
             <Link

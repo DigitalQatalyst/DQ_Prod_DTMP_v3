@@ -13,8 +13,7 @@ export function GovernanceModel() {
           The 4D Governance Model
         </h2>
         <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
-          The governance structure through which DEWA&apos;s Corporate EA Office orchestrates
-          architecture across Generation, Transmission, Distribution, Customer Services, and Digital DEWA.
+          The 4D Framework operationalises EA governance across DEWA — sequencing transformation decisions from insight and design through to deployment and value realisation.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {governancePhases.map((phase) => (

@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -12,6 +13,18 @@ import {
 } from "@/data/marketplaces";
 
 const MarketplacesPage = () => {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+      return;
+    }
+    const id = hash.replace("#", "");
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }, [hash]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -49,7 +62,7 @@ const MarketplacesPage = () => {
               if (phaseMarketplaces.length === 0) return null;
 
               return (
-                <div key={phase} className="mb-16 last:mb-0">
+                <div key={phase} id={phase.toLowerCase()} className="mb-16 last:mb-0 scroll-mt-24">
                   {/* Phase Header */}
                   <div className="mb-8">
                     <span

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ValueCard } from "@/components/cards/ValueCard";
-import { valueProps, stats } from "@/data/valueProps";
-import { SectionPill, StatCard } from "@/components/landing/shared";
+import { valueProps } from "@/data/valueProps";
+import { SectionPill } from "@/components/landing/shared";
 
 export function TOValue() {
   return (
@@ -13,18 +13,12 @@ export function TOValue() {
           Corporate EA Office Value
         </h2>
         <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
-          Why enterprise-wide EA governance matters and what it delivers for all DEWA divisions.
+          DTMP is how the Corporate EA Office turns governance into something every division actually feels — faster delivery, controlled spend, validated quality, and real-time visibility.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {valueProps.map((value) => (
             <ValueCard key={value.id} value={value} />
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {stats.map((stat) => (
-            <StatCard key={stat.label} value={stat.value} label={stat.label} sub={stat.note} />
           ))}
         </div>
         <div className="text-center">
