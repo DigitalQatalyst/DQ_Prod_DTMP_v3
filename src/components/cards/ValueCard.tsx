@@ -1,4 +1,5 @@
 import { ValueProp } from "@/data/valueProps";
+import { IconBadge } from "@/components/landing/shared";
 
 interface ValueCardProps {
   value: ValueProp;
@@ -6,26 +7,14 @@ interface ValueCardProps {
 
 export function ValueCard({ value }: ValueCardProps) {
   const { icon: Icon, name, description } = value;
-  const accent =
-    value.id === "accelerate"
-      ? "#F97316"
-      : value.id === "control"
-        ? "#16A34A"
-        : value.id === "quality"
-          ? "#0EA5E9"
-          : "#7C3AED";
 
   return (
-    <div
-      className="bg-white border border-[#E2E8F0] rounded-xl p-6 text-center hover:shadow-lg transition-shadow shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
-      style={{ borderTop: `4px solid ${accent}` }}
-    >
-      <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: `${accent}1A` }}>
-        <Icon size={22} style={{ color: accent }} />
+    <div className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center transition-all" onMouseEnter={e => (e.currentTarget.style.boxShadow = "8px 12px 32px rgba(0,0,0,0.18)")} onMouseLeave={e => (e.currentTarget.style.boxShadow = "")}>
+      <div className="flex justify-center mb-4">
+        <IconBadge icon={<Icon size={18} className="text-white transition-transform group-hover:scale-110" />} />
       </div>
-
-      <h3 className="text-[18px] font-bold text-[#0F172A] mb-2">{name}</h3>
-      <p className="text-sm text-[#334155]">{description}</p>
+      <h3 className="font-bold text-slate-800 mb-2 text-base">{name}</h3>
+      <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
     </div>
   );
 }

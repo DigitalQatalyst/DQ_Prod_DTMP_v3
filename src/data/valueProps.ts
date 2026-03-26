@@ -15,7 +15,7 @@ export const valueProps: ValueProp[] = [
     icon: Zap,
     color: "text-phase-design",
     description:
-      "60% of requested resources delivered through pre-approved frameworks and reusable architecture assets.",
+      "Reusable architecture assets and pre-approved frameworks remove rework — turning weeks of design into days without compromising governance.",
   },
   {
     id: "control",
@@ -23,7 +23,7 @@ export const valueProps: ValueProp[] = [
     icon: DollarSign,
     color: "text-green",
     description:
-      "Visibility across active technology initiatives enables smarter prioritisation, reduced duplication, and accountable spend.",
+      "Full visibility across active technology initiatives enables smarter prioritisation, eliminates duplication, and makes every architecture spend accountable.",
   },
   {
     id: "quality",
@@ -31,7 +31,7 @@ export const valueProps: ValueProp[] = [
     icon: CheckCircle,
     color: "text-blue-accent",
     description:
-      "Resources, blueprints, and documents are validated by the EA Office before delivery for compliance and quality assurance.",
+      "Every resource, blueprint, and document is validated by the EA Office before delivery — checked for compliance, coherence, and enterprise fit.",
   },
   {
     id: "visibility",
@@ -39,7 +39,7 @@ export const valueProps: ValueProp[] = [
     icon: Eye,
     color: "text-phase-drive",
     description:
-      "Real-time portfolio views across initiatives, artefacts, lifecycle stages, and team progress support confident decision-making.",
+      "Real-time views across initiatives, artefacts, and lifecycle stages — so leadership always knows what to fund, accelerate, or pause.",
   },
 ];
 

@@ -406,6 +406,19 @@ export const executiveSummaries: DewaDocumentItem[] = [
 
 export const strategyDocs: DewaDocumentItem[] = [
   {
+    id: "dewa-dtmp-organisation-roles",
+    domainLabel: "Organisation",
+    title: "DEWA DTMP: Organisational Structure & Roles",
+    description: "A reference guide to DEWA's organisational structure and how every role — from the Corporate EA Office to project delivery teams — engages with the Digital Transformation Master Plan.",
+    author,
+    pageCount: "12-16 pages",
+    year: "2025",
+    topicPills: ["Org Structure", "DTMP Roles", "EA Governance", "Division Structure", "Role Framework"],
+    audienceTag: "All Roles",
+    format: "PDF",
+    aiGenerationBadge: "Full AI Generation",
+  },
+  {
     id: "dewa-digital-transformation-strategy-2025-2030",
     domainLabel: "Transformation",
     title: "DEWA Digital Transformation Strategy 2025-2030",
@@ -422,11 +435,11 @@ export const strategyDocs: DewaDocumentItem[] = [
     id: "dewa-enterprise-architecture-strategy",
     domainLabel: "Architecture",
     title: "DEWA Enterprise Architecture Strategy",
-    description: "DEWA's enterprise architecture strategy - EA Office mandate, EA 4.0 maturity target, governance frameworks, architecture principles, domain strategies, and the EA capability roadmap.",
+    description: "The authoritative architecture strategy governing all enterprise-wide technology and transformation decisions across DEWA's six operating divisions. Establishes the Corporate EA Office mandate, the 4D Governance Model, and DEWA's trajectory as an EA 4.0 practitioner through the 2025–2030 DTMP horizon.",
     author,
     pageCount: "20-28 pages",
     year: "2025",
-    topicPills: ["EA Strategy", "Architecture Principles", "EA Roadmap"],
+    topicPills: ["EA 4.0 Maturity", "4D Governance Model", "Architecture Principles", "Digital DEWA Programme", "Smart Grid Alignment", "Net-Zero 2050", "Corporate EA Office Mandate"],
     audienceTag: "Architect",
     format: "PDF",
     aiGenerationBadge: "Full AI Generation",

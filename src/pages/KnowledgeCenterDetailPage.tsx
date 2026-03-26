@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { DEWAOrgChart } from "@/components/diagrams/DEWAOrgChart";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -116,13 +117,15 @@ function highlightMentions(text: string): React.ReactNode {
 interface ArtefactSection {
   heading: string;
   body: string;
+  node?: React.ReactNode;
 }
 
 function buildArtefactSections(
   tab: KnowledgeTab,
   item: { title?: string; description?: string; tags?: string[] } | undefined,
   knowledgeItem: { audience?: string; updatedAt?: string; author?: string } | undefined,
-  document: DewaDocumentItem | null
+  document: DewaDocumentItem | null,
+  cardId?: string
 ): ArtefactSection[] {
   const description =
     item && "description" in item && typeof (item as Record<string, unknown>).description === "string"
@@ -236,6 +239,63 @@ function buildArtefactSections(
       ];
 
     case "strategy-docs":
+      if (cardId === "dewa-dtmp-organisation-roles") return [
+        {
+          heading: "DEWA Organisational Structure",
+          body: "",
+          node: <DEWAOrgChart />,
+        },
+        {
+          heading: "How DEWA Is Organised",
+          body: "DEWA operates across seven divisions, a corporate and strategy layer, and a group of subsidiaries — each with distinct technology portfolios, transformation programmes, and architecture governance requirements.\n\nThe seven operating divisions are:\n\n• Generation — Power and water generation assets including the Jebel Ali Complex, Mohammed Bin Rashid Al Maktoum Solar Park, and desalination facilities.\n• Transmission — High-voltage electricity transmission networks, substations, and the Smart Grid 2021–2035 programme.\n• Distribution — Electricity distribution networks, customer connections, and smart metering infrastructure across Dubai.\n• Water & Civil Division — Desalination operations, water network management, the Hatta Hydroelectric Plant, and civil infrastructure.\n• Billing Services Division — Customer billing, smart collections, Rammas AI operations, and the Services 360 customer experience programme.\n• Innovation & The Future Division — AI platforms, Virtual Engineer, cybersecurity, and future technology programmes.\n• Power & Water Planning — Long-term capacity planning, demand forecasting, and strategic infrastructure investment governance.\n\nAbove the divisions sits Corporate & Strategy — home to the CEO, CIO, CDO, CTO, Corporate Strategy Office, and the Corporate EA Office. Alongside the organisation, DEWA Group Subsidiaries — Moro Hub, Empower, Etihad ESCO, and Digital X — operate under the same enterprise architecture framework.",
+        },
+        {
+          heading: "The Corporate EA Office",
+          body: "The Corporate EA Office is the authoritative body for all enterprise architecture decisions across DEWA. It operates at the corporate level and governs every division and subsidiary.\n\nKey responsibilities:\n\n• Set and enforce enterprise-wide architecture standards, principles, and patterns.\n• Govern the Digital Transformation Master Plan (DTMP) platform — the single system through which all architecture work is governed, documented, and delivered.\n• Review and approve significant technology and solution architecture decisions raised through divisional and programme teams.\n• Track transformation KPIs enterprise-wide and report Net-Zero architecture alignment to leadership.\n• Manage the cross-division architecture repository — blueprints, standards, and governance references accessible to all.\n\nThe EA Office is supported by divisional EA Leads in each of the seven divisions — the connective tissue between corporate mandates and divisional delivery.",
+        },
+        {
+          heading: "Divisional EA Structure",
+          body: "Each of DEWA's seven divisions has its own EA context within DTMP — a tailored view of resources, active programmes, and architecture governance relevant to that division's work.\n\nDivisional EA Leads are embedded within or closely aligned to each division. Their role is to:\n\n• Apply corporate architecture standards at the divisional level.\n• Contribute to and consume the shared blueprint library.\n• Review divisional solution designs before escalation to the Corporate EA Office.\n• Represent the division in cross-divisional architecture forums.\n• Track divisional programme progress against architecture compliance requirements.\n\nNo division operates in architectural isolation. Cross-division dependencies — particularly between Generation, Transmission, Distribution, and Water & Civil — are actively governed through the Corporate EA Office's cross-division alignment function.\n\nSubsidiary entities (Moro Hub, Empower, Etihad ESCO, Digital X) are governed through the DEWA Group EA framework, which aligns subsidiary architecture decisions to the same enterprise standards.",
+        },
+        {
+          heading: "DTMP Role Framework",
+          body: "DTMP is designed for every level of DEWA's organisation. Six primary role types engage with the platform, each with a distinct purpose:\n\n1. Corporate EA Office — platform owners and governance authority. Set standards, govern compliance, track KPIs, and manage the enterprise architecture repository.\n\n2. Executive & Strategy Leadership (CEO, CDO, CIO, CTO, Strategy Office) — strategic oversight. Govern the enterprise portfolio, prioritise cross-division investment, and track Net-Zero milestone progress.\n\n3. Division EA & Architecture Leads — standards translators. Apply corporate mandates at divisional level, contribute blueprints, review divisional solutions, and escalate cross-division dependencies.\n\n4. Innovation & AI Teams (Virtual Engineer, Rammas, AI Platforms) — technology architects. Govern AI platform architecture, oversee Virtual Engineer deployment, manage cognitive service integration standards.\n\n5. Project & Delivery Teams — execution layer. Access resources, submit architecture requests, track initiative progress against standards, and manage delivery through stage gates.\n\n6. Operations & Security Teams (IT/OT, SecDevOps, Lifecycle Ops) — operational governance. Govern IT/OT convergence, automation fitness assessments, security architecture compliance, and operational technology lifecycle.",
+        },
+        {
+          heading: "How Each Role Uses DTMP",
+          body: "DTMP provides each role with a different entry point into the platform depending on their primary need:\n\nCorporate EA Office → Stage 3 Dashboard — the governance workspace where standards are managed, compliance is tracked, and architecture decisions are recorded.\n\nExecutive Leadership → Portfolio Management marketplace — enterprise-wide visibility of active programmes, investment status, and strategic alignment across all divisions.\n\nDivision EA Leads → Knowledge Centre (Strategy tab) — the reference library for architecture standards, governance frameworks, and strategy documents that inform divisional decisions.\n\nInnovation & AI Teams → Digital Intelligence marketplace — AI-powered maturity insights, system analytics, and project intelligence for the division's most complex technology programmes.\n\nProject & Delivery Teams → Lifecycle Management marketplace — stage-gate governance, compliance checkpoints, and architecture review tracking for active programme delivery.\n\nOperations & Security Teams → Support Services marketplace — technical support, EA consultancy, and SecDevOps governance resources.\n\nAll roles start in the Learning Centre — the structured entry point for DTMP literacy, regardless of experience level or division.",
+        },
+        {
+          heading: "Finding Your Place in DTMP",
+          body: "If you are new to DTMP, the recommended starting point is the Learning Centre — structured learning tracks are available for every role and division.\n\nIf you know your division, navigate to your division's DTMP page from the landing page. Each divisional page provides a tailored view of active programmes, relevant marketplaces, and the roles that operate within it.\n\nIf you have a specific task — submitting an architecture request, accessing a blueprint, reviewing a governance document — navigate directly to the relevant marketplace from the 4D Marketplace hub.\n\nFor questions about which role applies to you, or how to access the Corporate EA Office, contact the Transformation Office through the Support Services marketplace.\n\nDocument owner: Corporate EA Office, DEWA Transformation Office. Review cadence: Annually. Audience: All DEWA staff and DEWA Group Subsidiary teams.",
+        },
+      ];
+      if (cardId === "dewa-enterprise-architecture-strategy") return [
+        {
+          heading: "Strategic Context",
+          body: "DEWA operates as one of the world's most advanced utilities — serving 1.27 million customer accounts across Dubai with a customer minutes lost rate of 0.94 per year, a benchmark recognised globally as best-in-class. Sustaining and advancing this performance while simultaneously executing one of the region's most ambitious digital transformation programmes requires a single, unified architecture discipline.\n\nThe DEWA Enterprise Architecture Strategy defines that discipline. It establishes the Corporate EA Office as the authoritative body governing all architecture decisions across DEWA's six operating divisions — Water Services, Electricity Generation, Electricity Networks, Customer Affairs, Digital DEWA, and Corporate Services. The strategy operationalises DEWA's status as an EA 4.0 practitioner — the highest recognised level of enterprise architecture maturity — and sets the trajectory for sustaining that maturity through the Digital Transformation Master Plan (DTMP) horizon of 2025–2030.\n\nAt its core, this strategy governs four strategic programmes simultaneously: the Digital DEWA initiative spanning Solar Power, Energy Storage, AI, and Digital Services; the AED 7 billion Smart Grid 2021–2035 programme; DEWA's Net-Zero 2050 commitment anchored by the 36% clean energy target by 2030 and the Mohammed Bin Rashid Al Maktoum Solar Park (targeting 8,000 MW capacity); and the enterprise-wide transformation of customer service delivery through Rammas and Services 360.",
+        },
+        {
+          heading: "EA Office Mandate & Governance Model",
+          body: "The Corporate EA Office operates as the single authority for all enterprise architecture decisions across DEWA. Its mandate covers four core responsibilities:\n\n• Architecture Governance — reviewing and approving all significant technology and solution architecture decisions raised through divisional and programme teams.\n• Standards & Principles — maintaining DEWA's architecture principles library, technology standards register, and integration patterns catalogue.\n• EA Capability Development — building and sustaining EA capability across the six divisions through the DTMP knowledge and learning infrastructure.\n• Strategic Alignment — ensuring every major investment decision is evaluated against DEWA's 2025–2030 transformation objectives and Net-Zero 2050 targets.\n\nThe governance model is operationalised through the 4D Framework — Discern, Design, Deploy, Drive — which sequences architecture activity from insight generation through to value realisation. All divisional programmes are required to demonstrate 4D alignment as a condition of architecture approval.",
+        },
+        {
+          heading: "Architecture Principles",
+          body: "The following architecture principles govern all design decisions across DEWA:\n\n1. Digital-First Design — all new solutions must be designed for digital delivery from inception, with no legacy-first assumptions.\n2. API-First Integration — systems must expose capabilities through governed APIs before any point-to-point integration is permitted.\n3. Cloud-Preferred Infrastructure — cloud-hosted or cloud-native deployment is the default. On-premise exceptions require formal EA Office approval.\n4. Data as a Strategic Asset — all solutions must comply with DEWA's enterprise data governance model; data must be accessible, governed, and reusable.\n5. Security by Design — cybersecurity controls (OT and IT) must be embedded at architecture stage, not retrofitted post-delivery.\n6. Sustainability Alignment — every architecture decision must be assessed against its carbon and energy impact in the context of Net-Zero 2050.\n7. Interoperability Over Customisation — standard interfaces and open architectures are preferred; vendor lock-in must be assessed and mitigated at design stage.",
+        },
+        {
+          heading: "Key Strategic Initiatives",
+          body: "This strategy governs architecture delivery across the following priority programmes:\n\n• Digital DEWA Programme — four-pillar strategy covering Solar Power, Energy Storage, AI & Cognitive Services, and Digital Service Delivery. The EA Office governs architectural consistency across all four pillars.\n\n• Smart Grid 2021–2035 — AED 7 billion investment in grid intelligence, IT/OT convergence, advanced metering infrastructure, and predictive network management. Architecture standards ensure vendor interoperability and data sovereignty.\n\n• Mohammed Bin Rashid Al Maktoum Solar Park — targeting 8,000 MW by 2030, the world's largest single-site solar park. EA governs the technology architecture for renewable integration, grid connectivity, and performance monitoring.\n\n• Net-Zero 2050 Architecture — systematic alignment of all technology investment decisions with DEWA's clean energy commitments, including the 36% renewable target by 2030, hydrogen pilot programmes, and demand-side management platforms.\n\n• Rammas & Services 360 — AI-powered customer service platform with over 60 million interactions processed. EA governs the integration architecture, AI governance layer, and omnichannel service delivery model.\n\n• EA 4.0 Capability Programme — sustaining DEWA's EA 4.0 practitioner status through ongoing capability investment, divisional architect development, and DTMP knowledge governance.",
+        },
+        {
+          heading: "EA Maturity & Roadmap",
+          body: "DEWA achieved EA 4.0 maturity recognition — placing it among a small number of global organisations operating at the highest level of enterprise architecture practice. The 2025–2030 roadmap focuses on three maturity horizons:\n\nHorizon 1 (2025–2026): Consolidation — standardise architecture governance processes across all six divisions; complete the DTMP platform rollout; establish divisional EA forums and review cadences.\n\nHorizon 2 (2026–2028): Integration — embed architecture decision-making into programme delivery pipelines; deploy automated architecture compliance checking; build the enterprise capability model integrating EA, data, and security domains.\n\nHorizon 3 (2028–2030): Anticipation — move from reactive governance to predictive architecture guidance; deploy AI-assisted architecture advisory capabilities through DTMP; align architecture investment model to DEWA's capital expenditure planning cycle.\n\nAll three horizons are governed through quarterly Architecture Review Board sessions, chaired by the Chief Architect and attended by divisional EA leads.",
+        },
+        {
+          heading: "KPIs & Governance",
+          body: "Success metrics for the EA Strategy are reviewed quarterly by the Architecture Review Board and reported to DEWA Executive Leadership biannually:\n\n• Architecture Compliance Rate — target ≥95% of major solution designs reviewed and approved prior to development commencement.\n• EA 4.0 Maturity Score — maintained at Level 4 across all five capability domains; target Level 5 in two domains by 2027.\n• Technical Debt Reduction — 20% reduction in legacy system footprint by 2027 measured against the 2024 baseline technology inventory.\n• Standards Adoption — 100% of new integration patterns comply with DEWA API-First standard by end 2025.\n• Divisional EA Coverage — all six divisions to have a qualified divisional architect embedded in programme delivery by Q2 2026.\n• Transformation Alignment Score — ≥90% of capital investment decisions assessed against DTMP strategic alignment criteria before approval.\n\nGovernance of this strategy is held by the Corporate EA Office. Review cadence: Annually with quarterly progress reporting. Document owner: Chief Enterprise Architect, DEWA Transformation Office.",
+        },
+      ];
       return [
         { heading: "Strategic Context", body: description },
         {
@@ -754,7 +814,7 @@ export default function KnowledgeCenterDetailPage() {
 
   // Build artefact sections
   const artefactSections = normalizedTab
-    ? buildArtefactSections(normalizedTab, item as Record<string, unknown> & { title?: string; description?: string; tags?: string[] }, knowledgeItem, document)
+    ? buildArtefactSections(normalizedTab, item as Record<string, unknown> & { title?: string; description?: string; tags?: string[] }, knowledgeItem, document, cardId)
     : [];
 
   return (
@@ -1413,7 +1473,9 @@ export default function KnowledgeCenterDetailPage() {
                 return (
                   <div key={section.heading}>
                     <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.heading}</h2>
-                    {isEditMode ? (
+                    {section.node ? (
+                      <div className="my-2">{section.node}</div>
+                    ) : isEditMode ? (
                       <textarea
                         value={editedSections[section.heading] ?? section.body}
                         onChange={(e) => {

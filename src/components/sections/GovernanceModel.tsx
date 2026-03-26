@@ -1,28 +1,33 @@
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { GovernanceCard } from "@/components/cards/GovernanceCard";
 import { governancePhases } from "@/data/governance";
+import { SectionPill } from "@/components/landing/shared";
 
 export function GovernanceModel() {
   return (
-    <section className="py-16 lg:py-20 bg-[#F0F7FF]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-[#0369A1] text-xs font-bold uppercase tracking-[0.08em] mb-2">
-            Structuring Enterprise-Wide Transformation Across All of DEWA
-          </p>
-          <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-2">
-            The 4D Governance Model
-          </h2>
-          <p className="section-subheading max-w-4xl mx-auto">
-            The governance structure through which DEWA&apos;s Corporate EA Office
-            orchestrates architecture across Generation, Transmission, Distribution,
-            Customer Services, and Digital DEWA.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        <SectionPill label="Structuring Enterprise-Wide Transformation" />
+        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+          The 4D Governance Model
+        </h2>
+        <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
+          The 4D Framework operationalises EA governance across DEWA — sequencing transformation decisions from insight and design through to deployment and value realisation.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {governancePhases.map((phase) => (
             <GovernanceCard key={phase.id} phase={phase} />
           ))}
+        </div>
+        <div className="text-center">
+          <Link
+            to="/marketplaces"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #6d28d9 0%, #0369A1 100%)" }}
+          >
+            Explore the 4D Governance Framework <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

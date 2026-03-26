@@ -23,14 +23,14 @@ const LandingPage = () => {
         <section id="governance-model">
           <GovernanceModel />
         </section>
+        <section id="division-pivot">
+          <DivisionPivot />
+        </section>
         <section id="execution-streams">
           <ExecutionStreams />
         </section>
         <section id="strategic-priorities">
           <StrategicPriorities />
-        </section>
-        <section id="division-pivot">
-          <DivisionPivot />
         </section>
         <section id="marketplaces">
           <ResourceMarketplaces />

@@ -1,26 +1,33 @@
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { ContributorCard } from "@/components/cards/ContributorCard";
 import { contributors } from "@/data/contributors";
+import { SectionPill } from "@/components/landing/shared";
 
 export function Contributors() {
   return (
-    <section className="py-16 lg:py-20 section-alt">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-[#0369A1] text-xs font-bold uppercase tracking-[0.08em] mb-2">
-            Contributors
-          </p>
-          <h2 className="text-[36px] lg:text-[40px] font-bold text-[#061927] mb-2">
-            Contributors to DEWA&apos;s Digital Business Platform
-          </h2>
-          <p className="section-subheading text-center max-w-3xl mx-auto">
-            Enterprise-wide stakeholders across all divisions and leadership levels,
-            working toward DEWA&apos;s single digital destination.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        <SectionPill label="Contributors" />
+        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-3">
+          Who Works With DTMP
+        </h2>
+        <p className="text-slate-500 text-center max-w-2xl mx-auto mb-12 text-sm leading-relaxed">
+          DTMP serves every level of DEWA's organisation — from the EA Office setting enterprise standards to the delivery teams building against them.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {contributors.map((contributor) => (
             <ContributorCard key={contributor.id} contributor={contributor} />
           ))}
+        </div>
+        <div className="text-center">
+          <Link
+            to="/marketplaces/knowledge-center/strategy-docs/dewa-dtmp-organisation-roles?view=artefact"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm text-white"
+            style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0369A1 100%)" }}
+          >
+            Find Your Role in DTMP <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

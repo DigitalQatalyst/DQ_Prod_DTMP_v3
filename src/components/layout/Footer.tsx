@@ -6,31 +6,39 @@ const platformLinks = [
   { name: "Knowledge Centre", path: "/marketplaces/knowledge-center" },
   { name: "Document Studio", path: "/marketplaces/document-studio" },
   { name: "Solution Specs", path: "/marketplaces/solution-specs" },
+  { name: "Solution Build", path: "/marketplaces/solution-build" },
   { name: "Lifecycle Management", path: "/marketplaces/lifecycle-management" },
+  { name: "Portfolio Management", path: "/marketplaces/portfolio-management" },
+  { name: "Digital Intelligence", path: "/marketplaces/digital-intelligence" },
+  { name: "Support Services", path: "/marketplaces/support-services" },
 ];
 
 const divisionLinks = [
   { name: "Generation", path: "/divisions/generation" },
   { name: "Transmission", path: "/divisions/transmission" },
   { name: "Distribution", path: "/divisions/distribution" },
-  { name: "Water Services", path: "/divisions/water-services" },
-  { name: "Customer Services", path: "/divisions/customer-services" },
-  { name: "Digital DEWA & Moro Hub", path: "/divisions/digital-dewa-moro-hub" },
+  { name: "Water & Civil", path: "/divisions/water-civil" },
+  { name: "Billing Services", path: "/divisions/billing-services" },
+  { name: "Innovation & The Future", path: "/divisions/innovation-future" },
+  { name: "Power & Water Planning", path: "/divisions/power-water-planning" },
+  { name: "Business Support & HR", path: "/divisions/business-support-hr" },
+  { name: "Corporate & Strategy", path: "/divisions/corporate" },
+  { name: "DEWA Group Subsidiaries", path: "/divisions/subsidiaries" },
 ];
 
 const resourceLinks = [
-  { name: "EA Charter & Strategy", path: "/docs" },
-  { name: "User Guides", path: "/docs" },
-  { name: "Support Centre", path: "/support" },
-  { name: "Release Notes", path: "/docs" },
-  { name: "FAQs", path: "/faq" },
+  { name: "EA Charter & Strategy", path: "/marketplaces/knowledge-center" },
+  { name: "User Guides", path: "/marketplaces/learning-center" },
+  { name: "Support Centre", path: "/marketplaces/support-services" },
+  { name: "Release Notes", path: "/marketplaces/knowledge-center" },
+  { name: "FAQs", path: "/marketplaces/learning-center" },
 ];
 
 const governanceLinks = [
-  { name: "Enterprise EA Standards", path: "/standards" },
-  { name: "Architecture Compliance", path: "/compliance" },
-  { name: "Privacy Policy", path: "/privacy" },
-  { name: "Contact Corporate EA Office", path: "/contact" },
+  { name: "Enterprise EA Standards", path: "/marketplaces/knowledge-center" },
+  { name: "Architecture Compliance", path: "/marketplaces/lifecycle-management" },
+  { name: "Privacy Policy", path: "/marketplaces/knowledge-center" },
+  { name: "Contact Corporate EA Office", path: "/marketplaces/support-services" },
 ];
 
 export function Footer() {
