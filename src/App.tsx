@@ -21,6 +21,7 @@ import { SolutionSpecDetailPage } from "./pages/SolutionSpecDetailPage";
 import SolutionSpecRequestForm from "./pages/SolutionSpecRequestForm";
 import { SolutionBuildPage } from "./pages/SolutionBuildPage";
 import { SolutionBuildDetailPage } from "./pages/SolutionBuildDetailPage";
+import BuildRequestWizard from "./pages/solutionBuild/BuildRequestWizard";
 import SupportServicesPage from "./pages/SupportServicesPage";
 import SupportServicesDetailPage from "./pages/SupportServicesDetailPage";
 import SupportNewRequestPage from "./pages/SupportNewRequestPage";
@@ -42,6 +43,59 @@ import DigitalIntelligenceDashboardPage from "./pages/DigitalIntelligenceDashboa
 import { isUserAuthenticated } from "./data/sessionAuth";
 import { getSessionRole, isTOStage3Role } from "./data/sessionRole";
 
+/** 
+ * Maps Stage 3 context to appropriate Stage 2 marketplace.
+ * Stage 3 uses generic views (dashboard, all, new, etc.) so we check:
+ * 1. Location state for marketplace context
+ * 2. Query params for scope filter
+ * 3. Referrer for marketplace hints
+ */
+const mapStage3ToStage2Marketplace = (
+  location: ReturnType<typeof useLocation>
+): { marketplace: string; serviceName: string } => {
+  // Check location state first (most reliable)
+  const state = location.state as any;
+  if (state?.marketplace) {
+    const marketplaceMap: Record<string, { marketplace: string; serviceName: string }> = {
+      'solution-build': { marketplace: 'solution-build', serviceName: 'Solution Build' },
+      'solution-specs': { marketplace: 'solution-specs', serviceName: 'Solution Specs' },
+      'support-services': { marketplace: 'support-services', serviceName: 'Support Services' },
+      'digital-intelligence': { marketplace: 'digital-intelligence', serviceName: 'Digital Intelligence' },
+      'document-studio': { marketplace: 'document-studio', serviceName: 'Document Studio' },
+      'templates': { marketplace: 'document-studio', serviceName: 'Document Studio' },
+      'portfolio-management': { marketplace: 'portfolio-management', serviceName: 'Portfolio Management' },
+      'lifecycle-management': { marketplace: 'lifecycle-management', serviceName: 'Lifecycle Management' },
+      'learning-center': { marketplace: 'learning-center', serviceName: 'Learning Center' },
+      'knowledge-center': { marketplace: 'knowledge-center', serviceName: 'Knowledge Center' },
+    };
+    
+    const mapped = marketplaceMap[state.marketplace];
+    if (mapped) return mapped;
+  }
+  
+  // Check query params for scope
+  const searchParams = new URLSearchParams(location.search);
+  const scope = searchParams.get('scope');
+  if (scope) {
+    const scopeMap: Record<string, { marketplace: string; serviceName: string }> = {
+      'solution-build': { marketplace: 'solution-build', serviceName: 'Solution Build' },
+      'solution-specs': { marketplace: 'solution-specs', serviceName: 'Solution Specs' },
+      'support-services': { marketplace: 'support-services', serviceName: 'Support Services' },
+      'digital-intelligence': { marketplace: 'digital-intelligence', serviceName: 'Digital Intelligence' },
+      'dtmp-templates': { marketplace: 'document-studio', serviceName: 'Document Studio' },
+      'portfolio-management': { marketplace: 'portfolio-management', serviceName: 'Portfolio Management' },
+      'learning-center': { marketplace: 'learning-center', serviceName: 'Learning Center' },
+      'knowledge-center': { marketplace: 'knowledge-center', serviceName: 'Knowledge Center' },
+    };
+    
+    const mapped = scopeMap[scope];
+    if (mapped) return mapped;
+  }
+  
+  // Default fallback to portfolio management
+  return { marketplace: 'portfolio-management', serviceName: 'Portfolio Management' };
+};
+
 /** Allows only authenticated to-ops / to-admin users to reach Stage 3. */
 const Stage3GuardedRoute = () => {
   const location = useLocation();
@@ -60,6 +114,7 @@ const Stage3GuardedRoute = () => {
   }
 
   if (!hasStage3Access) {
+    const { marketplace, serviceName } = mapStage3ToStage2Marketplace(location);
     return (
       <Navigate
         to="/stage2"
@@ -67,8 +122,8 @@ const Stage3GuardedRoute = () => {
         state={{
           reason: "stage3-to-role-required",
           from: location.pathname,
-          marketplace: "portfolio-management",
-          serviceName: "Service Hub",
+          marketplace,
+          serviceName,
         }}
       />
     );
@@ -190,6 +245,7 @@ const App = () => (
 
             {/* Solution Build marketplace */}
             <Route path="/marketplaces/solution-build" element={<SolutionBuildPage />} />
+            <Route path="/marketplaces/solution-build/wizard" element={<BuildRequestWizard />} />
             <Route path="/marketplaces/solution-build/:id" element={<SolutionBuildDetailPage />} />
 
             {/* Support Services marketplace */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +38,7 @@ interface FormData {
 
 export default function BuildRequestWizard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const prebuiltId = searchParams.get('prebuilt');
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
@@ -57,9 +58,12 @@ export default function BuildRequestWizard() {
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [isPreFilled, setIsPreFilled] = useState(false);
+  const [preFilledFrom, setPreFilledFrom] = useState<string>('');
 
-  // Pre-fill form if coming from pre-built solution
+  // Pre-fill form if coming from pre-built solution or solution spec
   useEffect(() => {
+    // Handle pre-built solution pre-fill
     if (prebuiltId) {
       const { preBuiltSolutions } = require('@/data/solutionBuild');
       const solution = preBuiltSolutions.find((s: any) => s.id === prebuiltId);
@@ -68,18 +72,72 @@ export default function BuildRequestWizard() {
           ...prev,
           type: 'pre-built',
           name: solution.name,
-          requirements: solution.features.join('\n- '),
+          requirements: solution.features?.join('\n- ') || solution.deliverables?.join('\n- ') || '',
           technologyStack: solution.technicalRequirements.join(', '),
         }));
+        setIsPreFilled(true);
+        setPreFilledFrom(solution.name);
       }
     }
-  }, [prebuiltId]);
+    
+    // Handle Solution Spec pre-fill
+    if (location.state?.fromSpec && location.state?.specData) {
+      const spec = location.state.specData;
+      
+      // Map scope to department
+      const departmentMap: Record<string, string> = {
+        'enterprise': 'Executive',
+        'departmental': 'Platform', 
+        'project': 'Engineering'
+      };
+      
+      // Map maturity to priority
+      const priorityMap: Record<string, BuildPriority> = {
+        'reference': 'high',
+        'proven': 'medium',
+        'conceptual': 'low'
+      };
+      
+      setFormData(prev => ({
+        ...prev,
+        type: 'custom',
+        name: spec.title,
+        department: departmentMap[spec.scope] || '',
+        businessNeed: spec.description,
+        requirements: `Based on ${spec.title} specification:\n\nArchitecture Components:\n- ${spec.componentCount} architectural components defined\n- ${spec.diagramCount} architecture diagrams included\n- Solution type: ${spec.solutionType}\n\nKey capabilities from specification:\n${spec.tags.slice(0, 5).map((tag: string) => `- ${tag}`).join('\n')}`,
+        technologyStack: spec.tags.join(', '),
+        priority: priorityMap[spec.maturityLevel] || 'medium',
+        linkedSpecId: spec.id,
+      }));
+      setIsPreFilled(true);
+      setPreFilledFrom(spec.title);
+    }
+  }, [prebuiltId, location.state]);
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const handleClearPreFill = () => {
+    setFormData({
+      type: '',
+      name: '',
+      department: '',
+      businessNeed: '',
+      sponsor: '',
+      linkedSpecId: '',
+      linkedInitiativeId: '',
+      requirements: '',
+      technologyStack: '',
+      targetDate: '',
+      budgetEstimate: '',
+      priority: '',
+    });
+    setIsPreFilled(false);
+    setPreFilledFrom('');
   };
 
   const validateStep = (step: WizardStep): boolean => {
@@ -171,6 +229,30 @@ export default function BuildRequestWizard() {
               ? 'Tell us what you need and our expert delivery teams will build it'
               : 'Submit a new solution build request'}
           </p>
+          
+          {/* Pre-fill Banner */}
+          {isPreFilled && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-blue-900">Pre-filled from: {preFilledFrom}</p>
+                  <p className="text-xs text-blue-700 mt-1">Form fields have been populated. You can edit any field before submitting.</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearPreFill}
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Progress Steps */}
