@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, ChevronRight, Eye, FileText, Info, RefreshCw, SlidersHorizontal, TrendingUp, User, X } from "lucide-react";
+import { BookOpen, ChevronRight, Eye, FileText, Info, RefreshCw, Settings2, SlidersHorizontal, TrendingUp, User, X } from "lucide-react";
 import LCInitiativeDetailPanel from "./lifecycle/LCInitiativeDetailPanel";
 import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
+import { getSessionRole, isTOStage3Role } from "@/data/sessionRole";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -340,6 +341,8 @@ export default function LifecycleManagementPage() {
     });
   };
 
+  const isTOUser = isTOStage3Role(getSessionRole());
+
   // ── Initiative Detail Panel ──────────────────────────────────────────────────
   const [detailInitiative, setDetailInitiative] = useState<Initiative | null>(null);
 
@@ -372,20 +375,31 @@ export default function LifecycleManagementPage() {
             The operational execution layer for DEWA transformation initiatives — from conception through delivery and verified outcome.
           </p>
 
-          <div className="flex flex-wrap gap-6 text-sm text-muted-foreground" role="list" aria-label="Lifecycle summary stats">
-            <span className="flex items-center gap-2" role="listitem">
-              <RefreshCw className="w-4 h-4" />
-              {portfolioSummary.activeInitiatives} Active Initiatives
-            </span>
-            <span className="flex items-center gap-2" role="listitem">
-              <TrendingUp className="w-4 h-4" />
-              {portfolioSummary.totalProjects} Projects in Delivery
-            </span>
-            <span className="flex items-center gap-2" role="listitem">
-              <span className="inline-flex h-6 items-center px-2 rounded bg-orange-50 border border-orange-100 text-orange-700 text-xs font-semibold">
-                EA Office Governed
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground" role="list" aria-label="Lifecycle summary stats">
+              <span className="flex items-center gap-2" role="listitem">
+                <RefreshCw className="w-4 h-4" />
+                {portfolioSummary.activeInitiatives} Active Initiatives
               </span>
-            </span>
+              <span className="flex items-center gap-2" role="listitem">
+                <TrendingUp className="w-4 h-4" />
+                {portfolioSummary.totalProjects} Projects in Delivery
+              </span>
+              <span className="flex items-center gap-2" role="listitem">
+                <span className="inline-flex h-6 items-center px-2 rounded bg-orange-50 border border-orange-100 text-orange-700 text-xs font-semibold">
+                  EA Office Governed
+                </span>
+              </span>
+            </div>
+            {isTOUser && (
+              <button
+                onClick={() => navigate("/stage3/lifecycle-management/overview")}
+                className="flex items-center gap-2 text-xs bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm flex-shrink-0"
+              >
+                <Settings2 className="w-3.5 h-3.5" />
+                TO Operations Console
+              </button>
+            )}
           </div>
         </div>
       </section>

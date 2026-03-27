@@ -22,6 +22,7 @@ import {
   Cpu,
   Zap,
   LayoutGrid,
+  Settings2,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -47,6 +48,7 @@ import {
   type GovernanceCard,
   type OADCard,
 } from "@/data/portfolioManagement";
+import { getSessionRole, isTOStage3Role } from "@/data/sessionRole";
 
 // ── Role system ──────────────────────────────────────────────────────────
 
@@ -613,6 +615,7 @@ function RequestReportModal({
 
 export default function PortfolioManagementPage() {
   const navigate = useNavigate();
+  const isTOUser = isTOStage3Role(getSessionRole());
 
   const [activeTab, setActiveTab] = useState<PMTab>("application-portfolio");
   const [searchQuery, setSearchQuery] = useState("");
@@ -791,17 +794,28 @@ export default function PortfolioManagementPage() {
                 control tower.
               </p>
             </div>
-            <div className="flex gap-6">
-              {[
-                { label: "Intelligence Views", value: "6" },
-                { label: "Real-time Analytics", value: "Live" },
-                { label: "EA Office Governed", value: "✓" },
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-2xl font-bold text-orange-600">{s.value}</p>
-                  <p className="text-xs text-gray-500">{s.label}</p>
-                </div>
-              ))}
+            <div className="flex flex-col items-end gap-4">
+              <div className="flex gap-6">
+                {[
+                  { label: "Intelligence Views", value: "6" },
+                  { label: "Real-time Analytics", value: "Live" },
+                  { label: "EA Office Governed", value: "✓" },
+                ].map((s) => (
+                  <div key={s.label} className="text-center">
+                    <p className="text-2xl font-bold text-orange-600">{s.value}</p>
+                    <p className="text-xs text-gray-500">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              {isTOUser && (
+                <button
+                  onClick={() => navigate("/stage3/portfolio-management/overview")}
+                  className="flex items-center gap-2 text-xs bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                >
+                  <Settings2 className="w-3.5 h-3.5" />
+                  TO Operations Console
+                </button>
+              )}
             </div>
           </div>
         </div>

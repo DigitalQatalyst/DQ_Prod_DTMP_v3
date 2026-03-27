@@ -322,6 +322,25 @@ export default function LCStage3Page() {
           ))}
         </nav>
 
+        {/* Scope switcher */}
+        <div className="px-3 py-3 border-t border-gray-100 space-y-1">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 mb-2">Switch Scope</p>
+          <button
+            onClick={() => navigate("/stage3/portfolio-management/overview")}
+            className="w-full text-left px-3 py-2 rounded-lg text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2"
+          >
+            <span className="w-4 h-4 flex-shrink-0 text-center text-gray-400">⊞</span>
+            Portfolio Management
+          </button>
+          <button
+            onClick={() => navigate("/stage3/dashboard")}
+            className="w-full text-left px-3 py-2 rounded-lg text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-2"
+          >
+            <span className="w-4 h-4 flex-shrink-0 text-center text-gray-400">⌂</span>
+            Stage 3 Dashboard
+          </button>
+        </div>
+
         <div className="px-4 py-4 border-t border-gray-100">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-700">

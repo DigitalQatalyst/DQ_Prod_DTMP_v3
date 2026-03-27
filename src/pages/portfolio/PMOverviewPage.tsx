@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { FileText, BarChart3, CheckCircle, Clock, ArrowRight, Eye } from "lucide-react";
+import { FileText, BarChart3, CheckCircle, Clock, ArrowRight, Eye, Settings2 } from "lucide-react";
 import { getPMRequests, getPMReports } from "@/data/portfolioManagement/serviceRequests";
+import { getSessionRole, isTOStage3Role } from "@/data/sessionRole";
 
 export default function PMOverviewPage() {
   const navigate = useNavigate();
+  const isTOUser = isTOStage3Role(getSessionRole());
   const requests = getPMRequests();
   const reports = getPMReports();
 
@@ -83,6 +85,7 @@ export default function PMOverviewPage() {
           { label: "Browse Portfolio", desc: "Explore governance intelligence", onClick: () => navigate("/marketplaces/portfolio-management"), icon: Eye },
           { label: "View All Requests", desc: "Track your report requests", onClick: () => navigate("/stage2/portfolio-management", { state: { cardId: "my-requests" } }), icon: Clock },
           { label: "View Reports", desc: "Access delivered reports", onClick: () => navigate("/stage2/portfolio-management", { state: { cardId: "my-reports" } }), icon: FileText },
+          ...(isTOUser ? [{ label: "TO Operations Console", desc: "Manage requests, generate reports, publish content", onClick: () => navigate("/stage3/portfolio-management/overview"), icon: Settings2 }] : []),
         ].map((a) => (
           <button
             key={a.label}
