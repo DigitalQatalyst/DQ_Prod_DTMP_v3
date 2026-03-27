@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Eye, FileText, RefreshCw, SlidersHorizontal, TrendingUp, User, X } from "lucide-react";
 
@@ -289,7 +290,9 @@ export default function LifecycleManagementPage() {
       title: "Submitted for TO approval",
       description: "Your initiative request was added to the approval queue.",
     });
-    navigate("/stage2/lifecycle-management");
+    navigate("/stage2/lifecycle-management", {
+      state: { cardId: "initiative-requests" },
+    });
   };
 
   // ── Request Service (initiative-level) ──────────────────────────────────────
@@ -684,12 +687,13 @@ export default function LifecycleManagementPage() {
         </div>
       </Tabs>
 
-      {/* See Insights role selector — rendered outside any Dialog to avoid CSS transform containment */}
-      {roleModalOpen && (
+      {/* See Insights role selector — portal to document.body to guarantee visibility regardless of stacking context */}
+      {roleModalOpen && createPortal(
         <RoleSelectorModal
           onClose={() => setRoleModalOpen(false)}
           onRoleSelected={handleRoleSelected}
-        />
+        />,
+        document.body
       )}
 
       {/* Initiative request form */}
@@ -990,14 +994,15 @@ export default function LifecycleManagementPage() {
         </DialogContent>
       </Dialog>
 
-      {/* See Insights drawer */}
-      {drawerOpen && drawerInitiative && drawerRole && (
+      {/* See Insights drawer — portal to document.body to guarantee visibility regardless of stacking context */}
+      {drawerOpen && drawerInitiative && drawerRole && createPortal(
         <SeeInsightsDrawer
           initiative={drawerInitiative}
           role={drawerRole}
           onClose={closeSeeInsights}
           onChangeRole={handleChangeRole}
-        />
+        />,
+        document.body
       )}
 
       <Footer />

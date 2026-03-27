@@ -127,6 +127,7 @@ import LCStage2Overview from "./lifecycle/LCStage2Overview";
 import LCMyRequests from "./lifecycle/LCMyRequests";
 import LCMyInitiatives from "./lifecycle/LCMyInitiatives";
 import LCMyReports from "./lifecycle/LCMyReports";
+import LCInitiativeRequests from "./lifecycle/LCInitiativeRequests";
 import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
 import type { SolutionType } from "@/data/blueprints/solutionSpecs";
 import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
@@ -2594,6 +2595,20 @@ export default function Stage2AppPage() {
                           <div className="text-xs text-gray-500 mt-0.5">Delivered outputs</div>
                         </div>
                       </button>
+
+                      <button
+                        onClick={() => handleSubServiceClick('initiative-requests')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'initiative-requests'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Initiative Requests</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Submitted proposals &amp; TO approvals</div>
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -3196,11 +3211,12 @@ export default function Stage2AppPage() {
               {activeBuildTab === "revisions" && <BuildRevisionsPage />}
             </div>
           ) : activeService === "Lifecycle Management" && activeSubService ? (
-            <div className="h-full">
+            <div className="h-full overflow-y-auto">
               {activeSubService === "overview" && <LCStage2Overview />}
               {activeSubService === "my-requests" && <LCMyRequests />}
               {activeSubService === "my-initiatives" && <LCMyInitiatives />}
               {activeSubService === "my-reports" && <LCMyReports />}
+              {activeSubService === "initiative-requests" && <LCInitiativeRequests />}
             </div>
           ) : activeService === "Portfolio Management" && activeSubService ? (
             <div className="h-full">
