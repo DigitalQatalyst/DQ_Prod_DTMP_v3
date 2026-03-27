@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "
 import LandingPage from "./pages/LandingPage";
 import MarketplacesPage from "./pages/MarketplacesPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
+import LCStage2ManagementRedirect from "./pages/lifecycle/LCStage2ManagementRedirect";
 import LearningCenterPage from "./pages/LearningCenterPage";
 import LearningCenterDetailPage from "./pages/LearningCenterDetailPage";
 import KnowledgeCenterPage from "./pages/KnowledgeCenterPage";
@@ -33,6 +34,7 @@ import PortfolioManagementPage from "./pages/PortfolioManagementPage";
 import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import LifecycleManagementPage from "./pages/LifecycleManagementPage";
 import LifecycleDetailPage from "./pages/LifecycleDetailPage";
+import LCStage3Page from "./pages/lifecycle/LCStage3Page";
 import DivisionalLandingPage from "./pages/DivisionalLandingPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
@@ -76,6 +78,34 @@ const Stage3GuardedRoute = () => {
   return <Stage3AppPage />;
 };
 
+const LCStage3GuardedRoute = () => {
+  const location = useLocation();
+  const authenticated = isUserAuthenticated();
+  const role = getSessionRole();
+  const hasStage3Access = isTOStage3Role(role);
+
+  if (!authenticated) {
+    return (
+      <Navigate
+        to="/marketplaces/lifecycle-management"
+        replace
+        state={{ reason: "stage3-auth-required", from: location.pathname }}
+      />
+    );
+  }
+
+  if (!hasStage3Access) {
+    return (
+      <Navigate
+        to="/stage2/lifecycle-management"
+        replace
+        state={{ reason: "stage3-to-role-required", from: location.pathname }}
+      />
+    );
+  }
+
+  return <LCStage3Page />;
+};
 
 const LegacyDocumentStudioRedirect = () => {
   const { requestId } = useParams<{ requestId?: string }>();
@@ -138,7 +168,7 @@ const App = () => (
           <Route path="/stage2/intelligence" element={<Navigate to="/stage2/intelligence/overview" replace />} />
           <Route path="/stage2/intelligence/:intelligenceTab" element={<Stage2AppPage />} />
           <Route path="/stage2/intelligence/:intelligenceTab/:intelligenceItemId" element={<Stage2AppPage />} />
-          <Route path="/stage2/lifecycle-management" element={<ComingSoonPage pageName="Lifecycle Management" />} />
+          <Route path="/stage2/lifecycle-management" element={<LCStage2ManagementRedirect />} />
           <Route path="/stage2" element={<Stage2AppPage />} />
           <Route path="/stage3" element={<Navigate to="/stage3/dashboard" replace />} />
           <Route path="/stage3/:view" element={<Stage3GuardedRoute />} />
@@ -210,6 +240,9 @@ const App = () => (
           {/* Lifecycle Management marketplace */}
           <Route path="/marketplaces/lifecycle-management" element={<LifecycleManagementPage />} />
           <Route path="/marketplaces/lifecycle-management/:tab/:cardId" element={<LifecycleDetailPage />} />
+          {/* Lifecycle Management Stage 3 — TO Office */}
+          <Route path="/stage3/lifecycle-management" element={<Navigate to="/stage3/lifecycle-management/overview" replace />} />
+          <Route path="/stage3/lifecycle-management/:view" element={<LCStage3GuardedRoute />} />
           <Route path="/divisions/:divisionId" element={<DivisionalLandingPage />} />
           
           {/* Resource routes */}
