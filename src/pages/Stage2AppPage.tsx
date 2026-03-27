@@ -131,6 +131,9 @@ import LCInitiativeRequests from "./lifecycle/LCInitiativeRequests";
 import LCCompliancePage from "./lifecycle/LCCompliancePage";
 import LCRetirementPage from "./lifecycle/LCRetirementPage";
 import LCProductsPage from "./lifecycle/LCProductsPage";
+import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
+import ProjectsPage from "./lifecycle/ProjectsPage";
+import ApplicationsPage from "./lifecycle/ApplicationsPage";
 import { solutionBuilds } from "@/data/blueprints/solutionBuilds";
 import type { SolutionType } from "@/data/blueprints/solutionSpecs";
 import { intelligenceServices } from "@/data/digitalIntelligence/stage2";
@@ -2654,6 +2657,48 @@ export default function Stage2AppPage() {
                           <div className="text-xs text-gray-500 mt-0.5">Product lifecycle &amp; roadmaps</div>
                         </div>
                       </button>
+
+                      <button
+                        onClick={() => handleSubServiceClick('templates')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'templates'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Templates</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Stage-gate &amp; methodology frameworks</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleSubServiceClick('projects')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'projects'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Projects</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Active project lifecycle instances</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleSubServiceClick('applications')}
+                        className={`w-full flex items-start gap-3 p-3 text-sm rounded-lg transition-colors ${
+                          activeSubService === 'applications'
+                            ? "bg-orange-50 text-orange-700 border border-orange-200"
+                            : "text-gray-700 hover:bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <div className="text-left">
+                          <div className="font-medium">Applications</div>
+                          <div className="text-xs text-gray-500 mt-0.5">Retirement &amp; modernisation governance</div>
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -3265,6 +3310,9 @@ export default function Stage2AppPage() {
               {activeSubService === "compliance" && <LCCompliancePage />}
               {activeSubService === "retirement" && <LCRetirementPage />}
               {activeSubService === "products" && <LCProductsPage />}
+              {activeSubService === "templates" && <TemplatesLibrary />}
+              {activeSubService === "projects" && <ProjectsPage />}
+              {activeSubService === "applications" && <ApplicationsPage />}
             </div>
           ) : activeService === "Portfolio Management" && activeSubService ? (
             <div className="h-full">
