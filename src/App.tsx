@@ -35,6 +35,7 @@ import PortfolioDetailPage from "./pages/PortfolioDetailPage";
 import LifecycleManagementPage from "./pages/LifecycleManagementPage";
 import LifecycleDetailPage from "./pages/LifecycleDetailPage";
 import LCStage3Page from "./pages/lifecycle/LCStage3Page";
+import PMStage3Page from "./pages/portfolio/PMStage3Page";
 import DivisionalLandingPage from "./pages/DivisionalLandingPage";
 import NotFound from "./pages/NotFound";
 import DigitalIntelligencePage from "./pages/DigitalIntelligencePage";
@@ -105,6 +106,35 @@ const LCStage3GuardedRoute = () => {
   }
 
   return <LCStage3Page />;
+};
+
+const PMStage3GuardedRoute = () => {
+  const location = useLocation();
+  const authenticated = isUserAuthenticated();
+  const role = getSessionRole();
+  const hasStage3Access = isTOStage3Role(role);
+
+  if (!authenticated) {
+    return (
+      <Navigate
+        to="/marketplaces/portfolio-management"
+        replace
+        state={{ reason: "stage3-auth-required", from: location.pathname }}
+      />
+    );
+  }
+
+  if (!hasStage3Access) {
+    return (
+      <Navigate
+        to="/stage2/portfolio-management"
+        replace
+        state={{ reason: "stage3-to-role-required", from: location.pathname }}
+      />
+    );
+  }
+
+  return <PMStage3Page />;
 };
 
 const LegacyDocumentStudioRedirect = () => {
@@ -243,6 +273,9 @@ const App = () => (
           {/* Lifecycle Management Stage 3 — TO Office */}
           <Route path="/stage3/lifecycle-management" element={<Navigate to="/stage3/lifecycle-management/overview" replace />} />
           <Route path="/stage3/lifecycle-management/:view" element={<LCStage3GuardedRoute />} />
+          {/* Portfolio Management Stage 3 — TO Office */}
+          <Route path="/stage3/portfolio-management" element={<Navigate to="/stage3/portfolio-management/overview" replace />} />
+          <Route path="/stage3/portfolio-management/:view" element={<PMStage3GuardedRoute />} />
           <Route path="/divisions/:divisionId" element={<DivisionalLandingPage />} />
           
           {/* Resource routes */}

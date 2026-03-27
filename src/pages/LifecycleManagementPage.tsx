@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, Eye, FileText, RefreshCw, SlidersHorizontal, TrendingUp, User, X } from "lucide-react";
+import { BookOpen, ChevronRight, Eye, FileText, Info, RefreshCw, SlidersHorizontal, TrendingUp, User, X } from "lucide-react";
+import LCInitiativeDetailPanel from "./lifecycle/LCInitiativeDetailPanel";
+import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -61,7 +63,7 @@ import {
   type LCServiceType,
 } from "@/data/lifecycle/serviceRequestState";
 
-type Stage1Tab = "initiatives" | "start-initiative";
+type Stage1Tab = "initiatives" | "templates" | "start-initiative";
 
 const STATUS_BADGE_CLASSES: Record<InitiativeStatus, string> = {
   Active: "bg-teal-100 text-teal-700 border-teal-200",
@@ -338,6 +340,9 @@ export default function LifecycleManagementPage() {
     });
   };
 
+  // ── Initiative Detail Panel ──────────────────────────────────────────────────
+  const [detailInitiative, setDetailInitiative] = useState<Initiative | null>(null);
+
   const getInitiativeProjectCount = (i: Initiative) => i.projects.length;
 
   return (
@@ -394,6 +399,13 @@ export default function LifecycleManagementPage() {
                 className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy bg-transparent"
               >
                 Initiatives
+              </TabsTrigger>
+              <TabsTrigger
+                value="templates"
+                className="flex items-center gap-2 px-6 py-4 text-muted-foreground hover:text-foreground font-medium transition-colors relative rounded-none border-b-2 border-transparent data-[state=active]:border-orange-600 data-[state=active]:text-primary-navy bg-transparent"
+              >
+                <BookOpen className="w-4 h-4" />
+                Templates Library
               </TabsTrigger>
               <TabsTrigger
                 value="start-initiative"
@@ -591,6 +603,14 @@ export default function LifecycleManagementPage() {
 
                           <div className="flex gap-2">
                             <Button
+                              variant="outline"
+                              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-xs"
+                              onClick={() => setDetailInitiative(initiative)}
+                            >
+                              <Info className="w-3.5 h-3.5" />
+                              Details
+                            </Button>
+                            <Button
                               className="flex-1 bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 text-xs"
                               onClick={() => openSeeInsights(initiative)}
                             >
@@ -612,6 +632,10 @@ export default function LifecycleManagementPage() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-0">
+            <TemplatesLibrary />
           </TabsContent>
 
           <TabsContent value="start-initiative" className="mt-0">
@@ -1001,6 +1025,15 @@ export default function LifecycleManagementPage() {
           role={drawerRole}
           onClose={closeSeeInsights}
           onChangeRole={handleChangeRole}
+        />,
+        document.body
+      )}
+
+      {/* Initiative Detail Panel — portal to guarantee overlay above all content */}
+      {detailInitiative && createPortal(
+        <LCInitiativeDetailPanel
+          initiative={detailInitiative}
+          onClose={() => setDetailInitiative(null)}
         />,
         document.body
       )}

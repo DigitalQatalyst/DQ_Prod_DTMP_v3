@@ -254,6 +254,8 @@ export default function Stage3AppPage() {
   const isDocumentStudioScope = location.pathname.startsWith("/stage3/document-studio");
   const isSolutionSpecsScope = location.pathname.startsWith("/stage3/solution-specs");
   const isSolutionBuildScope = location.pathname.startsWith("/stage3/solution-build");
+  const isLifecycleScope = location.pathname.startsWith("/stage3/lifecycle-management");
+  const isPortfolioMgmtScope = location.pathname.startsWith("/stage3/portfolio-management");
 
   // ── General state ────────────────────────────────────────────────────────
   const isStage3View = (value: string): value is Stage3View => value in viewLabels;
@@ -777,6 +779,10 @@ export default function Stage3AppPage() {
               ? "Learning Centre Governance"
               : scope === "knowledge-center"
               ? "Knowledge Centre Governance"
+              : isLifecycleScope
+              ? "Lifecycle Management — TO Office"
+              : isPortfolioMgmtScope
+              ? "Portfolio Management — TO Office"
               : "Stage 3 — Transformation Office"}
           </p>
         </div>
@@ -1126,6 +1132,8 @@ export default function Stage3AppPage() {
                 : isSolutionBuildScope ? sbNavLabels[activeSbView]
                 : isSolutionSpecsScope ? ssNavLabels[activeSsView]
                 : isDocumentStudioScope ? dsNavLabels[activeDsView]
+                : isLifecycleScope ? "Lifecycle Management"
+                : isPortfolioMgmtScope ? "Portfolio Management"
                 : "Request Management"}
             </h1>
             <p className="text-sm text-gray-500">
@@ -1139,7 +1147,11 @@ export default function Stage3AppPage() {
                     ? "Solution Specs — TO Office"
                     : isDocumentStudioScope
                       ? "Document Studio — TO Office"
-                      : "Transformation Office Operations Dashboard"}
+                      : isLifecycleScope
+                        ? "Initiative Governance — TO Office"
+                        : isPortfolioMgmtScope
+                          ? "Governance Intelligence — TO Office"
+                          : "Transformation Office Operations Dashboard"}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -1209,6 +1221,22 @@ export default function Stage3AppPage() {
             >
               Knowledge Center
             </Button>
+            <Button
+              size="sm"
+              variant={isLifecycleScope ? "default" : "outline"}
+              className={isLifecycleScope ? "bg-orange-600 hover:bg-orange-700" : ""}
+              onClick={() => navigate("/stage3/lifecycle-management/overview")}
+            >
+              Lifecycle Management
+            </Button>
+            <Button
+              size="sm"
+              variant={isPortfolioMgmtScope ? "default" : "outline"}
+              className={isPortfolioMgmtScope ? "bg-orange-600 hover:bg-orange-700" : ""}
+              onClick={() => navigate("/stage3/portfolio-management/overview")}
+            >
+              Portfolio Management
+            </Button>
           </div>
 
           {/* ── LC Governance views ───────────────────────────────────────── */}
@@ -1233,7 +1261,7 @@ export default function Stage3AppPage() {
             </div>
           )}
 
-          {/* General TO platform views — fully hidden when KC or LC governance scope is active */}
+          {/* General TO platform views — fully hidden when dedicated scopes are active */}
           {scope !== "knowledge-center" && scope !== "learning-center" && <>
 
           {/* ── KPI cards ────────────────────────────────────────────────── */}
