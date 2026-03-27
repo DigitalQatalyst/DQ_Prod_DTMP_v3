@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Eye, CheckCircle, Tag } from "lucide-react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { ArrowLeft, Calendar, Clock, Eye, CheckCircle, Tag, ChevronRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { knowledgeArticles, KnowledgeArticle } from "@/data/supportData";
@@ -585,6 +585,16 @@ export default function SupportKnowledgeArticlePage() {
       <Header />
       <main className="flex-1" id="main-content">
         <div className="max-w-5xl mx-auto px-4 py-10">
+          <nav className="flex items-center text-sm text-muted-foreground mb-4">
+            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2" />
+            <Link to="/marketplaces" className="hover:text-foreground transition-colors">Marketplaces</Link>
+            <ChevronRight className="w-4 h-4 mx-2" />
+            <Link to="/marketplaces/support-services?tab=knowledge-base" className="hover:text-foreground transition-colors">Support Services</Link>
+            <ChevronRight className="w-4 h-4 mx-2" />
+            <span className="font-medium text-foreground line-clamp-1">{article.title}</span>
+          </nav>
+
           <button
             type="button"
             onClick={() => navigate("/marketplaces/support-services?tab=knowledge-base")}
