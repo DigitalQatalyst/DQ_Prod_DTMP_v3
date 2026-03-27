@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -615,9 +615,25 @@ function RequestReportModal({
 
 export default function PortfolioManagementPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const isTOUser = isTOStage3Role(getSessionRole());
 
   const [activeTab, setActiveTab] = useState<PMTab>("application-portfolio");
+  const [highlightCardId, setHighlightCardId] = useState<string | null>(null);
+
+  // Deep-link from Lifecycle: { tab, highlightCardId } in location.state
+  useEffect(() => {
+    const state = location.state as { tab?: string; highlightCardId?: string } | null;
+    if (!state) return;
+    if (state.tab) setActiveTab(state.tab as PMTab);
+    if (state.highlightCardId) {
+      setHighlightCardId(state.highlightCardId);
+      // Auto-clear highlight after 3 s
+      setTimeout(() => setHighlightCardId(null), 3000);
+    }
+    window.history.replaceState({}, "");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [divisionFilter, setDivisionFilter] = useState("All Divisions");
@@ -666,8 +682,41 @@ export default function PortfolioManagementPage() {
     });
   };
 
-  const handleInitiateInLifecycle = () => {
-    navigate("/marketplaces/lifecycle-management");
+  const handleInitiateInLifecycle = (card: AnyCard) => {
+    // Build pre-fill context from the card so LifecycleManagementPage can
+    // auto-populate the "Start an Initiative" form.
+    const isOAD = activeTab === "operational-asset-digitisation";
+    const isApp = activeTab === "application-portfolio";
+
+    const prefillDivision: string | undefined = isOAD
+      ? (card as OADCard).division
+      : isApp
+      ? (card as AppCard).division
+      : undefined;
+
+    const prefillName: string | undefined = isOAD
+      ? `Digitise ${(card as OADCard).assetClassName}`
+      : isApp
+      ? `Modernise ${(card as AppCard).name}`
+      : undefined;
+
+    const prefillDescription: string | undefined = isOAD
+      ? `Initiative raised from Portfolio Management gap: ${(card as OADCard).assetClassName} — ${(card as OADCard).division}. No active digitisation programme exists. Objective: deploy sensors/analytics to close the digitisation gap.`
+      : isApp
+      ? `Initiative raised from Portfolio Management: ${(card as AppCard).name} has no active lifecycle initiative. Objective: address the application gap (${(card as AppCard).lifecycleStage ?? "Unknown"} stage).`
+      : undefined;
+
+    navigate("/marketplaces/lifecycle-management", {
+      state: {
+        openStartInitiative: true,
+        prefill: {
+          name: prefillName,
+          division: prefillDivision,
+          objective: prefillDescription,
+          scope: prefillName,
+        },
+      },
+    });
   };
 
   // ── Filter helpers ───────────────────────────────────────────────────
@@ -963,6 +1012,7 @@ export default function PortfolioManagementPage() {
                     key={card.id}
                     card={card}
                     tab={activeTab}
+                    highlighted={card.id === highlightCardId}
                     onInsights={() => openInsights(card)}
                     onRequestReport={() => {
                       const title =
@@ -974,7 +1024,7 @@ export default function PortfolioManagementPage() {
                         : (card as OADCard).assetClassName;
                       openRequestReport(card, title);
                     }}
-                    onInitiateInLifecycle={handleInitiateInLifecycle}
+                    onInitiateInLifecycle={() => handleInitiateInLifecycle(card)}
                   />
                 ))}
               </div>
@@ -1044,12 +1094,14 @@ export default function PortfolioManagementPage() {
 function PMCard({
   card,
   tab,
+  highlighted = false,
   onInsights,
   onRequestReport,
   onInitiateInLifecycle,
 }: {
   card: AnyCard;
   tab: PMTab;
+  highlighted?: boolean;
   onInsights: () => void;
   onRequestReport: () => void;
   onInitiateInLifecycle: () => void;
@@ -1076,7 +1128,7 @@ function PMCard({
     (tab === "application-portfolio" && (card as AppCard).status === "No Initiative");
 
   return (
-    <div className={`bg-white rounded-xl border transition-all hover:border-orange-300 hover:shadow-xl hover:-translate-y-0.5 flex flex-col ${isGapState ? "border-orange-200" : "border-gray-200"}`}>
+    <div className={`bg-white rounded-xl border transition-all hover:border-orange-300 hover:shadow-xl hover:-translate-y-0.5 flex flex-col ${highlighted ? "border-blue-400 ring-2 ring-blue-300 shadow-lg" : isGapState ? "border-orange-200" : "border-gray-200"}`}>
       {/* Card header gradient */}
       <div className={`bg-gradient-to-r ${cfg.gradient} rounded-t-xl px-4 py-3`}>
         <p className="text-white font-semibold text-sm leading-snug line-clamp-2">

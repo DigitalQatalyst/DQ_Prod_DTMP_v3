@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { BookOpen, ChevronRight, Eye, FileText, Info, RefreshCw, Settings2, SlidersHorizontal, TrendingUp, User, X } from "lucide-react";
 import LCInitiativeDetailPanel from "./lifecycle/LCInitiativeDetailPanel";
 import TemplatesLibrary from "./lifecycle/TemplatesLibrary";
@@ -118,6 +118,7 @@ export default function LifecycleManagementPage() {
   const [activeTab, setActiveTab] = useState<Stage1Tab>("initiatives");
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [initiatives, setInitiatives] = useState<Initiative[]>(() => getInitiatives());
   const refreshInitiatives = () => setInitiatives(getInitiatives());
@@ -239,6 +240,31 @@ export default function LifecycleManagementPage() {
   const [estimatedBudget, setEstimatedBudget] = useState("");
   const [priority, setPriority] = useState<(typeof PRIORITY_OPTIONS)[number]>("Medium");
   const [additionalContext, setAdditionalContext] = useState("");
+
+  // ── Portfolio gap-state pre-fill ─────────────────────────────────────────────
+  // When navigating here from Portfolio Management ("Initiate in Lifecycle" CTA),
+  // location.state carries { openStartInitiative: true, prefill: {...} }.
+  useEffect(() => {
+    const state = location.state as {
+      openStartInitiative?: boolean;
+      prefill?: { name?: string; division?: string; objective?: string; scope?: string };
+    } | null;
+    if (!state?.openStartInitiative) return;
+
+    setActiveTab("start-initiative");
+
+    if (state.prefill) {
+      const { name, division, objective: obj, scope: sc } = state.prefill;
+      if (name) setInitiativeName(name);
+      if (division) setInitiativeDivision(division as Division);
+      if (obj) setObjective(obj);
+      if (sc) setScope(sc);
+    }
+
+    // Clear state so a back/forward doesn't re-trigger
+    window.history.replaceState({}, "");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key]);
 
   const openInitiativeRequest = (framework: InitiativeFramework) => {
     setSelectedFramework(framework);
@@ -639,6 +665,24 @@ export default function LifecycleManagementPage() {
                               Request
                             </Button>
                           </div>
+                          {initiative.fromPortfolio && initiative.portfolioCardId && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full text-xs border-blue-200 text-blue-700 hover:bg-blue-50 mt-1"
+                              onClick={() =>
+                                navigate("/marketplaces/portfolio-management", {
+                                  state: {
+                                    tab: "operational-asset-digitisation",
+                                    highlightCardId: initiative.portfolioCardId,
+                                  },
+                                })
+                              }
+                            >
+                              <ChevronRight className="w-3.5 h-3.5 mr-1" />
+                              View in Portfolio
+                            </Button>
+                          )}
                         </CardContent>
                       </Card>
                     ))}

@@ -107,6 +107,7 @@ export interface Initiative {
   description: string;
   projects: string[];
   fromPortfolio?: boolean;
+  portfolioCardId?: string;
   updatedAt: string;
 }
 
@@ -270,6 +271,7 @@ const SEED_INITIATIVES: Initiative[] = [
       "Remediate 14 critical end-of-life PLCs in Generation. Initiated from Portfolio Management Operational Asset Digitisation gap state. Just started.",
     projects: ["proj-s27"],
     fromPortfolio: true,
+    portfolioCardId: "OAD-04",
     updatedAt: new Date().toISOString(),
   },
   {

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { X, Briefcase, FolderKanban, Server, ShieldCheck, Package, Archive, CheckCircle, AlertTriangle, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X, Briefcase, FolderKanban, Server, ShieldCheck, Package, Archive, CheckCircle, AlertTriangle, Clock, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -246,6 +247,7 @@ interface Props {
 }
 
 export default function LCInitiativeDetailPanel({ initiative, onClose }: Props) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<DetailTab>("overview");
 
   const allProjects = useMemo(() => getProjects(), []);
@@ -451,13 +453,31 @@ export default function LCInitiativeDetailPanel({ initiative, onClose }: Props) 
           <p className="text-xs text-gray-400">
             Last updated: {new Date(initiative.updatedAt).toLocaleDateString()}
           </p>
-          <Button
-            size="sm"
-            className="bg-orange-600 hover:bg-orange-700 text-white text-xs"
-            onClick={onClose}
-          >
-            Close
-          </Button>
+          <div className="flex items-center gap-2">
+            {initiative.fromPortfolio && initiative.portfolioCardId && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs border-orange-300 text-orange-700 hover:bg-orange-50"
+                onClick={() => {
+                  onClose();
+                  navigate("/marketplaces/portfolio-management", {
+                    state: { tab: "operational-asset-digitisation", highlightCardId: initiative.portfolioCardId },
+                  });
+                }}
+              >
+                <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                View in Portfolio
+              </Button>
+            )}
+            <Button
+              size="sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white text-xs"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
         </div>
       </div>
     </div>
